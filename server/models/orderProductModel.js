@@ -91,6 +91,7 @@ const orderSchema = new mongoose.Schema({
         payment_method_type: String,
         payment_status: String,
     },
+    coupon: Object,
     billing_name: { type: String },
     billing_email: { type: String },
     billing_tel: { type: String },

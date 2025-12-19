@@ -13,132 +13,99 @@ const axios = require('axios')
 const productModel = require('../../models/productModel')
 const { v4: uuidv4 } = require('uuid');
 const cheerio = require('cheerio');
+const CheckoutSession = require('../../models/checkoutSession');
+const Coupon = require('../../models/coupon');
+const CouponUsage = require('../../models/couponUsage');
 
 // Razorpay configuration
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-// Payment initiation logic
-// exports.paymentController = async (req, res) => {
-//     try {
-//         const { cartItems, customerInfo, billingSameAsShipping } = req.body;
 
-//         if (!customerInfo || typeof customerInfo !== 'object') {
-//             return res.status(400).json({ message: "Invalid customer information", success: false });
-//         }
+exports.createCheckout = async (req, res) => {
+  try {
+    const { cartItems, couponCode } = req.body;
+    const userId = req.userId;
 
-//         // Extract shipping and billing address
-//         const shippingAddress = {
-//             street: customerInfo.street || '',
-//             city: customerInfo.city || '',
-//             state: customerInfo.state || '',
-//             postalCode: customerInfo.postalCode || '',
-//             country: customerInfo.country || '',
-//         };
+    // 1️⃣ SERVER-SIDE PRICE CALCULATION
+    let subTotal = cartItems.reduce(
+      (sum, i) => sum + i.quantity * i.product.sellingPrice,
+      0
+    );
 
-//         const billingAddress = billingSameAsShipping
-//             ? shippingAddress
-//             : {
-//                 street: customerInfo.billingAddress?.street || '',
-//                 city: customerInfo.billingAddress?.city || '',
-//                 state: customerInfo.billingAddress?.state || '',
-//                 postalCode: customerInfo.billingAddress?.postalCode || '',
-//                 country: customerInfo.billingAddress?.country || '',
-//             };
+    let discount = 0;
+    let couponSnapshot = null;
 
-//         // Fetch the user from the database using the userId from the request
-//         const user = await userModel.findById(req.userId);
-//         if (!user) {
-//             return res.status(404).json({
-//                 message: "User not found",
-//                 success: false,
-//             });
-//         }
+    // 2️⃣ COUPON VALIDATION
+    if (couponCode) {
+      const coupon = await Coupon.findOne({
+        code: couponCode.toUpperCase(),
+        isActive: true
+      });
 
-//         // Calculate total amount in currency's subunit (INR to paise)
-//         const totalAmount = cartItems.reduce((total, item) => {
-//             return total + item.quantity * item.productId.sellingPrice;
-//         }, 0) * 100;  // Razorpay uses smallest currency unit (paise)
+      if (!coupon) throw new Error("Invalid coupon");
 
-//         // Create a new Razorpay order
-//         const options = {
-//             amount: totalAmount,
-//             currency: "INR",
-//             receipt: "order_rcptid_11",
-//             payment_capture: 1, // Auto-captures payment
-//         };
+      if (coupon.expiryDate && coupon.expiryDate < new Date())
+        throw new Error("Coupon expired");
 
-//         // Attempt to create Razorpay order
-//         const order = await razorpay.orders.create(options);
-//         console.log('Razorpay Order Response:', order);
-//         if (!order || !order.id) {
-//             throw new Error("Failed to create Razorpay order.");
-//         }
+      if (subTotal < coupon.minOrderAmount)
+        throw new Error(`Minimum ₹${coupon.minOrderAmount} required`);
 
-//         // Initialize statusUpdates with a valid status
-//         const statusUpdates = [{
-//             status: "pending",  // Set initial status to 'pending'
-//             updatedAt: new Date()
-//         }];
+      const alreadyUsed = await CouponUsage.findOne({
+        couponId: coupon._id,
+        userId
+      });
 
-//         // Create a new order in the database
-//         const newOrder = await orderModel.create({
-//             orderId: order.id,
-//             productDetails: cartItems.map((item) => ({
-//                 productId: item.productId._id,
-//                 brandName: item.productId.brandName,
-//                 productName: item.productId.productName,
-//                 category: item.productId.category,
-//                 quantity: item.quantity,
-//                 price: item.productId.price,
-//                 availability: item.productId.availability,
-//                 sellingPrice: item.productId.sellingPrice,
-//                 productImage: item.productId.productImage[0],
-//             })),
-//             email: user.email,
-//             userId: req.userId,
-//             totalAmount: totalAmount / 100,  // Convert to main currency unit (INR)
-//             paymentDetails: {
-//                 paymentId: "",
-//                 payment_method_type: "",
-//                 payment_status: "pending",  // Payment status is initially pending
-//             },
-//             billing_name: customerInfo.firstName,
-//             billing_email: customerInfo.email,
-//             billing_tel: customerInfo.phone,
-//             billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
-//             shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
-//             //  statusUpdates : [{
-//             //     status: `pending-${req.userId}-${new Date().getTime()}`,  // Ensure unique status per user and time
-//             //     updatedAt: new Date()
-//             // }],
-//             statusUpdates: [{
-//                 status: `pending-${req.userId}-${uuidv4()}`,  // Use a UUID for uniqueness
-//                 updatedAt: new Date()
-//             }],
-//               // Add the statusUpdates field with initial 'pending' status
-//             createdAt: new Date(),
-//         });
+      if (alreadyUsed) throw new Error("Coupon already used");
 
-//         // Send Razorpay order_id and other info to frontend
-//         res.json({
-//             success: true,
-//             orderId: order.id,
-//             amount: totalAmount,
-//             currency: "INR",
-//             customerInfo,
-//         });
-//     } catch (error) {
-//         console.error("Error initiating payment:", error);
-//         res.status(500).json({
-//             message: error.message || "Internal Server Error",
-//             success: false,
-//         });
-//     }
-// };
+      if (coupon.discountType === "percentage")
+        discount = (subTotal * coupon.discountValue) / 100;
+      else
+        discount = coupon.discountValue;
 
+      if (coupon.maxDiscountAmount)
+        discount = Math.min(discount, coupon.maxDiscountAmount);
 
+      couponSnapshot = {
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        discountApplied: discount,
+        couponId: coupon._id
+      };
+    }
+
+    const finalAmount = Math.max(subTotal - discount, 0);
+
+    // 3️⃣ CREATE RAZORPAY ORDER
+    const razorpayOrder = await razorpay.orders.create({
+      amount: finalAmount * 100,
+      currency: "INR",
+      receipt: `rcpt_${uuidv4().slice(0, 8)}`
+    });
+
+    // 4️⃣ SAVE CHECKOUT SESSION (PRICE LOCK 🔒)
+    const checkout = await CheckoutSession.create({
+      userId,
+      cartSnapshot: cartItems,
+      couponSnapshot,
+      pricing: { subTotal, discount, finalAmount },
+      razorpayOrderId: razorpayOrder.id,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+    });
+
+    res.json({
+      success: true,
+      razorpayOrderId: razorpayOrder.id,
+      amount: finalAmount * 100,
+      checkoutSessionId: checkout._id
+    });
+
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
 
 exports.paymentController = async (req, res) => {
     try {
