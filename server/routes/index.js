@@ -34,32 +34,30 @@ const { registerProduct, getAllRegistrations, getRegFile } = require('../control
 const { submitApplication, getAlldealer, getDealerFile } = require('../controller/dealerController');
 const webhooks = require('../controller/order/webhook')
 const {orderController, viewOrderController} = require('../controller/order/order.controller')
-const { addCategory, getCategories, editCategory, deleteCategory } = require("../controller/product/productCategoryController");
+const { addCategory, getCategories, editCategory, deleteCategory} = require("../controller/product/productCategoryController");
 
 const   allOrderController = require('../controller/order/allOrder.controller')
 const {sendContactusMessage, getusAllMessages} = require('../controller/user/contactusController')
 const { updateUserController, getUserController } = require('../controller/user/updateUserProfile');
 const  { applyForJob, allCareers, getCareerFile }  = require('../controller/user/CareerController');
 const { acceptCookies, getAllCookieAcceptanceData } = require('../controller/cookieController');
-const {getViewedProducts} = require('../controller/product/relatedProducts')
+
 // const { getSales } = require('../controller/dashboard/salesDataController')
-const { addToWishlist, removeFromWishlist, getWishlist } = require('../controller/user/wishlistController');
+
 const { getDashboardCounts } = require('../controller/dashboard/dashboardController');
-const { createBlogPost, getAllBlogPosts, editBlogPost, deleteBlogPost, getBlogPostById } = require('../controller/blog/blogsController');
+const {getViewedProducts} = require('../controller/product/relatedProducts')
 
 const addressController = require("../controller/user/addaddressController");
-const generateSitemap = require('../utils/generateSitemap');
-router.post('/:userId/wishlist/:productId', addToWishlist);
-router.delete('/:userId/wishlist/:productId', removeFromWishlist);
-router.get('/:userId/wishlist', getWishlist);
 const { addOfferPoster, getAllOfferPosters, editOfferPoster, deleteOfferPoster, getOfferPosterById } = require('../controller/offerposter/offerPosterController');
+
+const sitemapGenerator = require('../utils/sitemapGenerator');
+const { createBlogPost, getAllBlogPosts, editBlogPost, deleteBlogPost, getBlogPostById } = require('../controller/blog/blogsController');
 const { addDeveloperIP, removeDeveloperIP } = require('../controller/DeveloperIp');
-const {generateTokens} = require('../helpers/generateTokens')
+const { addToWishlist, removeFromWishlist, getWishlist } = require('../controller/user/wishlistController');
 const { storage } = require('../config/blogCloudinary');
 const multer = require('multer');
-const blogImageUpload = require('../config/blogCloudinary')
 const uploads = multer({ storage });
-// router.get('/gen-tok', generateTokens)
+const blogImageUpload = require('../config/blogCloudinary')
 router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
 router.get('/get-blogs', getAllBlogPosts);
 router.put('/update-blog/:id', blogImageUpload.single('image'), editBlogPost);
@@ -74,9 +72,10 @@ router.get('/get-offerposters', getAllOfferPosters);
 router.put('/update-offerposter/:id', uploads.single('image', 5), editOfferPoster);
 router.delete('/delete-offerposter/:id', deleteOfferPoster);
 router.get('/get-offerposter/:id', getOfferPosterById);
-// Route to generate sitemap     
-router.get("/sitemap.xml", generateSitemap);
-// Get all addresses,
+
+router.get("/sitemap.xml", sitemapGenerator);
+
+// Get all addresses
 router.get("/allAddress", authToken, addressController.getAllAddresses);
 
 // Add a new address
@@ -143,7 +142,9 @@ router.post('/review', authToken, reviewController.submitReview);
 
 // Route to get all reviews for a specific product
 router.get('/reviews', reviewController.getReviews);
-
+router.post('/:userId/wishlist/:productId', addToWishlist);
+router.delete('/:userId/wishlist/:productId', removeFromWishlist);
+router.get('/:userId/wishlist', getWishlist);
 
 //user add to cart
 router.post("/addtocart", authToken, addToCartController)
@@ -168,7 +169,7 @@ router.post("/validate-address", validateAddress);
 
 //payment and order
 router.post("/checkout", authToken, paymentController);
-// router.post('/payment/redirect', redirectPayment); 
+// router.post('/payment/redirect', redirectPayment);
 // router.post('/payment/cancel', cancelPayment);
 router.post('/update-order-status', updateOrderStatus);
 // router.get('/search/:orderId', searchOrderById);
@@ -184,7 +185,7 @@ router.get("/all-order",authToken,allOrderController)
 router.post("/add-product-categories", addCategory); 
 router.get("/get-product-categories", getCategories); 
 router.put("/edit-product-categories/:id", editCategory); 
-router.delete("/delete-product-categories/:id", deleteCategory);
+router.delete("/delete-product-categories/:id", deleteCategory); 
 router.get("/dashboard", getDashboardCounts)
 router.delete("/delete-order", authToken, deletePendingOrderById)
 

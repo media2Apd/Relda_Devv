@@ -1,6 +1,6 @@
 const Contactus = require('../../models/Contactus');
 const transporter = require('../../config/nodemailerConfig');
-const { sendToZoho } = require("../../helpers/zohoClient"); // ⬅️ Add this line
+
 
 // Function to store a contact message
 const sendContactusMessage = async (req, res) => {
@@ -8,21 +8,20 @@ const sendContactusMessage = async (req, res) => {
 
   const mailOptions = {
     from: email,
-    to: 'support@reldaindia.com',           
+    to: 'support@reldaindia.com', // Admin email
     subject: `New ContactUs Message from ${name}`,
     text: `${message}\n\nFrom,\nName: ${name}\nEmail: ${email}\nPhone: ${phone || 'N/A'}\n`,
   };
-
-  const userMailOptions = {
+const userMailOptions = {
       from: 'support@reldaindia.com',
       to: email,
-      subject: 'We’ve Received Your Message – Relda India',
+      subject: 'We have Received Your Message - Relda India',
       text: `
       Hi ${name},
 
-      Thank you for contacting Relda India. We’ve received your message and our support team will get back to you shortly.
+      Thank you for contacting Relda India. We've received your message and our support team will get back to you shortly.
 
-      Here’s a copy of your message:
+      Here's a copy of your message:
       "${message}"
 
       If you have any additional information or updates, feel free to reply to this email.
@@ -32,8 +31,6 @@ const sendContactusMessage = async (req, res) => {
       `
     };
 
-
-
   try {
     // Save contact message to the database
     const contactus = new Contactus({ name, email, message, phone });
@@ -42,16 +39,7 @@ const sendContactusMessage = async (req, res) => {
     await transporter.sendMail(mailOptions);
     await transporter.sendMail(userMailOptions);
 
-    const zohoPayload = {
-      Last_Name: name,
-      Email: email,
-      Phone: phone || '',
-      Description: message,
-      // Street: address || '',
-      // Zip_Code: pincode || '',
-      Lead_Source: 'Website Contactus Form'
-    };
-  const crmResponse = await sendToZoho("Leads", zohoPayload);
+
     return res.status(200).json({ message: 'Message stored successfully' });
   } catch (error) {
     console.error('Error saving contact message:', error);

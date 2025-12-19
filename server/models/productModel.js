@@ -19,7 +19,7 @@ const productSchema = mongoose.Schema({
     isHidden: { type: Boolean, default: false },
     averageRating: { type: Number, default: 0 }, // Average product rating
     reviewCount: { type: Number, default: 0 },   // Total review count
-      zohoId: { type: String, default: null },
+    
 },{
     timestamps : true
 })

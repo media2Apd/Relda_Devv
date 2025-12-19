@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const transporter = require('../../config/nodemailerConfig')
+
+
 // router.post('/forgot-password', async (req, res) => {
 
     const forgetPassword = async (req, res) => {
@@ -21,15 +23,16 @@ const transporter = require('../../config/nodemailerConfig')
 
         const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET_KEY, { expiresIn: '1h' });
         const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
-       
 
+        // Send email with the reset link
+      
         const mailOptions = {
             from: process.env.EMAIL1,
-            to: user.email,    
+            to: user.email,
             subject: 'Password Reset',
             text: `Click on this link to reset your password: ${resetLink}`
         };
-        
+
         await transporter.sendMail(mailOptions);
 
         res.status(200).json({

@@ -6,9 +6,6 @@ const ProductCategory = require("../../models/productCategory");
 const productModel = require("../../models/productModel")
 const ParentCategory = require("../../models/parentCategoryModel");
 const OfferPoster = require("../../models/offerPosterModel");
-const redisClient = require("../../config/redisClient");
-const { ALL_CATEGORIES_CACHE_KEY } = require("../../utils/constants");
-
 
 
 const storage = new CloudinaryStorage({
@@ -21,46 +18,63 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
+
+// const getCategories = async (req, res) => {
+//   try {
+//     // Get parentCategory from query parameters
+//     const { parentCategory } = req.query; // Extract the parentCategory query parameter
+
+//     let filter = {};
+
+//     // If parentCategory is provided, use it to filter the categories
+//     if (parentCategory) {
+//       filter.parentCategory = parentCategory; // Add filter for parentCategory
+//     }
+
+//     // Fetch categories based on the filter and populate parentCategory details
+//     const categories = await ProductCategory.find(filter)
+//       .populate('parentCategory', 'name');  // Populate parentCategory with 'name'
+
+//     // Query product counts for each category
+//     const categoriesWithCounts = await Promise.all(
+//       categories.map(async (category) => {
+//         const productCount = await productModel.countDocuments({ category: category.value });
+//         return {
+//           ...category.toObject(),
+//           productCount, // Add product count
+//         };
+//       })
+//     );
+
+//     // Return the categories with product counts
+//     res.status(200).json({ success: true, categories: categoriesWithCounts });
+//   } catch (error) {
+//     console.error("Error fetching categories or product counts:", error);
+//     res.status(500).json({ success: false, message: "Internal server error." });
+//   }
+// };
 const getCategories = async (req, res) => {
   try {
-    const { parentCategory } = req.query; // Get the parentCategory from query parameters
+    const { parentCategory } = req.query; // Extract the parentCategory query parameter
     let filter = {};
 
-    // Check if categories are cached in Redis
-    let cachedCategories = await redisClient.get(ALL_CATEGORIES_CACHE_KEY);
-
-    if (cachedCategories) {
-      console.log("Cache hit");
-      const categories = JSON.parse(cachedCategories);
-
-      // If a filter is applied, filter the cached categories
-      if (parentCategory) {
-        const filteredCategories = categories.filter(
-          (category) => category.parentCategory?.name === parentCategory // Adjusted to check the name
-        );
-        return res.json({
-          success: true,
-          categories: filteredCategories,
-        });
-      }
-
-      // If no filter is applied, return all cached categories
-      return res.json({
-        success: true,
-        categories,
-      });
+    if (parentCategory) {
+      filter.parentCategory = parentCategory; // Filter by parent category if provided
     }
 
-    // Fetch categories from DB if not cached
+    // Fetch categories based on the filter
     const categories = await ProductCategory.find(filter)
       .populate('parentCategory', 'name');
 
+    // Fetch Offer Posters separately and map them by category
     const offerPosters = await OfferPoster.find();
 
+    // Process categories with product count and offer posters
     const categoriesWithDetails = await Promise.all(
       categories.map(async (category) => {
-        const productCount = await productModel.countDocuments({ category: category.value });
+        const productCount = await productModel.countDocuments({ category: category.value }); 
 
+        // Find the offer poster matching this category
         const offerPoster = offerPosters.find(
           (poster) =>
             poster.parentCategory === category.parentCategory?.value ||
@@ -76,16 +90,10 @@ const getCategories = async (req, res) => {
                 _id: offerPoster._id,
                 createdAt: offerPoster.createdAt,
               }
-            : null,
+            : null, // If no matching offer poster, return null
         };
       })
     );
-
-    // Cache the result in Redis
-    await redisClient.setEx(ALL_CATEGORIES_CACHE_KEY, 3600, JSON.stringify(categoriesWithDetails)); // Cache for 1 hour
-
-    // Add HTTP cache headers
-    // res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
 
     res.status(200).json({ success: true, categories: categoriesWithDetails });
   } catch (error) {
@@ -127,7 +135,6 @@ const addCategory = async (req, res) => {
       });
 
       await category.save();
-      await redisClient.del(ALL_CATEGORIES_CACHE_KEY); // Clear the cache after adding a new category
       res.status(201).json({ success: true, message: "Product Category added successfully.", category });
     } catch (error) {
       console.error("Error adding ProductCategory:", error);
@@ -144,7 +151,9 @@ const editCategory = async (req, res) => {
     try {
       const { id } = req.params;
       const { label, value, parentCategory } = req.body;
+
       const updateData = { label, value };
+
       if (parentCategory) {
         // Check if parentCategory is a name and fetch the ObjectId
         const parent = await ParentCategory.findById(parentCategory);
@@ -152,14 +161,16 @@ const editCategory = async (req, res) => {
           updateData.parentCategory = parent._id;
         }
       }
+
       if (req.file) {
         updateData.categoryImage = req.file.path;
       }
+
       const updatedCategory = await ProductCategory.findByIdAndUpdate(id, updateData, { new: true });
+
       if (!updatedCategory) {
         return res.status(404).json({ success: false, message: "Category not found." });
       }
-      await redisClient.del(ALL_CATEGORIES_CACHE_KEY);
 
       res.status(200).json({ success: true, message: "ProductCategory updated successfully.", updatedCategory });
     } catch (error) {
@@ -173,22 +184,26 @@ const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const category = await ProductCategory.findById(id);
+    
     if (!category) {
       return res.status(404).json({ success: false, message: "Category not found." });
     }
+
     // Extract the Cloudinary public ID from URL
     const publicId = category.categoryImage.split("/").pop().split(".")[0];
     await cloudinary.uploader.destroy(`product_categories/${publicId}`);
+
     // Check if it's a parent category
     const subcategories = await ProductCategory.find({ parentCategory: id });
+
     if (subcategories.length > 0) {
       // Remove parent reference so subcategories become top-level categories
       await ProductCategory.updateMany({ parentCategory: id }, { parentCategory: null });
     }
-    await ProductCategory.findByIdAndDelete(id);
 
-    await redisClient.del(ALL_CATEGORIES_CACHE_KEY);
+    await ProductCategory.findByIdAndDelete(id);
     res.status(200).json({ success: true, message: "ProductCategory deleted successfully." });
+
   } catch (error) {
     console.error("Error deleting ProductCategory:", error);
     res.status(500).json({ success: false, message: "Internal server error." });

@@ -4,7 +4,7 @@ const path = require('path');
 const multer = require('multer');
 const Complaint = require('../models/complaintmodel');
 const transporter = require('../config/nodemailerConfig');
-const streamifier = require('streamifier');
+
 // Multer configuration for file uploads
 // const storage = multer.diskStorage({
 //   destination: async (req, file, cb) => {
@@ -61,159 +61,50 @@ const storage = multer.diskStorage({
 // const upload = multer({ storage: storage }).single('fileUpload');
 
 // Complaint submission handler
-// const submitComplaint = async (req, res) => {
-//   const { customerName, orderID, mobileNumber, email, address, purchaseDate, deliveryDate, complaintText } = req.body;
-//   const file = req.file;
-
-//   // Check required fields
-//   if (!customerName || !orderID || !mobileNumber || !complaintText || !address) {
-//     return res.status(400).json({ message: 'Missing required fields.' });
-//   }
-
-//   // Check if file is uploaded
-//   if (!file) {
-//     return res.status(400).json({ message: 'File is required' });
-//   }
-
-//   // Define email options
-//   const mailOptions = {
-//     from: 'admin@reldaindia.com', // admin's email
-//     to: 'support@reldaindia.com', // support team's email
-//     subject: 'New Customer Complaint',
-//     html: `
-//       <p><strong>New complaint from:</strong> ${customerName}</p>
-//       <p><strong>Order ID:</strong> ${orderID}</p>
-//       <p><strong>Mobile:</strong> ${mobileNumber}</p>
-//       <p><strong>Complaint:</strong><br>${complaintText}</p>
-//       <p><strong>Address:</strong><br>${address}</p>
-//       <p><strong>E-mail (Submitter):</strong> ${email}</p>  <!-- Added the submitter's email -->
-//       <p><strong>From (Admin Email):</strong> admin@eldaappliances.com</p>  <!-- Admin email -->
-//       <p><strong>Purchase Date:</strong>${purchaseDate}</p>
-//       <p><strong>Delivery Date:</strong>${deliveryDate}</p>
-//     `,  // HTML body content with line breaks
-//     attachments: [
-//       {
-//         filename: file.originalname,  // The name of the file as it should appear in the email
-//         content: file.buffer,         // The file content (in buffer format)
-//         encoding: 'base64',           // Ensure the file is encoded correctly
-//         contentType: file.mimetype    // The MIME type of the file (e.g., 'application/pdf', 'image/jpeg')
-//       }
-//     ]
-//   };
-  
-  
-
-//   try {
-//     // Save complaint details to the database
-//     const newComplaint = new Complaint({
-//       customerName,
-//       orderID,
-//       mobileNumber,
-//       email,
-//       address,
-//       purchaseDate,
-//       deliveryDate,
-//       complaintText,
-//       fileData: file.buffer,        // Store file buffer
-//       fileType: file.mimetype       // Store file type for easier retrieval
-//     });
-
-//     await newComplaint.save();
-//     await transporter.sendMail(mailOptions);
-
-//     res.status(200).json({ message: 'Complaint submitted successfully.' });
-//   } catch (error) {
-//     console.error('Error submitting complaint:', error);
-//     res.status(500).json({ message: 'Failed to submit complaint.' });
-//   }
-// };
-
-const cloudinary  = require('../config/cloudinary');
-const { sendToZoho, attachFileToZohoRecord } = require("../helpers/zohoClient"); 
-const uploadBufferToCloudinary = (buffer, filename) => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { resource_type: 'auto', public_id: `complaints/${filename}` },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-    streamifier.createReadStream(buffer).pipe(stream);
-  });
-};
-
 const submitComplaint = async (req, res) => {
-  try {
-    const {
-      customerName,
-      orderID,
-      mobileNumber,
-      email,
-      address,
-      purchaseDate,
-      deliveryDate,
-      complaintText
-    } = req.body;
+  const { customerName, orderID, mobileNumber, email, address, purchaseDate, deliveryDate, complaintText } = req.body;
+  const file = req.file;
 
-    const file = req.file;
+  // Check required fields
+  if (!customerName || !orderID || !mobileNumber || !complaintText || !address) {
+    return res.status(400).json({ message: 'Missing required fields.' });
+  }
 
-    // 🔍 Validate inputs
-    if (!customerName || !orderID || !mobileNumber || !complaintText || !address) {
-      return res.status(400).json({ message: 'Missing required fields.' });
-    }
+  // Check if file is uploaded
+  if (!file) {
+    return res.status(400).json({ message: 'File is required' });
+  }
 
-    if (!file) {
-      return res.status(400).json({ message: 'File is required' });
-    }
-
-    // ☁️ Upload to Cloudinary
-    const cloudinaryResult = await uploadBufferToCloudinary(file.buffer, file.originalname);
-    const fileUrl = cloudinaryResult.secure_url;
-
-    // 📤 Send to Zoho CRM
-   const crmPayload = {
-
-    
-           Last_Name: customerName,         // 👈 Required by Zoho         // 👈 Use Full_Name instead of Last_Name
-      Company   : 'Complaint Form',     // ✅ Required
-      Phone     : mobileNumber,
-      Email     : email,
-      Lead_Source: 'Complaint Form',
-      Description: `
-        Complaint: ${complaintText}
-        Order ID: ${orderID}
-        Purchase Date: ${purchaseDate || 'N/A'}
-        Delivery Date: ${deliveryDate || 'N/A'}
-        Address: ${address}
-        Cloudinary File URL: ${fileUrl}
-      `
-    
+  // Define email options
+  const mailOptions = {
+    from: 'admin@reldaindia.com', // admin's email
+    to: 'support@reldaindia.com', // support team's email
+    subject: 'New Customer Complaint',
+    html: `
+      <p><strong>New complaint from:</strong> ${customerName}</p>
+      <p><strong>Order ID:</strong> ${orderID}</p>
+      <p><strong>Mobile:</strong> ${mobileNumber}</p>
+      <p><strong>Complaint:</strong><br>${complaintText}</p>
+      <p><strong>Address:</strong><br>${address}</p>
+      <p><strong>E-mail (Submitter):</strong> ${email}</p>  <!-- Added the submitter's email -->
+      <p><strong>From (Admin Email):</strong> admin@eldaappliances.com</p>  <!-- Admin email -->
+      <p><strong>Purchase Date:</strong>${purchaseDate}</p>
+      <p><strong>Delivery Date:</strong>${deliveryDate}</p>
+    `,  // HTML body content with line breaks
+    attachments: [
+      {
+        filename: file.originalname,  // The name of the file as it should appear in the email
+        content: file.buffer,         // The file content (in buffer format)
+        encoding: 'base64',           // Ensure the file is encoded correctly
+        contentType: file.mimetype    // The MIME type of the file (e.g., 'application/pdf', 'image/jpeg')
+      }
+    ]
+  };
   
-};
+  
 
-
-    /* --- Send to Zoho --------------------------------------------------- */
-    console.log('🟡 Zoho CRM Payload →', JSON.stringify(crmPayload, null, 2));
-    const crmResponse = await sendToZoho('Leads', crmPayload);
-    console.log('🟢 Zoho CRM Response ←', JSON.stringify(crmResponse, null, 2));
-
-    const recordId =
-      crmResponse?.data?.[0]?.details?.id || null;   // null if creation failed
-
-    /* -------------------------------------------------------------------- */
-    /* 4. ATTACH FILE TO LEAD (only if it was created)                      */
-    /* -------------------------------------------------------------------- */
-    if (recordId) {
-      await attachFileToZohoRecord(
-        'Leads',
-        recordId,
-        fileUrl,
-        file.originalname
-      );
-    }
-
-    // 💾 Save to MongoDB
+  try {
+    // Save complaint details to the database
     const newComplaint = new Complaint({
       customerName,
       orderID,
@@ -223,39 +114,45 @@ const submitComplaint = async (req, res) => {
       purchaseDate,
       deliveryDate,
       complaintText,
-      cloudinaryUrl: fileUrl
+      fileData: file.buffer,        // Store file buffer
+      fileType: file.mimetype       // Store file type for easier retrieval
     });
 
     await newComplaint.save();
 
-    // 📧 Send Notification Email
-    const mailOptions = {
+      const userMailOptions = {
       from: 'admin@reldaindia.com',
-      to: 'support@reldaindia.com',
-      subject: 'New Customer Complaint',
+      to: email,
+      subject: 'Your Complaint Has Been Received',
       html: `
-        <p><strong>Customer:</strong> ${customerName}</p>
-        <p><strong>Order ID:</strong> ${orderID}</p>
-        <p><strong>Mobile:</strong> ${mobileNumber}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Address:</strong><br>${address}</p>
-        <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
-        <p><strong>Delivery Date:</strong> ${deliveryDate}</p>
-        <p><strong>Complaint:</strong><br>${complaintText}</p>
-        <p><strong>Attachment:</strong> <a href="${fileUrl}" target="_blank">View File</a></p>
-      `
+        <p>Dear ${customerName},</p>
+        <p>Thank you for contacting us. Your complaint has been received and our support team will get back to you soon.</p>
+        <p><strong>Complaint Details:</strong></p>
+        <ul>
+          <li><strong>Order ID:</strong> ${orderID}</li>
+          <li><strong>Complaint:</strong> ${complaintText}</li>
+          
+        </ul>
+        <p>If you have any further questions, please reply to this email.</p>
+        <p>Best Regards,<br/>RELDA India Support Team</p>
+      `,
+      attachments: [
+      {
+        filename: file.originalname,  // The name of the file as it should appear in the email
+        content: file.buffer,         // The file content (in buffer format)
+        encoding: 'base64',           // Ensure the file is encoded correctly
+        contentType: file.mimetype    // The MIME type of the file (e.g., 'application/pdf', 'image/jpeg')
+      }
+    ]
     };
 
+    await transporter.sendMail(userMailOptions);
     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({
-      message: 'Complaint submitted successfully.',
-      cloudinaryUrl: fileUrl
-    });
-
+    res.status(200).json({ message: 'Complaint submitted successfully.' });
   } catch (error) {
     console.error('Error submitting complaint:', error);
-    res.status(500).json({ message: 'Failed to submit complaint.', error: error.message });
+    res.status(500).json({ message: 'Failed to submit complaint.' });
   }
 };
 const getAllcomplaints= async (req, res) => {

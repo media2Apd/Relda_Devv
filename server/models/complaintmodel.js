@@ -10,12 +10,8 @@ const complaintSchema = new mongoose.Schema({
   purchaseDate: { type: String, required: true  },
   deliveryDate: { type: String, required: true },
   complaintText: { type: String, required: true  },
-  // fileData: { type: Buffer, required: true },
-  // fileType: { type: String, required: true }
-  cloudinaryUrl: {
-    type: String,
-    required: true, // Ensure the file upload to Cloudinary happens before saving
-  },
+  fileData: { type: Buffer, required: true },
+  fileType: { type: String, required: true }
 }, { timestamps: true });
 
 const Complaint = mongoose.model('Complaint', complaintSchema);

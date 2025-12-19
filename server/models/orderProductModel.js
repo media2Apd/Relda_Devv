@@ -100,8 +100,7 @@ const orderSchema = new mongoose.Schema({
     order_status: { type: String, default: 'Pending' },
     statusUpdatedAt: { type: Date, default: Date.now },
     statusUpdates: [{
-        status: { type: String, index: false },  // No unique index
-        enum: ['ordered', 'packed', 'shipped', 'delivered', 'cancelled', 'returned'],
+        status: { type: String },  // Removed the unique index here
         updatedAt: { type: Date, default: Date.now }
     }],
     cancellationReason: { type: String, default: '' },
@@ -117,8 +116,6 @@ const orderSchema = new mongoose.Schema({
         },
     ],
     customComment: { type: String, default: '' },
-    zohoSalesOrderId: { type: String }, // Save after Sales Order created
-    zohoDealId : { type: String },
 });
 
 // Model

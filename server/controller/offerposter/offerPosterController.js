@@ -3,9 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const OfferPoster = require('../../models/offerPosterModel');
 const { log } = require('console');
-const redisClient = require("../../config/redisClient");
-const { ALL_CATEGORIES_CACHE_KEY } = require("../../utils/constants");
-const Category = require("../../models/parentCategoryModel");
 
 // ✅ Add Offer Poster
 // ✅ Add Offer Poster
@@ -29,7 +26,6 @@ exports.addOfferPoster = async (req, res) => {
         });
 
         await offerPoster.save();
-        await redisClient.del(ALL_CATEGORIES_CACHE_KEY); // Invalidate the cache after adding a new offer poster
         res.status(201).json({ message: "Offer Poster added successfully.", offerPoster });
     }
     catch (error) {
@@ -40,35 +36,9 @@ exports.addOfferPoster = async (req, res) => {
 
 
 // ✅ Get All Offer Posters
-// exports.getAllOfferPosters = async (req, res) => {
-//     try {
-//         const offerPosters = await OfferPoster.find().populate('parentCategory').populate('childCategory');
-//         res.status(200).json({ offerPosters });
-//     }
-//     catch (error) {
-//         console.error("Error fetching Offer Posters:", error);
-//         res.status(500).json({ message: "Internal server error." });
-//     }
-// };
-
 exports.getAllOfferPosters = async (req, res) => {
     try {
-        const { parentCategoryName, childCategory } = req.query;
-        const filter = {};
-        if (parentCategoryName) {
-            const parentCategory = await Category.findOne({ name: parentCategoryName });
-            if (parentCategory) {
-                filter.parentCategory = parentCategory._id;
-            } else {
-                return res.status(404).json({ message: "Parent category not found." });
-            }
-        }
-        if (childCategory) filter.childCategory = childCategory;
-
-        const offerPosters = await OfferPoster.find(filter)
-            .populate('parentCategory')
-            .populate('childCategory');
-
+        const offerPosters = await OfferPoster.find().populate('parentCategory').populate('childCategory');
         res.status(200).json({ offerPosters });
     }
     catch (error) {
@@ -91,7 +61,6 @@ exports.editOfferPoster = async (req, res) => {
         }
 
         const offerPoster = await OfferPoster.findByIdAndUpdate(id, updateData, { new: true });
-        await redisClient.del(ALL_CATEGORIES_CACHE_KEY); // Invalidate the cache after updating an offer poster
         res.status(200).json({ message: "Offer Poster updated successfully.", offerPoster });
     }
     catch (error) {
@@ -112,7 +81,6 @@ exports.deleteOfferPoster = async (req, res) => {
         }
 
         await OfferPoster.findByIdAndDelete(id);
-        await redisClient.del(ALL_CATEGORIES_CACHE_KEY); // Invalidate the cache after deleting an offer poster
         res.status(200).json({ message: "Offer Poster deleted successfully." });
     }
     catch (error) {

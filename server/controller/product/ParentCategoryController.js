@@ -3,7 +3,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../../config/cloudinary');
 const ParentCategory = require("../../models/parentCategoryModel");
 const jwt = require('jsonwebtoken');
-const sharp = require('sharp');
+
 // Multer Storage for Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary,
@@ -15,115 +15,37 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// Middleware to validate image dimensions
-const validateImageDimensions = (req, res, next) => {
-  if (req.file) {
-    // Use Sharp to get the image dimensions
-    sharp(req.file.buffer)
-      .metadata()
-      .then(metadata => {
-        const { width, height } = metadata;
-
-        // Check if the image has the required dimensions (1600x520)
-        if (width === 1600 && height === 520) {
-          next(); // Proceed to the next middleware or route handler
-        } else {
-          return res.status(400).json({
-            success: false,
-            message: 'Image dimensions must be 1600x520px.',
-          });
-        }
-      })
-      .catch(err => {
-        return res.status(400).json({
-          success: false,
-          message: 'Error processing the image.',
-        });
-      });
-  } else {
-    return res.status(400).json({
-      success: false,
-      message: 'No image uploaded.',
-    });
-  }
-};
-
 // ✅ Add Parent Category
-// const addParentCategory = (req, res) => {
-//   upload.single('categoryImage')(req, res, validateImageDimensions, async (err) => {
-//     if (err) {
-//       return res.status(400).json({ success: false, message: err.message });
-//     }
-
-//     try {
-//       const { name} = req.body;
-
-//       if (!name || !req.file) {
-//         return res.status(400).json({ success: false, message: "All fields are required, including an image." });
-//       }
-
-//       const imageUrl = req.file.path;
-
-//       const parentCategory = new ParentCategory({
-//         name,
-//         // description,
-//         categoryImage: imageUrl,
-//       });
-
-//       await parentCategory.save();
-//       res.status(201).json({ success: true, message: "Parent Category added successfully.", parentCategory });
-//     } catch (error) {
-//       console.error("Error adding Parent Category:", error);
-//       res.status(500).json({ success: false, message: "Internal server error." });
-//     }
-//   });
-// };
 const addParentCategory = (req, res) => {
-  // Use multer and validate image dimensions before saving the category
-  upload.single('categoryImage')(req, res, validateImageDimensions, async (err) => {
+  upload.single('categoryImage')(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ success: false, message: err.message });
     }
 
     try {
-      const { name } = req.body;
+      const { name} = req.body;
 
       if (!name || !req.file) {
-        return res.status(400).json({ success: false, message: 'All fields are required, including an image.' });
+        return res.status(400).json({ success: false, message: "All fields are required, including an image." });
       }
 
-      // Now you can upload to Cloudinary
-      const cloudinaryStorage = new CloudinaryStorage({
-        cloudinary,
-        params: {
-          folder: 'parent_categories',
-          allowed_formats: ['jpg', 'jpeg', 'png', 'svg'], // Allowed formats
-        },
+      const imageUrl = req.file.path;
+
+      const parentCategory = new ParentCategory({
+        name,
+        // description,
+        categoryImage: imageUrl,
       });
 
-      const cloudinaryUpload = multer({ storage: cloudinaryStorage }).single('categoryImage');
-      
-      cloudinaryUpload(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({ success: false, message: 'Failed to upload image to Cloudinary.' });
-        }
-
-        const imageUrl = req.file.path; // Cloudinary URL for the uploaded image
-
-        const parentCategory = new ParentCategory({
-          name,
-          categoryImage: imageUrl,
-        });
-
-        await parentCategory.save();
-        res.status(201).json({ success: true, message: 'Parent Category added successfully.', parentCategory });
-      });
+      await parentCategory.save();
+      res.status(201).json({ success: true, message: "Parent Category added successfully.", parentCategory });
     } catch (error) {
-      console.error('Error adding Parent Category:', error);
-      res.status(500).json({ success: false, message: 'Internal server error.' });
+      console.error("Error adding Parent Category:", error);
+      res.status(500).json({ success: false, message: "Internal server error." });
     }
   });
 };
+
 // ✅ Get All Parent Categories
 const getParentCategories = async (req, res) => {
   try {

@@ -238,8 +238,8 @@ const getAllCookieAcceptanceData = async (req, res) => {
         const developerIPs = devIPDocs.map(doc => doc.ipAddress);
 
         const allData = await CookieAcceptance.find(query)
-            // .skip((page - 1) * limit)
-            // .limit(limit);
+           // .skip((page - 1) * limit)
+            //.limit(limit);
 
         const getGeolocation = async (ip) => {
             try {

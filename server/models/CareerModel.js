@@ -9,11 +9,8 @@ const jobApplicationSchema = new mongoose.Schema({
   experience: { type: String, required: true },
   phone: { type: String, required: true },
   summary: { type: String },
-  // fileData: { type: Buffer, required: true }, // Ensure this is defined correctly
-  // fileType: { type: String, required: true }
-  fileUploadUrl: { type: String },
-fileType: { type: String }
-
+  fileData: { type: Buffer, required: true }, // Ensure this is defined correctly
+  fileType: { type: String, required: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model('JobApplication', jobApplicationSchema);

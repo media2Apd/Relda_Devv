@@ -13,13 +13,130 @@ const axios = require('axios')
 const productModel = require('../../models/productModel')
 const { v4: uuidv4 } = require('uuid');
 const cheerio = require('cheerio');
-const { sendToZoho, convertLead, getLeadById, findZohoContactOrAccount, deleteDuplicateContacts } = require('../../helpers/zohoClient'); // path based on your structure
-const { log } = require('console');
+
 // Razorpay configuration
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+// Payment initiation logic
+// exports.paymentController = async (req, res) => {
+//     try {
+//         const { cartItems, customerInfo, billingSameAsShipping } = req.body;
+
+//         if (!customerInfo || typeof customerInfo !== 'object') {
+//             return res.status(400).json({ message: "Invalid customer information", success: false });
+//         }
+
+//         // Extract shipping and billing address
+//         const shippingAddress = {
+//             street: customerInfo.street || '',
+//             city: customerInfo.city || '',
+//             state: customerInfo.state || '',
+//             postalCode: customerInfo.postalCode || '',
+//             country: customerInfo.country || '',
+//         };
+
+//         const billingAddress = billingSameAsShipping
+//             ? shippingAddress
+//             : {
+//                 street: customerInfo.billingAddress?.street || '',
+//                 city: customerInfo.billingAddress?.city || '',
+//                 state: customerInfo.billingAddress?.state || '',
+//                 postalCode: customerInfo.billingAddress?.postalCode || '',
+//                 country: customerInfo.billingAddress?.country || '',
+//             };
+
+//         // Fetch the user from the database using the userId from the request
+//         const user = await userModel.findById(req.userId);
+//         if (!user) {
+//             return res.status(404).json({
+//                 message: "User not found",
+//                 success: false,
+//             });
+//         }
+
+//         // Calculate total amount in currency's subunit (INR to paise)
+//         const totalAmount = cartItems.reduce((total, item) => {
+//             return total + item.quantity * item.productId.sellingPrice;
+//         }, 0) * 100;  // Razorpay uses smallest currency unit (paise)
+
+//         // Create a new Razorpay order
+//         const options = {
+//             amount: totalAmount,
+//             currency: "INR",
+//             receipt: "order_rcptid_11",
+//             payment_capture: 1, // Auto-captures payment
+//         };
+
+//         // Attempt to create Razorpay order
+//         const order = await razorpay.orders.create(options);
+//         console.log('Razorpay Order Response:', order);
+//         if (!order || !order.id) {
+//             throw new Error("Failed to create Razorpay order.");
+//         }
+
+//         // Initialize statusUpdates with a valid status
+//         const statusUpdates = [{
+//             status: "pending",  // Set initial status to 'pending'
+//             updatedAt: new Date()
+//         }];
+
+//         // Create a new order in the database
+//         const newOrder = await orderModel.create({
+//             orderId: order.id,
+//             productDetails: cartItems.map((item) => ({
+//                 productId: item.productId._id,
+//                 brandName: item.productId.brandName,
+//                 productName: item.productId.productName,
+//                 category: item.productId.category,
+//                 quantity: item.quantity,
+//                 price: item.productId.price,
+//                 availability: item.productId.availability,
+//                 sellingPrice: item.productId.sellingPrice,
+//                 productImage: item.productId.productImage[0],
+//             })),
+//             email: user.email,
+//             userId: req.userId,
+//             totalAmount: totalAmount / 100,  // Convert to main currency unit (INR)
+//             paymentDetails: {
+//                 paymentId: "",
+//                 payment_method_type: "",
+//                 payment_status: "pending",  // Payment status is initially pending
+//             },
+//             billing_name: customerInfo.firstName,
+//             billing_email: customerInfo.email,
+//             billing_tel: customerInfo.phone,
+//             billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+//             shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+//             //  statusUpdates : [{
+//             //     status: `pending-${req.userId}-${new Date().getTime()}`,  // Ensure unique status per user and time
+//             //     updatedAt: new Date()
+//             // }],
+//             statusUpdates: [{
+//                 status: `pending-${req.userId}-${uuidv4()}`,  // Use a UUID for uniqueness
+//                 updatedAt: new Date()
+//             }],
+//               // Add the statusUpdates field with initial 'pending' status
+//             createdAt: new Date(),
+//         });
+
+//         // Send Razorpay order_id and other info to frontend
+//         res.json({
+//             success: true,
+//             orderId: order.id,
+//             amount: totalAmount,
+//             currency: "INR",
+//             customerInfo,
+//         });
+//     } catch (error) {
+//         console.error("Error initiating payment:", error);
+//         res.status(500).json({
+//             message: error.message || "Internal Server Error",
+//             success: false,
+//         });
+//     }
+// };
 
 
 
@@ -60,12 +177,12 @@ exports.paymentController = async (req, res) => {
 
         const receiptId = `order_rcptid_${uuidv4().slice(0, 8)}`;
 
-        // 💳 PAYMENT ORDER OR LINK
+        // ?? PAYMENT ORDER OR LINK
         let paymentResponse;
         let orderIdOrLink;
 
         if (usePaymentLink) {
-            // 🔗 Create Payment Link
+            // ?? Create Payment Link
             paymentResponse = await razorpay.paymentLink.create({
                 amount: totalAmount,
                 currency: "INR",
@@ -92,7 +209,7 @@ exports.paymentController = async (req, res) => {
             orderIdOrLink = paymentResponse.id;
 
         } else {
-            // 🧾 Create Razorpay Order
+            // ?? Create Razorpay Order
             const options = {
                 amount: totalAmount,
                 currency: "INR",
@@ -154,7 +271,7 @@ exports.paymentController = async (req, res) => {
             });
         }
 
-        // ✅ Return correct response
+        // ? Return correct response
         res.json({
             success: true,
             mode: usePaymentLink ? 'link' : 'order',
@@ -175,74 +292,6 @@ exports.paymentController = async (req, res) => {
 };
 
 
-
- cron.schedule('*/10 * * * *', async () => {   
-    try {
-        // Fetch unpaid orders where no reminder has been sent
-        const unpaidOrders = await orderModel.find({
-            "paymentDetails.payment_status": "pending",
-            reminderSent: false,
-            createdAt: { $lte: new Date(Date.now() - 10 * 60 * 1000) }, // Orders created 10+ minutes ago
-        });
-
-        for (const order of unpaidOrders) {
-            // Send reminder email
-            const mailOptions = {
-                from: 'admin@reldaindia.com',
-                to: order.billing_email,
-                subject: 'Reminder: Complete Your Purchase',
-                html: `
-                    <h2>Hello ${order.billing_name},</h2>
-                    <p>We noticed you added items to your cart but haven't completed the purchase. Here's a summary of your order:</p>
-                    <ul>
-                        ${order.productDetails.map(item => `
-                            <li>
-                                <strong>${item.productName}</strong> - ${item.quantity} x ?${item.sellingPrice}
-                            </li>`).join('')}
-                    </ul>
-                    <p><strong>Total Amount:</strong> ?${order.totalAmount}</p>
-                    <p>Click <a href="https://www.reldaindia.com">here</a> to complete your payment.</p>
-                    <p>If you have any questions, feel free to contact us!</p>
-                    <p>Best regards,<br>Your Company</p>
-                `,
-            };
-
-            await transporter.sendMail(mailOptions);
-
-            // Mark reminder as sent
-            order.reminderSent = true;
-            await order.save();
-        }
-    } catch (error) {
-        console.error("Error sending reminder emails:", error);
-    }
-});
-// Verify Payment after redirect
-const verifyPayment = async (razorpayPaymentId) => {
-    try {
-        const response = await axios.get(`https://api.razorpay.com/v1/payments/${razorpayPaymentId}`, {
-            auth: {
-                username: process.env.RAZORPAY_KEY_ID,
-                password: process.env.RAZORPAY_KEY_SECRET
-            }
-            
-        });
-            console.log(`Fetching payment details for ID: ${razorpayPaymentId}`);
-
-        const paymentDetails = response.data;
-        console.log(paymentDetails);
-        
-
-        // Extract specific payment method details
-        const isPaymentCaptured = paymentDetails.status === 'captured';
-        const paymentMethod = paymentDetails.method; // Razorpay payment method // Fallback if `method` isn't populated
-
-        return { isPaymentCaptured, paymentMethod, paymentDetails};
-    } catch (error) {
-        console.error("Error verifying payment:", error);
-        throw new Error("Error verifying payment");
-    }
-};
 const verifyRazorpayAuth = () => ({
   auth: {
     username: process.env.RAZORPAY_KEY_ID,
@@ -296,7 +345,7 @@ async function verifyPaymentStatus(paymentId) {
 
 // cron.schedule('* * * * *', async () => {
   cron.schedule('0 */4 * * *', async () => {
-  console.log('⏰ Running scheduled Razorpay Payment Link verification...');
+  console.log('? Running scheduled Razorpay Payment Link verification...');
 
   try {
     // Find all pending orders where orderId starts with 'plink_'
@@ -306,7 +355,7 @@ async function verifyPaymentStatus(paymentId) {
     });
 
     if (!pendingOrders.length) {
-      console.log('ℹ️ No pending orders with Razorpay payment links found.');
+      console.log('?? No pending orders with Razorpay payment links found.');
       return;
     }
 
@@ -317,7 +366,7 @@ async function verifyPaymentStatus(paymentId) {
       const paymentLinkDetails = await verifyPaymentLinkStatus(paymentLinkId);
 
       if (!paymentLinkDetails) {
-        console.log(`⚠️ Could not fetch details for payment link: ${paymentLinkId}`);
+        console.log(`?? Could not fetch details for payment link: ${paymentLinkId}`);
         continue;
       }
 
@@ -326,7 +375,7 @@ async function verifyPaymentStatus(paymentId) {
         const razorpayPaymentId = paymentLinkDetails.payments?.[0]?.payment_id;
 
         if (!razorpayPaymentId) {
-          console.log(`⚠️ No payment ID found in payment link details for ${paymentLinkId}`);
+          console.log(`?? No payment ID found in payment link details for ${paymentLinkId}`);
           continue;
         }
 
@@ -345,14 +394,14 @@ async function verifyPaymentStatus(paymentId) {
             $push: { statusUpdates: { status: 'ordered', timestamp: new Date() } },
           }
         );
-        console.log(`✅ Order ${paymentLinkId} updated to ordered status.`);
+        console.log(`? Order ${paymentLinkId} updated to ordered status.`);
 
     //     let zohoSalesOrderId = null;
 
     //     try {
     //       // Fetch user and validate Zoho Account ID
     //       const user = await userModel.findById(order.userId);
-    //       if (!user || !user.zohoAccountId) throw new Error("❌ Cannot find user's Zoho Account ID");
+    //       if (!user || !user.zohoAccountId) throw new Error("? Cannot find user's Zoho Account ID");
 
     //       // Parse addresses robustly with defaults
     //       const parseAddress = (addressString = '') => {
@@ -408,12 +457,12 @@ async function verifyPaymentStatus(paymentId) {
 
     //       if (zohoSalesOrderId) {
     //         await orderModel.findOneAndUpdate({ orderId: paymentLinkId }, { $set: { zohoSalesOrderId } });
-    //         console.log('✅ Zoho Sales Order Created:', zohoSalesOrderId);
+    //         console.log('? Zoho Sales Order Created:', zohoSalesOrderId);
     //       } else {
-    //         console.log('⚠️ Zoho Sales Order ID not found in response');
+    //         console.log('?? Zoho Sales Order ID not found in response');
     //       }
     //     } catch (zohoError) {
-    //       console.error('❌ Zoho Sales Order Failed:', zohoError.response?.data || zohoError.message);
+    //       console.error('? Zoho Sales Order Failed:', zohoError.response?.data || zohoError.message);
     //     }
 
     //     try {
@@ -447,12 +496,12 @@ async function verifyPaymentStatus(paymentId) {
     //   zohoContactId = converted?.Contacts?.[0]?.id;
     //   zohoAccountId = converted?.Accounts?.[0]?.id;
     //   zohoDealId = converted?.Deals?.[0]?.id;
-    //   console.log("✅ Lead converted successfully.");
+    //   console.log("? Lead converted successfully.");
     // } else if (
     //   conversionResult.message === "DUPLICATE_LEAD_CONVERSION" ||
     //   conversionResult.message === "Duplicate contacts found"
     // ) {
-    //   console.log("⚠️ Duplicate contact found, deleting and retrying conversion...");
+    //   console.log("?? Duplicate contact found, deleting and retrying conversion...");
 
     //   // Step 2: Delete all duplicate contacts
     //   await deleteDuplicateContacts({ email, phone });
@@ -465,13 +514,13 @@ async function verifyPaymentStatus(paymentId) {
     //     zohoContactId = converted?.Contacts?.[0]?.id;
     //     zohoAccountId = converted?.Accounts?.[0]?.id;
     //     zohoDealId = converted?.Deals?.[0]?.id;
-    //     console.log("✅ Lead converted successfully after duplicate deletion.");
+    //     console.log("? Lead converted successfully after duplicate deletion.");
     //   } else {
-    //     console.error("❌ Lead still not converted after deleting duplicates:", conversionResult.message);
+    //     console.error("? Lead still not converted after deleting duplicates:", conversionResult.message);
     //     // Optionally: Notify admin or log for manual intervention
     //   }
     // } else {
-    //   console.error("❌ Lead conversion failed for other reason:", conversionResult.message);
+    //   console.error("? Lead conversion failed for other reason:", conversionResult.message);
     // }
           // Update order with Zoho references
         //   await orderModel.findOneAndUpdate(
@@ -479,14 +528,14 @@ async function verifyPaymentStatus(paymentId) {
         //     { $set: { zohoAccountId, zohoContactId, zohoDealId } }
         //   );
 
-        //   console.log('📝 Order updated with Zoho references.');
+        //   console.log('?? Order updated with Zoho references.');
         // } catch (err) {
-        //   console.error('❌ Final Zoho Error:', err.response?.data || err.message);
+        //   console.error('? Final Zoho Error:', err.response?.data || err.message);
         // }
 
         // Clear user's cart after order
         await addToCartModel.deleteMany({ userId: order.userId });
-        console.log('🧹 Cart has been cleared.');
+        console.log('?? Cart has been cleared.');
 
         // Set delivery date 4 days from now
         const deliveryDate = moment().add(4, 'days').toDate();
@@ -512,14 +561,14 @@ async function verifyPaymentStatus(paymentId) {
 
           await Promise.all([...emailPromises, ...productUpdatePromises]);
         } catch (emailOrStockError) {
-          console.error('❌ Error sending emails or updating product stock:', emailOrStockError);
+          console.error('? Error sending emails or updating product stock:', emailOrStockError);
         }
       } else {
-        console.log(`ℹ️ Order ${paymentLinkId} payment link status: ${paymentLinkDetails.status}`);
+        console.log(`?? Order ${paymentLinkId} payment link status: ${paymentLinkDetails.status}`);
       }
     }
   } catch (err) {
-    console.error('❌ Error verifying payment links:', err.response?.data || err.message || err);
+    console.error('? Error verifying payment links:', err.response?.data || err.message || err);
   }
 });
 const sendOrderConfirmationEmailLink = async (customerInfo, razorpayPaymentId, order) => {
@@ -542,7 +591,7 @@ const sendOrderConfirmationEmailLink = async (customerInfo, razorpayPaymentId, o
     // Construct HTML block
     let paymentDetailsHtml = `
       <ul>
-        <li><strong>Amount Paid:</strong> ₹${amountPaid}</li>
+        <li><strong>Amount Paid:</strong> ?${amountPaid}</li>
         <li><strong>Payment Status:</strong> ${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</li>
         <li><strong>Transaction ID:</strong> ${transactionId}</li>
         <li><strong>Payment Method:</strong> ${paymentType}</li>
@@ -583,390 +632,749 @@ const sendOrderConfirmationEmailLink = async (customerInfo, razorpayPaymentId, o
   }
 };
 
+// exports.paymentController = async (req, res) => {
+//     try {
+//         const { cartItems, customerInfo, billingSameAsShipping } = req.body;
 
-// exports.verifyPayment = async (req, res) => {
-//   const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
-
-//   if (!razorpayPaymentId || !razorpayOrderId || !cartItems?.length || !customerInfo) {
-//     return res.status(400).json({ success: false, message: 'Required fields missing or invalid' });
-//   }
-
-//   if (!req.userId) {
-//     return res.status(401).json({ success: false, message: 'User not authenticated' });
-//   }
-
-//   try {
-//     const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
-//     console.log('Payment Details:', paymentDetails);
-
-//     if (!isPaymentCaptured) {
-//       await sendCartReminder(customerInfo, cartItems);
-//       return res.status(400).json({ success: false, message: 'Payment failed. Reminder sent.' });
-//     }
-
-//     const order = await orderModel.findOne({ orderId: razorpayOrderId });
-//     if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
-
-//     const statusExists = order.statusUpdates.some(update => update.status === 'ordered');
-
-//     if (!statusExists) {
-//       const updatedAt = new Date();
-//       await orderModel.findOneAndUpdate(
-//         { orderId: razorpayOrderId },
-//         {
-//           $set: {
-//             'paymentDetails.paymentId': razorpayPaymentId,
-//             'paymentDetails.payment_status': 'success',
-//             'paymentDetails.payment_method_type': paymentMethod,
-//             'paymentDetails.fullDetails': paymentDetails,
-//             'order_status': 'ordered',
-//             updatedAt: updatedAt,
-//           },
-//           $push: {
-//             statusUpdates: {
-//               status: 'ordered',
-//               timestamp: updatedAt,
-//             },
-//           },
+//         // Validate customer info
+//         if (!customerInfo || typeof customerInfo !== 'object') {
+//             return res.status(400).json({ message: "Invalid customer information", success: false });
 //         }
-//       );
-//          // 🔥 CREATE SALES ORDER IN ZOHO
-//     let zohoSalesOrderId = null;
 
-//     try {
-//       const user = await userModel.findById(order.userId);
-//       if (!user || !user.zohoAccountId) throw new Error("❌ Cannot find user's Zoho Account ID");
-
-//       const parseAddress = (addressString = '') => {
-//         const parts = addressString.split(',').map(p => p.trim());
-//         return {
-//           street: parts.slice(0, 2).join(', '),
-//           city: parts[2] || '',
-//           state: parts[3] || '',
-//           postalCode: parts[4] || '',
-//           country: parts[5] || 'India',
+//         // Extract shipping and billing address
+//         const shippingAddress = {
+//             street: customerInfo.street || '',
+//             city: customerInfo.city || '',
+//             state: customerInfo.state || '',
+//             postalCode: customerInfo.postalCode || '',
+//             country: customerInfo.country || '',
 //         };
-//       };
 
-//       const billing = parseAddress(order.billing_address);
-//       const shipping = parseAddress(order.shipping_address);
+//         const billingAddress = billingSameAsShipping
+//             ? shippingAddress
+//             : {
+//                 street: customerInfo.billingAddress?.street || '',
+//                 city: customerInfo.billingAddress?.city || '',
+//                 state: customerInfo.billingAddress?.state || '',
+//                 postalCode: customerInfo.billingAddress?.postalCode || '',
+//                 country: customerInfo.billingAddress?.country || '',
+//             };
 
-//       const salesOrderPayload = {
-//         Subject: `Order from ${user.name}`,
-//         Due_Date: moment().add(4, 'days').format("YYYY-MM-DD"),
-//         Status: "Created",
-//         Grand_Total: order.totalAmount,
-//         Sub_Total: order.totalAmount,
+//         // Fetch the user from the database using the userId from the request
+//         const user = await userModel.findById(req.userId);
+//         if (!user) {
+//             return res.status(404).json({
+//                 message: "User not found",
+//                 success: false,
+//             });
+//         }
 
-//         Billing_Street: billing.street,
-//         Billing_City: billing.city,
-//         Billing_State: billing.state,
-//         Billing_Code: billing.postalCode,
-//         Billing_Country: billing.country,
+//         // Find the existing pending order
+//         const existingOrder = await orderModel.findOne({
+//             userId: req.userId,
+//             'paymentDetails.payment_status': 'pending',  // Only look for pending orders
+//         });
 
-//         Shipping_Street: shipping.street,
-//         Shipping_City: shipping.city,
-//         Shipping_State: shipping.state,
-//         Shipping_Code: shipping.postalCode,
-//         Shipping_Country: shipping.country,
+//         if (existingOrder) {
+//             // Find which products remain in the cart after removal
+//             const remainingProducts = existingOrder.productDetails.filter(existingProduct =>
+//                 cartItems.some(item => item.productId._id.toString() === existingProduct.productId.toString())
+//             );
 
-//         Description: `Razorpay Payment ID: ${razorpayPaymentId}`,
+//             if (remainingProducts.length === 0) {
+//                 return res.status(400).json({
+//                     message: "No valid products in the cart to checkout.",
+//                     success: false,
+//                 });
+//             }
 
-//         Account_Name: { id: user.zohoAccountId },
+//             // Calculate the total amount for the remaining products
+//             const totalAmount = remainingProducts.reduce((total, item) => {
+//                 const cartItem = cartItems.find(cartItem => cartItem.productId._id.toString() === item.productId.toString());
+//                 return total + cartItem.quantity * cartItem.productId.sellingPrice;
+//             }, 0) * 100;  // Convert to paise (smallest currency unit)
 
-//         Product_Details: cartItems.map(item => ({
-//           product: item.zohoProductId,
-//           quantity: item.quantity,
-//           list_price: item.productId?.sellingPrice || item.sellingPrice || 0,
-//         }))
-//       };
+//             // Create a new Razorpay order for the remaining products
+//             const options = {
+//                 amount: totalAmount,
+//                 currency: "INR",
+//                 receipt: existingOrder.orderId, // Use the existing order ID as receipt
+//                 payment_capture: 1, // Auto-captures payment
+//             };
 
-//       const zohoResponse = await sendToZoho('Sales_Orders', salesOrderPayload);
-//       zohoSalesOrderId = zohoResponse?.data?.[0]?.details?.id;
+//             // Create a new Razorpay order with updated total amount
+//             const updatedOrder = await razorpay.orders.create(options);
+//             if (!updatedOrder || !updatedOrder.id) {
+//                 throw new Error("Failed to create Razorpay order.");
+//             }
 
-//       console.log("✅ Zoho Sales Order Created:", zohoSalesOrderId);
+//             // Update the order in the database
+//             existingOrder.productDetails = remainingProducts.map(product => ({
+//                 productId: product.productId._id,
+//                 brandName: product.productId.brandName,
+//                 productName: product.productId.productName,
+//                 quantity: product.quantity,
+//                 price: product.productId.price,
+//                 sellingPrice: product.productId.sellingPrice,
+//                 productImage: product.productImage[0],
+//             }));
+//             existingOrder.totalAmount = totalAmount / 100;  // Convert back to INR
+//             existingOrder.statusUpdates.push({
+//                 status: `updated-${req.userId}-${new Date().getTime()}`, // Add update status
+//                 updatedAt: new Date()
+//             });
 
-//       if (zohoSalesOrderId) {
-//         await orderModel.findOneAndUpdate(
-//           { orderId: razorpayOrderId },
-//           { $set: { zohoSalesOrderId } }
-//         );
-//       }
-//     } catch (zohoError) {
-//       console.error("❌ Zoho Sales Order Failed:", zohoError.response?.data || zohoError.message);
+//             // Save the updated order in the database
+//             await existingOrder.save();
+
+//             // Return the updated Razorpay order information to frontend
+//             return res.json({
+//                 success: true,
+//                 message: "Your order has been updated with the remaining product.",
+//                 orderId: updatedOrder.id,
+//                 totalAmount: totalAmount,
+//                 currency: "INR",
+//                 customerInfo,
+//             });
+//         } else {
+//             // If no pending order exists, create a new order as usual
+
+//             // Calculate the total amount in currency's subunit (INR to paise)
+//             const totalAmount = cartItems.reduce((total, item) => {
+//                 return total + item.quantity * item.productId.sellingPrice;
+//             }, 0) * 100; // Razorpay uses smallest currency unit (paise)
+
+//             const options = {
+//                 amount: totalAmount,
+//                 currency: "INR",
+//                 receipt: "order_rcptid_11", // Receipt ID, can be anything unique
+//                 payment_capture: 1, // Auto-captures payment
+//             };
+
+//             // Attempt to create Razorpay order
+//             const order = await razorpay.orders.create(options);
+//             if (!order || !order.id) {
+//                 throw new Error("Failed to create Razorpay order.");
+//             }
+
+//             // Initialize statusUpdates with a valid status
+//             const statusUpdates = [{
+//                 status: "pending",  // Set initial status to 'pending'
+//                 updatedAt: new Date()
+//             }];
+
+//             // Create a new order in the database
+//             const newOrder = await orderModel.create({
+//                 orderId: order.id,
+//                 productDetails: cartItems.map((item) => ({
+//                     productId: item.productId._id,
+//                     brandName: item.productId.brandName,
+//                     productName: item.productId.productName,
+//                     category: item.productId.category,
+//                     quantity: item.quantity,
+//                     price: item.productId.price,
+//                     availability: item.productId.availability,
+//                     sellingPrice: item.productId.sellingPrice,
+//                     productImage: item.productImage[0],
+//                 })),
+//                 email: user.email,
+//                 userId: req.userId,
+//                 totalAmount: totalAmount / 100,  // Convert to main currency unit (INR)
+//                 paymentDetails: {
+//                     paymentId: "",
+//                     payment_method_type: "",
+//                     payment_status: "pending",  // Payment status is initially pending
+//                 },
+//                 billing_name: customerInfo.firstName,
+//                 billing_email: customerInfo.email,
+//                 billing_tel: customerInfo.phone,
+//                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+//                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+//                 statusUpdates: [{
+//                     status: `pending-${req.userId}-${new Date().getTime()}`,  // Ensure unique status per user and time
+//                     updatedAt: new Date()
+//                 }],
+//                 createdAt: new Date(),
+//             });
+
+//             // Send Razorpay order_id and other info to frontend
+//             res.json({
+//                 success: true,
+//                 orderId: order.id,
+//                 amount: totalAmount,
+//                 currency: "INR",
+//                 customerInfo,
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error initiating payment:", error);
+//         res.status(500).json({
+//             message: error.message || "Internal Server Error",
+//             success: false,
+//         });
 //     }
-//        // 💼 CREATE DEAL IN ZOHO
-// try {
-//     const user = await userModel.findById(order.userId);
-//     const cartEntry = await addToCartModel.findOne({ userId: order.userId }).sort({ createdAt: -1 });
-//     const zohoLeadId = cartEntry?.zohoLeadId;
-
-//     if (!zohoLeadId) throw new Error("No Zoho Lead ID found in cart entry");
-
-//     console.log(`🔍 Diagnosing leadId: ${zohoLeadId}`);
-//     const leadInfo = await getLeadById(zohoLeadId);
-//     const email = leadInfo?.Email;
-//     const phone = leadInfo?.Phone;
-//     const ownerId = leadInfo?.Owner?.id;
-
-//     console.log("Lead details:", leadInfo);
-
-//     let zohoContactId = null;
-//     let zohoAccountId = null;
-//     let zohoDealId = null;
-
-//     // Step 1: Attempt to convert the lead
-//     const conversionPayload = {
-//       Deal_Name: `Purchase - ${order.orderId}`,
-//       Stage: 'Closed Won',
-//       Amount: order.totalAmount,
-//       Closing_Date: moment().format("YYYY-MM-DD"),
-//     };
-
-//     const conversionResult = await convertLead(zohoLeadId, conversionPayload);
-
-// // ...existing code...
-//     if (conversionResult.success) {
-//       const converted = conversionResult.data;
-//       zohoContactId = converted?.Contacts?.[0]?.id;
-//       zohoAccountId = converted?.Accounts?.[0]?.id;
-//       zohoDealId = converted?.Deals?.[0]?.id;
-
-//       console.log("✅ Lead converted successfully.");
-//    // ...existing code...
-//     } else if (
-//       conversionResult.message === "DUPLICATE_LEAD_CONVERSION" ||
-//       conversionResult.message === "Duplicate contacts found"
-//     ) {
-//       console.log("⚠️ Duplicate contact found, fallback to manual deal creation...");
-
-//       // Step 2: Find existing contact/account
-//       const { contactId, accountId } = await findZohoContactOrAccount({ email, phone });
-//       if (!accountId) throw new Error("❌ Could not find existing Account.");
-
-//       zohoContactId = contactId;
-//       zohoAccountId = accountId;
-
-//       // Step 3: Create Deal manually
-//       const dealPayload = {
-//         Deal_Name: `Purchase - ${order.orderId}`,
-//         Stage: 'Closed Won',
-//         Amount: order.totalAmount,
-//         Closing_Date: moment().format("YYYY-MM-DD"),
-//         Account_Name: zohoAccountId,
-//         ...(zohoContactId && { Contact_Name: zohoContactId }),
-//         ...(ownerId && { Owner: { id: ownerId } }),
-//       };
-
-//       const dealRes = await sendToZoho("Deals", dealPayload);
-//       zohoDealId = dealRes?.data?.[0]?.details?.id;
-
-//       console.log("✅ Deal manually created.");
-
-//       // Step 4: Add a note to the Lead
-//       await sendToZoho(`Leads/${zohoLeadId}/Notes`, {
-//         Note_Title: "Auto Conversion Failed",
-//         Note_Content: `Lead could not be auto-converted due to duplicate contact. Fallback used for deal creation.`,
-//       });
-
-//       // Step 5: Try to convert the lead again
-//       const retryConversion = await convertLead(zohoLeadId, conversionPayload);
-//       if (retryConversion.success) {
-//         console.log("✅ Lead converted successfully after manual deal creation.");
-//       } else {
-//         console.error("❌ Lead still not converted after retry:", retryConversion.message);
-//         // Optionally: Notify admin or log for manual intervention
-//       }
-//     }
-
-
-//     // Step 5: Save to order
-//     await orderModel.findOneAndUpdate(
-//       { orderId: razorpayOrderId },
-//       {
-//         $set: {
-//           zohoAccountId,
-//           zohoContactId,
-//           zohoDealId,
-//         },
-//       }
-//     );
-
-//     console.log("📝 Order updated with Zoho references.");
-//   } catch (err) {
-//     console.error("❌ Final Zoho Error:", err.response?.data || err.message);
-//   }
-
-//       await addToCartModel.deleteMany({ userId: req.userId });
-//       console.log("Cart has been cleared.");
-//     }
-
-//     const deliveryDate = moment().add(4, 'days').toDate();
-//     await orderModel.updateOne({ orderId: razorpayOrderId }, { $set: { delivered_at: deliveryDate } });
-
- 
-
-   
-//     // 📧 Emails and Product Stock Updates
-//     try {
-//       const emailPromises = [
-//         sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, order),
-//         sendAdminNotificationEmail(order),
-//       ];
-
-//       const productUpdatePromises = cartItems.map(item =>
-//         productModel.findByIdAndUpdate(
-//           item.productId._id,
-//           { $inc: { availability: -1 } },
-//           { new: true }
-//         )
-//       );
-
-//       await Promise.all([...emailPromises, ...productUpdatePromises]);
-//     } catch (parallelErr) {
-//       console.error('Parallel processing error:', parallelErr);
-//     }
-
-//     return res.json({
-//       success: true,
-//       message: 'Payment successful, order confirmed and deal created.',
-//       paymentMethod,
-//     });
-
-//   } catch (error) {
-//     console.error("💥 Error in verifyPayment:", error.message || error);
-//     return res.status(500).json({ success: false, message: error.message || "Internal Server Error" });
-//   }
 // };
 
 
 
-exports.verifyPayment = async (req, res) => {
-  const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
 
-  // Validate input
-  if (!razorpayPaymentId || !razorpayOrderId || !cartItems?.length || !customerInfo) {
-    return res.status(400).json({ success: false, message: 'Required fields missing' });
-  }
 
-  if (!req.userId) {
-    return res.status(401).json({ success: false, message: 'Unauthorized' });
-  }
 
-  try {
-    // Verify payment
-    const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
-    
-    if (!isPaymentCaptured) {
-      await sendCartReminder(customerInfo, cartItems);
-      return res.status(400).json({ success: false, message: 'Payment failed' });
-    }
+// exports.paymentController = async (req, res) => {
+//     try {
+//         const { cartItems, customerInfo, billingSameAsShipping } = req.body;
 
-    const order = await orderModel.findOne({ orderId: razorpayOrderId });
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
+//         // Check if required data exists
+//         if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+//             return res.status(400).json({ message: "Cart items are missing or invalid", success: false });
+//         }
 
-    const updatedAt = new Date();
+//         if (!customerInfo || typeof customerInfo !== 'object') {
+//             return res.status(400).json({ message: "Invalid customer information", success: false });
+//         }
 
-    // 1. Update main order details
-    await orderModel.updateOne(
-      { orderId: razorpayOrderId },
-      {
-        $set: {
-          'paymentDetails.paymentId': razorpayPaymentId,
-          'paymentDetails.payment_status': 'success',
-          'paymentDetails.payment_method_type': paymentMethod,
-          'paymentDetails.fullDetails': paymentDetails,
-          'order_status': 'ordered',
-          updatedAt: updatedAt,
-        }
-      }
-    );
+//         if (billingSameAsShipping === undefined) {
+//             return res.status(400).json({ message: "billingSameAsShipping is required", success: false });
+//         }
 
-    // 2. Handle status updates safely
+//         // Log input data for debugging
+//         console.log("Request Body:", req.body);
+
+//         // Extract shipping and billing address
+//         const shippingAddress = {
+//             street: customerInfo.street || '',
+//             city: customerInfo.city || '',
+//             state: customerInfo.state || '',
+//             postalCode: customerInfo.postalCode || '',
+//             country: customerInfo.country || '',
+//         };
+
+//         const billingAddress = billingSameAsShipping
+//             ? shippingAddress
+//             : {
+//                 street: customerInfo.billingAddress?.street || '',
+//                 city: customerInfo.billingAddress?.city || '',
+//                 state: customerInfo.billingAddress?.state || '',
+//                 postalCode: customerInfo.billingAddress?.postalCode || '',
+//                 country: customerInfo.billingAddress?.country || '',
+//             };
+
+//         // Fetch the user from the database using the userId from the request
+//         const user = await userModel.findById(req.userId);
+//         if (!user) {
+//             return res.status(400).json({
+//                 message: "User not found or invalid userId",
+//                 success: false,
+//             });
+//         }
+
+//         // Calculate total amount in currency's subunit (INR to paise)
+//         const totalAmount = cartItems.reduce((total, item) => {
+//             if (!item.productId || !item.quantity) {
+//                 throw new Error("Product or quantity is missing");
+//             }
+//             return total + item.quantity * item.productId.sellingPrice;
+//         }, 0) * 100;  // Razorpay uses smallest currency unit (paise)
+
+//         console.log("Total Amount (in paise):", totalAmount); // Debugging the amount
+
+//         // Check if the user has an existing order with pending status
+//         const existingOrder = await orderModel.findOne({
+//             userId: req.userId,
+//             'paymentDetails.payment_status': 'pending',
+//         });
+
+//         let order, newOrder;
+
+//         if (existingOrder) {
+//             // If an order with pending status exists, update it with the selected cart items only
+//             newOrder = existingOrder;
+//             newOrder.productDetails = cartItems.map((item) => ({
+//                 productId: item.productId._id,
+//                 brandName: item.productId.brandName,
+//                 productName: item.productId.productName,
+//                 category: item.productId.category,
+//                 quantity: item.quantity,
+//                 price: item.productId.price,
+//                 availability: item.productId.availability,
+//                 sellingPrice: item.productId.sellingPrice,
+//                 productImage: item.productId.productImage[0],
+//             }));
+
+//             newOrder.totalAmount = totalAmount / 100;  // Update with the new total amount
+//             newOrder.statusUpdates.push({
+//                 status: `pending-${req.userId}-${new Date().getTime()}`,
+//                 updatedAt: new Date(),
+//             });
+
+//             await newOrder.save(); // Save updated order
+//         } else {
+//             // If no pending order exists, create a new Razorpay order
+//             const options = {
+//                 amount: totalAmount,
+//                 currency: "INR",
+//                 receipt: "order_rcptid_11",  // Static receipt ID for testing; make sure it's unique
+//                 orderId:order.id,
+//                 payment_capture: 1,  // Auto-captures payment
+//             };
+
+//             console.log("Creating Razorpay order with options:", options); // Debugging Razorpay order options
+
+//             // Call Razorpay API to create an order
+//             order = await razorpay.orders.create(options);
+
+//             // Log Razorpay API response for debugging
+//             console.log("Razorpay Order Response:", order);
+
+//             if (!order || !order.id) {
+//                 throw new Error("Failed to create Razorpay order.");
+//             }
+
+//             // Initialize statusUpdates with a valid status
+//             const statusUpdates = [{
+//                 status: "pending",  // Set initial status to 'pending'
+//                 updatedAt: new Date()
+//             }];
+
+//             // Create a new order in the database
+//             newOrder = await orderModel.create({
+//                 orderId: order.id,
+//                 productDetails: cartItems.map((item) => ({
+//                     productId: item.productId._id,
+//                     brandName: item.productId.brandName,
+//                     productName: item.productId.productName,
+//                     category: item.productId.category,
+//                     quantity: item.quantity,
+//                     price: item.productId.price,
+//                     availability: item.productId.availability,
+//                     sellingPrice: item.productId.sellingPrice,
+//                     productImage: item.productId.productImage[0],
+//                 })),
+//                 email: user.email,
+//                 userId: req.userId,
+//                 totalAmount: totalAmount / 100,  // Convert to main currency unit (INR)
+//                 paymentDetails: {
+//                     paymentId: "",
+//                     payment_method_type: "",
+//                     payment_status: "pending",  // Payment status is initially pending
+//                 },
+//                 billing_name: customerInfo.firstName,
+//                 billing_email: customerInfo.email,
+//                 billing_tel: customerInfo.phone,
+//                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+//                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+//                 statusUpdates: [{
+//                     status: `pending-${req.userId}-${new Date().getTime()}`,  // Ensure unique status per user and time
+//                     updatedAt: new Date()
+//                 }],
+//                 createdAt: new Date(),
+//             });
+//         }
+
+//         // Send Razorpay order_id and other info to frontend
+//         res.json({
+//             success: true,
+//             orderId: newOrder.orderId || order.id,
+//             amount: totalAmount,
+//             currency: "INR",
+//             customerInfo,
+//         });
+//     } catch (error) {
+//         console.error("Error initiating payment:", error);
+//         res.status(500).json({
+//             message: error.message || "Internal Server Error",
+//             success: false,
+//         });
+//     }
+// };
+
+
+
+
+ // Define the function to check for pending payments
+ cron.schedule('*/10 * * * *', async () => {
     try {
-      // Check if ordered status already exists
-      const hasOrdered = order.statusUpdates.some(s => s.status === 'ordered');
-      
-     if (!hasOrdered) {
-  // Try to update existing pending status first
-  const updated = await orderModel.updateOne(
-    { 
-      orderId: razorpayOrderId,
-      "statusUpdates.status": { $regex: /^pending-/ }
-    },
-    {
-      $set: {
-        "statusUpdates.$.status": "ordered",
-        "statusUpdates.$.timestamp": updatedAt
-      }
-    }
-  );
+        // Fetch unpaid orders where no reminder has been sent
+        const unpaidOrders = await orderModel.find({
+            "paymentDetails.payment_status": "pending",
+            reminderSent: false,
+            createdAt: { $lte: new Date(Date.now() - 10 * 60 * 1000) }, // Orders created 10+ minutes ago
+        });
 
-  // If no pending status was updated, add new ordered status
-  if (updated.modifiedCount === 0) {
-    // Double-check again before pushing
-    const freshOrder = await orderModel.findOne({ orderId: razorpayOrderId });
-    const alreadyOrdered = freshOrder.statusUpdates.some(s => s.status === 'ordered');
-if (!alreadyOrdered) {
-  await orderModel.updateOne(
-    { orderId: razorpayOrderId },
-    {
-      $push: {
-        statusUpdates: {
-          status: 'ordered',
-          timestamp: updatedAt,
+        for (const order of unpaidOrders) {
+            // Send reminder email
+            const mailOptions = {
+                from: 'admin@reldaindia.com',
+                to: order.billing_email,
+                subject: 'Reminder: Complete Your Purchase',
+                html: `
+                    <h2>Hello ${order.billing_name},</h2>
+                    <p>We noticed you added items to your cart but haven't completed the purchase. Here's a summary of your order:</p>
+                    <ul>
+                        ${order.productDetails.map(item => `
+                            <li>
+                                <strong>${item.productName}</strong> - ${item.quantity} x &#8377;${item.sellingPrice}
+                            </li>`).join('')}
+                    </ul>
+                    <p><strong>Total Amount:</strong> &#8377;${order.totalAmount}</p>
+                    <p>Click <a href="https://www.reldaindia.com">here</a> to complete your payment.</p>
+                    <p>If you have any questions, feel free to contact us!</p>
+                    <p>Best regards,<br>Your Company</p>
+                `,
+            };
+
+            await transporter.sendMail(mailOptions);
+
+            // Mark reminder as sent
+            order.reminderSent = true;
+            await order.save();
         }
-      }
-    }
-  );
-}
-  }
-}
     } catch (error) {
-      console.error("Status update error (non-critical):", error.message);
+        console.error("Error sending reminder emails:", error);
+    }
+});
+// Verify Payment after redirect
+const verifyPayment = async (razorpayPaymentId) => {
+    try {
+        const response = await axios.get(`https://api.razorpay.com/v1/payments/${razorpayPaymentId}`, {
+            auth: {
+                username: process.env.RAZORPAY_KEY_ID,
+                password: process.env.RAZORPAY_KEY_SECRET
+            }
+        });
+
+        const paymentDetails = response.data;
+        console.log(paymentDetails);
+        
+
+        // Extract specific payment method details
+        const isPaymentCaptured = paymentDetails.status === 'captured';
+        const paymentMethod = paymentDetails.method; // Razorpay payment method // Fallback if `method` isn't populated
+
+        return { isPaymentCaptured, paymentMethod, paymentDetails};
+    } catch (error) {
+        console.error("Error verifying payment:", error);
+        throw new Error("Error verifying payment");
+    }
+};
+// exports.verifyPayment = async (req, res) => {
+//     const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
+
+//     if (!razorpayPaymentId || !razorpayOrderId) {
+//         return res.status(400).json({
+//             success: false,
+//             message: 'Payment ID and Order ID are required'
+//         });
+//     }
+
+//     try {
+//         // Verify the payment status and get the payment method
+//         const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
+//  console.log(paymentDetails);
+ 
+//         if (isPaymentCaptured) {
+//             // Batch database operations in parallel
+//             const [updatedOrder, clearedCart] = await Promise.all([
+//                 orderModel.findOneAndUpdate(
+//                     { orderId: razorpayOrderId },
+//                     {
+//                         $set: {
+//                             'paymentDetails.paymentId': razorpayPaymentId,
+//                             'paymentDetails.payment_status': 'success',
+//                             'paymentDetails.payment_method_type': paymentMethod, // Save payment method
+//                             'paymentDetails.fullDetails': paymentDetails, // Save full payment details
+//                             'order_status': 'ordered',
+//                             updatedAt: new Date(),
+//                         },
+//                         $push: {
+//                             statusUpdates: {
+//                                 status: 'ordered',
+//                                 timestamp: new Date(),
+//                             },
+//                         },
+//                     },
+//                     // { new: true }
+//                 ),
+//                 addToCartModel.deleteMany({ userId: req.userId }), // Clear cart in parallel
+//             ]);
+//             // Check if the order was updated
+//             if (!updatedOrder) {
+//                 return res.status(404).json({
+//                     success: false,
+//                     message: 'Order not found.',
+//                 });
+//             }
+//             // Calculate delivery date (4 days from now)
+//             const deliveryDate = moment().add(4, 'days').toDate(); // Use moment.js to add 4 days
+
+//             // Update the order with the delivery date
+//             await orderModel.updateOne(
+//                 { orderId: updatedOrder.orderId },
+//                 { $set: { delivered_at: deliveryDate } }
+//             );
+
+//             // Parallelize product availability update and email sending
+//             await Promise.all([
+//                 // Update product availability in parallel
+//                 ...cartItems.map((item) =>
+//                     productModel.findByIdAndUpdate(
+//                         item.productId._id,
+//                         { $inc: { availability: -1 } }, // Decrease the available quantity by 1
+//                         { new: true }
+//                     )
+//                 ),
+//                 // Send emails in parallel
+//                 sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, updatedOrder),
+//                 sendAdminNotificationEmail(updatedOrder),
+//             ]);
+
+//             res.json({
+//                 success: true,
+//                 message: 'Payment successful and order confirmed.',
+//                 paymentMethod, // Optionally return the payment method in the response
+//             });
+//         } else {
+//             // Payment failed, send cart reminder
+//             await sendCartReminder(customerInfo, cartItems);
+
+//             res.status(400).json({
+//                 success: false,
+//                 message: 'Payment failed. Reminder sent to complete the purchase.',
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error in verifyPayment:", error.message || error); // Log the specific error message
+//         res.status(500).json({
+//             success: false,
+//             message: error.message || "Internal Server Error",
+//         });
+//     }
+// };
+
+// exports.verifyPayment = async (req, res) => {
+//     const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
+
+//     if (!razorpayPaymentId || !razorpayOrderId) {
+//         return res.status(400).json({
+//             success: false,
+//             message: 'Payment ID and Order ID are required'
+//         });
+//     }
+
+//     try {
+//         // Verify the payment status and get the payment method
+//         const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
+//         console.log(paymentDetails);
+
+//         if (isPaymentCaptured) {
+//             // Batch database operations in parallel
+//             const [updatedOrder, clearedCart] = await Promise.all([
+//                 orderModel.findOneAndUpdate(
+//                     { orderId: razorpayOrderId },
+//                     {
+//                         $set: {
+//                             'paymentDetails.paymentId': razorpayPaymentId,
+//                             'paymentDetails.payment_status': 'success',
+//                             'paymentDetails.payment_method_type': paymentMethod, // Save payment method
+//                             'paymentDetails.fullDetails': paymentDetails, // Save full payment details
+//                             'order_status': 'ordered',
+//                             updatedAt: new Date(),
+//                         },
+//                         $push: {
+//                             statusUpdates: {
+//                                 $each: [{
+//                                     status: 'ordered',
+//                                     timestamp: new Date(),
+//                                 }],
+//                                 $position: 0, // Optionally add at the beginning of the array
+//                                 $slice: -1 // Optionally limit to 1 element in the statusUpdates array if required
+//                             },
+//                         },
+//                     },
+//                     { new: true }
+//                 ),
+//                 addToCartModel.deleteMany({ userId: req.userId }), // Clear cart in parallel
+//             ]);
+
+//             // Check if the order was updated
+//             if (!updatedOrder) {
+//                 return res.status(404).json({
+//                     success: false,
+//                     message: 'Order not found.',
+//                 });
+//             }
+
+//             // Calculate delivery date (4 days from now)
+//             const deliveryDate = moment().add(4, 'days').toDate(); // Use moment.js to add 4 days
+
+//             // Update the order with the delivery date
+//             await orderModel.updateOne(
+//                 { orderId: updatedOrder.orderId },
+//                 { $set: { delivered_at: deliveryDate } }
+//             );
+
+//             // Parallelize product availability update and email sending
+//             await Promise.all([
+//                 // Update product availability in parallel
+//                 ...cartItems.map((item) =>
+//                     productModel.findByIdAndUpdate(
+//                         item.productId._id,
+//                         { $inc: { availability: -1 } }, // Decrease the available quantity by 1
+//                         { new: true }
+//                     )
+//                 ),
+//                 // Send emails in parallel
+//                 sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, updatedOrder),
+//                 sendAdminNotificationEmail(updatedOrder),
+//             ]);
+
+//             res.json({
+//                 success: true,
+//                 message: 'Payment successful and order confirmed.',
+//                 paymentMethod, // Optionally return the payment method in the response
+//             });
+//         } else {
+//             // Payment failed, send cart reminder
+//             await sendCartReminder(customerInfo, cartItems);
+
+//             res.status(400).json({
+//                 success: false,
+//                 message: 'Payment failed. Reminder sent to complete the purchase.',
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error in verifyPayment:", error.message || error); // Log the specific error message
+//         res.status(500).json({
+//             success: false,
+//             message: error.message || "Internal Server Error",
+//         });
+//     }
+// };
+// const moment = require('moment');
+// const { sendOrderConfirmationEmail, sendAdminNotificationEmail, sendCartReminder } = require('./emailService'); // Adjust imports as necessary
+
+exports.verifyPayment = async (req, res) => {
+    const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
+
+    // Check required fields
+    if (!razorpayPaymentId || !razorpayOrderId || !cartItems || !cartItems.length || !customerInfo) {
+        return res.status(400).json({
+            success: false,
+            message: 'Required fields missing or invalid'
+        });
     }
 
-    // 3. Clear cart
-    await addToCartModel.deleteMany({ userId: req.userId });
+    // Ensure user is authenticated
+    if (!req.userId) {
+        return res.status(401).json({
+            success: false,
+            message: 'User not authenticated'
+        });
+    }
 
-    // 4. Set delivery date
-    const deliveryDate = moment().add(4, 'days').toDate();
-    await orderModel.updateOne(
-      { orderId: razorpayOrderId },
-      { $set: { delivered_at: deliveryDate } }
-    );
+    try {
+        // Step 1: Verify payment status
+        const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
+        console.log('Payment Details:', paymentDetails);
 
-    // 5. Process emails and inventory updates
-    await Promise.all([
-      sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, order),
-      sendAdminNotificationEmail(order),
-      ...cartItems.map(item =>
-        productModel.findByIdAndUpdate(
-          item.productId._id,
-          { $inc: { availability: -item.quantity } },
-          { new: true }
-        )
-      )
-    ]);
+        if (isPaymentCaptured) {
+            // Step 2: Fetch the order by orderId
+            const order = await orderModel.findOne({ orderId: razorpayOrderId });
+            if (!order) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Order not found.'
+                });
+            }
 
-    return res.json({
-      success: true,
-      message: 'Payment successful',
-      paymentMethod,
-      orderId: razorpayOrderId
-    });
+            // Step 3: Check if 'ordered' status already exists in the statusUpdates array
+            const statusExists = order.statusUpdates.some(update => update.status === 'ordered');
+            if (!statusExists) {
+                // Step 4: Update order and add 'ordered' status
+                const updatedAt = new Date();  // Get the current timestamp for both main document and status update
+                await orderModel.findOneAndUpdate(
+                    { orderId: razorpayOrderId },
+                    {
+                        $set: {
+                            'paymentDetails.paymentId': razorpayPaymentId,
+                            'paymentDetails.payment_status': 'success',
+                            'paymentDetails.payment_method_type': paymentMethod,
+                            'paymentDetails.fullDetails': paymentDetails,
+                            'order_status': 'ordered',
+                            updatedAt: updatedAt,  // Set updatedAt here for the main order document
+                        },
+                        $push: {
+                            statusUpdates: {
+                                status: 'ordered',
+                                timestamp: updatedAt,  // Set timestamp for the 'ordered' status update
+                            },
+                        },
+                    }
+                );
 
-  } catch (error) {
-    console.error("Payment verification failed:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+                // Step 5: Clear cart after successful payment
+                await addToCartModel.deleteMany({ userId: req.userId });
+                console.log("Cart has been cleared.");
+            } else {
+                console.log("The 'ordered' status already exists.");
+            }
+
+            // Step 6: Calculate delivery date (4 days from now)
+            const deliveryDate = moment().add(4, 'days').toDate();
+
+            // Step 7: Update the order with delivery date
+            await orderModel.updateOne(
+                { orderId: razorpayOrderId },
+                { $set: { delivered_at: deliveryDate } }
+            );
+
+            // Step 8: Parallelize product availability update and email sending
+            const emailPromises = [
+                sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, order),
+                sendAdminNotificationEmail(order)
+            ];
+
+            const productUpdatePromises = cartItems.map((item) =>
+                productModel.findByIdAndUpdate(
+                    item.productId._id,
+                    { $inc: { availability: -1 } },
+                    { new: true }
+                )
+            );
+
+            // Handle potential errors in parallel promises
+            try {
+                await Promise.all([...emailPromises, ...productUpdatePromises]);
+            } catch (err) {
+                console.error('Error processing parallel tasks:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error processing parallel tasks',
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: 'Payment successful and order confirmed.',
+                paymentMethod,
+            });
+        } else {
+            // Step 9: Handle payment failure and send cart reminder
+            await sendCartReminder(customerInfo, cartItems);
+            return res.status(400).json({
+                success: false,
+                message: 'Payment failed. Reminder sent to complete the purchase.',
+            });
+        }
+    } catch (error) {
+        console.error("Error in verifyPayment:", error.message || error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal Server Error",
+        });
+    }
 };
+
 const sendOrderConfirmationEmail = async (customerInfo, razorpayPaymentId, order) => {
     try {
         // Fetch payment details from Razorpay response
@@ -996,7 +1404,7 @@ const sendOrderConfirmationEmail = async (customerInfo, razorpayPaymentId, order
         // Construct payment details HTML
         let paymentDetailsHtml = `
             <ul>
-                <li><strong>Amount Paid:</strong> ₹${amountPaid}</li>
+                <li><strong>Amount Paid:</strong> &#8377;${amountPaid}</li>
                 <li><strong>Payment Status:</strong> ${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</li>
                 <li><strong>Transaction ID:</strong> ${transactionId}</li>
                 <li><strong>Payment Method:</strong> ${paymentType}</li>
@@ -1096,6 +1504,274 @@ const sendEmail = async (email, subject, message) => {
       console.error('Error sending email:', error);
     }
   };
+// const sendEmail = async (order, subject, message) => {
+//     console.log('Order:', order);
+// console.log('Recipient Email:', order.billing_email);
+
+//     // if (!order || !order.billing_email) {
+//     //   console.error('Error: No recipient email provided');
+//     //   return; // Exit early if order or billing_email is missing
+//     // }
+    
+//     try {
+//       await transporter.sendMail({
+//         from: 'support@reldaindia.com', // Sender's email
+//         to: order.billing_email, // Receiver's email
+//         subject: subject,
+//         text: message,
+//       });
+//       console.log('Email sent successfully');
+//     } catch (error) {
+//       console.error('Error sending email:', error);
+//     } 
+//   };
+  
+//   exports.updateOrderStatus = async (req, res) => {
+//     const { orderId, order_status } = req.body;
+
+//     try {
+//         // Validate the new status
+//         const validStatuses = ['ordered', 'packaged', 'shipped', 'delivered', 'failed', 'returnAccepted', 'returned'];
+//         if (!validStatuses.includes(order_status)) {
+//             return res.status(400).json({ status: 'failed', message: 'Invalid status provided.' });
+//         }
+//         // const validTransitions = {
+//         //     ordered: ['packaged'],           
+//         //     packaged: ['shipped'],
+//         //     shipped: ['delivered', 'returnAccepted'],
+//         //     delivered: [], // No further transitions
+//         //     returnAccepted: ['returned'],
+//         //     returned: [], // No further transitions
+//         //     failed: [], // No further transitions
+//         // };
+//         const validTransitions = {
+//             ordered: ['packaged'],
+//             packaged: ['shipped'],
+//             shipped: ['delivered', 'returnRequested'],
+//             returnRequested: ['returnAccepted'], // Add this transition
+//             returnAccepted: ['returned'],
+//             returned: [], // No further transitions
+//             delivered: [], // No further transitions
+//             failed: [], // No further transitions
+//         };
+        
+        
+//         // Find the order by ID
+//         const order = await orderModel.findOne({ orderId: orderId });
+//         if (!order) {
+//             return res.status(404).json({ status: 'failed', message: 'Order not found.' });
+//         }
+
+//          // Check if the new status is valid
+//          const currentStatus = order.order_status;
+//          const allowedStatuses = validTransitions[currentStatus] || [];
+//          if (!allowedStatuses.includes(order_status)) {
+//              return res.status(400).json({
+//                  status: 'failed',
+//                  message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
+//              });
+//          }
+      
+//         // Update order status and timestamp
+//         order.order_status = order_status;
+//         order.statusUpdatedAt = Date.now();  // Save the current timestamp
+
+//         // Push the new status update to the statusUpdates array
+//         order.statusUpdates.push({
+//             status: order_status,
+//             timestamp: order.statusUpdatedAt
+//         });
+
+//         await order.save();
+
+//         // Format the timestamp into 12-hour format
+//         const formattedTimestamp = moment(order.statusUpdatedAt).format('hh:mm A'); // 12-hour format (e.g., 2:30 PM)
+
+
+//         // Send follow-up email based on the status update
+//         let emailMessage = '';
+//         let emailSubject = `Your Order #${orderId} Status Update`;
+
+//         // Define the email content based on status change
+//         if (order_status === 'packaged') {
+//             emailMessage = `Dear #${order.billing_name},\n\nYour order #${orderId} has been packed and is ready for shipping! ?? You ll receive an update once it is shipped.`;
+//         } else if (order_status === 'shipped') {
+//             emailMessage = `Dear #${order.billing_name},\n\nYour order #${orderId} has been shipped and should arrive soon.`;
+//         } else if (order_status === 'delivered') {
+//             emailMessage = `Dear #${order.billing_name},\n\nWe re happy to confirm that your order #${orderId} has been delivered! ?? We hope everything is perfect. Thank you for being a valued customer! If you have any queries, feel free to contact us.`;
+//         }else if (order_status === 'returnAccepted') {
+//             emailMessage = `Dear #${order.billing_name},\n\nWe regret to inform you that your order #${orderId} has been return request accepted. If you have any questions, please don't hesitate to reach out.`;
+//         }else if (order_status === 'returned') {
+//             emailMessage = `Dear #${order.billing_name},\n\nWe regret to inform you that your order #${orderId} has been product returned . If you have any questions, please don't hesitate to reach out.`;
+//          }
+
+//         // Ensure email is defined before sending
+//         if (order.billing_email) {
+//             await sendEmail(order.billing_email, emailSubject, emailMessage); // Send the email
+//         } else {
+//             console.error(`No customer email for order #${orderId}`);
+//         }
+
+//         return res.status(200).json({
+//             status: 'success',
+//             message: `Order ${orderId} updated to '${order_status}'.`,
+//             timestamp: formattedTimestamp, // Include the formatted timestamp in the response
+//             statusUpdates: order.statusUpdates, // Return all status updates with timestamps
+//         });
+//     } catch (error) {
+//         console.error('Error in updating order status:', error);
+//         return res.status(500).json({ status: 'failed', message: 'Internal server error' });
+//     }
+// };
+
+// exports.updateOrderStatus = async (req, res) => {
+//     const { orderId, order_status } = req.body;
+
+//     try {
+//         // Validate the new status
+//         const validStatuses = ['pending','ordered', 'packaged', 'shipped', 'delivered', 'failed', 'returnAccepted', 'returned'];
+//         const validTransitions = {
+//             ordered: ['packaged'],
+//             packaged: ['shipped'],
+//             shipped: ['delivered', 'returnRequested'],
+//             returnRequested: ['returnAccepted'], // Add this transition
+//             returnAccepted: ['returned'],
+//             returned: [], // No further transitions
+//             delivered: [], // No further transitions
+//             failed: [], // No further transitions
+//         };
+
+//         if (!validStatuses.includes(order_status)) {
+//             return res.status(400).json({ status: 'failed', message: 'Invalid status provided.' });
+//         }
+
+//         // Find the order by ID
+//         const order = await orderModel.findOne({ orderId });
+//         if (!order) {
+//             return res.status(404).json({ status: 'failed', message: 'Order not found.' });
+//         }
+
+//         const currentStatus = order.order_status;
+//         const allowedStatuses = validTransitions[currentStatus] || [];
+//         if (!allowedStatuses.includes(order_status)) {
+//             return res.status(400).json({
+//                 status: 'failed',
+//                 message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
+//             });
+//         }
+
+//         // Update order status and timestamp
+//         order.order_status = order_status;
+//         order.statusUpdatedAt = Date.now();
+
+//         // Push the new status update to the statusUpdates array
+//         order.statusUpdates.push({
+//             status: order_status,
+//             timestamp: order.statusUpdatedAt,
+//         });
+
+//         await order.save();
+
+//         // Format the timestamp into 12-hour format
+//         const formattedTimestamp = moment(order.statusUpdatedAt).format('hh:mm A');
+
+//         // Prepare email content
+//         let emailMessage = '';
+//         // const emailSubject =' `Your Order #${orderId} Status Update`';
+//         const emailSubject ='';
+
+
+//         switch (order_status) {
+//             case 'packaged':
+//                 emailSubject = `Your Order is Packed and Ready for Shipping`
+//                emailMessage = `
+//     Dear ${order.billing_name},
+
+//     We're excited to let you know that your order is packed and ready for shipping!
+
+//     <strong>Here are your order details:</strong>
+//     <ul>
+//         <li><strong>Product Name:</strong> ${product.productName}</li>
+//         <li><strong>Order Number:</strong> ${order.orderId}</li>
+//         <li><strong>Estimated Delivery:</strong> ${order.estimatedDeliveryDate}</li>
+//     </ul>
+
+//     If you have any questions, feel free to contact us at [support@reldaindia.com/9884890934]. We're always happy to help!
+
+//     Thank you for shopping with Elda Appliances.
+
+//     Best Regards,<br>
+//     The Elda Appliances Team
+// `;
+
+//                 break;
+//             case 'shipped':
+//                 emailSubject = `Your Product Has Been Shipped`
+//                 emailMessage = `Dear ${order.billing_name},
+
+//     Great news! Your product has been shipped and is on its way to you.
+
+//     <strong>Here are the shipping details:</strong>
+//     <ul>
+//         <li><strong>Product Name:</strong> ${product.productName}</li>
+//         <li><strong>Order Number:</strong> ${order.orderId}</li>
+//         <li><strong>Estimated Delivery:</strong> Within 24 Hrs</li>
+//     </ul>
+
+//     If you have any questions, feel free to reach out to us at [support@reldaindia.com/9884890934]. We're always happy to help!
+
+//     Best Regards,<br>
+//     The Elda Appliances Team
+// `;
+
+//                 break;
+//             case 'delivered':
+//                 emailSubject = `Thank You for Your Order!`
+//                 emailMessage = `
+//                 Dear ${order.billing_name},
+            
+//                 We're happy to let you know that your ${product.productName} has been successfully delivered! We hope it brings you joy and meets your expectations.
+            
+//                 <strong>Order Details:</strong>
+//                 <ul>
+//                     <li><strong>Product:</strong> ${product.productName}</li>
+//                     <li><strong>Delivery Date:</strong> ${new Date().toLocaleDateString()}</li>
+//                 </ul>
+            
+//                 If you have any questions or need help with your purchase, our customer service team is here for you. Feel free to contact us at [support@eldappliances.com/9884890934]. We're always happy to help!
+            
+//                 Thank you for choosing Elda Appliances. We look forward to serving you again!
+            
+//                 Best Regards,<br>
+//                 The Elda Appliances Team
+//             `;
+//                 break;
+//             case 'returnAccepted':
+//                 emailMessage = `Dear ${order.billing_name},\n\nYour return request for order #${orderId} has been accepted.`;
+//                 break;
+//             case 'returned':
+//                 emailMessage = `Dear ${order.billing_name},\n\nYour order #${orderId} has been returned.`;
+//                 break;
+//         }
+
+//         // Send email if email exists
+//         if (order.billing_email) {
+//             await sendEmail(order.billing_email, emailSubject, emailMessage);
+//         } else {
+//             console.error(`No email found for order #${orderId}`);
+//         }
+
+//         return res.status(200).json({
+//             status: 'success',
+//             message: `Order #${orderId} updated to '${order_status}'.`,
+//             timestamp: formattedTimestamp,
+//             statusUpdates: order.statusUpdates,
+//         });
+//     } catch (error) {
+//         console.error('Error in updating order status:', error);
+//         return res.status(500).json({ status: 'failed', message: 'Internal server error' });
+//     }
+// };
 
 exports.updateOrderStatus = async (req, res) => {
     const { orderId, order_status } = req.body;

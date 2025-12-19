@@ -1,99 +1,51 @@
-const multer = require('multer');
-const sharp = require('sharp');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('cloudinary').v2;
+const Complaint = require('../models/complaintmodel');
+const transporter = require('../config/nodemailerConfig');
 
-// Initialize Cloudinary
-cloudinary.config({
-  cloud_name: 'your-cloud-name',
-  api_key: 'your-api-key',
-  api_secret: 'your-api-secret',
-});
+// Helper function to send an email
+const sendEmail = async (customerName, orderID, mobileNumber, complaintText) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER, // Ensure you have this in your .env file
+    to: 'support@yourcompany.com', // Support email address
+    subject: 'New Customer Complaint',
+    text: `A new complaint has been submitted by ${customerName}.\nComplaint Details:\nOrder ID: ${orderID}\nMobile: ${mobileNumber}\nComplaint: ${complaintText}`,
+  };
 
-// Use memoryStorage for Multer so we can access the file buffer
-const storage = multer.memoryStorage();  // Storing file in memory
-
-const upload = multer({ storage });
-
-// Middleware to validate image dimensions (1600x520px)
-const validateImageDimensions = (req, res, next) => {
-  if (req.file) {
-    // Use Sharp to get the image dimensions
-    sharp(req.file.buffer)
-      .metadata()
-      .then(metadata => {
-        const { width, height } = metadata;
-
-        // Check if the image has the required dimensions (1600x520)
-        if (width === 1600 && height === 520) {
-          next(); // Proceed to the next middleware or route handler
-        } else {
-          return res.status(400).json({
-            success: false,
-            message: 'Image dimensions must be 1600x520px.',
-          });
-        }
-      })
-      .catch(err => {
-        return res.status(400).json({
-          success: false,
-          message: 'Error processing the image.',
-        });
-      });
-  } else {
-    return res.status(400).json({
-      success: false,
-      message: 'No image uploaded.',
-    });
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Failed to send email notification.');
   }
 };
 
-// Add Parent Category with image validation
-const addParentCategory = (req, res) => {
-  // Use multer and validate image dimensions before saving the category
-  upload.single('categoryImage')(req, res, validateImageDimensions, async (err) => {
-    if (err) {
-      return res.status(400).json({ success: false, message: err.message });
-    }
+// Controller function to handle complaint submission
+const submitComplaint = async (req, res) => {
+  const { customerName, orderID, mobileNumber, email, address, purchaseDate, deliveryDate, complaintText, fileUpload } = req.body;
 
-    try {
-      const { name } = req.body;
+  try {
+    // Save complaint to the database
+    const newComplaint = new Complaint({
+      customerName,
+      orderID,
+      mobileNumber,
+      email,
+      address,
+      purchaseDate,
+      deliveryDate,
+      complaintText,
+      fileUpload, // Optional: If file upload is handled
+    });
+    await newComplaint.save();
 
-      if (!name || !req.file) {
-        return res.status(400).json({ success: false, message: 'All fields are required, including an image.' });
-      }
+    // Send email notification to support
+    await sendEmail(customerName, orderID, mobileNumber, complaintText);
 
-      // Now you can upload to Cloudinary
-      const cloudinaryStorage = new CloudinaryStorage({
-        cloudinary,
-        params: {
-          folder: 'parent_categories',
-          allowed_formats: ['jpg', 'jpeg', 'png', 'svg'], // Allowed formats
-        },
-      });
-
-      const cloudinaryUpload = multer({ storage: cloudinaryStorage }).single('categoryImage');
-      
-      cloudinaryUpload(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({ success: false, message: 'Failed to upload image to Cloudinary.' });
-        }
-
-        const imageUrl = req.file.path; // Cloudinary URL for the uploaded image
-
-        const parentCategory = new ParentCategory({
-          name,
-          categoryImage: imageUrl,
-        });
-
-        await parentCategory.save();
-        res.status(201).json({ success: true, message: 'Parent Category added successfully.', parentCategory });
-      });
-    } catch (error) {
-      console.error('Error adding Parent Category:', error);
-      res.status(500).json({ success: false, message: 'Internal server error.' });
-    }
-  });
+    // Respond with success
+    res.status(200).json({ message: 'Complaint submitted successfully.' });
+  } catch (error) {
+    console.error('Error submitting complaint:', error);
+    res.status(500).json({ message: 'Failed to submit complaint.' });
+  }
 };
 
-module.exports = { addParentCategory };
+module.exports = { submitComplaint };  // Correct export of submitComplaint function

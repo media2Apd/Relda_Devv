@@ -12,16 +12,7 @@ const addToCart = mongoose.Schema({
     userId:   {
         ref: 'User', 
         type: String
-      },
-      zohoProductId: {
-  type: String,
-  default: null,
-},
-zohoLeadId: {
-  type: String,
-  default: null,
-},
-
+      }
 }, {
     timestamps: true
 });

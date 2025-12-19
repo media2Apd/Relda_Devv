@@ -9,10 +9,8 @@ const registrationSchema = new mongoose.Schema({
     orderNumber: String,
     serialNumber: String,
     installationDate: Date,
-    // fileData: Buffer,
-    // fileUpload: String, // To store the file path
-    fileUpload: String,
-fileUrl: String, // Store Cloudinary URL
+    fileData: Buffer,
+    fileUpload: String, // To store the file path
   });
   
   const Registration = mongoose.model('Registration', registrationSchema);

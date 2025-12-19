@@ -3,13 +3,13 @@ const axios = require("axios");
 const transporter = require("../../config/nodemailerConfig"); // Ensure this is correctly configured
 
 // Schedule: Every day at 6:00 AM
-cron.schedule("0 10 * * *", async () => {
-    // cron.schedule("*/1 * * * *", async () => {
+ cron.schedule("10 6 * * *", async () => {
+   //cron.schedule("35 17 * * *", async () => {
   try {
     console.log("Fetching dashboard data for daily email...");
 
     // Fetch data from the dashboard API
-    const response = await axios.get("http://localhost:8080/api/dashboard");
+    const response = await axios.get("https://www.reldaindia.com/api/dashboard");
     const dashboardData = response.data.data;
 
     // Generate the email content
@@ -20,11 +20,10 @@ cron.schedule("0 10 * * *", async () => {
     const cardHeight = "150px"; // You can adjust this height as needed
     
     const wrapCard = (html) => `
-  <div style="flex: 1 1 300px; max-width: 300px; margin: 10px; box-sizing: border-box;">
-    ${html}
-  </div>
-`;
-
+      <div style="margin:6px;">
+        ${html}
+      </div>
+    `;
     
     const cardStyle = `
       width:${cardWidth};
@@ -177,17 +176,16 @@ cron.schedule("0 10 * * *", async () => {
     // Group every 3 cards into a row
     const groupedCards = [];
     for (let i = 0; i < cards.length; i += 3) {
-        groupedCards.push(`
-            <div style="display: flex; justify-content: center; align-items:center; flex-wrap: wrap; gap: 10px; max-width: 960px; margin: 0 auto;">
-              ${cards.slice(i, i + 3).join("")}
-            </div>
-          `);
-          
+      groupedCards.push(`
+        <div style="display:flex;justify-content:center;flex-wrap:wrap;">
+          ${cards.slice(i, i + 3).join("")}
+        </div>
+      `);
     }
     
     // Final HTML
     const html = `
-      <div style=" justify-content: center; align-items:center; max-width:750px;margin:0 auto;padding:20px;font-family:sans-serif;background:#f5f5f5;">
+      <div style="max-width:750px;margin:0 auto;padding:20px;font-family:sans-serif;background:#f5f5f5;">
        <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1746787276/Relda_logo_1_k0ilvf.png" alt="RELDA India Logo" style="height:40px;margin-bottom:10px;" /><br>
         <h2 style="text-align:center;margin-bottom:30px;">📊 Daily Dashboard Summary</h2>
         ${groupedCards.join("")}
@@ -219,14 +217,14 @@ cron.schedule("0 10 * * *", async () => {
     await transporter.sendMail({
       from: "admin@reldaindia.com",
       to: [
-        "mediaexecutive2.apd@gmail.com",
-        // "ceo@apdgroup.org",
+        //"mediaexecutive2.apd@gmail.com",
+         "ceo@apdgroup.org",
         // "sivaganesh.m@digida.in",
         // "mediaexecutive4.apd@gmail.com",
         // "designerexecutive2.apd@gmail.com",
       ],
         
-    //   cc: "mediaexecutive3.apd@gmail.com",
+      cc: "mediaexecutive2.apd@gmail.com",
         
       subject: `Daily Business Report - ${formattedDate}`,
       html,
@@ -238,6 +236,6 @@ cron.schedule("0 10 * * *", async () => {
     console.error("Failed to send daily dashboard email:", error.message);
   }
 },
-{
-    timezone: "Asia/Kolkata"
-  });
+ {
+  timezone: "Asia/Kolkata"
+});

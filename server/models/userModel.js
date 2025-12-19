@@ -79,7 +79,6 @@ const addressSchema = new mongoose.Schema({
   country: { type: String, required: true },
   pinCode: { type: String, required: true, default: '000000' },
   default: { type: Boolean, default: false }
-
 });
 
 // User schema
@@ -89,8 +88,6 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, default: 'GENERAL' },
   mobile: { type: String, required: true, unique: true },
-  zohoAccountId: { type: String },
-  zohoContactId: { type: String },
 
   // Address fields
   addresses: [addressSchema],

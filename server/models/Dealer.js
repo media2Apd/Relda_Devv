@@ -7,10 +7,8 @@ const DealerSchema = new mongoose.Schema({
   aadharNumber: { type: String, required: true },
   GSTNumber: { type: String, required: true },
   PanNumber: { type: String, required: true },
-  // fileData: { type: Buffer, required: true },
-  // fileType: { type: String, required: true }
-  fileUploadUrl: { type: String },
-fileType: { type: String }
+  fileData: { type: Buffer, required: true },
+  fileType: { type: String, required: true }
 });
 
 module.exports = mongoose.model('Dealer', DealerSchema);

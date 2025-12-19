@@ -225,96 +225,12 @@ const addToCartViewProduct = async(req,res)=>{
 //   }
 // };
 
-// const addToCartViewAllProduct = async (req, res) => {
-//   try {
-//     const { userId, category, fromDate, toDate } = req.query;
-//     const query = {};
-
-//     if (userId) query.userId = userId;
-//     if (category) query['productId.category'] = category;
-//     if (fromDate || toDate) {
-//       query.createdAt = {};
-//       if (fromDate) {
-//         const start = new Date(fromDate);
-//         start.setHours(0, 0, 0, 0);
-//         query.createdAt.$gte = start;
-//       }
-//       if (toDate) {
-//         const end = new Date(toDate);
-//         end.setHours(23, 59, 59, 999);
-//         query.createdAt.$lte = end;
-//       }
-//     }
-
-//     let allCartItems = await addToCartModel
-//       .find(query)
-//       .populate('productId', 'productName category sellingPrice price productImage')
-//       .populate('userId', 'name email mobile address')
-//       .lean();
-
-//     // Remove items with null userId
-//     allCartItems = allCartItems.filter((item) => item.userId);
-
-//     // Grouping by User
-//     const userGroupedCart = {};
-
-//     allCartItems.forEach((item) => {
-//       const userId = item.userId._id.toString();
-
-//       if (!userGroupedCart[userId]) {
-//         userGroupedCart[userId] = {
-//           user: item.userId,
-//           totalProducts: 0,
-//           categories: {},
-//           products: [],
-//         };
-//       }
-
-//       const existingProductIndex = userGroupedCart[userId].products.findIndex(
-//         (p) => p.productId._id.toString() === item.productId._id.toString()
-//       );
-
-//       if (existingProductIndex === -1) {
-//         userGroupedCart[userId].products.push({
-//           productId: item.productId,
-//           quantity: 1,
-//         });
-//       } else {
-//         userGroupedCart[userId].products[existingProductIndex].quantity += 1;
-//       }
-
-//       // Update Category Count
-//       const category = item.productId.category;
-//       userGroupedCart[userId].categories[category] =
-//         (userGroupedCart[userId].categories[category] || 0) + 1;
-
-//       // Update total products count
-//       userGroupedCart[userId].totalProducts += 1;
-//     });
-
-//     res.status(200).json({
-//       data: {
-//         usersCart: Object.values(userGroupedCart), // Convert object to array
-//       },
-//       success: true,
-//       error: false,
-//     });
-//   } catch (error) {
-//     console.error('Error fetching cart items:', error);
-//     res.status(500).json({
-//       message: 'Error fetching cart items.',
-//       error: true,
-//       success: false,
-//     });
-//   }
-// };
-
 const addToCartViewAllProduct = async (req, res) => {
   try {
     const { userId, category, fromDate, toDate } = req.query;
     const query = {};
-
     if (userId) query.userId = userId;
+    if (category) query['productId.category'] = category;
     if (fromDate || toDate) {
       query.createdAt = {};
       if (fromDate) {
@@ -328,39 +244,80 @@ const addToCartViewAllProduct = async (req, res) => {
         query.createdAt.$lte = end;
       }
     }
-
     let allCartItems = await addToCartModel
       .find(query)
       .populate('productId', 'productName category sellingPrice price productImage')
       .populate('userId', 'name email mobile address')
       .lean();
-
-    // **Apply category filtering AFTER population**
-    if (category) {
-      allCartItems = allCartItems.filter((item) => 
-        item.productId && item.productId.category.toLowerCase() === category.toLowerCase()
-      );
-    }
-
     // Remove items with null userId
     allCartItems = allCartItems.filter((item) => item.userId);
-
+    // Group cart items by productId and category, and count quantity per product
+    const groupedCartItems = {};
+    allCartItems.forEach((item) => {
+      const userId = item.userId._id.toString();
+      const productId = item.productId._id.toString();
+      const category = item.productId.category;
+      // Create a key for each product under each user
+      const key = `${userId}_${productId}`;
+      if (!groupedCartItems[key]) {
+        groupedCartItems[key] = {
+          ...item,
+          quantity: 1, // Initialize quantity
+        };
+      } else {
+        groupedCartItems[key].quantity += 1; // Increment quantity if product already exists
+      }
+      // If a new category is added, group by category
+      if (!groupedCartItems[key].categories) {
+        groupedCartItems[key].categories = {};
+      }
+      groupedCartItems[key].categories[category] =
+        (groupedCartItems[key].categories[category] || 0) + 1;
+    });
+    // Convert the groupedCartItems object to an array
+    const uniqueCartItems = Object.values(groupedCartItems);
+    // Sort items by createdAt
+    uniqueCartItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Aggregate cart data by category
+    const categoryWiseCart = {};
+    uniqueCartItems.forEach((item) => {
+      const category = item.productId.category;
+      if (!categoryWiseCart[category]) {
+        categoryWiseCart[category] = [];
+      }
+      categoryWiseCart[category].push(item);
+    });
+    // Create user summary (total products and categories)
+    const userCartSummary = {};
+    uniqueCartItems.forEach((item) => {
+      const userId = item.userId._id.toString();
+      const category = item.productId.category;
+      if (!userCartSummary[userId]) {
+        userCartSummary[userId] = {
+          totalProducts: 0,
+          categories: {},
+        };
+      }
+      userCartSummary[userId].totalProducts += item.quantity; // Add quantity to total
+      userCartSummary[userId].categories[category] =
+        (userCartSummary[userId].categories[category] || 0) + item.quantity; // Aggregate category-wise count
+    });
     res.status(200).json({
       data: {
-        allCartItems, // Return only filtered items
+        allCartItems: uniqueCartItems, // Return only unique cart items
+        userCartSummary,
+        categoryWiseCart,
       },
       success: true,
       error: false,
     });
   } catch (error) {
-    console.error("Error fetching cart items:", error);
+    console.error('Error fetching cart items:', error);
     res.status(500).json({
-      message: "Error fetching cart items.",
+      message: 'Error fetching cart items.',
       error: true,
       success: false,
     });
   }
 };
-
-
 module.exports =  {addToCartViewProduct, addToCartViewAllProduct}
