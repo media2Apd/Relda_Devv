@@ -1,0 +1,8 @@
+const ROLE = {
+    ADMIN : "ADMIN",
+    GENERAL : "GENERAL",
+    MANAGEBLOG : "MANAGEBLOG",
+    MANAGESALES : "MANAGESALES",
+}
+
+export default ROLE
