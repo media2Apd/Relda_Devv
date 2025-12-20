@@ -64,23 +64,23 @@ const RelatedProducts = () => {
       </div>
     );
   };
-  if (loading) return <p className="text-center text-lg">Loading related products...</p>;
-  if (error) return <p className="text-center text-red-500 text-lg">{error}</p>;
+  if (loading) return <p className="text-center text-xl md:text-2xl">Loading related products...</p>;
+  if (error) return <p className="text-center text-brand-primary text-lg">{error}</p>;
   if (!related.length) return null;
 
   const productsToShow = related.slice(0, maxProducts);
 
   return (
-    <div className="px-4 py-6 flex justify-center">
-      <div className="w-full max-w-screen-xl bg-white shadow-md rounded-xl p-4 md:p-6">
+    // <div className="px-4 py-6 flex justify-center">
+      <div className="mx-auto px-4 my-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-base md:text-xl font-semibold text-gray-800">
+          <h2 className="text-xl md:text-2xl font-semibold">
             Related to items you've viewed
-          </h3>
+          </h2>
           {related.length > maxProducts && (
             <button
               onClick={() => navigate("/related-products")}
-              className="text-blue-600 text-sm hover:underline whitespace-nowrap"
+              className="text-blue-600 hover:text-blue-700 text-base font-semibold whitespace-nowrap"
             >
               See More
             </button>
@@ -98,7 +98,7 @@ const RelatedProducts = () => {
 		<div className="px-2 py-2 text-xs sm:text-sm">
                 <h4 className="font-medium text-gray-800 truncate">{item.productName}</h4>
                 <div className="flex items-center mt-1">
-                  <p className="mr-2 text-red-600 font-semibold text-xs sm:text-sm">
+                  <p className="mr-2 text-brand-primary font-semibold text-xs sm:text-sm">
                     {displayINRCurrency(item.sellingPrice)}
                   </p>
                   <p className="text-gray-400 line-through text-[10px] sm:text-xs">
@@ -110,7 +110,7 @@ const RelatedProducts = () => {
           ))}
         </div>
       </div>
-    </div>
+    // </div>
   );
 };
 
