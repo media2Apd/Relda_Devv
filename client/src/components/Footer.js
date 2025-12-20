@@ -124,12 +124,12 @@ const Footer = () => {
               PRODUCTS
             </h3>
             <ul className="flex flex-col gap-3 text-sm">
-              <li><a href="/HomeAppliances" className="hover:text-white transition-colors">Home Appliances</a></li>
-              <li><a href="/KitchenAppliances" className="hover:text-white transition-colors">Kitchen Appliances</a></li>
-              <li><a href="/WaterCoolers" className="hover:text-white transition-colors">Water Coolers</a></li>
-              <li><a href="/Lightnings" className="hover:text-white transition-colors">Lightnings</a></li>
-              <li><a href="/Switches" className="hover:text-white transition-colors">Switches</a></li>
-              <li><a href="/Sockets" className="hover:text-white transition-colors">Sockets</a></li>
+              <li><a href="/" className="hover:text-white transition-colors">Home Appliances</a></li>
+              <li><a href="/" className="hover:text-white transition-colors">Kitchen Appliances</a></li>
+              <li><a href="/" className="hover:text-white transition-colors">Water Coolers</a></li>
+              <li><a href="/" className="hover:text-white transition-colors">Lightnings</a></li>
+              <li><a href="/" className="hover:text-white transition-colors">Switches</a></li>
+              <li><a href="/" className="hover:text-white transition-colors">Sockets</a></li>
             </ul>
           </div>
 
