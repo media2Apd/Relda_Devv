@@ -49,7 +49,9 @@ const {getViewedProducts} = require('../controller/product/relatedProducts')
 
 const addressController = require("../controller/user/addaddressController");
 const { addOfferPoster, getAllOfferPosters, editOfferPoster, deleteOfferPoster, getOfferPosterById } = require('../controller/offerposter/offerPosterController');
-
+const couponController = require("../controller/order/couponController");
+const bannerUpload = require("../middleware/bannerUpload");
+const bannerController = require("../controller/bannerPosts/bannerController");
 const sitemapGenerator = require('../utils/sitemapGenerator');
 const { createBlogPost, getAllBlogPosts, editBlogPost, deleteBlogPost, getBlogPostById } = require('../controller/blog/blogsController');
 const { addDeveloperIP, removeDeveloperIP } = require('../controller/DeveloperIp');
@@ -188,7 +190,24 @@ router.put("/edit-product-categories/:id", editCategory);
 router.delete("/delete-product-categories/:id", deleteCategory); 
 router.get("/dashboard", getDashboardCounts)
 router.delete("/delete-order", authToken, deletePendingOrderById)
+router.post("/create-coupon", couponController.createCoupon);
+router.get("/all-coupons", couponController.getAllCoupons);
+router.get("/view-coupon/:id", couponController.getCouponById);
+router.put("/update-coupon/:id", couponController.updateCoupon);
+router.delete("/delete-coupon/:id", couponController.deleteCoupon);
+router.patch("/toggle-coupon-status/:id", couponController.toggleCouponStatus);
 
+router.post(
+  "/banner/upload",
+  bannerUpload.fields([
+    { name: "desktop", maxCount: 1 },
+    { name: "mobile", maxCount: 1 }
+  ]),
+  bannerController.createBanner
+);
+
+// FRONTEND GET BANNERS
+router.get("/banner/view-all", bannerController.getBanners);
 
 // router.get('/sales/:period', getSales)
 

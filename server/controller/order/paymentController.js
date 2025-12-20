@@ -109,7 +109,45 @@ exports.createCheckout = async (req, res) => {
 
 exports.paymentController = async (req, res) => {
     try {
-        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink } = req.body;
+        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode  } = req.body;
+// 💰 CASH ON HAND FLOW
+if (paymentMode === "CASH_ON_HAND") {
+
+  const subTotal = cartItems.reduce((t, i) =>
+    t + i.quantity * i.productId.sellingPrice, 0
+  );
+
+  const order = await orderModel.create({
+    orderId: `CASH-${uuidv4().slice(0, 8)}`,
+    productDetails: cartItems.map(item => ({
+      productId: item.productId._id,
+      productName: item.productId.productName,
+      quantity: item.quantity,
+      sellingPrice: item.productId.sellingPrice,
+      productImage: item.productId.productImage[0],
+    })),
+    email: customerInfo.email,
+    userId: req.userId,
+    totalAmount: subTotal,
+    paymentDetails: {
+      payment_status: "cash_on_hand",
+      payment_method_type: "CASH"
+    },
+    billing_address: customerInfo.street,
+    shipping_address: customerInfo.street,
+    statusUpdates: [{
+      status: "ORDER_CONFIRMED",
+      updatedAt: new Date()
+    }],
+    createdAt: new Date()
+  });
+
+  return res.json({
+    success: true,
+    message: "Order confirmed with Cash on Hand",
+    orderId: order.orderId
+  });
+}
 
         if (!customerInfo || typeof customerInfo !== 'object') {
             return res.status(400).json({ message: "Invalid customer information", success: false });
@@ -138,9 +176,57 @@ exports.paymentController = async (req, res) => {
             return res.status(404).json({ message: "User not found", success: false });
         }
 
-        const totalAmount = cartItems.reduce((total, item) => {
-            return total + item.quantity * item.productId.sellingPrice;
-        }, 0) * 100;
+        // const totalAmount = cartItems.reduce((total, item) => {
+        //     return total + item.quantity * item.productId.sellingPrice;
+        // }, 0) * 100;
+
+        let subTotal = cartItems.reduce((total, item) => {
+  return total + item.quantity * item.productId.sellingPrice;
+}, 0);
+
+let discountAmount = 0;
+let appliedCoupon = null;
+
+if (req.body.couponCode) {
+  const coupon = await Coupon.findOne({
+    code: req.body.couponCode.toUpperCase(),
+    isActive: true
+  });
+
+  if (!coupon) {
+    return res.status(400).json({ success: false, message: "Invalid coupon" });
+  }
+
+  if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+    return res.status(400).json({ success: false, message: "Coupon expired" });
+  }
+
+  if (subTotal < coupon.minOrderAmount) {
+    return res.status(400).json({
+      success: false,
+      message: `Minimum order ₹${coupon.minOrderAmount}`
+    });
+  }
+
+  discountAmount =
+    coupon.discountType === "percentage"
+      ? (subTotal * coupon.discountValue) / 100
+      : coupon.discountValue;
+
+  if (coupon.maxDiscountAmount) {
+    discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+  }
+
+  appliedCoupon = {
+    code: coupon.code,
+    discountAmount: discountAmount
+  };
+}
+
+// FINAL AMOUNT
+const finalAmount = Math.max(subTotal - discountAmount, 0);
+const totalAmount = finalAmount * 100;
+
 
         const receiptId = `order_rcptid_${uuidv4().slice(0, 8)}`;
 

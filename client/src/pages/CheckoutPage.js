@@ -25,6 +25,7 @@ function CheckoutPage() {
     postalCode: "",
     state: "",
   });
+  const [cashOnHand, setCashOnHand] = useState(false);
 
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [billingAddress, setBillingAddress] = useState({
@@ -316,6 +317,37 @@ const handlePaymentLink = async () => {
     } else {
       toast.error(`Shipping charge: ?${shippingCharge}`);
     }
+// CASH ON HAND FLOW
+  if (cashOnHand && user?.role === ROLE.MANAGESALES) {
+    try {
+      const payload = {
+        cartItems,
+        customerInfo,
+        billingSameAsShipping,
+        paymentMode: "CASH_ON_HAND"
+      };
+
+      const response = await fetch(SummaryApi.payment.url, {
+        method: SummaryApi.payment.method,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Order confirmed (Cash on Hand)");
+        fetchUserAddToCart();
+        navigate("/success");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      toast.error("Failed to confirm cash order");
+    }
+    return; // 🚨 STOP Razorpay
+  }
 
     try {
       // const response = await axios.post(
@@ -357,8 +389,8 @@ const handlePaymentLink = async () => {
       if (paymentResponseData.success) {
         // Razorpay options for initiating the payment
         const options = {
-          key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
-          //key: "rzp_test_G2fioibkS2JYpg", // Razorpay test key
+          // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
+          key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
           amount: totalPrice * 100, // Amount in paise (Razorpay expects paise)
           currency: "INR",
           name: "Relda India",
@@ -712,6 +744,22 @@ const handlePaymentLink = async () => {
         {paymentLinkLoading ? "Generating Link..." : "Pay via Payment Link"}
       </button>
                 )}
+
+                {user?.role === ROLE.MANAGESALES && (
+  <div className="flex items-center mt-4">
+    <input
+      type="checkbox"
+      id="cashOnHand"
+      checked={cashOnHand}
+      onChange={(e) => setCashOnHand(e.target.checked)}
+      className="mr-2"
+    />
+    <label htmlFor="cashOnHand" className="font-medium">
+      Cash on Hand
+    </label>
+  </div>
+)}
+
 
                 {paymentLoading && (
                   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
