@@ -206,7 +206,7 @@ const UploadOfferPoster = ({ onClose, offerposter, onSuccess }) => {
     const [message, setMessage] = useState("");
     const [parentCategories, setParentCategories] = useState([]);
     const [categories, setCategories] = useState([]); // Store all categories to filter by parent
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    // const [isModalOpen, setIsModalOpen] = useState(false);
     // Effect to pre-fill form when editing
     useEffect(() => {
         if (offerposter && offerposter._id) {
@@ -340,13 +340,13 @@ const UploadOfferPoster = ({ onClose, offerposter, onSuccess }) => {
         setMessage("Upload failed. Please try again.");
     }
 };
-const handleCloseModal = () => {
-    setIsModalOpen(false); // This will close the modal
-};
+// const handleCloseModal = () => {
+//     setIsModalOpen(false); // This will close the modal
+// };
 
-const handleOpenModal = () => {
-    setIsModalOpen(true); // This will open the modal
-};
+// const handleOpenModal = () => {
+//     setIsModalOpen(true); // This will open the modal
+// };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4 z-10">

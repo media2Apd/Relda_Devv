@@ -9,7 +9,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  @apply bg-slate-100
+  @apply bg-white;
 
 }
 
@@ -17,3 +17,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* this is to remove the background image */
+body, html, #root {
+  background-image: none !important;
+  background-color: #000000; /* black */
+}
+
+/* only show the content */
+/* body::before, body::after, html::before, html::after {
+  display: none !important;
+  content: none !important;
+} */
+
+/* animations like grow and progress should not run */
+/* .animate-grow, .animate-progress {
+  display: none !important;
+} */
