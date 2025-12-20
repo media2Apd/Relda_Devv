@@ -4,7 +4,7 @@ import 'react-phone-input-2/lib/style.css';
 import OTPInput from "otp-input-react";
 import loginIcons from "../assest/signin.gif";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import SummaryApi from "../common";
 import { toast } from "react-toastify";
 import Context from "../context";
@@ -19,6 +19,10 @@ const Login = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const redirectPath = location.state?.from || "/";
+
   const { fetchUserDetails, fetchUserAddToCart } = useContext(Context);
 
   // Handle input changes
@@ -78,7 +82,8 @@ const Login = () => {
         toast.success("Login successful!");
         await fetchUserDetails();
         await fetchUserAddToCart();
-        navigate("/");
+        // navigate("/");
+        navigate(redirectPath, { replace: true });
       } else {
         toast.error("Incorrect OTP. Please try again.");
       }
@@ -108,7 +113,8 @@ const Login = () => {
         await fetchUserDetails(); // Fetch user details after login
         await fetchUserAddToCart(); // Fetch cart data after login
         // await handlePayment();
-        navigate("/"); // Redirect to cart page after login
+        // navigate("/"); // Redirect to cart page after login
+        navigate(redirectPath, { replace: true });
       } else {
         toast.error(dataApi.message);
       }

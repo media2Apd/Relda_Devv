@@ -11,6 +11,7 @@ require('./controller/scheduler/dailyReportScheduler')
 
 const getClientIp = require('./middleware/getClientIp'); // Define this in a middleware file if not done already
 // Assuming a User model for storing user details
+const guestSession = require("./middleware/guestSession");
 
 const app = express();
 app.use(cors({
@@ -22,6 +23,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(cookieParser());
 app.use(getClientIp); // This should be applied before the routes
+app.use(guestSession);
 
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

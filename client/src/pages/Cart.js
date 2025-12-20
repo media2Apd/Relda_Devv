@@ -116,16 +116,79 @@ const Cart = () => {
   };
 
   // Handle checkout navigation
-  const handleCheckout = () => {
-    const isAnyProductSoldOut = data.some((product) => product?.productId?.availability === 0);
+  // const handleCheckout = () => {
+  //   const isAnyProductSoldOut = data.some((product) => product?.productId?.availability === 0);
 
-    if (isAnyProductSoldOut){
-       toast.error("Please Remove Sold Out Product!"); 
-    } else {
-        navigate("/checkout");
+  //   if (isAnyProductSoldOut){
+  //      toast.error("Please Remove Sold Out Product!"); 
+  //   } else {
+  //       navigate("/checkout");
+  //   }
+
+  // };
+
+  // const handleCheckout = () => {
+  //   // 1. Sold out check
+  //   const isAnyProductSoldOut = data.some(
+  //     (product) => product?.productId?.availability === 0
+  //   );
+
+  //   if (isAnyProductSoldOut) {
+  //     toast.error("Please remove sold out products!");
+  //     return;
+  //   }
+
+  //   // 2. LOGIN CHECK (MAIN CHANGE)
+  //   if (!context?.user?._id) {
+  //     toast.warning("Please login to continue checkout");
+  //     navigate("/login", {
+  //       state: { from: "/checkout" },
+  //       replace: true,
+  //     });
+  //     return;
+  //   }
+
+  //   // 3. Proceed
+  //   navigate("/checkout");
+  // };
+
+  const handleCheckout = async () => {
+  // 1. Sold out check
+  const isAnyProductSoldOut = data.some(
+    (product) => product?.productId?.availability === 0
+  );
+
+  if (isAnyProductSoldOut) {
+    toast.error("Please remove sold out products!");
+    return;
+  }
+
+  try {
+    // 2. BACKEND AUTH CHECK (COOKIE BASED)
+    const res = await fetch(SummaryApi.current_user.url, {
+      method: SummaryApi.current_user.method,
+      credentials: "include",
+    });
+
+    // Not logged in
+    if (!res.ok) {
+      toast.warning("Please login to continue checkout");
+      navigate("/login", {
+        state: { from: "/checkout" },
+        replace: true,
+      });
+      return;
     }
-    
-  };
+
+    // Logged in → proceed
+    navigate("/checkout");
+  } catch (error) {
+    console.error("Checkout auth error:", error);
+    toast.error("Something went wrong. Please try again.");
+  }
+};
+
+
 
   // Handle delete confirmation prompt
   const handleDeletePrompt = (id) => {
@@ -160,116 +223,113 @@ const Cart = () => {
         <div className="w-full max-w-3xl ">
           {loading
             ? loadingCart.map((_, index) => (
-                <div
-                  key={index}
-                  className="w-full bg-slate-200 h-32 my-2 border border-slate-300 animate-pulse rounded"
-                ></div>
-              ))
+              <div
+                key={index}
+                className="w-full bg-slate-200 h-32 my-2 border border-slate-300 animate-pulse rounded"
+              ></div>
+            ))
             : data.length > 0 &&
-              data.map((product) => (
-                <div
-                  key={product?._id}
-                  className={`w-full bg-white h-32 my-2 border border-slate-300 rounded grid grid-cols-[128px,1fr] relative ${
-                    selectedProductId === product._id ? "selected" : ""
+            data.map((product) => (
+              <div
+                key={product?._id}
+                className={`w-full bg-white h-32 my-2 border border-slate-300 rounded grid grid-cols-[128px,1fr] relative ${selectedProductId === product._id ? "selected" : ""
                   }`}
-                >
-                  <div className="w-32 h-32 bg-slate-200">
-                    <img
-                      src={product?.productId?.productImage[0]}
-		      alt={product?.productId?.altTitle || "product"}
-                      title={product?.productId?.altTitle || "product"}
-                      className="w-full h-full object-scale-down mix-blend-multiply"
-                      alt={product?.productId?.productName}
-                    />
+              >
+                <div className="w-32 h-32 bg-slate-200">
+                  <img
+                    src={product?.productId?.productImage[0]}
+                    alt={product?.productId?.altTitle || "product"}
+                    title={product?.productId?.altTitle || "product"}
+                    className="w-full h-full object-scale-down mix-blend-multiply"
+                    // alt={product?.productId?.productName}
+                  />
+                </div>
+                <div className="px-4 py-2 relative">
+                  <div
+                    className="absolute right-0 text-red-600 rounded-full p-2 hover:bg-red-600 hover:text-white cursor-pointer"
+                    onClick={() => handleDeletePrompt(product?._id)}
+                  >
+                    <MdDelete />
                   </div>
-                  <div className="px-4 py-2 relative">
-                    <div
-                      className="absolute right-0 text-red-600 rounded-full p-2 hover:bg-red-600 hover:text-white cursor-pointer"
-                      onClick={() => handleDeletePrompt(product?._id)}
-                    >
-                      <MdDelete />
-                    </div>
-                    <h2 className="text-lg lg:text-xl text-ellipsis line-clamp-1">
-                      {product?.productId?.productName}
-                    </h2>
-                    <div className="flex justify-between">
-                      <p className="capitalize text-slate-500 font-medium">
-                        {product?.productId?.category}
-                      </p>
-                      <p className="capitalize text-slate-500 font-medium">
-                        <span
-                          className={`${
-                            product?.productId?.availability > 0
-                              ? "text-green-600"
-                              : "text-red-600"
+                  <h2 className="text-lg lg:text-xl text-ellipsis line-clamp-1">
+                    {product?.productId?.productName}
+                  </h2>
+                  <div className="flex justify-between">
+                    <p className="capitalize text-slate-500 font-medium">
+                      {product?.productId?.category}
+                    </p>
+                    <p className="capitalize text-slate-500 font-medium">
+                      <span
+                        className={`${product?.productId?.availability > 0
+                            ? "text-green-600"
+                            : "text-red-600"
                           }`}
-                        >
-                          {product?.productId?.availability > 0
-                            ? "In stock"
-                            : "Sold out"}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-red-600 font-medium text-lg">
-                        {displayINRCurrency(product?.productId?.sellingPrice)}
-                      </p>
-                      <p className="text-slate-600 font-semibold text-lg">
-                        {displayINRCurrency(
-                          product?.productId?.sellingPrice * product?.quantity
-                        )}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4 mt-2">
-                      <button
-                        className={`h-6 w-6 flex items-center justify-center rounded-full ${
-                          product?.quantity <= 1
-                            ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-gray-100 hover:bg-indigo-600 hover:text-white"
-                        }`}
-                        onClick={() =>
-                          decreaseQty(product?._id, product?.quantity)
-                        }
-                        disabled={product?.quantity <= 1}
                       >
-                        <span className="text-lg font-bold">-</span>
-                      </button>
-                      <p className="text-lg font-semibold">
-                        {product?.quantity}
-                      </p>
-                      <button
-                        className="h-6 w-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-indigo-600 hover:text-white"
-                        onClick={() =>
-                          increaseQty(product?._id, product?.quantity)
-                        }
-                      >
-                        <span className="text-lg font-bold">+</span>
-                      </button>
-                    </div>
+                        {product?.productId?.availability > 0
+                          ? "In stock"
+                          : "Sold out"}
+                      </span>
+                    </p>
                   </div>
-                  {selectedProductId === product._id && (
-                    <div className="prompt absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                      <div className="prompt-inner bg-white p-4 rounded">
-                        <h2>Are you sure to delete?</h2>
-                        <div className="prompt-btn flex justify-between mt-4">
-                          <button
-                            className="prompt-yes bg-red-600 text-white py-1 px-4 rounded hover:bg-red-700"
-                            onClick={handlePromptYes}
-                          >
-                            Yes
-                          </button>
-                          <button
-                            className="prompt-no bg-gray-200 py-1 px-4 rounded hover:bg-gray-300"
-                            onClick={handlePromptNo}
-                          >
-                            No
-                          </button>
-                        </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-red-600 font-medium text-lg">
+                      {displayINRCurrency(product?.productId?.sellingPrice)}
+                    </p>
+                    <p className="text-slate-600 font-semibold text-lg">
+                      {displayINRCurrency(
+                        product?.productId?.sellingPrice * product?.quantity
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2">
+                    <button
+                      className={`h-6 w-6 flex items-center justify-center rounded-full ${product?.quantity <= 1
+                          ? "bg-gray-300 cursor-not-allowed"
+                          : "bg-gray-100 hover:bg-indigo-600 hover:text-white"
+                        }`}
+                      onClick={() =>
+                        decreaseQty(product?._id, product?.quantity)
+                      }
+                      disabled={product?.quantity <= 1}
+                    >
+                      <span className="text-lg font-bold">-</span>
+                    </button>
+                    <p className="text-lg font-semibold">
+                      {product?.quantity}
+                    </p>
+                    <button
+                      className="h-6 w-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-indigo-600 hover:text-white"
+                      onClick={() =>
+                        increaseQty(product?._id, product?.quantity)
+                      }
+                    >
+                      <span className="text-lg font-bold">+</span>
+                    </button>
+                  </div>
+                </div>
+                {selectedProductId === product._id && (
+                  <div className="prompt absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="prompt-inner bg-white p-4 rounded">
+                      <h2>Are you sure to delete?</h2>
+                      <div className="prompt-btn flex justify-between mt-4">
+                        <button
+                          className="prompt-yes bg-red-600 text-white py-1 px-4 rounded hover:bg-red-700"
+                          onClick={handlePromptYes}
+                        >
+                          Yes
+                        </button>
+                        <button
+                          className="prompt-no bg-gray-200 py-1 px-4 rounded hover:bg-gray-300"
+                          onClick={handlePromptNo}
+                        >
+                          No
+                        </button>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                )}
+              </div>
+            ))}
         </div>
         {data.length > 0 && (
           <div className="w-full max-w-sm h-max bg-white border rounded p-4">

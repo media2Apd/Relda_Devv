@@ -14,6 +14,16 @@ import ROLE from "../common/role";
 function CheckoutPage() {
   const user = useSelector(state => state?.user?.user);
   const { fetchUserAddToCart } = useContext(Context)
+  const navigate = useNavigate();
+
+
+  // useEffect(() => {
+  //   if (!user?._id) {
+  //     toast.warning("Please login to continue checkout");
+  //     navigate("/login", { state: { from: "/checkout" } });
+  //   }
+  // }, [user, navigate]);
+
   const [customerInfo, setCustomerInfo] = useState({
     email: user?.email || "",
     phone: user?.mobile || "",
@@ -43,7 +53,6 @@ function CheckoutPage() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [shippingCharge, setShippingCharge] = useState(0);
   const [shippingMessage, setShippingMessage] = useState("");
-  const navigate = useNavigate();
   // const [totalPrice, setTotalPrice] = useState(0);
   const [shippingDetailsFilled, setShippingDetailsFilled] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -107,10 +116,20 @@ function CheckoutPage() {
           },
         });
 
+        if (response.status === 401) {
+        toast.warning("Please login to continue checkout");
+        navigate("/login", { state: { from: "/checkout" } });
+        return;
+      }
+
         const responseData = await response.json();
 
         if (responseData.success) {
           setCartItems(responseData.data);
+          if (responseData.data.length === 0) {
+            toast.info("Your cart is empty");
+            navigate("/cart");
+          }
         }
       } catch (error) {
         console.error("Error fetching cart data:", error);
@@ -120,7 +139,7 @@ function CheckoutPage() {
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
 
   const handleChange = (e) => {
@@ -357,7 +376,7 @@ const handlePaymentLink = async () => {
       if (paymentResponseData.success) {
         // Razorpay options for initiating the payment
         const options = {
-          key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
+          key: "rzp_test_66VslSnaYXyl0i", // Razorpay Live key
           //key: "rzp_test_G2fioibkS2JYpg", // Razorpay test key
           amount: totalPrice * 100, // Amount in paise (Razorpay expects paise)
           currency: "INR",
