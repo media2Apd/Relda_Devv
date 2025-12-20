@@ -231,109 +231,210 @@
 //   )
 // }
 
-// export default BannerProduct
-import React, { useEffect, useState } from 'react'
+// // export default BannerProduct
+// import React, { useEffect, useState } from 'react'
 
-import image1 from '../assest/banner/bandesk.png'
-import image2 from '../assest/banner/bandesk1.png'
-import image3 from '../assest/banner/bandesk2.png'
-import image4 from '../assest/banner/bandesk3.png'
-import image5 from '../assest/banner/bandesk4.png'
+// import image1 from '../assest/banner/bandesk.png'
+// import image2 from '../assest/banner/bandesk1.png'
+// import image3 from '../assest/banner/bandesk2.png'
+// import image4 from '../assest/banner/bandesk3.png'
+// import image5 from '../assest/banner/bandesk4.png'
 
-import image1Mobile from '../assest/banner/banmob.png'
-import image2Mobile from '../assest/banner/banmob1.png'
-import image3Mobile from '../assest/banner/banmob2.png'
-import image4Mobile from '../assest/banner/banmob3.png'
-import image5Mobile from '../assest/banner/banmob4.png'
+// import image1Mobile from '../assest/banner/banmob.png'
+// import image2Mobile from '../assest/banner/banmob1.png'
+// import image3Mobile from '../assest/banner/banmob2.png'
+// import image4Mobile from '../assest/banner/banmob3.png'
+// import image5Mobile from '../assest/banner/banmob4.png'
 
-import { FaAngleRight, FaAngleLeft } from "react-icons/fa6";
+// import { FaAngleRight, FaAngleLeft } from "react-icons/fa6";
+
+// const BannerProduct = () => {
+//   const [currentImage, setCurrentImage] = useState(0);
+
+//   const desktopImages = [image1, image2, image3, image4, image5];
+//   const mobileImages = [image1Mobile, image2Mobile, image3Mobile, image4Mobile, image5Mobile];
+
+//   const nextImage = () => {
+//     setCurrentImage((prev) => (prev + 1) % desktopImages.length);
+//   };
+
+//   const prevImage = () => {
+//     setCurrentImage((prev) => (prev - 1 + desktopImages.length) % desktopImages.length);
+//   };
+
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       nextImage();
+//     }, 5000); // 5 seconds
+
+//     return () => clearInterval(interval);
+//   }, [currentImage]);
+
+//   const images = window.innerWidth < 768 ? mobileImages : desktopImages;
+
+//   return (
+//     <div className="container mx-auto px-4 rounded">
+      
+//       <div className="relative h-full w-full bg-slate-200 overflow-hidden">
+
+//         {/* Navigation Arrows (for desktop only) */}
+//         <div className="absolute z-10 h-full w-full md:flex items-center hidden">
+//           <div className="flex justify-between w-full text-2xl px-4">
+//             <button onClick={prevImage} className="bg-white shadow-md rounded-full p-1">
+//               <FaAngleLeft />
+//             </button>
+//             <button onClick={nextImage} className="bg-white shadow-md rounded-full p-1">
+//               <FaAngleRight />
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Desktop Images */}
+//         <div className="hidden md:flex h-full w-full">
+//           {desktopImages.map((imageUrl, index) => (
+//             <div
+//               key={index}
+//               className="w-full h-full min-w-full transition-all duration-500"
+//               style={{ transform: `translateX(-${currentImage * 100}%)` }}
+//             >
+//               <img src={imageUrl} className="w-full h-full object-cover" alt="banner" />
+//             </div>
+//           ))}
+//         </div>
+
+//         {/* Mobile Images */}
+//         <div className="flex md:hidden h-full w-full">
+//           {mobileImages.map((imageUrl, index) => (
+//             <div
+//               key={index}
+//               className="w-full h-full min-w-full transition-all duration-500"
+//               style={{ transform: `translateX(-${currentImage * 100}%)` }}
+//             >
+//               <img src={imageUrl} className="w-full h-full object-cover" alt="banner" />
+//             </div>
+//           ))}
+//         </div>
+
+//       </div>
+
+//       {/* Dots placed OUTSIDE under image */}
+//       <div className="flex justify-center items-center space-x-2 mt-4">
+//         {images.map((_, index) => (
+//           <button
+//             key={index}
+//             onClick={() => setCurrentImage(index)}
+//             className={`
+//               h-2 rounded-full transition-all duration-500
+//               ${currentImage === index ? 'w-8 bg-red-600' : 'w-2 bg-gray-300'}
+//             `}
+//           ></button>
+//         ))}
+//       </div>
+
+//     </div>
+//   );
+// }
+
+// export default BannerProduct;
+
+import React, { useEffect, useState } from "react";
+import useBannerImages from "../hooks/useBannerImages";
 
 const BannerProduct = () => {
-  const [currentImage, setCurrentImage] = useState(0);
-
-  const desktopImages = [image1, image2, image3, image4, image5];
-  const mobileImages = [image1Mobile, image2Mobile, image3Mobile, image4Mobile, image5Mobile];
-
-  const nextImage = () => {
-    setCurrentImage((prev) => (prev + 1) % desktopImages.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImage((prev) => (prev - 1 + desktopImages.length) % desktopImages.length);
-  };
+  const { banners, loading } = useBannerImages();
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      nextImage();
-    }, 5000); // 5 seconds
+    if (!banners.length) return;
 
-    return () => clearInterval(interval);
-  }, [currentImage]);
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % banners.length);
+    }, 3000);
 
-  const images = window.innerWidth < 768 ? mobileImages : desktopImages;
+    return () => clearInterval(timer);
+  }, [banners]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-[300px] bg-gray-100 animate-pulse" />
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 rounded">
-      
-      <div className="relative h-full w-full bg-slate-200 overflow-hidden">
+    <div className="relative w-full overflow-hidden bg-black">
 
-        {/* Navigation Arrows (for desktop only) */}
-        <div className="absolute z-10 h-full w-full md:flex items-center hidden">
-          <div className="flex justify-between w-full text-2xl px-4">
-            <button onClick={prevImage} className="bg-white shadow-md rounded-full p-1">
-              <FaAngleLeft />
-            </button>
-            <button onClick={nextImage} className="bg-white shadow-md rounded-full p-1">
-              <FaAngleRight />
-            </button>
+      {/* Slider */}
+      <div
+        className="flex transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${current * 100}%)` }}
+      >
+        {banners.map((item, index) => (
+          <div key={item.id || index} className="w-full flex-shrink-0">
+            <img
+              src={item.imageUrl}
+              alt="banner"
+              className="
+                w-full
+                max-h-[520px]
+                mx-auto
+              "
+            />
+                        {/* <img
+              src={item.imageUrl}
+              alt="banner"
+              className="
+                w-full
+                h-[220px] sm:h-[320px] md:h-[420px] lg:h-[520px]
+                object-cover md:object-contain
+                mx-auto
+              "
+            /> */}
           </div>
-        </div>
-
-        {/* Desktop Images */}
-        <div className="hidden md:flex h-full w-full">
-          {desktopImages.map((imageUrl, index) => (
-            <div
-              key={index}
-              className="w-full h-full min-w-full transition-all duration-500"
-              style={{ transform: `translateX(-${currentImage * 100}%)` }}
-            >
-              <img src={imageUrl} className="w-full h-full object-cover" alt="banner" />
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile Images */}
-        <div className="flex md:hidden h-full w-full">
-          {mobileImages.map((imageUrl, index) => (
-            <div
-              key={index}
-              className="w-full h-full min-w-full transition-all duration-500"
-              style={{ transform: `translateX(-${currentImage * 100}%)` }}
-            >
-              <img src={imageUrl} className="w-full h-full object-cover" alt="banner" />
-            </div>
-          ))}
-        </div>
-
-      </div>
-
-      {/* Dots placed OUTSIDE under image */}
-      <div className="flex justify-center items-center space-x-2 mt-4">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentImage(index)}
-            className={`
-              h-2 rounded-full transition-all duration-500
-              ${currentImage === index ? 'w-8 bg-red-600' : 'w-2 bg-gray-300'}
-            `}
-          ></button>
         ))}
       </div>
 
+      {/* Indicator line (inside image) */}
+      {/* {banners.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrent(index)}
+              className={`
+                h-[3px] transition-all duration-500
+                ${current === index ? "w-10 bg-[#e60000]" : "w-10 bg-white"}
+              `}
+            />
+          ))}
+        </div>
+      )} */}
+{banners.length > 1 && (
+  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
+    {banners.map((_, index) => (
+      <div
+        key={index}
+        className="relative w-10 h-[3px] bg-white overflow-hidden"
+      >
+        {current === index && (
+          <div
+            key={current} // reset animation
+            className="
+              absolute left-0 top-0
+              h-full w-full
+              bg-[#e60000]
+              origin-left
+              animate-progress
+            "
+          />
+        )}
+      </div>
+    ))}
+  </div>
+)}
+
+
     </div>
   );
-}
+};
 
 export default BannerProduct;
-

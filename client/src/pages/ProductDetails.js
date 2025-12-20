@@ -592,10 +592,10 @@ const ProductDetails = () => {
             </h2>
             <p className="capitalize text-slate-400 bg-slate-200 min-w-[100px] animate-pulse h-6 lg:h-8  w-full"></p>
 
-            <div className="text-red-600 bg-slate-200 h-6 lg:h-8  animate-pulse flex items-center gap-1 w-full"></div>
+            <div className="text-[#e60000] bg-slate-200 h-6 lg:h-8  animate-pulse flex items-center gap-1 w-full"></div>
 
             <div className="flex items-center gap-2 text-2xl lg:text-3xl font-medium my-1 h-6 lg:h-8  animate-pulse w-full">
-              <p className="text-red-600 bg-slate-200 w-full"></p>
+              <p className="text-[#e60000] bg-slate-200 w-full"></p>
               <p className="text-slate-400 line-through bg-slate-200 w-full"></p>
             </div>
 
@@ -611,7 +611,7 @@ const ProductDetails = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <p className="bg-red-200 text-red-600 px-2 rounded-full inline-block w-fit uppercase">
+            <p className="bg-red-200 text-[#e60000] px-2 rounded-full inline-block w-fit uppercase">
               {data?.brandName}
             </p>
             <h2 className="text-lg lg:text-4xl font-medium">
@@ -676,7 +676,7 @@ const ProductDetails = () => {
             <div className="flex items-center gap-3 my-2">
               {data?.isHidden || data?.availability === 0 ? (
                 <button
-                  className="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full"
+                  className="text-sm bg-[#e60000] hover:bg-red-700 text-white px-3 py-0.5 rounded-full"
                   onClick={handleEnquiry}
                 >
                   Enquiry Now
@@ -684,13 +684,13 @@ const ProductDetails = () => {
               ) : (
                 <>
                   <button
-                    className="border-2 border-red-600 rounded px-3 py-1 min-w-[120px] text-red-600 font-medium hover:bg-red-600 hover:text-white"
+                    className="border-2 border-red-600 rounded px-3 py-1 min-w-[120px] text-[#e60000] font-medium hover:bg-red-700 hover:text-white"
                     onClick={(e) => handleBuyProduct(e, data?._id)}
                   >
                     Buy
                   </button>
                   <button
-                    className="border-2 border-red-600 rounded px-3 py-1 min-w-[120px] font-medium text-white bg-red-600 hover:text-red-600 hover:bg-white"
+                    className="border-2 border-red-600 rounded px-3 py-1 min-w-[120px] font-medium text-white bg-[#e60000] hover:text-red-700 hover:bg-white"
                     onClick={(e) => handleAddToCart(e, data?._id)}
                   >
                     Add To Cart
@@ -870,7 +870,7 @@ const ProductDetails = () => {
                 {/* Rate Product Button */}
                 <button
                   onClick={handleWriteReview}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300"
+                  className="bg-[#e60000] text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300"
                 >
                   Rate Product
                 </button>
@@ -899,7 +899,7 @@ const ProductDetails = () => {
                   ></textarea>
                   <div className="flex justify-end mt-2">
                     <button
-                      className="bg-red-600 text-white px-4 py-2 rounded-md"
+                      className="bg-[#e60000] text-white px-4 py-2 rounded-md"
                       onClick={handleSubmitReview}
                     >
                       Submit Review

@@ -36,7 +36,7 @@ body {
 .navbar a {
   float: left;
   font-size: 16px;
-  color: black;
+  /* color: black; */
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
@@ -51,7 +51,7 @@ body {
   font-size: 16px;    
   border: none;
   outline: none;
-  color: black;
+  /* color: black; */
   padding: 14px 16px;
   background-color: inherit;
 }
@@ -190,7 +190,7 @@ body {
   height: 2px;
   bottom: 0;
   left: 0;
-  background-color: #E90101; /* Adjust the color as needed */
+  background-color: #FFFFFF; /* Adjust the color as needed */
   visibility: hidden;
   transition: all 0.3s ease-in-out;
 }
@@ -198,4 +198,15 @@ body {
 .hover-underline:hover::before {
   visibility: visible;
   width: 100%;
+}
+.relative.group:hover > div {
+  left: 0%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+/* Ensure container doesn't overflow */
+nav {
+  position: relative;
+  overflow: visible;
 }

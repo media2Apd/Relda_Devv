@@ -33,12 +33,12 @@ const CategoryList = () => {
   }, []);
 
   return (
-    <div className='container mx-auto p-4'>
-      <div className='flex items-center gap-4 overflow-x-auto scrollbar-none scroll-pl-4  pl-2 sm:pl-0 lg:justify-center'>
+    <div className='mx-auto px-2 py-4'>
+      <div className='flex items-center gap-4 overflow-x-auto scrollbar-none scroll-pl-4 pl-2 sm:pl-0 lg:justify-center '>
         {loading
           ? categoryLoading.map((_, index) => (
               <div
-                className='h-16 w-16 md:w-20 md:h-20 rounded-full bg-slate-200 animate-pulse min-w-[80px] snap-start'
+                className='h-16 w-16 md:w-20 md:h-20 rounded-md bg-white animate-pulse min-w-[80px] snap-start'
                 key={`categoryLoading${index}`}
               ></div>
             ))
