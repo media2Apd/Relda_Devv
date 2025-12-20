@@ -5,6 +5,8 @@ const userSignUpController = require("../controller/user/userSignUp")
 const {loginWithPasswordController, sendOtpController, verifyOtpController} = require('../controller/user/userSignIn')
 const userDetailsController = require('../controller/user/userDetails')
 const authToken = require('../middleware/authToken')
+const guestSession = require("../middleware/guestSession");
+const authTokenOptional = require('../middleware/authTokenOptional')
 const userLogout = require('../controller/user/userLogout')
 const allUsers = require('../controller/user/allUsers')
 const updateUser = require('../controller/user/updateUser')
@@ -150,12 +152,15 @@ router.delete('/:userId/wishlist/:productId', removeFromWishlist);
 router.get('/:userId/wishlist', getWishlist);
 
 //user add to cart
-router.post("/addtocart", authToken, addToCartController)
-router.get('/getCart', authToken, addToCartViewAllProduct)
-router.get("/countAddToCartProduct",authToken,countAddToCartProduct)
-router.get("/view-card-product",authToken,addToCartViewProduct)
-router.post("/update-cart-product",authToken,updateAddToCartProduct)
-router.post("/delete-cart-product",authToken,deleteAddToCartProduct)
+// router.post("/addtocart", authToken, addToCartController)
+router.post("/addtocart", guestSession, authTokenOptional, addToCartController)
+// router.get('/getCart', authToken, addToCartViewAllProduct)
+router.get('/getCart', guestSession, authTokenOptional, addToCartViewAllProduct)
+// router.get("/countAddToCartProduct",authToken,countAddToCartProduct)
+router.get("/countAddToCartProduct",guestSession, authTokenOptional, countAddToCartProduct)
+router.get("/view-card-product",authTokenOptional, guestSession, addToCartViewProduct)
+router.post("/update-cart-product",authTokenOptional, guestSession, updateAddToCartProduct)
+router.post("/delete-cart-product",authTokenOptional, guestSession, deleteAddToCartProduct)
 
 router.post('/submit', sendContactusMessage);
 router.get('/get-msg',getAllMessages);
