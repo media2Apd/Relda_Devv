@@ -12,7 +12,7 @@ const CategoryList = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch(SummaryApi.getParentCategories.url);
+      const response = await fetch(SummaryApi.getActiveParentCategories.url);
       const data = await response.json();
       
       // Validate if data contains categories and is an array
@@ -59,7 +59,7 @@ const CategoryList = () => {
                           className='w-12 h-12 object-cover'
                         />
                       </div>
-                      <div className='text-xs md:text-sm lg:text-md font-medium text-black text-center max-w-60 mt-2 lg:mt-0'>
+                      <div className='text-xs md:text-sm lg:text-md font-medium text-center max-w-60 mt-2 lg:mt-0'>
                         {category?.name} {/* Use name for displaying the category label */}
                       </div>
                     </Link>
@@ -70,7 +70,7 @@ const CategoryList = () => {
                 }
               })
             ) : (
-              <p className='text-center text-gray-500'>No categories available.</p> // Fallback message if no categories
+              <p className='text-center font-medium text-[#6A7282]'>No categories available.</p> // Fallback message if no categories
             )}
       </div>
     </div>

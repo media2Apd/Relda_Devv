@@ -1,120 +1,134 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SummaryApi from "../common";
-import displayINRCurrency from "../helpers/displayCurrency"; 
+import ProductCard from "./ProductCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 const RelatedProducts = () => {
   const [related, setRelated] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [maxProducts, setMaxProducts] = useState(6); // default for desktop
   const navigate = useNavigate();
+  const scrollRef = useRef(null);
 
-  useEffect(() => {
-    const updateMaxProducts = () => {
-      if (window.innerWidth < 768) {
-        setMaxProducts(4); // mobile
-      } else {
-        setMaxProducts(6); // desktop
-      }
-    };
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-    updateMaxProducts();
-    window.addEventListener("resize", updateMaxProducts);
-    return () => window.removeEventListener("resize", updateMaxProducts);
-  }, []);
-
+  // ✅ Fetch data
   useEffect(() => {
     const viewed = JSON.parse(localStorage.getItem("viewedItems")) || [];
-
-    if (viewed.length > 0) {
+    if (viewed.length) {
       fetch(SummaryApi.relatedProducts(viewed).url)
-        .then((res) => res.json())
-        .then((data) => setRelated(Array.isArray(data) ? data : []))
-        .catch(() => setError("Failed to load related products."))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+        .then(res => res.json())
+        .then(data => setRelated(Array.isArray(data) ? data : []));
     }
   }, []);
-  const renderMedia = (product) => {
-    if (Array.isArray(product?.productImage)) {
-      const imageMedia = product.productImage.find((media) => {
-        if (typeof media === "string") return true;
-        return media?.type === "image";
-      });
-  
-      const imageUrl = typeof imageMedia === "string" ? imageMedia : imageMedia?.url;
-  
-      if (imageUrl) {
-        return (
-          <img
-            src={imageUrl}
-            alt={product.altTitle || "product"}
-            title={product.altTitle || "product"}
-            className="w-full h-28 sm:h-32 md:h-36 object-contain p-2 rounded-t-lg"
-          />
-        );
-      }
-    }
-  
-    // Fallback in case no image found
-    return (
-      <div className="w-full h-28 sm:h-32 md:h-36 flex items-center justify-center bg-gray-100 text-gray-400 text-sm rounded-t-lg">
-        No Image
-      </div>
-    );
-  };
-  if (loading) return <p className="text-center text-xl md:text-2xl">Loading related products...</p>;
-  if (error) return <p className="text-center text-brand-primary text-lg">{error}</p>;
-  if (!related.length) return null;
 
-  const productsToShow = related.slice(0, maxProducts);
+  // ✅ Scroll handler
+  const scroll = (direction) => {
+    if (!scrollRef.current) return;
+    const cardWidth = 380;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -cardWidth : cardWidth,
+      behavior: "smooth",
+    });
+  };
+
+  // ✅ Detect scroll position
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+  };
+
+  // ✅ Attach scroll listener (ALWAYS runs)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    handleScroll();
+    el.addEventListener("scroll", handleScroll);
+
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [related]);
 
   return (
-    // <div className="px-4 py-6 flex justify-center">
-      <div className="mx-auto px-4 my-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl md:text-2xl font-semibold">
-            Related to items you've viewed
-          </h2>
-          {related.length > maxProducts && (
+    <>
+      {related.length > 0 && (
+        <div className="container mx-auto px-4 my-10 relative">
+          {/* Heading */}
+          <div className="flex justify-between items-center mb-5">
+            <div>
+              <h2 className="text-xl md:text-2xl font-medium">Recently Viewed</h2>
+              <p className="text-sm text-brand-textMuted">
+                Continue where you left off
+              </p>
+            </div>
+
+            {related.length > 6 && (
+              <button
+                onClick={() => navigate("/related-products")}
+                className="text-blue-600 hover:text-blue-700 text-sm md:text-base font-medium"
+              >
+                See More
+              </button>
+            )}
+          </div>
+
+          {/* LEFT ARROW */}
+          {related.length > 6 && canScrollLeft && (
             <button
-              onClick={() => navigate("/related-products")}
-              className="text-blue-600 hover:text-blue-700 text-base font-semibold whitespace-nowrap"
+              onClick={() => scroll("left")}
+              className="hidden 2xl:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
             >
-              See More
+              <ChevronLeft />
             </button>
           )}
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {productsToShow.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-transform transform hover:scale-105 cursor-pointer"
-              onClick={() => navigate(`/product/${item._id}`)}
+          {/* RIGHT ARROW */}
+          {related.length > 6 && canScrollRight && (
+            <button
+              onClick={() => scroll("right")}
+              className="hidden 2xl:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
             >
-             {renderMedia(item)}              
-		<div className="px-2 py-2 text-xs sm:text-sm">
-                <h4 className="font-medium text-gray-800 truncate">{item.productName}</h4>
-                <div className="flex items-center mt-1">
-                  <p className="mr-2 text-brand-primary font-semibold text-xs sm:text-sm">
-                    {displayINRCurrency(item.sellingPrice)}
-                  </p>
-                  <p className="text-gray-400 line-through text-[10px] sm:text-xs">
-                    {displayINRCurrency(item.price)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+              <ChevronRight />
+            </button>
+          )}
+
+          {/* Scroll Row */}
+          <div
+            ref={scrollRef}
+            className="
+              flex gap-6 overflow-x-auto
+              [-ms-overflow-style:none]
+              [scrollbar-width:none]
+              [&::-webkit-scrollbar]:hidden
+            "
+          >
+            {related.map(product => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onClick={() => navigate(`/product/${product._id}`)}
+                actionSlot={
+                  <button
+                    className="w-full bg-brand-primary text-white py-2 rounded-md text-sm font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/product/${product._id}`);
+                    }}
+                  >
+                    View Product
+                  </button>
+                }
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    // </div>
+      )}
+    </>
   );
 };
 
 export default RelatedProducts;
-
-
-

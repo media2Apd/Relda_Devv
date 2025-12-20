@@ -1,51 +1,50 @@
 import { useEffect, useState } from "react";
 
 // Dummy fallback (for now)
-import banner1 from "../assest/banner/Relda Tv home page banner Demo.jpg";
-import banner2 from "../assest/banner/Relda Tv home page banner Demo.jpg";
+import topBanner1 from "../assest/banner/Relda Tv home page banner Demo.jpg";
+// import topBanner2 from "../assest/banner/Banner2.png";
+import bottomBanner2 from "../assest/banner/BottomBanner1.png";
+// import banner3 from "../assest/banner/Banner3.png";
 
-const DUMMY_BANNERS = [
-  {
-    id: 1,
-    imageUrl: banner1,
-  },
-    {
-    id: 2,
-    imageUrl: banner2,
-  },
+// Dummy for now
+const HOME_BANNERS = [
+  { id: 1, imageUrl: topBanner1 },
+  { id: 2, imageUrl: topBanner1 },
 ];
 
-const useBannerImages = () => {
+const BOTTOM_BANNERS = [
+  { id: 101, imageUrl: bottomBanner2 },
+  { id: 102, imageUrl: bottomBanner2 },
+];
+
+
+const useBannerImages = (type = "home") => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        // 🔜 replace with real API later
-        // const res = await fetch("/api/banners");
-        // const data = await res.json();
+        // 🔜 later real API
+        // /api/banners?type=home | bottom | promo
 
-        // if (data?.length) {
-        //   setBanners(data);
-        // } else {
-        //   setBanners(DUMMY_BANNERS);
-        // }
-
-        // TEMP – dummy
-        setBanners(DUMMY_BANNERS);
-      } catch (error) {
-        console.error("Banner fetch failed:", error);
-        setBanners(DUMMY_BANNERS);
+        if (type === "home") {
+          setBanners(HOME_BANNERS);
+        } else if (type === "bottom") {
+          setBanners(BOTTOM_BANNERS);
+        }
+      } catch (e) {
+        console.error(e);
       } finally {
         setLoading(false);
       }
     };
 
     fetchBanners();
-  }, []);
+  }, [type]);
 
   return { banners, loading };
 };
 
 export default useBannerImages;
+
