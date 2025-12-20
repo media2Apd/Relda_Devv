@@ -176,10 +176,9 @@ const Cart = () => {
                   <div className="w-32 h-32 bg-slate-200">
                     <img
                       src={product?.productId?.productImage[0]}
-		      alt={product?.productId?.altTitle || "product"}
+		                  alt={product?.productId?.altTitle || "product"}
                       title={product?.productId?.altTitle || "product"}
                       className="w-full h-full object-scale-down mix-blend-multiply"
-                      alt={product?.productId?.productName}
                     />
                   </div>
                   <div className="px-4 py-2 relative">

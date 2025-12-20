@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaRegCircleUser } from "react-icons/fa6";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, } from "react-router-dom";
 import ROLE from "../common/role";
 import SummaryApi from "../common"; // Ensure you have the correct API object
 import { FaLock } from "react-icons/fa";
+import scrollTop from "../helpers/scrollTop";
 
 const AdminPanel = () => {
   const user = useSelector((state) => state?.user?.user);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
   const [returnedOrders, setReturnedOrders] = useState([]);
   const [isAuthorized, setIsAuthorized] = useState(null);
@@ -76,7 +77,7 @@ const AdminPanel = () => {
             Access Forbidden
           </h2>
           <p className="mt-2 text-gray-600">
-            You don’t have permission to access this section of the site.
+            You don't have permission to access this section of the site.
           </p>
           <Link
             to="/"
@@ -112,16 +113,19 @@ const AdminPanel = () => {
         <div>
           <nav className="px-4 space-y-2">
             <Link
+              onClick={scrollTop}
               to={"dashboard"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/dashboard")
                   ? "bg-red-600 text-white"
                   : "hover:text-black hover:bg-slate-100"
               }`}
+              
             >
               Dashboard
             </Link>
             <Link
+             onClick={scrollTop}
               to={"all-users"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-users")
@@ -132,6 +136,7 @@ const AdminPanel = () => {
               All Users
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-products"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-products")
@@ -142,6 +147,7 @@ const AdminPanel = () => {
               All Products
             </Link>
             <Link
+              onClick={scrollTop}
               to={"upload-blogs"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/upload-blogs")
@@ -152,6 +158,7 @@ const AdminPanel = () => {
               All Blogs
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-offerposter"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-offerposter")
@@ -161,7 +168,8 @@ const AdminPanel = () => {
             >
               All Upload Poster
             </Link>
-                        <Link
+            <Link
+              onClick={scrollTop}
               to={"all-categories"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-categories")
@@ -172,6 +180,7 @@ const AdminPanel = () => {
               All Categories
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-orders"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-orders")
@@ -182,6 +191,7 @@ const AdminPanel = () => {
               All Orders
             </Link>
             <Link
+              onClick={scrollTop}
               to={"orders"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/orders")
@@ -192,6 +202,7 @@ const AdminPanel = () => {
               Sales Orders
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-dealer-applications"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-dealer-applications")
@@ -212,6 +223,7 @@ const AdminPanel = () => {
               All Authourized service centre
             </Link> */}
             <Link
+              onClick={scrollTop}
               to={"all-enquiries"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-enquiries")
@@ -222,6 +234,7 @@ const AdminPanel = () => {
               All Customer Support
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-complaints"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-complaints")
@@ -232,6 +245,7 @@ const AdminPanel = () => {
               All Complaint Messages
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-contactus"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-contactus")
@@ -242,6 +256,7 @@ const AdminPanel = () => {
               All Contact Messages
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-product-registration"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-product-registration")
@@ -252,6 +267,7 @@ const AdminPanel = () => {
               All Product-Registration
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-careers"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-careers")
@@ -262,8 +278,9 @@ const AdminPanel = () => {
               All Careers
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-returned-products"}
-              className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 flex items-center ${
+              className={` px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 flex items-center ${
                 isActive("/admin-panel/all-returned-products")
                   ? "bg-red-600 text-white"
                   : "hover:text-black hover:bg-slate-100"
@@ -275,6 +292,7 @@ const AdminPanel = () => {
               </div>
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-cart-items"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-cart-items")
@@ -285,6 +303,7 @@ const AdminPanel = () => {
               All CartItems
             </Link>
             <Link
+              onClick={scrollTop}
               to={"all-cookies-page"}
               className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-cookies-page")

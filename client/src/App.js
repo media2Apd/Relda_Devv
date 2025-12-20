@@ -12,7 +12,6 @@ import Context from './context';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserDetails } from './store/userSlice';
 
-
 function App() {
   const dispatch = useDispatch()
   const [cartProductCount,setCartProductCount] = useState(0)
@@ -123,7 +122,7 @@ useEffect(() => {
         />
         
         <Header />
-        <main className='bg-white min-h-[calc(100vh-120px)]'>
+        <main className='bg-white min-h-[calc(100vh-120px)] overflow-hidden'>
           <Outlet/>
         </main>
         <Footer/>
