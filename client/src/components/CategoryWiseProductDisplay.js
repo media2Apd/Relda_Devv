@@ -211,12 +211,12 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
                                     </span>
                                 </div>
                                 {product?.isHidden || product?.availability === 0 ? (
-                                    <button className="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full">
+                                    <button className="text-sm bg-[#e60000] hover:bg-red-700 text-white px-3 py-0.5 rounded-full">
                                         Enquiry Now
                                     </button>
                                 ) : (
                                     <button
-                                        className="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full"
+                                        className="text-sm bg-[#e60000] hover:bg-red-700 text-white px-3 py-0.5 rounded-full"
                                         onClick={(e) => handleAddToCart(e, product?._id)}
                                     >
                                         Add to Cart

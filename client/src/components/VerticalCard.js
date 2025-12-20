@@ -177,23 +177,23 @@ const VerticalCard = ({ loading, data }) => {
   }
 
   const renderMedia = () => {
-    console.log('productImage:', data?.productImage); // Log the entire array
+    // console.log('productImage:', data?.productImage); // Log the entire array
     if (Array.isArray(data?.productImage)) {
       const imageMedia = data.productImage.find((media) => {
-        console.log('Checking media:', media); // Log each media item
+        // console.log('Checking media:', media); // Log each media item
         if (typeof media === 'string') {
-          console.log('Found string image URL:', media);
+          // console.log('Found string image URL:', media);
           return true; // Assume string is an image URL
         }
         if (media?.type === 'image') {
-          console.log('Found object image URL:', media.url);
+          // console.log('Found object image URL:', media.url);
           return true; // Object with type 'image'
         }
         return false;
       });
 
       if (typeof imageMedia === 'string') {
-        console.log('Rendering string image URL:', imageMedia);
+        // console.log('Rendering string image URL:', imageMedia);
         return (
           <img
             src={imageMedia}
@@ -203,7 +203,7 @@ const VerticalCard = ({ loading, data }) => {
           />
         );
       } else if (imageMedia?.url) {
-        console.log('Rendering object image URL:', imageMedia.url);
+        // console.log('Rendering object image URL:', imageMedia.url);
         return (
           <img
             src={imageMedia.url}
@@ -214,7 +214,7 @@ const VerticalCard = ({ loading, data }) => {
         );
       }
     }
-    console.log('No valid image found');
+    // console.log('No valid image found');
     return (
       <img
         src="https://via.placeholder.com/150"

@@ -123,7 +123,7 @@ useEffect(() => {
         />
         
         <Header />
-        <main className='min-h-[calc(100vh-120px)] pt-20 lg:pt-36 xl:pt-32'>
+        <main className='bg-white min-h-[calc(100vh-120px)]'>
           <Outlet/>
         </main>
         <Footer/>
