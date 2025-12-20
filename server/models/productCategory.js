@@ -24,6 +24,7 @@ const ProductCategorySchema = new mongoose.Schema({
   value: { type: String, required: true, unique: true },
   categoryImage: { type: String, required: true },
   parentCategory: { type: mongoose.Schema.Types.ObjectId, ref: "ParentCategory", default: null }, // Link to parent category
+  isHide: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("ProductCategory", ProductCategorySchema);
