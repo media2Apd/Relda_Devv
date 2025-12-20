@@ -28,12 +28,14 @@ import CookieConsent from '../components/CookieConsent'; // Import the CookieCon
 import SummaryApi from '../common';
 import RelatedProducts from './RelatedProducts';
 import { Helmet } from 'react-helmet';
+import TopSellingProducts from '../components/TopSellingProducts';
+import HowToShopBanner from '../components/HowToShopBanner';
 
 const Home = () => {
   const [categories, setCategories] = useState([]); // Updated state variable
   const fetchCategories = async () => {
     try {
-      const response = await fetch(SummaryApi.getProductCategory.url);
+      const response = await fetch(SummaryApi.getActiveProductCategory.url);
       const data = await response.json();
 
       if (data.success) {
@@ -50,51 +52,64 @@ const Home = () => {
   useEffect(() => {
     fetchCategories(); // Call the fetch function on component mount
   }, []);
+
+  const insertIndex = Math.floor(categories.length / 2);
+
   return (
     <div>
       <Helmet>
 
-                  {/* Schema Markup */}
-                <script type="application/ld+json">
-                {`
-                  {
-                    "@context": "https://schema.org",           
-                    "@type": "LocalBusiness",
-                    "name": "RELDA India",
-                    "url": "https://www.reldaindia.com",
-                    "logo": "https://www.reldaindia.com/logo192.png",
-                    "sameAs": [
-                      "https://www.facebook.com/reldaindia",
-                      "https://www.instagram.com/reldaindia/",
-                      "http://www.youtube.com/@Relda_India"
-                    ],
-                    "address": {
-                      "@type": "PostalAddress",
-                      "streetAddress": "Plot No 17A, Majestic Avenue, Krishna Nagar, Madhavaram Milk Colony, Chennai, Tamilnadu 600051",
-                      "addressLocality": "Chennai",
-                      "addressRegion": "TN",
-                      "postalCode": "600051",
-                      "addressCountry": "IN"
-                    },
-                    "telephone": "+91-9884890934"
-                  }
-                `}
-                </script>
-            </Helmet>
+      {/* Schema Markup */}
+      <script type="application/ld+json">
+          {`
+        {
+          "@context": "https://schema.org",           
+          "@type": "LocalBusiness",
+          "name": "RELDA India",
+          "url": "https://www.reldaindia.com",
+          "logo": "https://www.reldaindia.com/logo192.png",
+          "sameAs": [
+            "https://www.facebook.com/reldaindia",
+            "https://www.instagram.com/reldaindia/",
+            "http://www.youtube.com/@Relda_India"
+          ],
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Plot No 17A, Majestic Avenue, Krishna Nagar, Madhavaram Milk Colony, Chennai, Tamilnadu 600051",
+            "addressLocality": "Chennai",
+            "addressRegion": "TN",
+            "postalCode": "600051",
+            "addressCountry": "IN"
+          },
+          "telephone": "+91-9884890934"
+        }
+      `}
+      </script>
+      </Helmet>
       <CookieConsent /> {/* Include the CookieConsent component */}
       <CategoryList />
-      <BannerProduct />
-<RelatedProducts />
-      {categories.map((category) => {
-        if (category.productCount > 0) {
-          return (
-        <VerticalCardProduct
-          key={category._id}
-          category={category.value}
-          heading={category.label}
-        />
-      )}})}
-         </div>
+      <BannerProduct type="home" />
+      <RelatedProducts />
+      {categories.map((category, index) => {
+        if (category.productCount === 0) return null;
+
+        return (
+          <React.Fragment key={category._id}>
+            {/* CATEGORY SECTION */}
+            <VerticalCardProduct
+              category={category.value}
+              heading={category.label}
+            />
+
+            {/* 👇 INSERT TOP SELLING IN BETWEEN */}
+            {index === insertIndex && <TopSellingProducts />}
+          </React.Fragment>
+        );
+      })}
+      <BannerProduct type="bottom" />
+      <HowToShopBanner />
+
+    </div>
   );
 }
 

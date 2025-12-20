@@ -52,7 +52,7 @@ import CookiePage from '../pages/cookiepage'
 import AddParentCategory from '../pages/addParentCategory'
 import AllBlogs from '../pages/allBlogs'
 import AllOfferPosters from '../pages/allOfferPosters'
-import RelatedProductsPage from '../pages/RelatedProductsPage'
+import RecentlyViewProductPage from '../pages/RecentlyViewProductPage'
 import WishlistView from '../pages/WishlistView'
 import AdminBlog from '../pages/adminBlog'
 
@@ -293,7 +293,7 @@ const router = createBrowserRouter([
             },
 {
                 path: '/related-products',
-                element: <RelatedProductsPage />
+                element: <RecentlyViewProductPage />
             },
                       {
                 path: '/wishlist',
