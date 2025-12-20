@@ -23,7 +23,7 @@ const addParentCategory = (req, res) => {
     }
 
     try {
-      const { name} = req.body;
+      const { name, isHide } = req.body;
 
       if (!name || !req.file) {
         return res.status(400).json({ success: false, message: "All fields are required, including an image." });
@@ -33,6 +33,7 @@ const addParentCategory = (req, res) => {
 
       const parentCategory = new ParentCategory({
         name,
+        isHide,
         // description,
         categoryImage: imageUrl,
       });
@@ -57,6 +58,15 @@ const getParentCategories = async (req, res) => {
   }
 };
 
+const getActiveParentCategories = async (req, res) => {
+  try {
+    const categories = await ParentCategory.find({ isHide: false });
+    res.status(200).json({ success: true, categories });
+  } catch (error) {
+    console.error("Error fetching Parent Categories:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
 // ✅ Edit Parent Category
 const editParentCategory = (req, res) => {
   upload.single('categoryImage')(req, res, async (err) => {
@@ -116,5 +126,6 @@ module.exports = {
   addParentCategory,
   getParentCategories,
   editParentCategory,
+  getActiveParentCategories,
   deleteParentCategory,
 };

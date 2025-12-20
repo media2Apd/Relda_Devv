@@ -14,6 +14,10 @@ const parentCategorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isHide: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("ParentCategory", parentCategorySchema);

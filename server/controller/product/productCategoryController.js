@@ -102,6 +102,62 @@ const getCategories = async (req, res) => {
   }
 };
 
+const getActiveCategories = async (req, res) => {
+  try {
+    const { parentCategory } = req.query;
+    let filter = { isHide: false };
+
+    if (parentCategory) {
+      filter.parentCategory = parentCategory;
+    }
+
+    // 1️⃣ Fetch active categories
+    const categories = await ProductCategory.find(filter)
+      .populate("parentCategory", "name value");
+
+    // 2️⃣ Fetch all offer posters
+    const offerPosters = await OfferPoster.find();
+
+    // 3️⃣ Map categories with product count & offer poster
+    const categoriesWithDetails = await Promise.all(
+      categories.map(async (category) => {
+        const productCount = await productModel.countDocuments({
+          category: category.value,
+        });
+
+        const offerPoster = offerPosters.find(
+          (poster) =>
+            poster.parentCategory === category.parentCategory?.value ||
+            poster.childCategory === category.value
+        );
+
+        return {
+          ...category.toObject(),
+          productCount,
+          offerPoster: offerPoster
+            ? {
+                image: offerPoster.image,
+                _id: offerPoster._id,
+                createdAt: offerPoster.createdAt,
+              }
+            : null,
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      categories: categoriesWithDetails,
+    });
+  } catch (error) {
+    console.error("Error fetching active categories:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+};
+
 
 const addCategory = async (req, res) => {
   upload.single("categoryImage")(req, res, async (err) => {
@@ -110,7 +166,7 @@ const addCategory = async (req, res) => {
     }
 
     try {
-      const { label, value, parentCategory } = req.body;
+      const { label, value, parentCategory, isHide } = req.body;
 
       if (!label || !value || !req.file) {
         return res.status(400).json({ success: false, message: "All fields are required, including an image." });
@@ -131,6 +187,7 @@ const addCategory = async (req, res) => {
         label,
         value,
         categoryImage: imageUrl,
+        isHide,
         parentCategory: parentCategoryId || null, // Assign ObjectId or null
       });
 
@@ -150,9 +207,9 @@ const editCategory = async (req, res) => {
 
     try {
       const { id } = req.params;
-      const { label, value, parentCategory } = req.body;
+      const { label, value, parentCategory, isHide } = req.body;
 
-      const updateData = { label, value };
+      const updateData = { label, value, isHide };
 
       if (parentCategory) {
         // Check if parentCategory is a name and fetch the ObjectId
@@ -213,6 +270,7 @@ const deleteCategory = async (req, res) => {
 module.exports = {
     addCategory,
     getCategories,
+    getActiveCategories,
     editCategory,
     deleteCategory,
 };
