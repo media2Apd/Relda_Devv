@@ -52,7 +52,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(SummaryApi.getProductCategory.url);
+        const response = await fetch(SummaryApi.getActiveProductCategory.url);
         const data = await response.json();
         if (data.success) {
           const filteredCategories = data.categories.filter(category => category.productCount > 0);
