@@ -308,6 +308,10 @@ const SummaryApi = {
         url: `${backendDomain}/api/get-parent-categories`,
         method: 'get'
      },
+     getActiveParentCategories: {
+        url: `${backendDomain}/api/get-active-parent-categories`,
+        method: 'get'
+     },
 	UploadBlog: {
         url: `${backendDomain}/api/add-blog`,
         method: 'post'

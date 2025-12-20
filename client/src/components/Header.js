@@ -25,7 +25,7 @@ const Header = () => {
   const URLSearch = new URLSearchParams(searchInput?.search);
   const searchQuery = URLSearch.getAll("q");
   const [search, setSearch] = useState(searchQuery);
-  
+
   const { pathname } = useLocation();
   const canonicalURL = `${window.location.origin}${pathname}`;
 
@@ -141,16 +141,16 @@ const Header = () => {
     try {
       const response = await axios.get(`https://api.postalpincode.in/pincode/${pinCode}`);
       const result = response.data?.[0];
-  
+
       if (result?.Status === "Success" && result.PostOffice?.length > 0) {
         const tamilNaduLocations = result.PostOffice.filter(
           (office) => office.State === "Tamil Nadu" && office.DeliveryStatus === "Delivery"
         );
-  
+
         if (tamilNaduLocations.length > 0) {
           const district = tamilNaduLocations[0].District;
           const state = tamilNaduLocations[0].State;
-          setDeliveryLocation({district, state});
+          setDeliveryLocation({ district, state });
           toast.success(`Pin code is serviceable! Delivery available in ${district}, ${state}`);
         } else {
           toast.error("We only provide services for Tamil Nadu pin codes with delivery.");
@@ -175,6 +175,7 @@ const Header = () => {
     if (data.success) {
       toast.success(data.message);
       dispatch(setUserDetails(null));
+      context.fetchUserAddToCart?.();
       navigate("/");
     }
 
