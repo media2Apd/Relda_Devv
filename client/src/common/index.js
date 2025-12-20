@@ -268,6 +268,11 @@ const SummaryApi = {
         method: 'get',
       },
 
+       getActiveProductCategory: {
+        url: `${backendDomain}/api/get-active-product-categories`,
+        method: 'get',
+      },
+
       deleteProductCategory: {
         url: `${backendDomain}/api/delete-product-categories/:id`,
         method: 'delete',
