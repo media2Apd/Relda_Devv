@@ -76,9 +76,9 @@ const editParentCategory = (req, res) => {
 
     try {
       const { id } = req.params;
-      const { name, description } = req.body;
+      const { name, description, isHide } = req.body;
 
-      const updateData = { name, description };
+      const updateData = { name, description, isHide };
 
       if (req.file) {
         const imageUrl = req.file.path;

@@ -26,7 +26,7 @@ const { submitComplaint, getAllcomplaints, getComplaintFile } = require('../cont
 const reviewController = require('../controller/reviewController');
 const { validateAddress } = require("../controller/addressController");
 const {paymentController, verifyPayment, updateOrderStatus, CancelOrder, deletePendingOrderById } = require('../controller/order/paymentController')
-const {  addParentCategory, getParentCategories, editParentCategory,deleteParentCategory } = require('../controller/product/ParentCategoryController')
+const {  addParentCategory, getParentCategories, editParentCategory,deleteParentCategory, getActiveParentCategories } = require('../controller/product/ParentCategoryController')
 const { returnOrder } = require('../controller/order/returnOrder')
 const { sendCustomerSupportMessage, getAllMessages } = require('../controller/user/contactController');
 const { upload, handleFormSubmission, getAllApplications, getApplicationFile } = require('../controller/applicationController');
@@ -34,7 +34,7 @@ const { registerProduct, getAllRegistrations, getRegFile } = require('../control
 const { submitApplication, getAlldealer, getDealerFile } = require('../controller/dealerController');
 const webhooks = require('../controller/order/webhook')
 const {orderController, viewOrderController} = require('../controller/order/order.controller')
-const { addCategory, getCategories, editCategory, deleteCategory} = require("../controller/product/productCategoryController");
+const { addCategory, getCategories, editCategory, deleteCategory, getActiveCategories} = require("../controller/product/productCategoryController");
 
 const   allOrderController = require('../controller/order/allOrder.controller')
 const {sendContactusMessage, getusAllMessages} = require('../controller/user/contactusController')
@@ -121,6 +121,7 @@ router.get('/all-cookies', getAllCookieAcceptanceData)
 
 router.post("/add-parent-category", addParentCategory);
 router.get("/get-parent-categories", getParentCategories);
+router.get("/get-active-parent-categories", getActiveParentCategories);
 router.put("/edit-parent-category/:id", editParentCategory);
 router.delete("/delete-parent-category/:id", deleteParentCategory);
 //product
@@ -186,6 +187,7 @@ router.get("/view-one-order/:orderId",authToken,viewOrderController)
 router.get("/all-order",authToken,allOrderController)
 router.post("/add-product-categories", addCategory); 
 router.get("/get-product-categories", getCategories); 
+router.get("/get-active-product-categories", getActiveCategories);
 router.put("/edit-product-categories/:id", editCategory); 
 router.delete("/delete-product-categories/:id", deleteCategory); 
 router.get("/dashboard", getDashboardCounts)

@@ -56,7 +56,7 @@ const upload = multer({ storage });
 const getCategories = async (req, res) => {
   try {
     const { parentCategory } = req.query; // Extract the parentCategory query parameter
-    let filter = {};
+    let filter = {  };
 
     if (parentCategory) {
       filter.parentCategory = parentCategory; // Filter by parent category if provided
