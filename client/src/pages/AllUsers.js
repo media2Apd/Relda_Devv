@@ -127,10 +127,10 @@ const AllUsers = () => {
     // }));
 
     return (
-        <div className='mx-auto pb-8 p-1 md:p-4 text-gray-800'>
+        <div className='mx-auto pb-8 p-1 md:p-4 text-gray-900'>
             <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg'>
-        <h2 className='font-bold text-xl text-gray-800'>All Users</h2>
-        <button className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
+        <h2 className='font-bold text-xl text-gray-900'>All Users</h2>
+        <button className='border-2 border-brand-buttonSecondary text-brand-buttonSecondary hover:bg-brand-buttonSecondaryHover hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
       </div>
             
             <div className="flex gap-4 flex-wrap mb-6 items-center mt-4 p-4">
@@ -139,7 +139,7 @@ const AllUsers = () => {
                     name="fromDate"
                     value={filters.fromDate}
                     onChange={handleInputChange}
-                    className="border p-2 rounded-md md:mr-2 border-gray-300 w-full md:w-auto"
+                    className="border p-2 rounded-md md:mr-2 border-gray-200 w-full md:w-auto"
                     placeholder={isFocused.fromDate ? "" : "From Date*"}
                     onFocus={() => setIsFocused({ ...isFocused, fromDate: true })}
                     onBlur={() => setIsFocused({ ...isFocused, fromDate: false })}
@@ -149,7 +149,7 @@ const AllUsers = () => {
                     name="toDate"
                     value={filters.toDate || filters.fromDate}
                     onChange={handleInputChange}
-                    className="border p-2 rounded-md md:mr-2 border-gray-300 w-full md:w-auto"
+                    className="border p-2 rounded-md md:mr-2 border-gray-200 w-full md:w-auto"
                     placeholder={isFocused.toDate ? "" : "To Date*"}
                     onFocus={() => setIsFocused({ ...isFocused, toDate: true })}
                     onBlur={() => setIsFocused({ ...isFocused, toDate: false })}
@@ -181,26 +181,26 @@ const AllUsers = () => {
                 <div className='overflow-x-auto rounded-lg shadow-lg'>
                     <table className='w-full userTable bg-white' aria-label='User Table'>
                     <thead>
-                        <tr className='bg-red-600 text-white'>
-                            <th className="border border-gray-300 px-4 py-2">S.No</th>
-                            <th className="border border-gray-300 px-4 py-2">Name</th>
-                            <th className="border border-gray-300 px-4 py-2">Email</th>
-                            <th className="border border-gray-300 px-4 py-2">Role</th>
-                            <th className="border border-gray-300 px-4 py-2">Created Date</th>
-                            <th className="border border-gray-300 px-4 py-2">Action</th>
+                        <tr className='bg-brand-primary text-white'>
+                            <th className="border border-gray-200 px-4 py-2">S.No</th>
+                            <th className="border border-gray-200 px-4 py-2">Name</th>
+                            <th className="border border-gray-200 px-4 py-2">Email</th>
+                            <th className="border border-gray-200 px-4 py-2">Role</th>
+                            <th className="border border-gray-200 px-4 py-2">Created Date</th>
+                            <th className="border border-gray-200 px-4 py-2">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {allUser.map((el, index) => (
                             <tr key={el._id} className="hover:bg-gray-100">
-                                <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
-                                <td className="border border-gray-300 px-4 py-2">{el?.name}</td>
-                                <td className="border border-gray-300 px-4 py-2">{el?.email}</td>
-                                <td className="border border-gray-300 px-4 py-2">{el?.role}</td>
-                                <td className="border border-gray-300 px-4 py-2">{moment(el?.createdAt).format('LL')}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-center">
+                                <td className="border border-gray-200 px-4 py-2 text-center">{index + 1}</td>
+                                <td className="border border-gray-200 px-4 py-2">{el?.name}</td>
+                                <td className="border border-gray-200 px-4 py-2">{el?.email}</td>
+                                <td className="border border-gray-200 px-4 py-2">{el?.role}</td>
+                                <td className="border border-gray-200 px-4 py-2">{moment(el?.createdAt).format('LL')}</td>
+                                <td className="border border-gray-200 px-4 py-2 text-center">
                                     <button
-                                        className="p-2 bg-green-100 rounded-full hover:bg-green-500 hover:text-white"
+                                        className="p-2 bg-green-100 rounded-full hover:bg-brand-buttonAccentHover hover:text-white"
                                         onClick={() => {
                                             setUpdateUserDetails(el);
                                             setOpenUpdateRole(true);

@@ -668,8 +668,8 @@ const AllOrder = () => {
     <div className="p-1 md:p-4 text-xs md:text-[15px] 2xl:text-lg">
 
       <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg'>
-        <h2 className='font-bold text-xl text-gray-800'>All Orders</h2>
-        <button className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full ' onClick={handleExport}>Export Orders</button>
+        <h2 className='font-bold text-xl text-gray-900'>All Orders</h2>
+        <button className='border-2 border-brand-buttonSecondary text-brand-buttonSecondary hover:bg-brand-buttonSecondaryHover hover:text-white transition-all py-2 px-4 rounded-full ' onClick={handleExport}>Export Orders</button>
       </div>
 
       <div className="p-4 flex flex-col md:flex-row md:flex-wrap gap-4 mb-6  mt-4">
@@ -737,11 +737,11 @@ const AllOrder = () => {
         </select>
       </div>
 
-      {error && <p className="text-center text-red-500">{error}</p>}
+      {error && <p className="text-center text-brand-primary">{error}</p>}
       {/* Display error message */}
       {loading ? (
         <div className="flex justify-center items-center py-10">
-          <div className="w-8 h-8 border-2 border-blue-400 border-dashed rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-2 border-brand-buttonSecondary border-dashed rounded-full animate-spin"></div>
         </div> // Circular loading spinner
       ) : data?.length === 0 ? (
         <p className="text-center mt-8">No Order available</p>
@@ -761,11 +761,11 @@ const AllOrder = () => {
                   <p className="font-medium text-lg">
                     {moment(item.createdAt).format("MMMM Do YYYY, h:mm:ss A")}
                   </p>
-                  <p className="text-gray-500">Order ID: {item.orderId}</p>
+                  <p className="text-brand-textMuted0">Order ID: {item.orderId}</p>
                 </div>
                 <button
                   onClick={() => toggleExpand(item.orderId)}
-                  className="text-blue-600 font-semibold hover:underline"
+                  className="text-brand-buttonSecondary font-semibold hover:underline"
                 >
                   {expandedOrder === item.orderId
                     ? "Collapse Details"
@@ -792,13 +792,13 @@ const AllOrder = () => {
                           <div className="font-medium">
                             {product.productName}
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-brand-textMuted">
                             {product.category}
                           </div>
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-1">
-                            <div className=" text-red-500">
+                            <div className=" text-brand-primary">
                               {displayINRCurrency(product.sellingPrice)}{" "}
-                              <span className="line-through text-gray-500">
+                              <span className="line-through text-brand-textMuted">
                                 {displayINRCurrency(product.price)}
                               </span>
                             </div>
@@ -908,7 +908,7 @@ const AllOrder = () => {
                       {item.order_status === "Pending" && (
                         <button
                           onClick={() => handleDeleteOrder(item.orderId)}
-                          className="bg-red-500 text-white p-2 rounded-lg mt-2 shadow"
+                          className="bg-brand-primary text-white p-2 rounded-lg mt-2 shadow"
                         >
                           Delete Order
                         </button>

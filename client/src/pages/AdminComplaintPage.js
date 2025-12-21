@@ -58,27 +58,27 @@ const AdminComplaint = () => {
 
     
       return (
-        <div className="mx-auto pb-8 p-1 md:p-4 text-gray-800">
+        <div className="mx-auto pb-8 p-1 md:p-4 text-gray-900">
 
 <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg'>
-        <h2 className='font-bold text-xl text-gray-800'>All Customer Complaints</h2>
-        <button className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
+        <h2 className='font-bold text-xl text-gray-900'>All Customer Complaints</h2>
+        <button className='border-2 border-brand-buttonSecondary text-brand-buttonSecondary hover:bg-brand-buttonSecondaryHover hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
       </div>
 
-          {error && <p className="text-center text-red-600">{error}</p>}
+          {error && <p className="text-center text-brand-primary">{error}</p>}
 
           <div className="overflow-x-auto mt-4 rounded-lg shadow-lg">
           <table className="w-full userTable bg-white " aria-label="Complaint Messages Table">
             <thead>
-              <tr className="bg-red-600 text-white">
-                <th className="border border-gray-300 px-4 py-2">Customer Name</th>
-                <th className="border border-gray-300 px-4 py-2">Order ID</th>
-                <th className="border border-gray-300 px-4 py-2">Mobile</th>
-                <th className="border border-gray-300 px-4 py-2">Email</th>
-                <th className="border border-gray-300 px-4 py-2">Complaint</th>
-                <th className="border border-gray-300 px-4 py-2">Purchase Date</th>
-                <th className="border border-gray-300 px-4 py-2">Delivery Date</th>
-                <th className="border border-gray-300 px-4 py-2">View File</th> {/* Added file column for view */}
+              <tr className="bg-brand-primary text-white">
+                <th className="border border-gray-200 px-4 py-2">Customer Name</th>
+                <th className="border border-gray-200 px-4 py-2">Order ID</th>
+                <th className="border border-gray-200 px-4 py-2">Mobile</th>
+                <th className="border border-gray-200 px-4 py-2">Email</th>
+                <th className="border border-gray-200 px-4 py-2">Complaint</th>
+                <th className="border border-gray-200 px-4 py-2">Purchase Date</th>
+                <th className="border border-gray-200 px-4 py-2">Delivery Date</th>
+                <th className="border border-gray-200 px-4 py-2">View File</th> {/* Added file column for view */}
               </tr>
             </thead>
             <tbody>
@@ -92,7 +92,7 @@ const AdminComplaint = () => {
                   <td className="px-4 py-2 border-b">{complaint.complaintText}</td>
                   <td className="px-4 py-2 border-b">{new Date(complaint.purchaseDate).toLocaleDateString()}</td>
                   <td className="px-4 py-2 border-b">{new Date(complaint.deliveryDate).toLocaleDateString()}</td>
-                  <td className="py-2 px-4 border-b underline text-blue-600">
+                  <td className="py-2 px-4 border-b underline text-brand-buttonSecondary">
                     <a href={SummaryApi.viewComplaintFile(complaint._id).url} target="_blank" rel="noopener noreferrer">
                         View File
                     </a>
@@ -102,7 +102,7 @@ const AdminComplaint = () => {
             ) : (
                 <tr>
                   <td className="py-2 px-4 border-b text-center" colSpan="7">
-                    <div className="py-4 text-gray-500">No applications found. Please check back later.</div>
+                    <div className="py-4 text-brand-textMuted">No applications found. Please check back later.</div>
                   </td>
                 </tr>
               )}

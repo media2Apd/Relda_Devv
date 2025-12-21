@@ -1,10 +1,9 @@
 import React from 'react';
 import aboutUs_1 from '../assest/banner/about-us-1.webp'
 import aboutUs_2 from '../assest/banner/about-us-2.webp'
-import aboutUs_3 from '../assest/banner/about-us-3.webp'
-import { IoLogoFacebook, IoLogoInstagram } from "react-icons/io5"; 
-import { BsTwitterX,BsYoutube } from "react-icons/bs";
-
+import aboutUs_3 from '../assest/banner/AboutUs3.png'
+import { IoLogoFacebook, IoLogoInstagram, IoLogoYoutube } from "react-icons/io5"; 
+import { BsTwitterX } from "react-icons/bs";
 
 const AboutUs = () => {
   return (
@@ -49,11 +48,19 @@ const AboutUs = () => {
       <section className="text-center py-6">
         
         <p className="text-center py-6">Connect with us:</p>
-        <div className="flex justify-center space-x-4 mt-4 space-x-8">
-        <a href="https://www.facebook.com/reldaindia" target="_blank" rel="noopener noreferrer" className="text-4xl sm:text-5xl text-gray-400 hover:text-white"><IoLogoFacebook /></a>
-          <a href="https://www.instagram.com/reldaindia/?hl=en" target="_blank" rel="noopener noreferrer" className="text-4xl sm:text-5xl text-gray-400 hover:text-white"><IoLogoInstagram /></a>
-          {/* <a href="https://x.com/i/flow/login?redirect_after_login=%2FElectronicsElda" target="_blank" rel="noopener noreferrer" className="text-4xl sm:text-5xl text-gray-400 hover:text-white"><BsTwitterX /></a> */}
-          <a href="https://www.youtube.com/channel/UClkiHCA4tVLtbtIc2fjhCgQ" target="_blank" rel="noopener noreferrer" className="text-5xl sm:text-6xl text-gray-400 hover:text-white"><BsYoutube /> </a>
+        <div className="flex justify-center space-x-4 mt-2">
+          <a href="https://facebook.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all">
+            <IoLogoFacebook size={20} />
+          </a>
+          <a href="https://instagram.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all">
+            <IoLogoInstagram size={20} />
+          </a>
+          <a href="https://x.com/ReldaIndia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all">
+            <BsTwitterX size={20} />
+          </a>
+          <a href="https://www.youtube.com/@Relda_India" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all">
+            <IoLogoYoutube size={20} />
+          </a>
         </div>
       </section>
     </div>

@@ -56,9 +56,9 @@ const AllBlogs = () => {
   return (
     <div className="min-h-screen p-1 md:p-4">
       <div className="bg-white py-3 px-6 shadow-md flex justify-between items-center mb-2 rounded-lg">
-        <h2 className="font-bold text-xl text-gray-800">All Blogs</h2>
+        <h2 className="font-bold text-xl text-gray-900">All Blogs</h2>
         <button
-          className="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition-all py-2 px-4 rounded-full"
+          className="border-2 border-brand-primary text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all py-2 px-4 rounded-full"
           onClick={() => {
             setEditingBlog(null);
             setOpenUploadBlog(true);
@@ -77,7 +77,7 @@ const AllBlogs = () => {
       )}
 
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-        {error && <p className="text-red-500">{error}</p>}
+        {error && <p className="text-brand-primary">{error}</p>}
         {blogs.map((blog) => (
           <div
             key={blog._id}
@@ -92,10 +92,10 @@ const AllBlogs = () => {
             </div>
 
             <h1 className="text-lg font-semibold text-center">{blog.title}</h1>
-            <div className="text-sm text-gray-700 space-y-2">
+            <div className="text-sm text-brand-textMuted space-y-2">
               {blog.content.map((section, idx) => (
                 <div key={idx}>
-                  <h4 className="font-semibold text-gray-800">
+                  <h4 className="font-semibold text-gray-900">
                     {section.subtitle}
                   </h4>
                   {/* Render content safely */}
@@ -114,13 +114,13 @@ const AllBlogs = () => {
 
             <div className="flex justify-between mt-4">
               <button
-                className="p-2 bg-green-100 hover:bg-green-600 rounded-full hover:text-white cursor-pointer"
+                className="p-2 bg-green-100 hover:bg-brand-buttonAccentHover rounded-full hover:text-white cursor-pointer"
                 onClick={() => handleEditBlog(blog)}
               >
                 <MdModeEditOutline size={20} />
               </button>
               <button
-                className="p-2 bg-red-100 hover:bg-green-900 rounded-full hover:text-white cursor-pointer"
+                className="p-2 bg-red-100 hover:bg-brand-primaryHover rounded-full hover:text-white cursor-pointer"
                 onClick={() => handleDeleteBlog(blog._id)}
               >
                 <MdDeleteOutline size={20} />

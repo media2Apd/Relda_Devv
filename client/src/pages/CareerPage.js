@@ -101,7 +101,7 @@ const CareerPage = () => {
       {/* Who We Are Section */}
       <section className="text-center py-6 md:py-10">
         <h2 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Who we are</h2>
-        <p className="text-gray-700 max-w-2xl mx-auto text-sm md:text-base">
+        <p className="text-brand-textMuted max-w-2xl mx-auto text-sm md:text-base">
           Our mission is People <span className="font-bold">Work Together</span> to get a new technology.
           We take inspiration from what people want to accomplish in their lives and work to create products that empower in new ways.
           This is what drives our innovation forward.
@@ -112,77 +112,77 @@ const CareerPage = () => {
       </section>
 
       {/* Job Application Form Section */}
-      <section className="bg-gray-900 text-white py-6 md:py-8">
+      <section className="bg-brand-productCardImageBg py-6 md:py-8">
         <div className="max-w-lg mx-auto px-4 md:px-0">
           <h2 className="text-center text-xl md:text-2xl font-bold mb-4 md:mb-6">JOIN THE TEAM !!</h2>
-          <p className="text-center mb-4 md:mb-6">Explore exciting opportunities and apply now to join us.</p>
+          <p className="text-center mb-4 md:mb-6 text-brand-textMuted">Explore exciting opportunities and apply now to join us.</p>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-3 md:gap-4">
               <input
                 type="text"
                 placeholder="Name*"
-                className={`p-2 rounded bg-gray-800 border ${errors.name ? 'border-red-500' : 'border-gray-700'}`}
+                className={`p-2 rounded bg-white border ${errors.name ? 'border-brand-primary' : 'border-brand-200'}`}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+              {errors.name && <p className="text-brand-primary text-sm">{errors.name}</p>}
 
               <input
                 type="email"
                 placeholder="Email*"
-                className={`p-2 rounded bg-gray-800 border ${errors.email ? 'border-red-500' : 'border-gray-700'}`}
+                className={`p-2 rounded bg-white border ${errors.email ? 'border-brand-primary' : 'border-gray-200'}`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+              {errors.email && <p className="text-brand-primary text-sm">{errors.email}</p>}
 
               <input
                 type="text"
                 placeholder="Educational Qualification*"
-                className={`p-2 rounded bg-gray-800 border ${errors.educationalQualification ? 'border-red-500' : 'border-gray-700'}`}
+                className={`p-2 rounded bg-white border ${errors.educationalQualification ? 'border-brand-primary' : 'border-gray-200'}`}
                 value={educationalQualification}
                 onChange={(e) => setEducationalQualification(e.target.value)}
               />
               {errors.educationalQualification && (
-                <p className="text-red-500 text-sm">{errors.educationalQualification}</p>
+                <p className="text-brand-primary text-sm">{errors.educationalQualification}</p>
               )}
 
               <input
                 type="text"
                 placeholder="Looking For*"
-                className={`p-2 rounded bg-gray-800 border ${errors.lookingFor ? 'border-red-500' : 'border-gray-700'}`}
+                className={`p-2 rounded bg-white border ${errors.lookingFor ? 'border-brand-primary' : 'border-gray-200'}`}
                 value={lookingFor}
                 onChange={(e) => setLookingFor(e.target.value)}
               />
-              {errors.lookingFor && <p className="text-red-500 text-sm">{errors.lookingFor}</p>}
+              {errors.lookingFor && <p className="text-brand-primary text-sm">{errors.lookingFor}</p>}
 
               <input
                 type="text"
                 placeholder="Experience*"
-                className={`p-2 rounded bg-gray-800 border ${errors.experience ? 'border-red-500' : 'border-gray-700'}`}
+                className={`p-2 rounded bg-white border ${errors.experience ? 'border-brand-primary' : 'border-gray-200'}`}
                 value={experience}
                 onChange={(e) => setExperience(e.target.value)}
               />
-              {errors.experience && <p className="text-red-500 text-sm">{errors.experience}</p>}
+              {errors.experience && <p className="text-brand-primary text-sm">{errors.experience}</p>}
 
               <input
                 type="text"
                 placeholder="Phone*"
-                className={`p-2 rounded bg-gray-800 border ${errors.phone ? 'border-red-500' : 'border-gray-700'}`}
+                className={`p-2 rounded bg-white border ${errors.phone ? 'border-brand-primary' : 'border-gray-200'}`}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
-              {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+              {errors.phone && <p className="text-brand-primary text-sm">{errors.phone}</p>}
             </div>
 
             <textarea
               placeholder="Write a summary about yourself..."
-              className={`p-2 rounded bg-gray-800 border ${errors.summary ? 'border-red-500' : 'border-gray-700'} w-full`}
+              className={`p-2 rounded bg-white border ${errors.summary ? 'border-brand-primary' : 'border-gray-200'} w-full`}
               rows="4"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
             />
-            {errors.summary && <p className="text-red-500 text-sm">{errors.summary}</p>}
+            {errors.summary && <p className="text-brand-primary text-sm">{errors.summary}</p>}
 
 
             <label htmlFor="fileUpload" className="flex items-center justify-center p-2 mt-2 border-none rounded cursor-pointer">Attach Resume</label>
@@ -190,16 +190,16 @@ const CareerPage = () => {
               type="file"
               accept=".pdf, .doc, .docx"
               required
-              className={`w-full my-2 p-2 border ${errors.resume ? 'border-red-500' : 'border-gray-700'} rounded text-gray-400`}
+              className={`w-full my-2 p-2 bg-white border ${errors.resume ? 'border-brand-primary' : 'border-gray-200'} rounded text-gray-400`}
               onChange={(e) => setResume(e.target.files[0])}
               ref={fileInputRef}
             />
-            {errors.resume && <p className="text-red-500 text-sm">{errors.resume}</p>}
+            {errors.resume && <p className="text-brand-primary text-sm">{errors.resume}</p>}
 
             <button
               onClick={handleSubmit}
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-semibold"
+              className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded font-semibold"
             >
               Submit Application
             </button>

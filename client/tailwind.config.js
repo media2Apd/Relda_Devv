@@ -7,13 +7,17 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          primary: "#e60000",      // main brand color
+          primary: "#e60000",      // brand red->main brand color
           primaryHover: "#c00202", // hover / active
           primarySoft: "#ff4d4d",  // light usage
-          primaryTextMuted: "#616161",     // paragraph / secondary heading
+          primaryTextMuted: "#616161",     // menu bar/ mega menu
           textMuted: "#6A7282",     // paragraph / secondary heading
-          offer: "#4F9835",         // offer / discount / success
+          offer: "#4F9835",        // offer / discount / success
           productCardImageBg: "#F0F2F5",         // product card img bg
+          buttonAccent: '#0b8524',//green->button
+          buttonAccentHover: '#074916',
+          buttonSecondary: '#033dfc', //blue->button
+          buttonSecondaryHover: '#030bfc',
         },
       },
       animation: {

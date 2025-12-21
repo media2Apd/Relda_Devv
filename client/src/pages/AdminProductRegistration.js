@@ -65,14 +65,14 @@ const AdminProductRegistration = () => {
   
 
   return (
-    <div className="mx-auto pb-8 p-1 md:p-4 text-gray-800">
+    <div className="mx-auto pb-8 p-1 md:p-4 text-gray-900">
 
       <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg mb-4'>
-        <h2 className='font-bold text-xl text-gray-800'>Product Registrations</h2>
-        <button className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
+        <h2 className='font-bold text-xl text-gray-900'>Product Registrations</h2>
+        <button className='border-2 border-brand-buttonSecondary text-brand-buttonSecondary hover:bg-brand-buttonSecondaryHover hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
       </div>
 
-      {error && <p className="text-red-600 text-center">{error}</p>}
+      {error && <p className="text-brand-primary text-center">{error}</p>}
 
       {loading ? (
         <p className="text-center py-4">Loading...</p>
@@ -80,14 +80,14 @@ const AdminProductRegistration = () => {
         <div className="overflow-x-auto rounded-lg shadow-lg">
           <table className="w-full userTable bg-white" aria-label="Product Registrations Table">
             <thead>
-              <tr className="bg-red-600 text-white">
-                <th className="border border-gray-300 px-4 py-2">Name</th>
-                <th className="border border-gray-300 px-4 py-2">Phone</th>
-                <th className="border border-gray-300 px-4 py-2">Email</th>
-                <th className="border border-gray-300 px-4 py-2">Order Number</th>
-                <th className="border border-gray-300 px-4 py-2">Serial Number</th>
-                <th className="border border-gray-300 px-4 py-2">Installation Date</th>
-                <th className="border border-gray-300 px-4 py-2">File Upload</th>
+              <tr className="bg-brand-primary text-white">
+                <th className="border border-gray-200 px-4 py-2">Name</th>
+                <th className="border border-gray-200 px-4 py-2">Phone</th>
+                <th className="border border-gray-200 px-4 py-2">Email</th>
+                <th className="border border-gray-200 px-4 py-2">Order Number</th>
+                <th className="border border-gray-200 px-4 py-2">Serial Number</th>
+                <th className="border border-gray-200 px-4 py-2">Installation Date</th>
+                <th className="border border-gray-200 px-4 py-2">File Upload</th>
               </tr>
             </thead>
             <tbody>
@@ -100,7 +100,7 @@ const AdminProductRegistration = () => {
                     <td className="py-2 px-4 border-b">{registration.orderNumber}</td>
                     <td className="py-2 px-4 border-b">{registration.serialNumber}</td>
                     <td className="py-2 px-4 border-b">{new Date(registration.installationDate).toLocaleDateString()}</td>
-                    <td className="py-2 px-4 border-b underline text-blue-600">
+                    <td className="py-2 px-4 border-b underline text-brand-buttonSecondary">
                       <a href={SummaryApi.viewRegistrationFile(registration._id).url} target="_blank" rel="noopener noreferrer">
                         View File
                       </a>

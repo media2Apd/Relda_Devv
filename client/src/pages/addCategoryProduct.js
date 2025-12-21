@@ -1023,12 +1023,12 @@ const AddCategory = () => {
     <div className="p-4 min-h-screen mx-auto rounded-lg">
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 bg-white p-4 shadow-sm rounded-lg mb-6">
-        <h2 className="text-xl font-bold text-gray-800">Category Management</h2>
+        <h2 className="text-xl font-bold text-gray-900">Category Management</h2>
         <div className="flex gap-4">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-all text-sm font-medium" onClick={() => setIsParentModalOpen(true)}>
+          <button className="bg-brand-buttonSecondary hover:bg-brand-buttonSecondaryHover text-white px-4 py-2 rounded-md transition-all text-sm font-medium" onClick={() => setIsParentModalOpen(true)}>
             Add Parent Category
           </button>
-          <button onClick={() => setIsModalOpen(true)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-all text-sm font-medium">
+          <button onClick={() => setIsModalOpen(true)} className="bg-brand-buttonAccent hover:bg-brand-buttonAccentHover text-white px-4 py-2 rounded-md transition-all text-sm font-medium">
             Add Sub Category
           </button>
         </div>
@@ -1038,28 +1038,28 @@ const AddCategory = () => {
       {isParentModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
           <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md">
-            <h2 className="text-xl font-bold mb-6 text-gray-800">{editId ? "Edit Parent Category" : "Add Parent Category"}</h2>
+            <h2 className="text-xl font-bold mb-6 text-gray-900">{editId ? "Edit Parent Category" : "Add Parent Category"}</h2>
             <form onSubmit={editId ? handleUpdateParentCategory : handleAddParentCategory} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Category Name</label>
-                <input type="text" className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none" value={parentName} onChange={(e) => setParentName(e.target.value)} required />
+                <label className="block text-sm font-semibold text-brand-textMuted mb-1">Category Name</label>
+                <input type="text" className="w-full p-2 border border-gray-200 rounded focus:ring-2 focus:ring-brand-buttonSecondary outline-none" value={parentName} onChange={(e) => setParentName(e.target.value)} required />
               </div>
 
               <div className="flex items-center p-2 bg-gray-50 rounded border">
-                <input type="checkbox" id="isHideParent" className="w-4 h-4 text-blue-600 cursor-pointer" checked={isHideParent} onChange={(e) => setIsHideParent(e.target.checked)} />
-                <label htmlFor="isHideParent" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">Hide from users</label>
+                <input type="checkbox" id="isHideParent" className="w-4 h-4 text-brand-buttonSecondary cursor-pointer" checked={isHideParent} onChange={(e) => setIsHideParent(e.target.checked)} />
+                <label htmlFor="isHideParent" className="ml-2 text-sm font-medium text-brand-textMuted cursor-pointer">Hide from users</label>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Category Image</label>
-                <input type="file" className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" onChange={handleParentImageChange} required={!editId} />
+                <label className="block text-sm font-semibold text-brand-textMuted mb-1">Category Image</label>
+                <input type="file" className="w-full text-sm text-brand-textMuted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-brand-buttonSecondary hover:file:bg-blue-100" onChange={handleParentImageChange} required={!editId} />
               </div>
               
               {parentImagePreview && <img src={parentImagePreview} alt="Preview" className="mt-2 w-full h-40 object-contain rounded border bg-gray-50" />}
               
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={resetParentForm} className="flex-1 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200">Cancel</button>
-                <button type="submit" className="flex-1 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">{editId ? "Update" : "Create"}</button>
+                <button type="button" onClick={resetParentForm} className="flex-1 py-2 bg-gray-100 text-brand-textMuted font-bold rounded-lg hover:bg-gray-200">Cancel</button>
+                <button type="submit" className="flex-1 py-2 bg-brand-buttonSecondary text-white font-bold rounded-lg hover:bg-brand-buttonSecondaryHover">{editId ? "Update" : "Create"}</button>
               </div>
             </form>
           </div>
@@ -1070,41 +1070,41 @@ const AddCategory = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-6 text-gray-800">{editIndex !== null ? "Edit Sub Category" : "Add Sub Category"}</h3>
+            <h3 className="text-xl font-bold mb-6 text-gray-900">{editIndex !== null ? "Edit Sub Category" : "Add Sub Category"}</h3>
             <form onSubmit={handleSubmitSubCategory} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Sub Category Name</label>
-                <input type="text" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none" required />
+                <label className="block text-sm font-semibold text-brand-textMuted mb-1">Sub Category Name</label>
+                <input type="text" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} className="w-full p-2 border border-gray-200 rounded focus:ring-2 focus:ring-brand-buttonAccent outline-none" required />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Parent Category</label>
-                <select value={selectedParentCategory} onChange={(e) => setSelectedParentCategory(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none" required>
+                <label className="block text-sm font-semibold text-brand-textMuted mb-1">Parent Category</label>
+                <select value={selectedParentCategory} onChange={(e) => setSelectedParentCategory(e.target.value)} className="w-full p-2 border border-gray-200 rounded focus:ring-2 focus:ring-brand-buttonAccent outline-none" required>
                   <option value="">Select Parent...</option>
                   {parentCategories.map((parent) => <option key={parent._id} value={parent._id}>{parent.name}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">URL / Slug Value</label>
-                <input type="text" value={value} onChange={(e) => setValue(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none" required />
+                <label className="block text-sm font-semibold text-brand-textMuted mb-1">URL / Slug Value</label>
+                <input type="text" value={value} onChange={(e) => setValue(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-brand-buttonAccent outline-none" required />
               </div>
 
               <div className="flex items-center p-2 bg-gray-50 rounded border">
-                <input type="checkbox" id="isHideCategory" className="w-4 h-4 text-green-600 cursor-pointer" checked={isHideCategory} onChange={(e) => setIsHideCategory(e.target.checked)} />
-                <label htmlFor="isHideCategory" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">Hide from users</label>
+                <input type="checkbox" id="isHideCategory" className="w-4 h-4 text-brand-buttonAccent cursor-pointer" checked={isHideCategory} onChange={(e) => setIsHideCategory(e.target.checked)} />
+                <label htmlFor="isHideCategory" className="ml-2 text-sm font-medium text-brand-textMuted cursor-pointer">Hide from users</label>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Image</label>
-                <input type="file" onChange={handleImageChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+                <label className="block text-sm font-semibold text-brand-textMuted mb-1">Image</label>
+                <input type="file" onChange={handleImageChange} className="w-full text-sm text-brand-textMuted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-brand-buttonAccent hover:file:bg-green-100" />
               </div>
 
               {preview && <img src={preview} alt="Preview" className="mt-2 w-full h-40 object-contain rounded border bg-gray-50" />}
 
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={resetCategoryForm} className="flex-1 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200">Cancel</button>
-                <button type="submit" className="flex-1 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700">{editIndex !== null ? "Update" : "Create"}</button>
+                <button type="button" onClick={resetCategoryForm} className="flex-1 py-2 bg-gray-100 text-brand-textMuted font-bold rounded-lg hover:bg-gray-200">Cancel</button>
+                <button type="submit" className="flex-1 py-2 bg-brand-buttonAccent text-white font-bold rounded-lg hover:bg-brand-buttonAccentHover">{editIndex !== null ? "Update" : "Create"}</button>
               </div>
             </form>
           </div>
@@ -1113,10 +1113,10 @@ const AddCategory = () => {
 
       {/* --- Parent Category List Table --- */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-8">
-        <h3 className="text-lg font-bold mb-4 text-gray-700 border-b pb-2">Parent Categories</h3>
+        <h3 className="text-lg font-bold mb-4 text-gray-900 border-b pb-2">Parent Categories</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+            <thead className="bg-gray-100 text-brand-textMuted uppercase text-xs font-bold">
               <tr>
                 <th className="px-4 py-3">S.No</th>
                 <th className="px-4 py-3">Name</th>
@@ -1131,15 +1131,15 @@ const AddCategory = () => {
                   <td className="px-4 py-4 text-sm">{idx + 1}</td>
                   <td className="px-4 py-4 text-sm font-medium">{cat.name}</td>
                   <td className="px-4 py-4 text-center">
-                    {cat.isHide ? <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold">Hidden</span> : <span className="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs font-bold">Visible</span>}
+                    {cat.isHide ? <span className="px-2 py-1 bg-red-100 text-brand-primary rounded-md text-xs font-bold">Hidden</span> : <span className="px-2 py-1 bg-green-100 text-brand-buttonAccent rounded-md text-xs font-bold">Visible</span>}
                   </td>
                   <td className="px-4 py-4">
                     <img src={cat.categoryImage} className="w-10 h-10 object-cover rounded-md shadow-sm mx-auto" alt={cat.name} />
                   </td>
                   <td className="px-4 py-4 text-center">
                     <div className="flex justify-center gap-2">
-                      <button onClick={() => handleEditParentCategory(cat)} className="p-2 text-yellow-600 bg-yellow-50 rounded-full hover:bg-yellow-600 hover:text-white transition-all"><MdModeEdit size={18} /></button>
-                      <button onClick={() => handleDeleteParentCategory(cat._id)} className="p-2 text-red-600 bg-red-50 rounded-full hover:bg-red-600 hover:text-white transition-all"><MdDelete size={18} /></button>
+                      <button onClick={() => handleEditParentCategory(cat)} className="p-2 text-brand-buttonAccent bg-green-100 rounded-md hover:bg-brand-buttonAccentHover hover:text-white transition-all"><MdModeEdit size={18} /></button>
+                      <button onClick={() => handleDeleteParentCategory(cat._id)} className="p-2 text-brand-primary bg-red-100 rounded-md hover:bg-brand-primaryHover hover:text-white transition-all"><MdDelete size={18} /></button>
                     </div>
                   </td>
                 </tr>
@@ -1151,10 +1151,10 @@ const AddCategory = () => {
 
       {/* --- Sub-Category List Table --- */}
       <div className="bg-white rounded-lg shadow-md p-4">
-        <h3 className="text-lg font-bold mb-4 text-gray-700 border-b pb-2">Sub Categories</h3>
+        <h3 className="text-lg font-bold mb-4 text-gray-900 border-b pb-2">Sub Categories</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+            <thead className="bg-gray-100 text-brand-textMuted uppercase text-xs font-bold">
               <tr>
                 <th className="px-4 py-3">S.No</th>
                 <th className="px-4 py-3">Name</th>
@@ -1169,17 +1169,17 @@ const AddCategory = () => {
                 <tr key={cat._id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-4 text-sm">{idx + 1}</td>
                   <td className="px-4 py-4 text-sm font-medium">{cat.label}</td>
-                  <td className="px-4 py-4 text-sm text-gray-500">{cat.parentCategory?.name || "N/A"}</td>
+                  <td className="px-4 py-4 text-sm font-medium text-gray-500">{cat.parentCategory?.name || "N/A"}</td>
                   <td className="px-4 py-4 text-center">
-                    {cat.isHide ? <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold">Hidden</span> : <span className="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs font-bold">Visible</span>}
+                    {cat.isHide ? <span className="px-2 py-1 bg-red-100 text-brand-primary rounded-md text-xs font-bold">Hidden</span> : <span className="px-2 py-1 bg-green-100 text-brand-buttonAccent rounded-md text-xs font-bold">Visible</span>}
                   </td>
                   <td className="px-4 py-4">
                     <img src={cat.categoryImage} className="w-10 h-10 object-cover rounded-md shadow-sm mx-auto" alt={cat.label} />
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button onClick={() => handleEditSubCategory(idx)} className="p-2 text-yellow-600 bg-yellow-50 rounded-full hover:bg-yellow-600 hover:text-white transition-all"><MdModeEdit size={18} /></button>
-                      <button onClick={() => handleDeleteSubCategory(idx)} className="p-2 text-red-600 bg-red-50 rounded-full hover:bg-red-600 hover:text-white transition-all"><MdDelete size={18} /></button>
+                    <div className="flex justify-center gap-4">
+                      <button onClick={() => handleEditSubCategory(idx)} className="p-2 text-brand-buttonAccent bg-green-100 rounded-md hover:bg-brand-buttonAccentHover hover:text-white transition-all"><MdModeEdit size={18} /></button>
+                      <button onClick={() => handleDeleteSubCategory(idx)} className="p-2 text-brand-primary bg-red-100 rounded-md hover:bg-brand-primaryHover hover:text-white transition-all"><MdDelete size={18} /></button>
                     </div>
                   </td>
                 </tr>

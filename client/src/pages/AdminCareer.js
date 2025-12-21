@@ -62,31 +62,31 @@ const CareerApplications = () => {
   
 
   return (
-    <div className="mx-auto pb-8 p-1 md:p-4 text-gray-800">
+    <div className="mx-auto pb-8 p-1 md:p-4 text-gray-900">
 
 <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg mb-4'>
-        <h2 className='font-bold text-xl text-gray-800'>All Careers</h2>
-        <button className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
+        <h2 className='font-bold text-xl text-gray-900'>All Careers</h2>
+        <button className='border-2 border-brand-buttonSecondary text-brand-buttonSecondary hover:bg-brand-buttonSecondaryHover hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
       </div>
 
       {/* <hr className="border-gray-300 mb-4" /> */}
-      {error && <p className="text-red-500 text-center">{error}</p>}
+      {error && <p className="text-brand-primary text-center">{error}</p>}
 
       {isLoading ? (
-        <p className="text-center text-gray-500">Loading career applications...</p>
+        <p className="text-center text-brand-textMuted">Loading career applications...</p>
       ) : (
       <div className="overflow-x-auto rounded-lg shadow-lg">
         <table className="w-full userTable bg-white" aria-label="Product Registrations Table">
           <thead>
-            <tr className="bg-red-600 text-white">
-              <th className="border border-gray-300 px-4 py-2">Name</th>
-              <th className="border border-gray-300 px-4 py-2">Email</th>
-              <th className="border border-gray-300 px-4 py-2">Educational Qualification</th>
-              <th className="border border-gray-300 px-4 py-2">Looking For</th>
-              <th className="border border-gray-300 px-4 py-2">Experience</th>
-              <th className="border border-gray-300 px-4 py-2">Phone</th>
-              <th className="border border-gray-300 px-4 py-2">Summary</th>
-              <th className="border border-gray-300 px-4 py-2">File</th>
+            <tr className="bg-brand-primary text-white">
+              <th className="border border-gray-200 px-4 py-2">Name</th>
+              <th className="border border-gray-200 px-4 py-2">Email</th>
+              <th className="border border-gray-200 px-4 py-2">Educational Qualification</th>
+              <th className="border border-gray-200 px-4 py-2">Looking For</th>
+              <th className="border border-gray-200 px-4 py-2">Experience</th>
+              <th className="border border-gray-200 px-4 py-2">Phone</th>
+              <th className="border border-gray-200 px-4 py-2">Summary</th>
+              <th className="border border-gray-200 px-4 py-2">File</th>
             </tr>
           </thead>
           <tbody>
@@ -100,7 +100,7 @@ const CareerApplications = () => {
                   <td className="py-2 px-4 border-b">{career.experience}</td>
                   <td className="py-2 px-4 border-b">{career.phone}</td>
                   <td className="py-2 px-4 border-b">{career.summary}</td>
-                  <td className="py-2 px-4 border-b underline text-blue-600">
+                  <td className="py-2 px-4 border-b underline text-brand-buttonSecondary">
                     <a href={SummaryApi.viewCareerFile.url(career._id)} target="_blank" rel="noopener noreferrer">
                       View File
                     </a>
