@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import moment from "moment";
 import SummaryApi from "../common";
 import displayINRCurrency from "../helpers/displayCurrency";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { IoClose } from "react-icons/io5";
-import Select from "react-select";
+// import { IoClose } from "react-icons/io5";
+// import Select from "react-select";
 import { toast } from 'react-toastify';
 const OrderTracking = () => {
   const { orderId } = useParams(); // Get order ID from route
@@ -17,14 +17,14 @@ const OrderTracking = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null); // Store selected order ID
   const [cancelReason, setCancelReason] = useState(""); // Store the selected reason
   const [customComment, setCustomComment] = useState("");
-  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
-  const [returnReason, setReturnReason] = useState("");
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [productReturn, setProductReturn] = useState("");
+  // const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  // const [returnReason, setReturnReason] = useState("");
+  // const [uploadedImages, setUploadedImages] = useState([]);
+  // const [productReturn, setProductReturn] = useState("");
   const [isRequestClick, setIsRequestClick] = useState(false);
 
 
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -50,11 +50,11 @@ const OrderTracking = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
 
   useEffect(() => {
     fetchOrderDetails();
-  }, [orderId]);
+  }, [fetchOrderDetails]);
 
   // Predefined cancellation reasons
   const cancelReasons = [
@@ -111,63 +111,63 @@ const OrderTracking = () => {
     }
   };
 
-  const handleReturn = () => {
-    setIsReturnModalOpen(true);
-  };
+  // const handleReturn = () => {
+  //   setIsReturnModalOpen(true);
+  // };
 
-  const handleProductChange = (selectedOptions) => {
-    setProductReturn(selectedOptions.map((option) => option.value)); // Update state with selected values
-  };
+  // const handleProductChange = (selectedOptions) => {
+  //   setProductReturn(selectedOptions.map((option) => option.value)); // Update state with selected values
+  // };
 
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setUploadedImages((prevImages) => [...prevImages, ...files]);
-  };
+  // const handleFileUpload = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   setUploadedImages((prevImages) => [...prevImages, ...files]);
+  // };
 
-  const handleSubmitReturn = async () => {
-    if (!returnReason || uploadedImages.length === 0) {
-      toast.error("Please provide a return reason and upload at least one image.");
-      return;
-    }
-    setIsRequestClick(true)
+  // const handleSubmitReturn = async () => {
+  //   if (!returnReason || uploadedImages.length === 0) {
+  //     toast.error("Please provide a return reason and upload at least one image.");
+  //     return;
+  //   }
+  //   setIsRequestClick(true)
 
-    try {
-      const formData = new FormData();
-      formData.append("orderId", orderId);
-      formData.append("productIds", productReturn);
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("orderId", orderId);
+  //     formData.append("productIds", productReturn);
 
-      formData.append("returnReason", returnReason);
-      formData.append("order_status", "returnRequested");
-      uploadedImages.forEach((file) => formData.append("returnImages", file));
+  //     formData.append("returnReason", returnReason);
+  //     formData.append("order_status", "returnRequested");
+  //     uploadedImages.forEach((file) => formData.append("returnImages", file));
 
-      const response = await fetch(SummaryApi.returnOrder.url, {
-        method: SummaryApi.returnOrder.method,
-        credentials: "include",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-      });
+  //     const response = await fetch(SummaryApi.returnOrder.url, {
+  //       method: SummaryApi.returnOrder.method,
+  //       credentials: "include",
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       },
+  //       body: formData,
+  //     });
 
-      if (response.ok) {
-        toast("Return request submitted successfully.");
-        fetchOrderDetails();
-        setIsReturnModalOpen(false); // Close modal
-        setReturnReason("");
-        setUploadedImages([]);
-      } else {
-        console.error("Failed to submit return request.");
-      }
-    } catch (err) {
-      console.error("Error submitting return request:", err);
-    } finally {
-      setIsRequestClick(false)
-    }
-  };
+  //     if (response.ok) {
+  //       toast("Return request submitted successfully.");
+  //       fetchOrderDetails();
+  //       setIsReturnModalOpen(false); // Close modal
+  //       setReturnReason("");
+  //       setUploadedImages([]);
+  //     } else {
+  //       console.error("Failed to submit return request.");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error submitting return request:", err);
+  //   } finally {
+  //     setIsRequestClick(false)
+  //   }
+  // };
 
-  const removeImage = (index) => {
-    setUploadedImages((prevImages) => prevImages.filter((_, i) => i !== index));
-  };
+  // const removeImage = (index) => {
+  //   setUploadedImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  // };
 
   if (loading) return <p className="text-center mt-8">Loading...</p>;
   if (!orderDetails)
@@ -184,18 +184,18 @@ const OrderTracking = () => {
     { id: "returned", label: "Returned" },
   ];
 
-  let isReturnEligible = null;
+  // let isReturnEligible = null;
 
-  const calculateReturnEligible = (deliveredObject) => {
-    const deliveredDate = new Date(deliveredObject?.updatedAt); // Parse the delivered date
-    const currentDate = new Date(); // Get the current date
-    const differenceInDays = Math.floor(
-      (currentDate - deliveredDate) / (1000 * 60 * 60 * 24)
-    ); // Calculate the difference in days
+  // const calculateReturnEligible = (deliveredObject) => {
+  //   const deliveredDate = new Date(deliveredObject?.updatedAt); // Parse the delivered date
+  //   const currentDate = new Date(); // Get the current date
+  //   const differenceInDays = Math.floor(
+  //     (currentDate - deliveredDate) / (1000 * 60 * 60 * 24)
+  //   ); // Calculate the difference in days
     
-    const isReturnEligible = differenceInDays <= 6; // Check if it's within 7 days
-    return isReturnEligible;
-  }
+  //   const isReturnEligible = differenceInDays <= 6; // Check if it's within 7 days
+  //   return isReturnEligible;
+  // }
   
   const calculateTotalDiscountPercentage = (products) => {
     const totalOriginalPrice = products.reduce(
@@ -401,8 +401,8 @@ const OrderTracking = () => {
               hasDelivered &&
               hasReturnRequest;
 
-              const deliveredObject = orderDetails?.statusUpdates?.find(each => each.status === "delivered");
-              isReturnEligible = hasDelivered ? calculateReturnEligible(deliveredObject) : false;
+              // const deliveredObject = orderDetails?.statusUpdates?.find(each => each.status === "delivered");
+              // isReturnEligible = hasDelivered ? calculateReturnEligible(deliveredObject) : false;
             // Condition 3: ordered ? packaged ? cancelled (hide shipped, delivered)
             if (condition6) {
               if (stage.id === "cancelled") {
@@ -574,7 +574,7 @@ const OrderTracking = () => {
         </div>
       </div>
 
-      <div className="p-4 border rounded-md shadow-md bg-white  mx-auto mt-6">
+      {/* <div className="p-4 border rounded-md shadow-md bg-white  mx-auto mt-6">
         <h2 className="text-lg font-semibold text-gray-700">7 Days Return Policy</h2>
         <p className="text-sm text-gray-500 mt-2">
           You can request a Return within 7 days of delivery. 
@@ -582,7 +582,7 @@ const OrderTracking = () => {
         <a href="/RefundPolicy" target="_blank" className="text-sm text-blue-600 font-semibold hover:underline">
             Return & Refund Policy
           </a>
-      </div>
+      </div> */}
 
       <div className="flex justify-between">
         {/* Cancel Order */}
@@ -596,16 +596,16 @@ const OrderTracking = () => {
             </button>
           )}
         {/* Cancel Order Modal */}
-        {orderDetails.order_status === "delivered" && isReturnEligible && (
-        <div className="flex items-center justify-center">
-          <button
-            className="bg-yellow-500 text-white p-2 rounded mt-4"
-            onClick={handleReturn} // Open cancel modal
-          >
-            Return Order
-          </button>
-        </div>
-      )}
+        {/* {orderDetails.order_status === "delivered" && isReturnEligible && (
+          <div className="flex items-center justify-center">
+            <button
+              className="bg-yellow-500 text-white p-2 rounded mt-4"
+              onClick={handleReturn} // Open cancel modal
+            >
+              Return Order
+            </button>
+          </div>
+        )} */}
 
       </div>
       {showCancelModal && (
@@ -664,7 +664,7 @@ const OrderTracking = () => {
       )}
 
       {/* Return Modal */}
-      {isReturnModalOpen && (
+      {/* {isReturnModalOpen && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <h2 className="text-xl font-semibold mb-4">Return Product</h2>
@@ -678,7 +678,6 @@ const OrderTracking = () => {
               onChange={handleProductChange}
             />
 
-            {/* Text Input */}
             <textarea
               placeholder="Enter return reason"
               value={returnReason}
@@ -686,7 +685,6 @@ const OrderTracking = () => {
               className="w-full border border-gray-300 rounded-md p-2 mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
             ></textarea>
 
-            {/* File Upload */}
             <input
               type="file"
               multiple
@@ -695,7 +693,6 @@ const OrderTracking = () => {
               className="block w-full text-sm text-gray-500 mb-4"
             />
 
-            {/* Image Preview */}
             <div className="flex flex-wrap gap-2 mb-4">
               {uploadedImages.map((image, index) => (
                 <div key={index} className="relative">
@@ -714,7 +711,6 @@ const OrderTracking = () => {
               ))}
             </div>
 
-            {/* Modal Buttons */}
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setIsReturnModalOpen(false)}
@@ -734,7 +730,7 @@ const OrderTracking = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

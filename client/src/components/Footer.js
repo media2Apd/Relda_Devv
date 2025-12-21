@@ -137,7 +137,7 @@ const Footer = () => {
                   className="cursor-pointer h-10 md:h-12 w-auto"
                 />
               </div>
-            <p className="text-sm leading-relaxed">
+            <p className="text-[15px] leading-relaxed">
               Shop premium home and kitchen appliances in Tamil Nadu with Relda India. 
               Smart, stylish, and energy-efficient solutions for every home.
             </p>
@@ -195,7 +195,7 @@ const Footer = () => {
               <li><a href="/ProductRegistration" className="hover:text-white transition-colors">Product Registration</a></li>
               <li><a href="/AuthorizedDealer" className="hover:text-white transition-colors">Authorized Dealers</a></li>
               <li><a href="/CustomerSupport" className="hover:text-white transition-colors">Enquiry</a></li>
-              <li><a href="/ContactUsPage" className="hover:text-white transition-colors">FAQs</a></li>
+              <li><a href="/AboutUs" className="hover:text-white transition-colors">About Us</a></li>
               <li><a href="/ContactUsPage" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
@@ -237,6 +237,8 @@ const Footer = () => {
             <a href="/TermsAndConditions" target='_blank' className="hover:text-white transition-colors">Terms & Conditions</a>
             <span className="text-slate-700 hidden md:inline">|</span>
             <a href="/ShippingPolicy" target='_blank' className="hover:text-white transition-colors">Shipping Policy</a>
+            <span className="text-slate-700 hidden md:inline">|</span>
+            <a href="/PricingPolicy" target='_blank' className="hover:text-white transition-colors">Pricing Policy</a>
           </div>
         </div>
       </div>

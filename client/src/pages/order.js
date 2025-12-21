@@ -301,17 +301,17 @@ const Order = () => {
     "returned",
   ];
 
-  const parseQueryParams = () => {
+  const parseQueryParams = useCallback(() => {
     const params = new URLSearchParams(location.search);
     setFromDate(params.get("fromDate") || "");
     setToDate(params.get("toDate") || "");
     const statuses = params.getAll("order_status");
     setFilterStatuses(statuses.length > 0 ? statuses : []);
-  };
+  }, [location.search]);
 
   useEffect(() => {
     parseQueryParams();
-  }, [location.search]);
+  }, [parseQueryParams]);
 
   const fetchOrderDetails = useCallback(async () => {
     try {

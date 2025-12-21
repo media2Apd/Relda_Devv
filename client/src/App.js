@@ -11,6 +11,7 @@ import SummaryApi from './common';
 import Context from './context';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserDetails } from './store/userSlice';
+import ScrollToTop from './helpers/ScrollToTop';
 
 function App() {
   const dispatch = useDispatch()
@@ -109,6 +110,7 @@ useEffect(() => {
 
   return (
     <>
+      <ScrollToTop />
       <Context.Provider value={{
           fetchUserDetails, // user detail fetch 
           cartProductCount, // current user add to cart product count,
