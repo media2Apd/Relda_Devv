@@ -1133,7 +1133,7 @@ const ProductDetails = () => {
         </div>
 
         {/* Highlight 1: 7 Days Return Policy */}
-        <div
+        {/* <div
           className="flex items-center border border-green-500 rounded-lg p-4 shadow-lg"
           style={{ borderLeftWidth: "8px" }}
         >
@@ -1150,7 +1150,7 @@ const ProductDetails = () => {
               Hassle-free returns within 7 days of delivery.
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Highlight 2: 2 Years Warranty */}
         {warranty !== "" && (
