@@ -47,7 +47,7 @@ import ReturnedProducts from '../pages/ReturnedProducts'
 import AddCategory from '../pages/addCategoryProduct'
 import PricingPolicy from '../pages/PricingPolicy'
 import NotFound from '../pages/NotFound'
-import AllCartSummary from '../pages/allcartSummary'
+import AllCartSummary from '../pages/allCartSummary'
 import CookiePage from '../pages/cookiepage'
 import AddParentCategory from '../pages/addParentCategory'
 import AllBlogs from '../pages/allBlogs'
@@ -157,7 +157,7 @@ const router = createBrowserRouter([
                        path : "all-returned-products",
                        element : <ReturnedProducts/>
                    },
-			{
+{
                     path : "all-cart-items",
                     element : <AllCartSummary/>
                    },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import SummaryApi from '../common';
 import { toast } from 'react-toastify';
@@ -42,7 +42,7 @@ const AllUsers = () => {
     };
 
     // Fetch user data based on filters
-    const fetchAllUsers = async () => {
+    const fetchAllUsers = useCallback(async () => {
         try {
             setLoading(true);
             let url = SummaryApi.allUser.url;
@@ -67,7 +67,12 @@ const AllUsers = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [filters]);
+    
+    // Whenever filters change, fetch data
+    useEffect(() => {
+        fetchAllUsers();
+    }, [fetchAllUsers]);
 
     // Sync filters from URL params
     useEffect(() => {
@@ -82,10 +87,7 @@ const AllUsers = () => {
         });
     }, [location.search]);
 
-    // Whenever filters change, fetch data
-    useEffect(() => {
-        fetchAllUsers();
-    }, [filters]);
+    
 
     const handleExportExcel = () => {
         const filteredUsers = allUser.map(({ password, ...user }) => user);

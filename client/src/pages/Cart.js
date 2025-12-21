@@ -170,21 +170,23 @@ const Cart = () => {
       credentials: "include",
     });
 
-    // Not logged in
-    if (!res.ok) {
-      toast.warning("Please login to continue checkout");
-      navigate("/login", {
-        state: { from: "/checkout" },
-        replace: true,
-      });
-      return;
+     if (!res.ok) {
+      throw new Error("Not logged in");
     }
 
-    // Logged in → proceed
+    const result = await res.json();
+
+    if (!result?.success || !result?.data?._id) {
+      throw new Error("Not logged in");
+    }
+
+    // ✅ Logged-in user
     navigate("/checkout");
-  } catch (error) {
-    console.error("Checkout auth error:", error);
-    toast.error("Something went wrong. Please try again.");
+  } catch (err) {
+    toast.warning("Please login to continue checkout");
+    navigate("/login", {
+      state: { from: "/checkout" },
+    });
   }
 };
 

@@ -487,15 +487,16 @@ const AllOrder = () => {
   const toggleExpand = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId); // Toggle between expand and collapse
   };
-  const parseQueryParams = () => {
+  const parseQueryParams = useCallback(() => {
     const params = new URLSearchParams(location.search);
     setFromDate(params.get("fromDate") || "");
     setToDate(params.get("toDate") || "");
     setFilterStatus(params.get("order_status") || "");
-  };
+  }, [location.search]);
+
   useEffect(() => {
     parseQueryParams();
-  }, [location.search]);
+  }, [location.search, parseQueryParams]);
   // Combined function to fetch order details
   const fetchOrderDetails = useCallback(async () => {
     try {
