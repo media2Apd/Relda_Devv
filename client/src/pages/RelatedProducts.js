@@ -113,7 +113,7 @@ const RelatedProducts = () => {
                 onClick={() => navigate(`/product/${product._id}`)}
                 actionSlot={
                   <button
-                    className="w-full bg-brand-primary text-white py-2 rounded-md text-sm font-medium"
+                    className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-medium"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/product/${product._id}`);

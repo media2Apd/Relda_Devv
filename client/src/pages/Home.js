@@ -56,7 +56,7 @@ const Home = () => {
   const insertIndex = Math.floor(categories.length / 2);
 
   return (
-    <div>
+    <div className='overflow-hidden'>
       <Helmet>
 
       {/* Schema Markup */}

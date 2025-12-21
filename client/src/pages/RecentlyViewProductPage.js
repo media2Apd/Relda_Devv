@@ -174,15 +174,7 @@ const RecentlyViewProductPage = () => {
       </h1>
 
       {/* RESPONSIVE GRID */}
-      <div
-        className="
-          grid gap-5
-          grid-cols-1
-          sm:grid-cols-2
-          md:grid-cols-3
-          lg:grid-cols-4
-        "
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 md:gap-6">
         {related.map(product => (
           <ProductCard
             key={product._id}
@@ -190,7 +182,7 @@ const RecentlyViewProductPage = () => {
             onClick={() => navigate(`/product/${product._id}`)}
             actionSlot={
               <button
-                className="w-full bg-brand-primary text-white py-2 rounded-md text-sm font-medium"
+                className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-medium"
                 onClick={(e) => {
                   e.stopPropagation(); // 🔥 stop card click
                   navigate(`/product/${product._id}`);

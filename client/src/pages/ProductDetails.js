@@ -467,9 +467,9 @@ const ProductDetails = () => {
               onClick={handleWishlistToggle}
             >
               {isWishlisted ? (
-                <FaHeart className="text-red-600 text-xl" /> // Filled heart icon
+                <FaHeart className="text-brand-primary text-xl" /> // Filled heart icon
               ) : (
-                <FaRegHeart className="text-red-600 text-xl" /> // Outlined heart icon
+                <FaRegHeart className="text-brand-primary text-xl" /> // Outlined heart icon
               )}
             </button>
 
@@ -592,10 +592,10 @@ const ProductDetails = () => {
             </h2>
             <p className="capitalize text-slate-400 bg-slate-200 min-w-[100px] animate-pulse h-6 lg:h-8  w-full"></p>
 
-            <div className="text-[#e60000] bg-slate-200 h-6 lg:h-8  animate-pulse flex items-center gap-1 w-full"></div>
+            <div className="text-brand-primary bg-slate-200 h-6 lg:h-8  animate-pulse flex items-center gap-1 w-full"></div>
 
             <div className="flex items-center gap-2 text-2xl lg:text-3xl font-medium my-1 h-6 lg:h-8  animate-pulse w-full">
-              <p className="text-[#e60000] bg-slate-200 w-full"></p>
+              <p className="text-brand-primary bg-slate-200 w-full"></p>
               <p className="text-slate-400 line-through bg-slate-200 w-full"></p>
             </div>
 
@@ -611,7 +611,7 @@ const ProductDetails = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <p className="bg-red-200 text-[#e60000] px-2 rounded-full inline-block w-fit uppercase">
+            <p className="bg-red-200 text-brand-primary px-2 rounded-full inline-block w-fit uppercase">
               {data?.brandName}
             </p>
             <h2 className="text-lg lg:text-4xl font-medium">
@@ -625,7 +625,7 @@ const ProductDetails = () => {
                 Availability:{" "}
                 <span
                   className={`${
-                    data?.availability > 0 ? "text-green-600" : "text-red-600"
+                    data?.availability > 0 ? "text-green-600" : "text-brand-primary"
                   }`}
                 >
                   {data?.availability > 0 ? "In stock" : "Sold out"}
@@ -637,10 +637,10 @@ const ProductDetails = () => {
               {[...Array(5)].map((_, i) => {
                 if (i < Math.floor(averageRating)) {
                   // Full yellow stars
-                  return <FaStar key={i} className="text-red-600" />;
+                  return <FaStar key={i} className="text-brand-primary" />;
                 } else if (i < Math.ceil(averageRating)) {
                   // Half yellow star (for the 0.5 rating)
-                  return <FaStarHalfAlt key={i} className="text-red-600" />;
+                  return <FaStarHalfAlt key={i} className="text-brand-primary" />;
                 } else {
                   // Empty gray stars
                   return <FaStar key={i} className="text-gray-300" />;
@@ -657,7 +657,7 @@ const ProductDetails = () => {
             </div>
 
             <div className="flex items-center gap-2 text-xl lg:text-3xl font-medium my-1">
-              <p className="text-red-600">
+              <p className="text-brand-primary">
                 {displayINRCurrency(data.sellingPrice)}
               </p>
               <p className="text-slate-400 line-through">
@@ -676,7 +676,7 @@ const ProductDetails = () => {
             <div className="flex items-center gap-3 my-2">
               {data?.isHidden || data?.availability === 0 ? (
                 <button
-                  className="text-sm bg-[#e60000] hover:bg-red-700 text-white px-3 py-0.5 rounded-full"
+                  className="text-sm bg-brand-primary hover:bg-brand-primaryHover text-white px-3 py-0.5 rounded-full"
                   onClick={handleEnquiry}
                 >
                   Enquiry Now
@@ -684,13 +684,13 @@ const ProductDetails = () => {
               ) : (
                 <>
                   <button
-                    className="border-2 border-red-600 rounded px-3 py-1 min-w-[120px] text-[#e60000] font-medium hover:bg-red-700 hover:text-white"
+                    className="border-2 border-brand-primary rounded px-3 py-1 min-w-[120px] text-brand-primary font-medium hover:bg-brand-primaryHover hover:text-white"
                     onClick={(e) => handleBuyProduct(e, data?._id)}
                   >
                     Buy
                   </button>
                   <button
-                    className="border-2 border-red-600 rounded px-3 py-1 min-w-[120px] font-medium text-white bg-[#e60000] hover:text-red-700 hover:bg-white"
+                    className="border-2 border-brand-primary rounded px-3 py-1 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
                     onClick={(e) => handleAddToCart(e, data?._id)}
                   >
                     Add To Cart
@@ -754,7 +754,7 @@ const ProductDetails = () => {
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="border text-red-500 hover:text-white hover:bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 w-12 h-12 fill-[#E1306C] hover:fill-white border-pink-300 rounded-full flex items-center justify-center shadow-lg hover:shadow-pink-500/50 cursor-pointer"
+                            className="border text-brand-primary hover:text-white hover:bg-gradient-to-r from-pink-500 via-brand-primary to-yellow-500 w-12 h-12 fill-[#E1306C] hover:fill-white border-pink-300 rounded-full flex items-center justify-center shadow-lg hover:shadow-pink-500/50 cursor-pointer"
                           >
                             <GrInstagram size={24} />
                           </a>
@@ -799,7 +799,7 @@ const ProductDetails = () => {
           <button
             className={`flex-1 py-2 text-center font-medium ${
               activeTab === "description"
-                ? "border-b-2 border-red-500 text-black"
+                ? "border-b-2 border-brand-primary text-black"
                 : "text-gray-500"
             }`}
             onClick={() => setActiveTab("description")}
@@ -809,7 +809,7 @@ const ProductDetails = () => {
           <button
             className={`flex-1 py-2 text-center font-medium ${
               activeTab === "specifications"
-                ? "border-b-2 border-red-500 text-black"
+                ? "border-b-2 border-brand-primary text-black"
                 : "text-gray-500"
             }`}
             onClick={() => setActiveTab("specifications")}
@@ -819,7 +819,7 @@ const ProductDetails = () => {
           <button
             className={`flex-1 py-2 text-center font-medium ${
               activeTab === "reviews"
-                ? "border-b-2 border-red-500 text-black"
+                ? "border-b-2 border-brand-primary text-black"
                 : "text-gray-500"
             }`}
             onClick={() => setActiveTab("reviews")}
@@ -840,7 +840,7 @@ const ProductDetails = () => {
                       <span key={index}>
                         {item.trim()}
                         {index < data.description.split("\n").length - 1 && (
-                          <span className="text-red-600 mx-1">|</span>
+                          <span className="text-brand-primary mx-1">|</span>
                         )}
                       </span>
                     ))}
@@ -870,7 +870,7 @@ const ProductDetails = () => {
                 {/* Rate Product Button */}
                 <button
                   onClick={handleWriteReview}
-                  className="bg-[#e60000] text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300"
+                  className="bg-brand-primary text-white px-4 py-2 rounded-md hover:bg-brand-primaryHover transition duration-300"
                 >
                   Rate Product
                 </button>
@@ -899,7 +899,7 @@ const ProductDetails = () => {
                   ></textarea>
                   <div className="flex justify-end mt-2">
                     <button
-                      className="bg-[#e60000] text-white px-4 py-2 rounded-md"
+                      className="bg-brand-primary text-white px-4 py-2 rounded-md"
                       onClick={handleSubmitReview}
                     >
                       Submit Review
