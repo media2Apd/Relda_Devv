@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SummaryApi from '../common';
 import { Link } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ const CategoryList = () => {
   const categoryLoading = new Array(5).fill(null); // Placeholder for loading states
 
   // Fetch categories from API
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(SummaryApi.getActiveParentCategories.url);
@@ -26,11 +26,11 @@ const CategoryList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   return (
     <div className='mx-auto px-2 py-4'>

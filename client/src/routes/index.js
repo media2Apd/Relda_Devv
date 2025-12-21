@@ -31,7 +31,7 @@ import ContactUsMessages from '../pages/AdminContactUs'
 import AdminProductRegistration from '../pages/AdminProductRegistration'
 import PrivacyPolicy from '../pages/PrivacyPolicy'
 import TermsAndConditions from '../pages/TermsAndConditions'
-import RefundPolicy from '../pages/RefundPolicy'
+// import RefundPolicy from '../pages/RefundPolicy'
 import ShippingPolicy from '../pages/ShippingPolicy'
 import ResetPassword from '../pages/ResetPassword'
 import CheckoutPage from '../pages/CheckoutPage'
@@ -258,10 +258,6 @@ const router = createBrowserRouter([
             {
                 path : "TermsAndConditions",
                 element : <TermsAndConditions/>
-            },
-            {
-                path : "RefundPolicy",
-                element : <RefundPolicy/>
             },
             {
                 path : "ShippingPolicy",

@@ -104,7 +104,7 @@ const BlogPage = () => {
                 if (Array.isArray(data) && data.length > 0) {
                     setPosts(data);  // Set fetched blog posts in state
                 } else {
-                    throw new Error("API did not return any blog posts.");
+                    throw new Error("No blog posts found");
                 }
             } catch (err) {
                 // Log actual error to console and set error state
@@ -120,11 +120,11 @@ const BlogPage = () => {
 
     // Display loading message or error if any
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className="text-center pb-64">Loading...</div>;
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return <div className="text-center py-64">{error}</div>;
     }
 
     return (

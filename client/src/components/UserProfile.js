@@ -328,7 +328,7 @@ const UserProfile = () => {
           />
         </div>
 
-        <style jsx>{`
+        <style>{`
           @keyframes shake {
             0%, 100% {
               transform: translateY(0);
