@@ -26,7 +26,7 @@ import BannerProduct from '../components/BannerProduct';
 import VerticalCardProduct from '../components/VerticalCardProduct';
 import CookieConsent from '../components/CookieConsent'; // Import the CookieConsent component
 import SummaryApi from '../common';
-import RelatedProducts from './RelatedProducts';
+import RecentlyViewProducts from './RecentlyViewProducts';
 import { Helmet } from 'react-helmet';
 import TopSellingProducts from '../components/TopSellingProducts';
 import HowToShopBanner from '../components/HowToShopBanner';
@@ -89,7 +89,7 @@ const Home = () => {
       <CookieConsent /> {/* Include the CookieConsent component */}
       <CategoryList />
       <BannerProduct type="home" />
-      <RelatedProducts />
+      <RecentlyViewProducts />
       {categories.map((category, index) => {
         if (category.productCount === 0) return null;
 

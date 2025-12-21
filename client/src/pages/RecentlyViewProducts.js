@@ -4,7 +4,7 @@ import SummaryApi from "../common";
 import ProductCard from "./ProductCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const RelatedProducts = () => {
+const RecentlyViewProducts = () => {
   const [related, setRelated] = useState([]);
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -131,4 +131,4 @@ const RelatedProducts = () => {
   );
 };
 
-export default RelatedProducts;
+export default RecentlyViewProducts;

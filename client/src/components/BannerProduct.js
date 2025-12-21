@@ -10,7 +10,7 @@ const BannerProduct = ({ type = "home" }) => {
 
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % banners.length);
-    }, 3000);
+    }, 4000);
 
     return () => clearInterval(timer);
   }, [banners]);
@@ -72,28 +72,27 @@ const BannerProduct = ({ type = "home" }) => {
       {banners.length > 1 && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
           {banners.map((_, index) => (
-            <div
+            <button
               key={index}
-              className="relative w-10 h-[3px] bg-white overflow-hidden"
+              onClick={() => setCurrent(index)}
+              className="relative w-10 h-[3px] bg-white overflow-hidden cursor-pointer"
             >
               {current === index && (
                 <div
-                  key={current} // reset animation
+                  key={current} // animation reset when slide changes
                   className="
-              absolute left-0 top-0
-              h-full w-full
-              bg-brand-primary
-              origin-left
-              animate-progress
-            "
+                    absolute left-0 top-0
+                    h-full w-full
+                    bg-brand-primary
+                    origin-left
+                    animate-progress
+                  "
                 />
               )}
-            </div>
+            </button>
           ))}
         </div>
       )}
-
-
     </div>
   );
 };
