@@ -34,7 +34,7 @@ const CategoryList = () => {
 
   return (
     <div className='mx-auto px-2 py-4'>
-      <div className='flex items-center gap-4 overflow-x-auto scrollbar-none scroll-pl-4 pl-2 sm:pl-0 lg:justify-center '>
+      <div className='flex items-center gap-4 overflow-x-auto scrollbar-none scroll-pl-4 pl-2 sm:pl-0 md:justify-center '>
         {loading
           ? categoryLoading.map((_, index) => (
               <div

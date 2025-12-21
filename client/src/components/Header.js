@@ -12,6 +12,7 @@ import ROLE from "../common/role";
 import Context from "../context";
 import axios from "axios";
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
+import hob from "../assest/topSell/Hob1.png";
 
 const Header = () => {
   const user = useSelector((state) => state?.user?.user);
@@ -25,7 +26,7 @@ const Header = () => {
   const URLSearch = new URLSearchParams(searchInput?.search);
   const searchQuery = URLSearch.getAll("q");
   const [search, setSearch] = useState(searchQuery);
-
+  
   const { pathname } = useLocation();
   const canonicalURL = `${window.location.origin}${pathname}`;
 
@@ -64,7 +65,6 @@ const Header = () => {
           // method: SummaryApi.getParentCategories.method,
         });
         const result = await response.json();
-        console.log(result);
         
         if (result.success) {
           setCategories(result.categories || []);
@@ -141,16 +141,16 @@ const Header = () => {
     try {
       const response = await axios.get(`https://api.postalpincode.in/pincode/${pinCode}`);
       const result = response.data?.[0];
-
+  
       if (result?.Status === "Success" && result.PostOffice?.length > 0) {
         const tamilNaduLocations = result.PostOffice.filter(
           (office) => office.State === "Tamil Nadu" && office.DeliveryStatus === "Delivery"
         );
-
+  
         if (tamilNaduLocations.length > 0) {
           const district = tamilNaduLocations[0].District;
           const state = tamilNaduLocations[0].State;
-          setDeliveryLocation({ district, state });
+          setDeliveryLocation({district, state});
           toast.success(`Pin code is serviceable! Delivery available in ${district}, ${state}`);
         } else {
           toast.error("We only provide services for Tamil Nadu pin codes with delivery.");
@@ -175,7 +175,6 @@ const Header = () => {
     if (data.success) {
       toast.success(data.message);
       dispatch(setUserDetails(null));
-      context.fetchUserAddToCart?.();
       navigate("/");
     }
 
@@ -251,7 +250,7 @@ const Header = () => {
       <header className="bg-white fixed w-full z-50 top-0">
         {/* Top Header Section */}
         <div className="bg-white border-b border-gray-200">
-          <div className="container mx-auto px-4 py-3 md:py-4">
+          <div className="mx-auto px-4 lg:px-12 py-3 md:py-4">
             <div className="flex items-center justify-between">
               {/* Logo */}
               <div className="flex-shrink-0">
@@ -344,7 +343,7 @@ const Header = () => {
                   <MapPin strokeWidth={1} className="w-6 h-6" />
                   <div className="text-sm">
                     <div className="font-semibold">
-                      {deliveryLocation.district || "Chennai"}, {deliveryLocation.state || "600040"}
+                     {deliveryLocation.district || "Chennai"}, {deliveryLocation.state || "600040"}
                     </div>
                   </div>
                 </div>
@@ -712,15 +711,15 @@ const Header = () => {
                       <Link to="/special-offers" className="block h-full group/img">
                         <div className="relative h-full min-h-[300px] overflow-hidden">
                           <img 
-                            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop" 
+                            src={hob} 
                             alt="Shop Banner" 
                             className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
                           />
                           {/* Overlay with Text */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                           <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                            <h4 className="text-xl font-bold mb-2">Special Offers</h4>
-                            <p className="text-sm opacity-90 mb-3">Up to 50% off on selected items</p>
+                            {/* <h4 className="text-xl font-bold mb-2">Special Offers</h4> */}
+                            {/* <p className="text-sm opacity-90 mb-3">Up to 50% off on selected items</p> */}
                             <span className="inline-block bg-brand-primary text-white px-4 py-2 rounded text-sm font-medium hover:bg-brand-primaryHover transition">
                               Shop Now →
                             </span>
