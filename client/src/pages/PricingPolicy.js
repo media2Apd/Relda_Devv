@@ -37,7 +37,7 @@ const PricingPolicy = () => {
         <p className='mb-4'>
         <li>Accepted Modes: We accept payments through credit/debit cards, UPI, net banking.</li>
         <li>EMI Options: Flexible EMI options are available on select products, subject to terms and conditions.</li>
-        <li>Refund Policy: Prices paid are refundable only as per the terms outlined in our Return & Refund Policy.</li>
+        {/* <li>Refund Policy: Prices paid are refundable only as per the terms outlined in our Return & Refund Policy.</li> */}
         </p>
 
         <h2 className="text-xl font-semibold mb-2">5. Price Revisions</h2>
@@ -67,9 +67,9 @@ const PricingPolicy = () => {
       <p className="mb-4">
       <strong className='text-xl font-semibold mb-2'>Quantity Discounts :</strong> Relda Business customers may have access to quantity discounts on certain larger quantity purchases. These quantity discounts are available on only certain items and on certain quantities of those items, and those items and quantities may change from time to time.
       </p>
-      <p className="mb-4">
+      {/* <p className="mb-4">
       <strong className='text-xl font-semibold mb-2'>Save Discounts:</strong> Subscribers who purchase for the second time will receive a 5% discount on eligible products when they receive Save and an additional reorder discount when the same address remains unchanged. Subscribe and Save discounts apply to Subscribe and Save orders only.
-      </p>
+      </p> */}
       <p className="mb-4">
       <strong className='text-xl font-semibold mb-2'>Pricing Confirmations -ERRORS- :</strong> With respect to items sold by Relda, we cannot confirm the price of an item until you place your order. Despite our best efforts, a small number of the items in our catalog may be mispriced. If the correct price of an item sold by Relda is higher than our stated price, we will, at our discretion, either contact you for instructions before shipping or cancel your order and notify you of such cancellation.
       </p>
