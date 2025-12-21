@@ -10,6 +10,7 @@ module.exports = {
           primary: "#e60000",      // main brand color
           primaryHover: "#c00202", // hover / active
           primarySoft: "#ff4d4d",  // light usage
+          primaryTextMuted: "#616161",     // paragraph / secondary heading
           textMuted: "#6A7282",     // paragraph / secondary heading
           offer: "#4F9835",         // offer / discount / success
           productCardImageBg: "#F0F2F5",         // product card img bg

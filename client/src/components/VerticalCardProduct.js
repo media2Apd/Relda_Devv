@@ -4,6 +4,7 @@ import addToCart from "../helpers/addToCart";
 import Context from "../context";
 import ProductCard from "../pages/ProductCard";
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const VerticalCardProduct = ({ category, heading }) => {
   const [data, setData] = useState([]);
@@ -13,6 +14,9 @@ const VerticalCardProduct = ({ category, heading }) => {
   const scrollRef = useRef(null);
   const navigate = useNavigate();
   const { fetchUserAddToCart } = useContext(Context);
+
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);  
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -27,21 +31,69 @@ const VerticalCardProduct = ({ category, heading }) => {
     fetchData();
   }, [fetchData]);
 
+  const scroll = (direction) => {
+    if (!scrollRef.current) return;
+    const cardWidth = 360;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -cardWidth : cardWidth,
+      behavior: "smooth",
+    });
+  };
+
+  // 🔹 Detect scroll position
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+  };
+
+  // 🔹 Attach scroll listener
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    handleScroll();
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [data]);
+
   const handleAddToCart = async (e, id) => {
     e.stopPropagation();
     await addToCart(e, id);
     fetchUserAddToCart();
   };
+const isScrollable = data.length > 4;
 
   return (
-    <div className="container mx-auto px-4 my-6 pb-4">
+    <div className="container mx-auto px-4 my-6 pb-4 relative">
       <h2 className="text-xl md:text-2xl font-medium my-4">
         {heading}
       </h2>
 
-      {/* SCROLL ROW */}
+           {/* LEFT ARROW */}
+      {data.length > 4 && canScrollLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="hidden 2xl:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
+        >
+      <ChevronLeft />
+        </button>
+      )}
 
-      <div
+      {/* RIGHT ARROW */}
+      {data.length > 4 && canScrollRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="hidden 2xl:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
+        >
+          <ChevronRight />
+        </button>
+      )}
+
+      {/* <div
         ref={scrollRef}
         className="
           flex gap-4 md:gap-6 overflow-x-auto
@@ -49,7 +101,21 @@ const VerticalCardProduct = ({ category, heading }) => {
           [scrollbar-width:none]
           [&::-webkit-scrollbar]:hidden
         "
-      >
+      > */}
+      <div
+  ref={scrollRef}
+  className={`
+    ${isScrollable ? "flex overflow-x-auto" : "flex overflow-x-auto"}
+    ${isScrollable
+      ? "gap-4 md:gap-6"
+      : "gap-4 md:gap-6"}
+    
+    [-ms-overflow-style:none]
+    [scrollbar-width:none]
+    [&::-webkit-scrollbar]:hidden
+  `}
+>
+
         {loading
           ? loadingList.map((_, i) => (
               <div
@@ -65,7 +131,7 @@ const VerticalCardProduct = ({ category, heading }) => {
                 actionSlot={
                   product.isHidden || product.availability === 0 ? (
                     <button
-                      className="w-full bg-brand-primary text-white py-2 rounded-md text-sm font-medium"
+                      className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/product/${product._id}`);
@@ -75,7 +141,7 @@ const VerticalCardProduct = ({ category, heading }) => {
                     </button>
                   ) : (
                     <button
-                      className="w-full bg-brand-primary text-white py-2 rounded-md text-sm font-medium"
+                      className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-medium"
                       onClick={(e) => handleAddToCart(e, product._id)}
                     >
                       Add to Cart

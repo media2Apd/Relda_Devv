@@ -12,6 +12,7 @@ import ROLE from "../common/role";
 import Context from "../context";
 import axios from "axios";
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
+import hob from "../assest/topSell/Hob1.png";
 
 const Header = () => {
   const user = useSelector((state) => state?.user?.user);
@@ -25,7 +26,7 @@ const Header = () => {
   const URLSearch = new URLSearchParams(searchInput?.search);
   const searchQuery = URLSearch.getAll("q");
   const [search, setSearch] = useState(searchQuery);
-
+  
   const { pathname } = useLocation();
   const canonicalURL = `${window.location.origin}${pathname}`;
 
@@ -39,7 +40,6 @@ const Header = () => {
   
   // State for categories
   const [categories, setCategories] = useState([]);
-  // console.log(categories);
   
   const [loading, setLoading] = useState(false);
   
@@ -60,15 +60,15 @@ const Header = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const response = await fetch(SummaryApi.getParentCategories.url, {
+        const response = await fetch(SummaryApi.getActiveParentCategories.url, {
           // method: SummaryApi.getParentCategories.method,
         });
         const result = await response.json();
-        console.log(result);
         
         if (result.success) {
           setCategories(result.categories || []);
         }
+        
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -141,16 +141,16 @@ const Header = () => {
     try {
       const response = await axios.get(`https://api.postalpincode.in/pincode/${pinCode}`);
       const result = response.data?.[0];
-
+  
       if (result?.Status === "Success" && result.PostOffice?.length > 0) {
         const tamilNaduLocations = result.PostOffice.filter(
           (office) => office.State === "Tamil Nadu" && office.DeliveryStatus === "Delivery"
         );
-
+  
         if (tamilNaduLocations.length > 0) {
           const district = tamilNaduLocations[0].District;
           const state = tamilNaduLocations[0].State;
-          setDeliveryLocation({ district, state });
+          setDeliveryLocation({district, state});
           toast.success(`Pin code is serviceable! Delivery available in ${district}, ${state}`);
         } else {
           toast.error("We only provide services for Tamil Nadu pin codes with delivery.");
@@ -175,7 +175,6 @@ const Header = () => {
     if (data.success) {
       toast.success(data.message);
       dispatch(setUserDetails(null));
-      context.fetchUserAddToCart?.();
       navigate("/");
     }
 
@@ -233,14 +232,14 @@ const Header = () => {
 
   // Group categories by parent
   const groupedCategories = categories.reduce((acc, category) => {
-    const parent = category.category || "Other";
+    const parent = category.name || "Other";
     if (!acc[parent]) {
       acc[parent] = [];
     }
     acc[parent].push(category);
     return acc;
   }, {});
-
+  
   return (
     <>
       <Helmet>
@@ -251,7 +250,7 @@ const Header = () => {
       <header className="bg-white fixed w-full z-50 top-0">
         {/* Top Header Section */}
         <div className="bg-white border-b border-gray-200">
-          <div className="container mx-auto px-4 py-3 md:py-4">
+          <div className="mx-auto px-4 lg:px-12 py-3 md:py-4">
             <div className="flex items-center justify-between">
               {/* Logo */}
               <div className="flex-shrink-0">
@@ -344,7 +343,7 @@ const Header = () => {
                   <MapPin strokeWidth={1} className="w-6 h-6" />
                   <div className="text-sm">
                     <div className="font-semibold">
-                      {deliveryLocation.district || "Chennai"}, {deliveryLocation.state || "600040"}
+                     {deliveryLocation.district || "Chennai"}, {deliveryLocation.state || "600040"}
                     </div>
                   </div>
                 </div>
@@ -513,7 +512,7 @@ const Header = () => {
           >
             <MapPin strokeWidth={1} className="w-5 h-5" />
             <span className="font-medium">Delivery to:</span>
-            <span className="font-semibold text-gray-800">
+            <span className="font-semibold text-brand-primaryTextMuted">
               {deliveryLocation.district || "Chennai"}, {deliveryLocation.state || "600040"}
             </span>
           </div>
@@ -541,8 +540,8 @@ const Header = () => {
               </button>
               
               {/* Mega Dropdown - 4 Column Layout */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-[90vw] max-w-5xl bg-white shadow-2xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <div className="container mx-auto py-8 px-8">
+              <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-[90vw] max-w-[360px] sm:max-w-[540px] md:max-w-[720px] lg:max-w-[675px] xl:max-w-[1070px] 2xl:max-w-[1440px] bg-white shadow-2xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                <div className="mx-auto py-8 px-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     
                     {/* Column 1 - Product Categories */}
@@ -554,7 +553,7 @@ const Header = () => {
                         <li>
                           <Link 
                             to="/product-category" 
-                            className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1"
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                           >
                             All Products
                           </Link>
@@ -572,7 +571,7 @@ const Header = () => {
                                 <Link
                                   to={`/product-category?category=${category.name}`}
                                   className="
-                                    text-gray-700 hover:text-brand-primary transition
+                                    text-brand-primaryTextMuted hover:text-brand-primary transition
                                     text-sm block py-1
                                     hover:pl-2 hover:border-l-2 hover:border-brand-primary
                                   "
@@ -584,7 +583,7 @@ const Header = () => {
                             ))}
                           </>
                         ) : (
-                          <li className="text-sm text-gray-500 py-2">No categories available</li>
+                          <li className="text-sm text-brand-primaryTextMuted py-2">No categories available</li>
                         )}
                       </ul>
                     </div>
@@ -599,7 +598,7 @@ const Header = () => {
                         <Link
                           to="/Cart"
                           className="
-                            text-gray-700 hover:text-brand-primaryHover transition
+                            text-brand-primaryTextMuted hover:text-brand-primaryHover transition
                             text-sm block py-1
                             hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover
                           "
@@ -611,7 +610,7 @@ const Header = () => {
                         <li>
                           <Link 
                             to="/wishlist" 
-                            className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1"
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                           >
                             Wishlist
                           </Link>
@@ -619,7 +618,7 @@ const Header = () => {
                         <li>
                           <Link 
                             to="/order" 
-                            className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1"
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                           >
                             My Orders
                           </Link>
@@ -629,7 +628,7 @@ const Header = () => {
                         {categories && categories.length > 2 && (
                           <>
                             <li className="pt-2 mt-2 border-t border-gray-200">
-                              <span className="text-xs font-semibold text-gray-500 uppercase">
+                              <span className="text-xs font-semibold text-gray-900 uppercase">
                                 More Categories
                               </span>
                             </li>
@@ -638,7 +637,7 @@ const Header = () => {
                                 <Link
                                   to="/new-arrivals"
                                   className="
-                                    text-gray-700 hover:text-brand-primaryHover transition
+                                    text-brand-primaryTextMuted hover:text-brand-primaryHover transition
                                     text-sm block py-1
                                     hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover
                                   "
@@ -662,7 +661,7 @@ const Header = () => {
                         <li>
                           <Link 
                             to="/new-arrivals" 
-                            className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1"
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                           >
                             New Arrivals
                           </Link>
@@ -670,7 +669,7 @@ const Header = () => {
                         <li>
                           <Link 
                             to="/best-sellers" 
-                            className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1"
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                           >
                             Best Sellers
                           </Link>
@@ -678,7 +677,7 @@ const Header = () => {
                         <li>
                           <Link 
                             to="/special-offers" 
-                            className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1"
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                           >
                             Special Offers
                           </Link>
@@ -688,7 +687,7 @@ const Header = () => {
                         {categories && categories.length > 4 && (
                           <>
                             <li className="pt-2 mt-2 border-t border-gray-200">
-                              <span className="text-xs font-semibold text-gray-500 uppercase">
+                              <span className="text-xs font-semibold text-gray-900 uppercase">
                                 Explore More
                               </span>
                             </li>
@@ -696,7 +695,7 @@ const Header = () => {
                               <li key={category._id}>
                                 <Link 
                                   to={`/product-category?category=${category.name}`}
-                                  className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1"
+                                  className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                                 >
                                   {category.name}
                                 </Link>
@@ -712,15 +711,15 @@ const Header = () => {
                       <Link to="/special-offers" className="block h-full group/img">
                         <div className="relative h-full min-h-[300px] overflow-hidden">
                           <img 
-                            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop" 
+                            src={hob} 
                             alt="Shop Banner" 
                             className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
                           />
                           {/* Overlay with Text */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                           <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                            <h4 className="text-xl font-bold mb-2">Special Offers</h4>
-                            <p className="text-sm opacity-90 mb-3">Up to 50% off on selected items</p>
+                            {/* <h4 className="text-xl font-bold mb-2">Special Offers</h4> */}
+                            {/* <p className="text-sm opacity-90 mb-3">Up to 50% off on selected items</p> */}
                             <span className="inline-block bg-brand-primary text-white px-4 py-2 rounded text-sm font-medium hover:bg-brand-primaryHover transition">
                               Shop Now →
                             </span>
@@ -762,8 +761,8 @@ const Header = () => {
                 </button>
                 
                 {/* Mega Dropdown */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-[90vw] max-w-5xl bg-white shadow-2xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <div className="container mx-auto py-8 px-8">
+              <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-[95vw] max-w-[360px] sm:max-w-[540px] md:max-w-[720px] lg:max-w-[800px] xl:max-w-[1200px] 2xl:max-w-[1440px] bg-white shadow-2xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                <div className=" mx-auto py-8 px-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     
                       {/* Support Section */}
@@ -775,7 +774,7 @@ const Header = () => {
                           <li>
                             <Link 
                               to="/CustomerSupport" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Customer Support
                             </Link>
@@ -783,23 +782,23 @@ const Header = () => {
                           <li>
                             <Link 
                               to="/ProductRegistration" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Product Registration
                             </Link>
                           </li>
                           <li>
                             <Link 
-                              to="/warranty" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              to="/CustomerSupport" 
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
-                              Warranty Information
+                              Enquiry
                             </Link>
                           </li>
                           <li>
                             <Link 
-                              to="/faq" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              to="/ContactUsPage" 
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               FAQs
                             </Link>
@@ -816,7 +815,7 @@ const Header = () => {
                           <li>
                             <Link 
                               to="/AboutUs" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               About Us
                             </Link>
@@ -824,7 +823,7 @@ const Header = () => {
                           <li>
                             <Link 
                               to="/CareerPage" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Careers
                             </Link>
@@ -832,19 +831,19 @@ const Header = () => {
                           <li>
                             <Link 
                               to="/AuthorizedDealer" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Authorized Dealers
                             </Link>
                           </li>
-                          <li>
+                          {/* <li>
                             <Link 
                               to="/press" 
                               className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Press & Media
                             </Link>
-                          </li>
+                          </li> */}
                         </ul>
                       </div>
 
@@ -856,32 +855,32 @@ const Header = () => {
                         <ul className="space-y-2">
                           <li>
                             <Link 
-                              to="/privacy-policy" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              to="/PrivacyPolicy" 
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Privacy Policy
                             </Link>
                           </li>
                           <li>
                             <Link 
-                              to="/terms" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              to="/TermsAndConditions" 
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Terms & Conditions
                             </Link>
                           </li>
-                          <li>
+                          {/* <li>
                             <Link 
                               to="/return-policy" 
                               className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Return Policy
                             </Link>
-                          </li>
+                          </li> */}
                           <li>
                             <Link 
-                              to="/shipping-policy" 
-                              className="text-gray-700 hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                              to="/ShippingPolicy" 
+                              className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                             >
                               Shipping Policy
                             </Link>
@@ -903,7 +902,7 @@ const Header = () => {
                               className="w-full h-24 object-contain mb-3"
                             />
                             <h4 className="font-semibold text-gray-900 text-sm mb-1">24/7 Support</h4>
-                            <p className="text-xs text-gray-600 mb-3">We're here to help you anytime</p>
+                            <p className="text-xs text-brand-primaryTextMuted mb-3">We're here to help you anytime</p>
                             <Link 
                               to="/ContactUsPage" 
                               className="block text-center bg-brand-primary text-white text-sm py-2 rounded hover:bg-brand-primaryHover transition"
@@ -915,7 +914,7 @@ const Header = () => {
                         
                         <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 shadow-md">
                           <h4 className="font-semibold text-gray-900 text-sm mb-1">Join Our Team</h4>
-                          <p className="text-xs text-gray-600 mb-2">Explore career opportunities</p>
+                          <p className="text-xs text-brand-primaryTextMuted mb-2">Explore career opportunities</p>
                           <Link 
                             to="/CareerPage" 
                             className="text-brand-primary hover:text-brand-primaryHover text-xs font-medium"
@@ -926,7 +925,7 @@ const Header = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+              </div>
               </li>
             </ul>
           </div>
@@ -935,10 +934,10 @@ const Header = () => {
         {/* Mobile Menu */}
         {mobileMenuDisplay && (
           <div ref={menuRef} className="lg:hidden bg-white border-t border-gray-200 shadow-lg max-h-[calc(100vh-120px)] overflow-y-auto">
-            <nav className="py-2">
+            <nav className="">
               <Link 
                 to="/" 
-                className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition border-b border-gray-100"
+                className="block px-6 py-3 text-black font-medium hover:bg-gray-100 transition border-b border-gray-100"
                 onClick={() => setMobileMenuDisplay(false)}
               >
                 Home
@@ -947,7 +946,7 @@ const Header = () => {
               {/* Shop Dropdown Mobile */}
               <div className="border-b border-gray-100">
                 <button
-                  className="w-full flex items-center justify-between px-6 py-3 text-gray-700 hover:bg-gray-100 transition"
+                  className="w-full flex items-center justify-between text-black font-medium px-6 py-3 hover:bg-gray-100 transition"
                   onClick={() => setShopDropdownOpen(!shopDropdownOpen)}
                 >
                   <span>Shop</span>
@@ -955,36 +954,38 @@ const Header = () => {
                 </button>
                 
                 {shopDropdownOpen && (
-                  <div className="bg-gray-50 px-6 py-2">
+                  <div className="bg-brand-productCardImageBg px-6 py-2">
                     <Link 
                       to="/product-category" 
-                      className="block py-2 text-sm text-gray-600 hover:text-brand-primaryHover"
+                      className="block py-2 text-gray-900 font-medium hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       All Products
                     </Link>
-                    {Object.entries(groupedCategories).map(([parent, subcategories]) => (
+                    {Object.entries(groupedCategories).map(([parent, subcategories]) => {
+                      return (
                       <div key={parent} className="mt-3">
-                        <p className="font-semibold text-gray-800 text-sm mb-1">{parent}</p>
+                        <p className="font-semibold text-brand-primaryTextMuted text-sm mb-1">{parent}</p>
                         {subcategories.slice(0, 5).map((subcat) => (
+                          
                           <Link
                             key={subcat._id}
-                            to={`/product-category?category=${subcat.value}`}
-                            className="block py-1 pl-3 text-sm text-gray-600 hover:text-brand-primaryHover"
+                            to={`/product-category?parentCategory=${subcat.name}`}
+                            className="block py-1 pl-3 text-sm text-brand-primaryTextMuted hover:text-brand-primaryHover"
                             onClick={() => setMobileMenuDisplay(false)}
                           >
-                            {subcat.label}
+                            {subcat.Other?.name}
                           </Link>
                         ))}
                       </div>
-                    ))}
+                    )})}
                   </div>
                 )}
               </div>
 
               <Link 
                 to="/blog-page" 
-                className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition border-b border-gray-100"
+                className="block px-6 py-3 text-black font-medium hover:bg-gray-100 transition border-b border-gray-100"
                 onClick={() => setMobileMenuDisplay(false)}
               >
                 Blog
@@ -992,7 +993,7 @@ const Header = () => {
 
               <Link 
                 to="/ContactUsPage" 
-                className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition border-b border-gray-100"
+                className="block px-6 py-3 text-black font-medium hover:bg-gray-100 transition border-b border-gray-100"
                 onClick={() => setMobileMenuDisplay(false)}
               >
                 Contact Us
@@ -1001,7 +1002,7 @@ const Header = () => {
               {/* Services Dropdown Mobile */}
               <div className="border-b border-gray-100">
                 <button
-                  className="w-full flex items-center justify-between px-6 py-3 text-gray-700 hover:bg-gray-100 transition"
+                  className="w-full flex items-center justify-between px-6 py-3 text-black font-medium hover:bg-gray-100 transition"
                   onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
                 >
                   <span>Services & Supports</span>
@@ -1009,38 +1010,38 @@ const Header = () => {
                 </button>
                 
                 {servicesDropdownOpen && (
-                  <div className="bg-gray-50 px-6 py-2">
+                  <div className="bg-brand-productCardImageBg px-6 py-2">
                     <Link 
                       to="/CustomerSupport" 
-                      className="block py-2 text-sm text-gray-600 hover:text-brand-primaryHover"
+                      className="block pb-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       Customer Support
                     </Link>
                     <Link 
                       to="/ProductRegistration" 
-                      className="block py-2 text-sm text-gray-600 hover:text-brand-primaryHover"
+                      className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       Product Registration
                     </Link>
                     <Link 
                       to="/AuthorizedDealer" 
-                      className="block py-2 text-sm text-gray-600 hover:text-brand-primaryHover"
+                      className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       Authorized Dealer
                     </Link>
                     <Link 
                       to="/CareerPage" 
-                      className="block py-2 text-sm text-gray-600 hover:text-brand-primaryHover"
+                      className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       Career
                     </Link>
                     <Link 
                       to="/AboutUs" 
-                      className="block py-2 text-sm text-gray-600 hover:text-brand-primaryHover"
+                      className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       About Us
@@ -1067,7 +1068,7 @@ const Header = () => {
               </div>
 
               <div className="p-6">
-                <p className="text-sm text-[#6A7282] mb-4">
+                <p className="text-sm text-brand-textMuted mb-4">
                   Select a delivery location to see product availability and delivery options.
                 </p>
 
@@ -1113,7 +1114,7 @@ const Header = () => {
 
                     ))
                   ) : (
-                    <p className="text-gray-500 text-center py-4">No addresses found.</p>
+                    <p className="text-brand-primaryTextMuted text-center py-4">No addresses found.</p>
                   )}
                 </div>
 
@@ -1134,7 +1135,7 @@ const Header = () => {
                       <input
                         type="text"
                         placeholder="Enter 6-digit pincode"
-                        className="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:border-brand-primary text-sm"
+                        className="flex-1 border border-gray-200 rounded-md px-4 py-2 focus:outline-none focus:border-brand-primary text-sm"
                         value={pinCode}
                         onChange={(e) => setPinCode(e.target.value)}
                         maxLength={6}

@@ -4,7 +4,7 @@ import SummaryApi from "../common";
 import ProductCard from "./ProductCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const RelatedProducts = () => {
+const RecentlyViewProducts = () => {
   const [related, setRelated] = useState([]);
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -113,7 +113,7 @@ const RelatedProducts = () => {
                 onClick={() => navigate(`/product/${product._id}`)}
                 actionSlot={
                   <button
-                    className="w-full bg-brand-primary text-white py-2 rounded-md text-sm font-medium"
+                    className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-medium"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/product/${product._id}`);
@@ -131,4 +131,4 @@ const RelatedProducts = () => {
   );
 };
 
-export default RelatedProducts;
+export default RecentlyViewProducts;

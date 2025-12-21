@@ -14,7 +14,7 @@ const HOME_BANNERS = [
 
 const BOTTOM_BANNERS = [
   { id: 101, imageUrl: bottomBanner2 },
-  { id: 102, imageUrl: bottomBanner2 },
+  // { id: 102, imageUrl: bottomBanner2 },
 ];
 
 
