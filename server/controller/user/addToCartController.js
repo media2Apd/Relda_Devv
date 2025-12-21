@@ -46,6 +46,7 @@ const productModel = require("../../models/productModel")
 //     }
 // }
 
+const TWELVE_HOURS = 12 * 60 * 60 * 1000;
 const addToCartController = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -66,12 +67,19 @@ const addToCartController = async (req, res) => {
       : { productId, sessionId };
 
     const exists = await addToCartModel.findOne(filter);
+    // 🔥 12 HOURS RULE
     if (exists) {
-      return res.json({
-        success: false,
-        message: "Already exists in cart"
-      });
+      const now = Date.now();
+      const addedTime = new Date(exists.createdAt).getTime();
+
+      if (now - addedTime < TWELVE_HOURS) {
+        return res.status(400).json({
+          success: false,
+          message: "You can add this product only once every 12 hours"
+        });
+      }
     }
+
 
     const payload = {
       productId,
