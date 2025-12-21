@@ -31,7 +31,7 @@ const PrivacyPolicy = () => {
       </p>
       <h2 className="text-xl font-semibold mb-2">Collection of Personally Identifiable Information and Other Information</h2>
       <p className="mb-4">
-        When you use our website, reldaindia.com, a unit of LaMart Group, we collect and store your
+        When you use our website, reldaindia.com, we collect and store your
         personal information which is provided by you from time to time. Our primary goal in doing
         so is to provide you a safe, efficient, smooth, and customized experience. This allows us to
         provide services and features that most likely meet your needs, and to customize our
@@ -68,17 +68,23 @@ const PrivacyPolicy = () => {
       <p className="mb-4">
         We and our affiliates will share some or all of your personal information with another business entity should we (or our assets) plan to merge with, or be acquired by that business entity, or re-organization, amalgamation, or restructuring of business. Should such a transaction occur, that other business entity (or the new combined entity) will be required to follow this privacy policy with respect to your personal information.
       </p>
-      <h2 className="text-xl font-semibold mb-2">Contact Us</h2>
-      <p className="mb-4">
+      <h2 className="text-xl font-semibold mb-2">Copyrights 2024 RELDA India - All Rights Reserved.</h2>
+      {/* <p className="mb-4">
         If you would like to review or change the details you have entered while visiting our Website
         or if you have any questions about our privacy policy, please contact us at:
-      </p>
+      </p> */}
       <p className="mb-4">
+        Marketed by RELDA<br />
+        Registered Office: Plot No 17A, Majestic Avenue, Krishna Nagar,<br />
+        Madhavaram Milk Colony, Chennai, Tamilnadu 600051.<br />
+        RELDA India logo and its design are trademarks owned by <strong>RELDA</strong>.
+      </p>
+      {/* <p className="mb-4">
         E-mail: <a href="mailto:support@reldaindia.com" className="text-blue-600">support@reldaindia.com</a><br />
         Telephone: +91 9884890934<br />
         Contact Days: Monday to Saturday (Excluding Public Holidays)<br />
         Timing: 10.00 am to 6.00 pm
-      </p>
+      </p> */}
     </div>
   );
 };
