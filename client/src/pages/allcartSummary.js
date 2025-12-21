@@ -251,7 +251,7 @@
 //               name="userName"
 //               value={filters.userName}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2"
+//               className="border border-gray-200 rounded px-4 py-2"
 //             >
 //               <option value="">View All Users</option>
 //               {filteredUsers.map((user) => (
@@ -265,7 +265,7 @@
 //               name="category"
 //               value={filters.category}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2"
+//               className="border border-gray-200 rounded px-4 py-2"
 //             >
 //               <option value="">Select Category</option>
 //               {filteredCategories.map((category, index) => (
@@ -280,14 +280,14 @@
 //               name="fromDate"
 //               value={filters.fromDate}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2"
+//               className="border border-gray-200 rounded px-4 py-2"
 //             />
 //             <input
 //               type="date"
 //               name="toDate"
 //               value={filters.toDate}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2"
+//               className="border border-gray-200 rounded px-4 py-2"
 //             />
 //           </div>
 
@@ -349,7 +349,7 @@
 
 //           {/* Export Options Modal */}
 //           {showExportOptions && (
-//             <div className="absolute top-0 left-0 right-0 bottom-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+//             <div className="absolute top-0 left-0 right-0 bottom-0 bg-brand-textMuted bg-opacity-50 flex justify-center items-center">
 //               <div className="bg-white p-6 rounded shadow-lg">
 //                 <h3 className="text-xl mb-4">Choose Export Format</h3>
 //                 <button onClick={downloadCSV} className="block mb-4 text-blue-600">CSV</button>
@@ -390,10 +390,10 @@
 //                           />
 //                         )}
 //                         <div>
-//                           <h3 className="text-l font-semibold text-gray-800">
+//                           <h3 className="text-l font-semibold text-gray-900">
 //                             {productName}
 //                           </h3>
-//                           <p className="text-gray-500 mt-1">
+//                           <p className="text-brand-textMuted mt-1">
 //                             Price: <span className="text-red-600 font-bold">₹{sellingPrice}</span>{" "}
 //                             {Price && (
 //                               <span className="line-through text-gray-400 font-bold ml-2">
@@ -406,7 +406,7 @@
 //                               ((Price - sellingPrice) / Price) * 100
 //                             ).toFixed(2)}% OFF`}
 //                           </span>
-//                           <p className="text-gray-600 mt-2">Quantity: {item.quantity}</p>
+//                           <p className="text-brand-textMuted mt-2">Quantity: {item.quantity}</p>
 //                         </div>
 //                       </div>
 
@@ -427,21 +427,21 @@
 //               {/* Left: User Details */}
 //               <div className="w-1/3 pl-2">
 //                 <div className="p-6 pl-6 border rounded-lg shadow-md bg-white">
-//                   <h3 className="text-l font-semibold text-gray-800">
+//                   <h3 className="text-l font-semibold text-gray-900">
 //                     Customer: {userDetail.user.name}
 //                   </h3>
-//                   <p className="text-gray-600">Email: {userDetail.user.email}</p>
-//                   <p className="text-gray-600">Mobile: {userDetail.user.mobile}</p>
+//                   <p className="text-brand-textMuted">Email: {userDetail.user.email}</p>
+//                   <p className="text-brand-textMuted">Mobile: {userDetail.user.mobile}</p>
 //                   <div className="mt-4">
 //                     <h4 className="text-l font-semibold">Customer Address</h4>
-//                     <p className="text-gray-600">
+//                     <p className="text-brand-textMuted">
 //                       {userDetail.user?.address?.street || 'N/A'}
 //                     </p>
-//                     <p className="text-gray-600">
+//                     <p className="text-brand-textMuted">
 //                       {userDetail.user?.address?.city || 'N/A'},{" "}
 //                       {userDetail.user?.address?.state || 'N/A'}
 //                     </p>
-//                     <p className="text-gray-600">
+//                     <p className="text-brand-textMuted">
 //                       {userDetail.user?.address?.country || 'N/A'} -{" "}
 //                       {userDetail.user?.address?.pinCode || 'N/A'}
 //                     </p>
@@ -698,7 +698,7 @@
 //               name="userName"
 //               value={filters.userName}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2 text-sm w-48"
+//               className="border border-gray-200 rounded px-4 py-2 text-sm w-48"
 //             >
 //               <option value="">View All Users</option>
 //               {filteredUsers.map((user) => (
@@ -712,7 +712,7 @@
 //               name="category"
 //               value={filters.category}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2 text-sm w-48"
+//               className="border border-gray-200 rounded px-4 py-2 text-sm w-48"
 //             >
 //               <option value="">Select Category</option>
 //               {filteredCategories.map((category, index) => (
@@ -727,7 +727,7 @@
 //               name="fromDate"
 //               value={filters.fromDate}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2 text-sm w-48"
+//               className="border border-gray-200 rounded px-4 py-2 text-sm w-48"
 //             />
 
 //             <input
@@ -735,13 +735,13 @@
 //               name="toDate"
 //               value={filters.toDate}
 //               onChange={handleFilterChange}
-//               className="border border-gray-300 rounded px-4 py-2 text-sm w-48"
+//               className="border border-gray-200 rounded px-4 py-2 text-sm w-48"
 //             />
 
 //             {/* Export button aligned to the right */}
 //             <button
 //               onClick={downloadXLSX}
-//               className="border border-gray-300 rounded px-4 py-2 text-sm bg-blue-500 text-white ml-auto"
+//               className="border border-gray-200 rounded px-4 py-2 text-sm bg-blue-500 text-white ml-auto"
 //             >
 //               Export
 //             </button>
@@ -825,10 +825,10 @@
 //                           />
 //                         )}
 //                         <div>
-//                           <h3 className="text-l font-semibold text-gray-800">
+//                           <h3 className="text-l font-semibold text-gray-900">
 //                             {productName}
 //                           </h3>
-//                           <p className="text-gray-500 mt-1">
+//                           <p className="text-brand-textMuted mt-1">
 //                             Price: <span className="text-red-600 font-bold">₹{sellingPrice}</span>{" "}
 //                             {Price && (
 //                               <span className="line-through text-gray-400 font-bold ml-2">
@@ -841,7 +841,7 @@
 //                               ((Price - sellingPrice) / Price) * 100
 //                             ).toFixed(2)}% OFF`}
 //                           </span>
-//                           <p className="text-gray-600 mt-2">Quantity: {item.quantity}</p>
+//                           <p className="text-brand-textMuted mt-2">Quantity: {item.quantity}</p>
 //                         </div>
 //                       </div>
 //                       {/* Divider */}
@@ -859,21 +859,21 @@
 //               {/* Left: User Details */}
 //               <div className="w-1/3 pl-2">
 //                 <div className="p-6 pl-6 border rounded-lg shadow-md bg-white">
-//                   <h3 className="text-l font-semibold text-gray-800">
+//                   <h3 className="text-l font-semibold text-gray-900">
 //                     Customer: {userDetail.user.name}
 //                   </h3>
-//                   <p className="text-gray-600">Email: {userDetail.user.email}</p>
-//                   <p className="text-gray-600">Mobile: {userDetail.user.mobile}</p>
+//                   <p className="text-brand-textMuted">Email: {userDetail.user.email}</p>
+//                   <p className="text-brand-textMuted">Mobile: {userDetail.user.mobile}</p>
 //                   <div className="mt-4">
 //                     <h4 className="text-l font-semibold">Customer Address</h4>
-//                     <p className="text-gray-600">
+//                     <p className="text-brand-textMuted">
 //                       {userDetail.user?.address?.street || 'N/A'}
 //                     </p>
-//                     <p className="text-gray-600">
+//                     <p className="text-brand-textMuted">
 //                       {userDetail.user?.address?.city || 'N/A'},{" "}
 //                       {userDetail.user?.address?.state || 'N/A'}
 //                     </p>
-//                     <p className="text-gray-600">
+//                     <p className="text-brand-textMuted">
 //                       {userDetail.user?.address?.country || 'N/A'} -{" "}
 //                       {userDetail.user?.address?.pinCode || 'N/A'}
 //                     </p>
@@ -1045,7 +1045,7 @@
 //       {view === "summary" ? (
 //         <>
 //         <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg mb-4'>
-//         <h2 className='font-bold text-xl text-gray-800'>All Cart Summary</h2>
+//         <h2 className='font-bold text-xl text-gray-900'>All Cart Summary</h2>
 //         <button className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full ' onClick={downloadXLSX}>Export to Excel</button>
 //       </div>
 //           {/* <h1 className="text-xl font-bold mb-4">All Cart Summary</h1> */}
@@ -1119,8 +1119,8 @@
 //                       alt=""
 //                     />
 //                     <div className="ml-4 flex-1">
-//                       <h4 className="font-bold text-gray-800">{item.productId.productName}</h4>
-//                       <p className="text-sm text-gray-500">Category: {item.productId.category}</p>
+//                       <h4 className="font-bold text-gray-900">{item.productId.productName}</h4>
+//                       <p className="text-sm text-brand-textMuted">Category: {item.productId.category}</p>
 //                       <p className="text-sm">Price: <span className="text-red-600 font-bold">₹{item.productId.sellingPrice}</span> x {item.quantity}</p>
 //                       <p className="text-sm font-bold mt-2">Subtotal: ₹{item.productId.sellingPrice * item.quantity}</p>
 //                     </div>
@@ -1135,7 +1135,7 @@
 //                 <p className="text-sm"><strong>Phone:</strong> {selectedUserDetails[0].userId.mobile}</p>
 //                 <div className="mt-4">
 //                   <h4 className="font-bold text-sm">Delivery Address:</h4>
-//                   <p className="text-sm text-gray-600">
+//                   <p className="text-sm text-brand-textMuted">
 //                     {selectedUserDetails[0].userId.address?.street},<br/>
 //                     {selectedUserDetails[0].userId.address?.city}, {selectedUserDetails[0].userId.address?.state}<br/>
 //                     {selectedUserDetails[0].userId.address?.pinCode}
@@ -1292,14 +1292,14 @@ const AllCartSummary = () => {
   if (loading) return <div className="p-10 text-center">Loading...</div>;
 
   return (
-    <div className='mx-auto pb-8 p-1 md:p-4 text-gray-800'>
+    <div className='mx-auto pb-8 p-1 md:p-4 text-gray-900'>
       {view === "summary" ? (
         <>
           {/* Header Section */}
           <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg'>
-            <h2 className='font-bold text-xl text-gray-800'>All Cart Summary</h2>
+            <h2 className='font-bold text-xl text-gray-900'>All Cart Summary</h2>
             <button 
-              className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full text-sm font-semibold' 
+              className='border-2 border-brand-buttonSecondary text-brand-buttonSecondary hover:bg-brand-buttonSecondaryHover hover:text-white transition-all py-2 px-4 rounded-full text-sm font-semibold' 
               onClick={downloadXLSX}
             >
               Export to Excel
@@ -1312,7 +1312,7 @@ const AllCartSummary = () => {
               name="userName" 
               value={filters.userName} 
               onChange={handleFilterChange} 
-              className="border p-2 rounded-md border-gray-300 text-sm w-full md:w-auto outline-none"
+              className="border p-2 rounded-md border-gray-200 text-sm w-full md:w-auto outline-none"
             >
               <option value="">All Users</option>
               {allUsers.map((user) => (
@@ -1324,7 +1324,7 @@ const AllCartSummary = () => {
               name="category" 
               value={filters.category} 
               onChange={handleFilterChange} 
-              className="border p-2 rounded-md border-gray-300 text-sm w-full md:w-auto outline-none"
+              className="border p-2 rounded-md border-gray-200 text-sm w-full md:w-auto outline-none"
             >
               <option value="">All Categories</option>
               {allCategories.map((cat, i) => (
@@ -1337,7 +1337,7 @@ const AllCartSummary = () => {
               name="fromDate"
               value={filters.fromDate}
               onChange={handleFilterChange}
-              className="border p-2 rounded-md border-gray-300 text-sm w-full md:w-auto outline-none"
+              className="border p-2 rounded-md border-gray-200 text-sm w-full md:w-auto outline-none"
               placeholder={isFocused.fromDate ? "" : "From Date*"}
               onFocus={() => setIsFocused({ ...isFocused, fromDate: true })}
               onBlur={() => setIsFocused({ ...isFocused, fromDate: false })}
@@ -1347,7 +1347,7 @@ const AllCartSummary = () => {
               name="toDate"
               value={filters.toDate}
               onChange={handleFilterChange}
-              className="border p-2 rounded-md border-gray-300 text-sm w-full md:w-auto outline-none"
+              className="border p-2 rounded-md border-gray-200 text-sm w-full md:w-auto outline-none"
               placeholder={isFocused.toDate ? "" : "To Date*"}
               onFocus={() => setIsFocused({ ...isFocused, toDate: true })}
               onBlur={() => setIsFocused({ ...isFocused, toDate: false })}
@@ -1358,28 +1358,28 @@ const AllCartSummary = () => {
           <div className='overflow-x-auto rounded-lg shadow-lg'>
             <table className='w-full bg-white'>
               <thead>
-                <tr className='bg-red-600 text-white'>
-                  <th className="border border-gray-300 px-4 py-2">S.No</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">User Name</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center">Total Items</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center">Action</th>
+                <tr className='bg-brand-primary text-white'>
+                  <th className="border border-gray-200 px-4 py-2">S.No</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left">User Name</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left">Email</th>
+                  <th className="border border-gray-200 px-4 py-2 text-center">Total Items</th>
+                  <th className="border border-gray-200 px-4 py-2 text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {groupedTableData.length === 0 ? (
-                  <tr><td colSpan="5" className="px-4 py-10 text-center text-gray-500">No records found</td></tr>
+                  <tr><td colSpan="5" className="px-4 py-10 text-center text-brand-textMuted">No records found</td></tr>
                 ) : (
                   groupedTableData.map((group, index) => (
                     <tr key={group.userId} className="hover:bg-gray-100 transition-colors">
-                      <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
-                      <td className="border border-gray-300 px-4 py-2 font-medium">{group.userName}</td>
-                      <td className="border border-gray-300 px-4 py-2">{group.email}</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">{group.totalQuantity}</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">
+                      <td className="border border-gray-200 px-4 py-2 text-center">{index + 1}</td>
+                      <td className="border border-gray-200 px-4 py-2 font-medium">{group.userName}</td>
+                      <td className="border border-gray-200 px-4 py-2">{group.email}</td>
+                      <td className="border border-gray-200 px-4 py-2 text-center">{group.totalQuantity}</td>
+                      <td className="border border-gray-200 px-4 py-2 text-center">
                         <button
                           onClick={() => handleViewDetails(group.userId)}
-                          className="p-2 bg-green-100 text-green-700 rounded-full hover:bg-green-500 hover:text-white transition-all"
+                          className="p-2 bg-green-100 text-brand-buttonAccent rounded-full hover:bg-brand-buttonAccentHover hover:text-white transition-all"
                           title="View Details"
                         >
                           <IoMdEye size={20} />
@@ -1398,7 +1398,7 @@ const AllCartSummary = () => {
           <div className="flex items-center justify-between border-b pb-4 mb-6">
             <button 
               onClick={() => setView("summary")} 
-              className="flex items-center text-red-600 hover:text-red-800 font-bold transition-all"
+              className="flex items-center text-brand-primary hover:text-brand-primaryHover font-bold transition-all"
             >
               <IoMdArrowRoundBack className="mr-2" size={24} /> Back to Summary
             </button>
@@ -1415,11 +1415,11 @@ const AllCartSummary = () => {
                     alt={item.productId.productName}
                   />
                   <div className="ml-4 flex-1">
-                    <h4 className="font-bold text-gray-800 leading-tight">{item.productId.productName}</h4>
-                    <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider">{item.productId.category}</p>
+                    <h4 className="font-bold text-gray-900 leading-tight">{item.productId.productName}</h4>
+                    <p className="text-xs text-brand-textMuted mt-1 uppercase tracking-wider">{item.productId.category}</p>
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-sm text-gray-700">Price: <span className="font-bold">₹{item.productId.sellingPrice}</span> x {item.quantity}</p>
-                      <p className="text-sm font-bold text-red-600">Subtotal: ₹{item.productId.sellingPrice * item.quantity}</p>
+                      <p className="text-sm text-brand-textMuted">Price: <span className="font-bold">₹{item.productId.sellingPrice}</span> x {item.quantity}</p>
+                      <p className="text-sm font-bold text-brand-primary">Subtotal: ₹{item.productId.sellingPrice * item.quantity}</p>
                     </div>
                   </div>
                 </div>
@@ -1427,18 +1427,18 @@ const AllCartSummary = () => {
             </div>
 
             <div className="bg-gray-50 border border-gray-200 p-5 rounded-lg h-fit sticky top-4">
-              <h3 className="font-bold text-lg text-gray-800 border-b border-gray-300 pb-2 mb-4">Customer Info</h3>
+              <h3 className="font-bold text-lg text-gray-900 border-b border-gray-200 pb-2 mb-4">Customer Info</h3>
               <div className="space-y-3">
-                <p className="text-sm"><strong>Name:</strong> <span className="text-gray-600 ml-1">{selectedUserDetails[0].userId.name}</span></p>
-                <p className="text-sm"><strong>Email:</strong> <span className="text-gray-600 ml-1">{selectedUserDetails[0].userId.email}</span></p>
-                <p className="text-sm"><strong>Phone:</strong> <span className="text-gray-600 ml-1">{selectedUserDetails[0].userId.mobile || "N/A"}</span></p>
+                <p className="text-sm"><strong>Name:</strong> <span className="text-brand-textMuted ml-1">{selectedUserDetails[0].userId.name}</span></p>
+                <p className="text-sm"><strong>Email:</strong> <span className="text-brand-textMuted ml-1">{selectedUserDetails[0].userId.email}</span></p>
+                <p className="text-sm"><strong>Phone:</strong> <span className="text-brand-textMuted ml-1">{selectedUserDetails[0].userId.mobile || "N/A"}</span></p>
                 
-                <div className="pt-4 mt-4 border-t border-gray-300">
-                  <h4 className="font-bold text-sm text-gray-800 mb-2 underline">Delivery Address</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                <div className="pt-4 mt-4 border-t border-gray-200">
+                  <h4 className="font-bold text-sm text-gray-900 mb-2 underline">Delivery Address</h4>
+                  <p className="text-sm text-brand-textMuted leading-relaxed">
                     {selectedUserDetails[0].userId.address?.street}<br/>
                     {selectedUserDetails[0].userId.address?.city}, {selectedUserDetails[0].userId.address?.state}<br/>
-                    <span className="font-semibold text-gray-800">{selectedUserDetails[0].userId.address?.pinCode}</span>
+                    <span className="font-semibold text-gray-900">{selectedUserDetails[0].userId.address?.pinCode}</span>
                   </p>
                 </div>
               </div>

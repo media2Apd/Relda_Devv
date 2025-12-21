@@ -67,18 +67,18 @@ const ContactUsMessages = () => {
 
 
   return (
-    <div className="mx-auto pb-8 p-1 md:p-4 text-gray-800">
+    <div className="mx-auto pb-8 p-1 md:p-4 text-gray-900">
 
 <div className='bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg'>
-        <h2 className='font-bold text-xl text-gray-800'>Contact Messages</h2>
-        <button className='border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
+        <h2 className='font-bold text-xl text-gray-900'>Contact Messages</h2>
+        <button className='border-2 border-brand-buttonPrimary text-brand-buttonPrimary hover:bg-brand-buttonPrimaryHover hover:text-white transition-all py-2 px-4 rounded-full' onClick={handleExportExcel}>Export to Excel</button>
       </div>
 
 
       <div className="overflow-x-auto rounded-lg shadow-lg mt-4">
-        <table className="w-full userTable bg-white border border-gray-300">
+        <table className="w-full userTable bg-white border border-gray-200">
           <thead>
-            <tr className='bg-red-600 text-white'>
+            <tr className='bg-brand-primary text-white'>
               <th className="px-4 py-2 border-b">Name</th>
               <th className="px-4 py-2 border-b">Email</th>
               <th className="px-4 py-2 border-b">Phone</th>
@@ -91,7 +91,7 @@ const ContactUsMessages = () => {
               <tr>
                 <td
                   colSpan="4"
-                  className="px-4 py-2 text-center border border-gray-700"
+                  className="px-4 py-2 text-center border border-brand-textMuted"
                 >
                   Loading...
                 </td>
@@ -100,7 +100,7 @@ const ContactUsMessages = () => {
               <tr>
                 <td
                   colSpan="4"
-                  className="px-4 py-2 text-center text-red-500 border border-gray-700"
+                  className="px-4 py-2 text-center text-brand-primary border border-brand-textMuted"
                 >
                   {error}
                 </td>
@@ -121,7 +121,7 @@ const ContactUsMessages = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="px-4 py-2 text-center border border-gray-700">No messages found</td>
+                <td colSpan="5" className="px-4 py-2 text-center border border-brand-textMuted">No messages found</td>
               </tr>
             )}
           </tbody>

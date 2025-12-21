@@ -311,8 +311,8 @@ const BlogPost = () => {
     };
 
     if (loading) return <p className="text-center text-gray-400">Loading...</p>;
-    if (error) return <p className="text-center text-red-500">{error}</p>;
-    if (!blog) return <p className="text-center text-red-500">Blog not found!</p>;
+    if (error) return <p className="text-center text-brand-primary">{error}</p>;
+    if (!blog) return <p className="text-center text-brand-primary">Blog not found!</p>;
 
     return (
         <div className="bg-black text-white py-10 px-6">
@@ -350,7 +350,7 @@ const BlogPost = () => {
                                 </p>
                                 <button
                                     onClick={() => setExpanded(!expanded)}
-                                    className="text-blue-400 mt-2 font-semibold hover:underline"
+                                    className="text-brand-buttonSecondary mt-2 font-semibold hover:underline"
                                 >
                                     {expanded ? "Read Less" : "Read More"}
                                 </button>

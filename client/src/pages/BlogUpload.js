@@ -121,7 +121,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
             {blog ? "Edit Blog" : "Upload Blog"}
           </h2>
           <button
-            className="text-2xl hover:text-red-600 transition-transform duration-300 hover:rotate-180"
+            className="text-2xl hover:text-brand-primaryHover transition-transform duration-300 hover:rotate-180"
             onClick={onClose}
           >
             <CgClose />
@@ -139,13 +139,13 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
               id="title"
               type="text"
               placeholder=" "
-              className="peer h-12 w-full border border-gray-300 rounded-md px-4 text-sm text-gray-700 focus:border-green-500 focus:outline-none transition"
+              className="peer h-12 w-full border border-gray-200 rounded-md px-4 text-sm text-brand-textMuted focus:border-brand-buttonAccent focus:outline-none transition"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
             <label
               htmlFor="title"
-              className="absolute left-4 -top-2 text-xs text-gray-500 bg-white px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-green-500"
+              className="absolute left-4 -top-2 text-xs text-brand-textMuted bg-white px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-brand-textMuted peer-focus:-top-2 peer-focus:text-xs peer-focus:text-green-500"
             >
               Enter Blog Title*
             </label>
@@ -155,7 +155,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
             <select
               name="category"
               id="category"
-              className="peer h-12 w-full border border-gray-300 rounded-md px-4 text-sm text-gray-700 focus:border-green-500 focus:outline-none transition"
+              className="peer h-12 w-full border border-gray-200 rounded-md px-4 text-sm text-brand-textMuted focus:border-brand-buttonAccent focus:outline-none transition"
               onFocus={() => setIsCategoryFocused(true)}
               onBlur={() => setIsCategoryFocused(category !== "")} // Keep label up if a value is selected
               value={category}
@@ -172,8 +172,8 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
               htmlFor="category"
               className={`absolute left-4 px-1 bg-white transition-all ${
                 isCategoryFocused || category
-                  ? "-top-2 text-xs text-green-500"
-                  : "top-3 text-sm text-gray-400"
+                  ? "-top-2 text-xs text-brand-buttonAccent"
+                  : "top-3 text-sm text-brand-textMuted"
               }`}
             >
               Blog Category*
@@ -181,13 +181,13 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
           </div>
 
           {/* Custom File Input */}
-          <label className="mb-4 flex items-center border border-gray-300 rounded-md px-4 py-2 cursor-pointer hover:bg-gray-100 transition">
+          <label className="mb-4 flex items-center border border-gray-200 rounded-md px-4 py-2 cursor-pointer hover:bg-gray-100 transition">
             <input
               type="file"
               onChange={handleImageChange}
               className="hidden"
             />
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-brand-textMuted">
               {image
                 ? image.name
                 : blog && blog.imageUrl
@@ -208,20 +208,20 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
           )}
 
           <div className="mb-4">
-            <label className="block font-medium text-sm text-gray-700 mb-2">
+            <label className="block font-medium text-sm text-brand-textMuted mb-2">
               Blog Content Sections*
             </label>
             {contentBlocks.map((block, index) => (
               <div
                 key={index}
-                className="border border-gray-300 rounded-md p-4 pt-6 mb-3 relative"
+                className="border border-gray-200 rounded-md p-4 pt-6 mb-3 relative"
               >
                 <div className="relative mb-4 mt-2">
                   <input
                     id={`subtitle-${index}`}
                     type="text"
                     placeholder=" "
-                    className="peer h-12 w-full border border-gray-300 rounded-md px-4 text-sm text-gray-700 focus:border-green-500 focus:outline-none transition"
+                    className="peer h-12 w-full border border-gray-200 rounded-md px-4 text-sm text-brand-textMuted focus:border-brand-buttonAccent focus:outline-none transition"
                     value={block.subtitle}
                     onChange={(e) =>
                       handleBlockChange(index, "subtitle", e.target.value)
@@ -229,7 +229,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
                   />
                   <label
                     htmlFor={`subtitle-${index}`}
-                    className="absolute left-4 -top-2 text-xs text-gray-500 bg-white px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-green-500"
+                    className="absolute left-4 -top-2 text-xs text-brand-textMuted bg-white px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-brand-textMuted peer-focus:-top-2 peer-focus:text-xs peer-focus:text-green-500"
                   >
                     Enter Subtitle*
                   </label>
@@ -239,7 +239,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
                     id={`content-${index}`}
                     placeholder={isFocused ? "Write a blog content..." : ""}
                     rows="3"
-                    className="peer w-full border border-gray-300 rounded-md px-4 py-3 text-sm text-gray-700 focus:border-green-500 focus:outline-none transition"
+                    className="peer w-full border border-gray-200 rounded-md px-4 py-3 text-sm text-brand-textMuted focus:border-brand-buttonAccent focus:outline-none transition"
                     value={block.content}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(block.content !== "")} // Keeps label on top if text exists
@@ -249,7 +249,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
                   ></textarea>
                   <label
                     htmlFor={`content-${index}`}
-                    className="absolute left-4 -top-2 text-xs text-gray-500 bg-white px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-green-500"
+                    className="absolute left-4 -top-2 text-xs text-brand-textMuted bg-white px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-brand-textMuted peer-focus:-top-2 peer-focus:text-xs peer-focus:text-green-500"
                   >
                     Blog Content*
                   </label>
@@ -258,7 +258,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
                   {contentBlocks.length > 1 && (
                     <button
                       type="button"
-                      className="text-white bg-red-500 rounded-full w-5 h-5 flex justify-center items-center font-bold"
+                      className="text-white bg-brand-primary rounded-full w-5 h-5 flex justify-center items-center font-bold"
                       onClick={() => handleRemoveBlock(index)}
                     >
                       <FaMinus size={12} />
@@ -267,7 +267,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
                   {index === contentBlocks.length - 1 && (
                     <button
                       type="button"
-                      className="text-white bg-green-500 font-bold rounded-full w-5 h-5 flex justify-center items-center"
+                      className="text-white bg-brand-buttonAccent font-bold rounded-full w-5 h-5 flex justify-center items-center"
                       onClick={handleAddBlock}
                     >
                       <FaPlus size={12} />
@@ -282,7 +282,7 @@ const BlogUpload = ({ onClose, blog, onSuccess }) => {
           <div className="text-center flex justify-center items-center">
             <button
               type="submit"
-              className={`w-full px-6 py-2 border border-red-600 text-red-600 font-bold rounded hover:bg-red-600 hover:text-white transition flex justify-center items-center ${
+              className={`w-full px-6 py-2 border border-brand-primary text-brand-primary font-bold rounded hover:bg-brand-primaryHover hover:text-white transition flex justify-center items-center ${
                 loadingButton ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={loadingButton}

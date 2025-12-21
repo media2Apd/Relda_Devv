@@ -5,6 +5,7 @@ import displayINRCurrency from "../helpers/displayCurrency";
 import { MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { FiMinus, FiPlus } from "react-icons/fi";
 
 const Cart = () => {
   const [data, setData] = useState([]);
@@ -60,6 +61,7 @@ const Cart = () => {
       if (responseData.success) {
         fetchData();
       }
+      toast.error(responseData.message);
     } catch (error) {
       console.error("Error increasing quantity:", error);
     }
@@ -216,7 +218,7 @@ const Cart = () => {
     <div className="container mx-auto">
       <div className="text-center text-lg my-3">
         {!loading && data.length === 0 && (
-          <h1 className="bg-white py-5 font-mediumbold text-gray-500">
+          <h1 className="bg-white py-5 font-mediumbold text-brand-textmuted">
             Your Cart is Empty. Please add products to proceed!
           </h1>
         )}
@@ -227,7 +229,7 @@ const Cart = () => {
             ? loadingCart.map((_, index) => (
               <div
                 key={index}
-                className="w-full bg-slate-200 h-32 my-2 border border-slate-300 animate-pulse rounded"
+                className="w-full bg-brand-productCardImageBg h-32 my-2 border border-slate-300 animate-pulse rounded"
               ></div>
             ))
             : data.length > 0 &&
@@ -237,7 +239,7 @@ const Cart = () => {
                 className={`w-full bg-white h-32 my-2 border border-slate-300 rounded grid grid-cols-[128px,1fr] relative ${selectedProductId === product._id ? "selected" : ""
                   }`}
               >
-                <div className="w-32 h-32 bg-slate-200">
+                <div className="w-32 h-32 bg-brand-productCardImageBg">
                   <img
                     src={product?.productId?.productImage[0]}
                     alt={product?.productId?.altTitle || "product"}
@@ -248,7 +250,7 @@ const Cart = () => {
                 </div>
                 <div className="px-4 py-2 relative">
                   <div
-                    className="absolute right-0 text-red-600 rounded-full p-2 hover:bg-red-600 hover:text-white cursor-pointer"
+                    className="absolute right-0 text-brand-primary rounded-full p-2 hover:bg-brand-primaryHover hover:text-white cursor-pointer"
                     onClick={() => handleDeletePrompt(product?._id)}
                   >
                     <MdDelete />
@@ -257,14 +259,14 @@ const Cart = () => {
                     {product?.productId?.productName}
                   </h2>
                   <div className="flex justify-between">
-                    <p className="capitalize text-slate-500 font-medium">
+                    <p className="capitalize text-brand-textMuted font-medium">
                       {product?.productId?.category}
                     </p>
                     <p className="capitalize text-slate-500 font-medium">
                       <span
                         className={`${product?.productId?.availability > 0
-                            ? "text-green-600"
-                            : "text-red-600"
+                            ? "text-brand-buttonAccent"
+                            : "text-brand-primary"
                           }`}
                       >
                         {product?.productId?.availability > 0
@@ -274,10 +276,10 @@ const Cart = () => {
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-red-600 font-medium text-lg">
+                    <p className="text-black font-medium text-base">
                       {displayINRCurrency(product?.productId?.sellingPrice)}
                     </p>
-                    <p className="text-slate-600 font-semibold text-lg">
+                    <p className="text-brand-textMuted font-medium text-lg">
                       {displayINRCurrency(
                         product?.productId?.sellingPrice * product?.quantity
                       )}
@@ -286,7 +288,7 @@ const Cart = () => {
                   <div className="flex items-center gap-4 mt-2">
                     <button
                       className={`h-6 w-6 flex items-center justify-center rounded-full ${product?.quantity <= 1
-                          ? "bg-gray-300 cursor-not-allowed"
+                          ? "bg-gray-100 cursor-not-allowed"
                           : "bg-gray-100 hover:bg-indigo-600 hover:text-white"
                         }`}
                       onClick={() =>
@@ -294,7 +296,7 @@ const Cart = () => {
                       }
                       disabled={product?.quantity <= 1}
                     >
-                      <span className="text-lg font-bold">-</span>
+                      <span className="text-lg font-bold"><FiMinus /></span>
                     </button>
                     <p className="text-lg font-semibold">
                       {product?.quantity}
@@ -305,7 +307,7 @@ const Cart = () => {
                         increaseQty(product?._id, product?.quantity)
                       }
                     >
-                      <span className="text-lg font-bold">+</span>
+                      <span className="text-lg font-bold"><FiPlus/></span>
                     </button>
                   </div>
                 </div>
@@ -315,13 +317,13 @@ const Cart = () => {
                       <h2>Are you sure to delete?</h2>
                       <div className="prompt-btn flex justify-between mt-4">
                         <button
-                          className="prompt-yes bg-red-600 text-white py-1 px-4 rounded hover:bg-red-700"
+                          className="prompt-yes bg-brand-primary text-white py-1 px-4 rounded hover:bg-brand-primaryHover"
                           onClick={handlePromptYes}
                         >
                           Yes
                         </button>
                         <button
-                          className="prompt-no bg-gray-200 py-1 px-4 rounded hover:bg-gray-300"
+                          className="prompt-no bg-gray-200 py-1 px-4 rounded hover:bg-gray-400"
                           onClick={handlePromptNo}
                         >
                           No

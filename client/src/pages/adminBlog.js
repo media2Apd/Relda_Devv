@@ -103,21 +103,21 @@ const AdminBlog = () => {
            <div className="max-w-md text-center animate-fade-in-up transition-all duration-700 ease-in-out">
              <div className="flex justify-center mb-4">
                <div className="bg-red-100 p-4 rounded-full shadow-md animate-pulse">
-                 <FaLock className="text-red-600 text-4xl" />
+                 <FaLock className="text-brand-primary text-4xl" />
                </div>
              </div>
-             <h1 className="text-6xl font-extrabold text-red-600 animate-fade-in">
+             <h1 className="text-6xl font-extrabold text-brand-primary animate-fade-in">
                403
              </h1>
-             <h2 className="mt-4 text-2xl font-semibold text-gray-800">
+             <h2 className="mt-4 text-2xl font-semibold text-gray-900">
                Access Forbidden
              </h2>
-             <p className="mt-2 text-gray-600">
+             <p className="mt-2 text-brand-textMuted">
                You don’t have permission to access this section of the site.
              </p>
              <Link
                to="/"
-               className="mt-6 inline-block px-6 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md shadow-lg transform hover:scale-105 transition duration-300"
+               className="mt-6 inline-block px-6 py-2 text-white bg-brand-primary hover:bg-brand-primaryHover rounded-md shadow-lg transform hover:scale-105 transition duration-300"
              >
                Go to Home
              </Link>
@@ -133,21 +133,21 @@ const AdminBlog = () => {
       <div className="max-w-md text-center animate-fade-in-up transition-all duration-700 ease-in-out">
         <div className="flex justify-center mb-4">
           <div className="bg-red-100 p-4 rounded-full shadow-md animate-pulse">
-            <FaLock className="text-red-600 text-4xl" />
+            <FaLock className="text-brand-primary text-4xl" />
           </div>
         </div>
-        <h1 className="text-6xl font-extrabold text-red-600 animate-fade-in">
+        <h1 className="text-6xl font-extrabold text-brand-primary animate-fade-in">
           403
         </h1>
-        <h2 className="mt-4 text-2xl font-semibold text-gray-800">
+        <h2 className="mt-4 text-2xl font-semibold text-gray-900">
           Access Forbidden
         </h2>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-brand-textMuted">
           You don’t have permission to access this section of the site.
         </p>
         <Link
           to="/"
-          className="mt-6 inline-block px-6 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md shadow-lg transform hover:scale-105 transition duration-300"
+          className="mt-6 inline-block px-6 py-2 text-white bg-brand-primary hover:bg-brand-primaryHover rounded-md shadow-lg transform hover:scale-105 transition duration-300"
         >
           Go to Home
         </Link>
@@ -165,26 +165,26 @@ const AdminBlog = () => {
             {user?.profilePic ? (
               <img
                 src={user?.profilePic}
-                className="w-full h-full rounded-full object-cover border border-gray-300"
+                className="w-full h-full rounded-full object-cover border border-gray-200"
                 alt={user?.name}
               />
             ) : (
-              <FaRegCircleUser className="w-full h-full text-gray-500" />
+              <FaRegCircleUser className="w-full h-full text-brand-textMuted" />
             )}
           </div>
-          <p className="capitalize text-lg font-semibold text-gray-800">
+          <p className="capitalize text-lg font-semibold text-gray-900">
             {user?.name || "Admin"}
           </p>
-          <p className="text-sm text-gray-500">{user?.role || "Admin"}</p>
+          <p className="text-sm text-brand-textMuted">{user?.role || "Admin"}</p>
         </div>
 
         <div>
           <nav className="px-4 space-y-2">
             <Link
               to={"upload-blogs"}
-              className={`block px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
+              className={`block px-3 py-2 text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/adminBlog/upload-blogs")
-                  ? "bg-red-600 text-white"
+                  ? "bg-brand-primary text-white"
                   : "hover:text-black hover:bg-slate-100"
               }`}
             >

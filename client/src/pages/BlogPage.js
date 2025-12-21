@@ -128,7 +128,7 @@ const BlogPage = () => {
     }
 
     return (
-        <div className="bg-black text-white py-20 px-4">
+        <div className="min-h-screen bg-black text-white py-10 px-4">
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl font-bold mb-6">BLOGS</h1>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -137,7 +137,7 @@ const BlogPage = () => {
                           <Link to={`/blog-post/${post._id}`} className="text-white mt-2 block">
                             <img src={post.imageUrl} alt={post.title} className="w-full h-48 object-cover mb-4" />
                             <h2 className="text-2xl font-bold">{post.title}</h2>
-                            <p className="text-sm text-gray-400"> | {post.category}</p>
+                            <p className="text-sm text-brand-textMuted"> | {post.category}</p>
                             <p className="mt-4">
                               {post.content[0].content.substring(0, 100)}... 
                               <span className='text-white font-semibold italic'>Continue Reading</span>

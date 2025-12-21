@@ -69,7 +69,7 @@
 //     return (
 //         <div className="min-h-screen bg-gray-50">
 //             <div className="bg-white py-2 px-6 shadow-md flex justify-between items-center">
-//                 <h1 className="font-bold text-xl text-gray-800">All Offer Posters</h1>
+//                 <h1 className="font-bold text-xl text-gray-900">All Offer Posters</h1>
 //                 <button
 //                     className="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition-all py-2 px-4 rounded-full"
 //                     onClick={() => {
@@ -103,8 +103,8 @@
 //                                 className="max-h-full max-w-full object-cover rounded-lg"
 //                             />
 //                         </div>
-//                         <p className="text-center text-lg font-semibold text-gray-800 mt-1">Parent Category: {offerPoster.parentCategory.name}</p>
-//                         <p className="text-center text-md font-semibold text-gray-600 mt-1">Sub Category: {offerPoster.childCategory}</p>
+//                         <p className="text-center text-lg font-semibold text-gray-900 mt-1">Parent Category: {offerPoster.parentCategory.name}</p>
+//                         <p className="text-center text-md font-semibold text-brand-textMuted mt-1">Sub Category: {offerPoster.childCategory}</p>
 //                         <div className="w-full flex justify-between items-center mt-4">
 //                             <button
 //                                 className="p-2 bg-green-100 hover:bg-green-600 rounded-full hover:text-white cursor-pointer"
@@ -200,9 +200,9 @@ const AllOfferPosters = () => {
     return (
         <div className="min-h-screen p-1 md:p-4">
             <div className="bg-white py-2 px-6 shadow-md flex justify-between items-center rounded-lg">
-                <h1 className="font-bold text-xl text-gray-800">All Offer Posters</h1>
+                <h1 className="font-bold text-xl text-gray-900">All Offer Posters</h1>
                 <button
-                    className="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition-all py-2 px-4 rounded-full"
+                    className="border-2 border-brand-primary text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all py-2 px-4 rounded-full"
                     onClick={() => {
                         setEditingOfferPoster(null);
                         setOpenUploadOfferPoster(true);
@@ -220,24 +220,24 @@ const AllOfferPosters = () => {
 
             {/* Display OfferPosters */}
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {loading && <p className="text-lg font-semibold text-gray-600">Loading...</p>}
-                {error && <p className="text-red-500 font-semibold">{error}</p>}
+                {loading && <p className="text-lg font-semibold text-brand-textMuted">Loading...</p>}
+                {error && <p className="text-brand-primary font-semibold">{error}</p>}
                 {offerPosters.map((offerPoster, index) => (
                     <div key={offerPoster._id} className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center">
                         <div className="w-full h-32 flex justify-center items-center">
                             <img src={offerPoster.image} alt={offerPoster.title} className="max-h-full max-w-full object-cover rounded-lg" />
                         </div>
-                        <p className="text-center text-lg font-semibold text-gray-800 mt-1">Parent Category: {offerPoster.parentCategory.name}</p>
-                        <p className="text-center text-md font-semibold text-gray-600 mt-1">Sub Category: {offerPoster.childCategory}</p>
+                        <p className="text-center text-lg font-semibold text-gray-900 mt-1">Parent Category: {offerPoster.parentCategory.name}</p>
+                        <p className="text-center text-md font-semibold text-brand-textMuted mt-1">Sub Category: {offerPoster.childCategory}</p>
                         <div className="w-full flex justify-between items-center mt-4">
                             <button
-                                className="p-2 bg-green-100 hover:bg-green-600 rounded-full hover:text-white cursor-pointer"
+                                className="p-2 bg-green-100 hover:bg-brand-buttonSecondaryHover rounded-full hover:text-white cursor-pointer"
                                 onClick={() => handleEditOfferPoster(offerPoster)}
                             >
                                 <MdModeEditOutline size={20} />
                             </button>
                             <button
-                                className="p-2 bg-red-100 hover:bg-red-600 rounded-full hover:text-white cursor-pointer"
+                                className="p-2 bg-red-100 hover:bg-brand-primaryHover rounded-full hover:text-white cursor-pointer"
                                 onClick={() => handleDeleteOfferPoster(offerPoster._id)}
 
                             >
