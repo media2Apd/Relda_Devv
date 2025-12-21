@@ -525,12 +525,12 @@ const Login = () => {
 
             <div className="text-center mt-4">
                <p className="text-sm text-gray-600">
-                Don't have account? <Link to="/sign-up" className="text-red-600 font-bold hover:underline">Signup</Link>
+                Don't have an account? <Link to="/sign-up" className="text-red-600 font-bold hover:underline">Signup</Link>
               </p>
               <button 
                 type="button"
                 onClick={() => handleLoginMethodChange("phonePassword")}
-                className="mt-4 text-xs font-bold text-gray-400 uppercase tracking-wider hover:text-red-600"
+                className="text-sm font-bold text-red-600 hover:underline mt-3"
               >
                 Login with phone number?
               </button>
@@ -559,7 +559,7 @@ const Login = () => {
               <div className="flex justify-between items-center">
                 <label className="text-sm font-bold text-gray-700">Password</label>
                 <Link to="/forgot-password" size="sm" className="text-xs font-bold text-red-600 hover:underline">
-                  Forgot Password
+                  Forgot Password?
                 </Link>
               </div>
               <div className="relative border border-gray-200 rounded-lg flex items-center focus-within:border-red-500 transition-all">
@@ -581,10 +581,14 @@ const Login = () => {
             <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg mt-2 transition-all">
               Login
             </button>
-
-            <div className="text-center flex flex-col gap-3 mt-4">
-              <button type="button" onClick={() => handleLoginMethodChange("phoneOtp")} className="text-sm font-bold text-red-600 hover:underline">Login with OTP?</button>
-              <button type="button" onClick={() => handleLoginMethodChange("emailPassword")} className="text-sm font-bold text-red-600 hover:underline">Login with email?</button>
+            <div className="text-center mt-4">
+               <p className="text-sm text-gray-600">
+                Don't have an account? <Link to="/sign-up" className="text-red-600 font-bold hover:underline">Signup</Link>
+              </p>
+              <div className="text-center flex flex-col gap-3 mt-3">
+                {/* <button type="button" onClick={() => handleLoginMethodChange("phoneOtp")} className="text-sm font-bold text-red-600 hover:underline">Login with OTP?</button> */}
+                <button type="button" onClick={() => handleLoginMethodChange("emailPassword")} className="text-sm font-bold text-red-600 hover:underline">Login with email?</button>
+              </div>
             </div>
           </form>
         )}
