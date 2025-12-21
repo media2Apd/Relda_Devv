@@ -1,6 +1,6 @@
-const addToCartModel = require("../../models/cartProduct")
-const userModel = require("../../models/userModel"); 
-const productModel = require("../../models/productModel")
+// const addToCartModel = require("../../models/cartProduct")
+// const userModel = require("../../models/userModel"); 
+// const productModel = require("../../models/productModel")
 
 // const addToCartController = async(req,res)=>{
 //     try{
@@ -46,7 +46,74 @@ const productModel = require("../../models/productModel")
 //     }
 // }
 
-const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+// const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+// const addToCartController = async (req, res) => {
+//   try {
+//     const { productId } = req.body;
+//     const userId = req.userId || null;
+//     const sessionId = req.sessionId || null;
+
+//     if (!userId && !sessionId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid session"
+//       });
+//     }
+
+//     const product = await productModel.findById(productId);
+
+//     const filter = userId
+//       ? { productId, userId }
+//       : { productId, sessionId };
+
+//     const exists = await addToCartModel.findOne(filter);
+//     // 🔥 12 HOURS RULE
+//     if (exists) {
+//       const now = Date.now();
+//       const addedTime = new Date(exists.createdAt).getTime();
+
+//       if (now - addedTime < TWELVE_HOURS) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "You can add this product only once every 12 hours"
+//         });
+//       }
+//     }
+
+
+//     const payload = {
+//       productId,
+//       category: product.category,
+//       quantity: 1,
+//       ...(userId ? { userId } : { sessionId })
+//     };
+
+//     const saved = await addToCartModel.create(payload);
+
+//     res.json({
+//       success: true,
+//       message: "Product added to cart",
+//       data: saved
+//     });
+
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: err.message
+//     });
+//   }
+// };
+
+
+
+// module.exports = {addToCartController}
+
+const addToCartModel = require("../../models/cartProduct");
+const productModel = require("../../models/productModel");
+const OrderModel = require("../../models/orderProductModel");
+
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
 const addToCartController = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -60,27 +127,59 @@ const addToCartController = async (req, res) => {
       });
     }
 
+    // 🔹 Product check
     const product = await productModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
 
+    const now = Date.now();
+
+    // ====================================================
+    // 🔒 STEP 1: CHECK ORDER HISTORY (LAST 24 HOURS ONLY)
+    // ====================================================
+    if (userId) {
+      const recentOrder = await OrderModel.findOne({
+        userId,
+        "productDetails.productId": productId,
+        "paymentDetails.payment_status": "success",
+        createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
+      }).lean();
+
+      if (recentOrder) {
+        return res.status(400).json({
+          success: false,
+          message: "You can purchase this product again after 24 hours"
+        });
+      }
+    }
+
+    // ====================================================
+    // 🔒 STEP 2: CHECK CART (LAST 24 HOURS)
+    // ====================================================
     const filter = userId
       ? { productId, userId }
       : { productId, sessionId };
 
     const exists = await addToCartModel.findOne(filter);
-    // 🔥 12 HOURS RULE
+
     if (exists) {
-      const now = Date.now();
       const addedTime = new Date(exists.createdAt).getTime();
 
-      if (now - addedTime < TWELVE_HOURS) {
+      if (now - addedTime < TWENTY_FOUR_HOURS) {
         return res.status(400).json({
           success: false,
-          message: "You can add this product only once every 12 hours"
+          message: "You can add this product only once every 24 hours"
         });
       }
     }
 
-
+    // ====================================================
+    // 🔒 STEP 3: ADD TO CART (quantity ALWAYS = 1)
+    // ====================================================
     const payload = {
       productId,
       category: product.category,
@@ -99,11 +198,10 @@ const addToCartController = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: err.message
+      message: err.message || "Internal server error"
     });
   }
 };
 
+module.exports = { addToCartController };
 
-
-module.exports = {addToCartController}

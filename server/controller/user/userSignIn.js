@@ -350,7 +350,7 @@ const loginWithPasswordController = async (req, res) => {
     if (/\S+@\S+\.\S+/.test(login)) {
       user = await userModel.findOne({ email: login });
     } else {
-      user = await userModel.findOne({ mobile: `+${login}` });
+      user = await userModel.findOne({ mobile: `${login}` });
     }
 
     if (!user) {
