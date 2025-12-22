@@ -158,23 +158,21 @@ const addToCartController = async (req, res) => {
     }
 
     // ====================================================
-    // 🔒 STEP 2: CHECK CART (LAST 24 HOURS)
+    // 🔒 STEP 2: CHECK CART (LAST 24 HOURS ONLY) ✅ FIXED
     // ====================================================
-    const filter = userId
-      ? { productId, userId }
-      : { productId, sessionId };
+    const cartFilter = {
+      productId,
+      ...(userId ? { userId } : { sessionId }),
+      createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
+    };
 
-    const exists = await addToCartModel.findOne(filter);
+    const exists = await addToCartModel.findOne(cartFilter);
 
     if (exists) {
-      const addedTime = new Date(exists.createdAt).getTime();
-
-      if (now - addedTime < TWENTY_FOUR_HOURS) {
-        return res.status(400).json({
-          success: false,
-          message: "You can add this product only once every 24 hours"
-        });
-      }
+      return res.status(400).json({
+        success: false,
+        message: "You can add this product only once every 24 hours"
+      });
     }
 
     // ====================================================
@@ -196,12 +194,14 @@ const addToCartController = async (req, res) => {
     });
 
   } catch (err) {
+    console.error("Add to cart error:", err);
     res.status(500).json({
       success: false,
       message: err.message || "Internal server error"
     });
   }
 };
+
 
 module.exports = { addToCartController };
 
