@@ -100,14 +100,14 @@ const HowToShopBanner = () => {
             loop
             playsInline
             // controls={false}
-            className="w-full h-[220px] sm:h-[260px] md:h-[300px] xl:h-[400px] object-fill"
+            className="w-full object-fill"
             onError={() => setVideoError(true)}
           />
           ) : (
                     <img
           src={howToShopPoster}     // fallback image
           alt="How to Shop on ReldIndia"
-          className="w-full h-[220px] sm:h-[260px] md:h-[300px] xl:h-[400px] object-fill"
+          className="w-full object-fill"
           loading="lazy"
         />
       )}
