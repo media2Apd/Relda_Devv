@@ -112,7 +112,7 @@ const Footer = () => {
   return (
     // 'style' is used to set the background color of the footer and remove any background images
     <footer 
-      className="text-[#99A1AF] pt-16 pb-8 px-6 border-t border-slate-800"
+      className="text-[#99A1AF] pt-16 pb-8 border-t border-slate-800"
       style={{ 
         backgroundColor: '#0F172A', 
         backgroundImage: 'none', 
@@ -121,7 +121,7 @@ const Footer = () => {
         // zIndex: 50
       }}
     >
-      <div className="container mx-auto">
+      <div className="px-4 lg:px-12 mx-auto">
         
         {/* Main Sections Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
@@ -137,7 +137,7 @@ const Footer = () => {
                   className="cursor-pointer h-10 md:h-12 w-auto"
                 />
               </div>
-            <p className="text-[15px] leading-relaxed">
+            <p className="text-sm leading-relaxed">
               Shop premium home and kitchen appliances in Tamil Nadu with Relda India. 
               Smart, stylish, and energy-efficient solutions for every home.
             </p>

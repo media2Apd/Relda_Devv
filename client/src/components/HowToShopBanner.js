@@ -68,39 +68,30 @@
 
 // export default HowToShopBanner;
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import howToShopVideo from "../assest/Howtoshop.mp4";
-import howToShopPoster from "../assest/topSell/HowToShop.png";
+import howToShopPoster from "../assest/HowToShop.jpg";
 
 const HowToShopBanner = () => {
   const videoRef = useRef(null);
 
+  const [videoError, setVideoError] = useState(false);
+
   const playVideo = () => {
     if (videoRef.current) {
       videoRef.current.play();
-      videoRef.current.requestFullscreen?.();
+      videoRef.current.setAttribute("controls", true);
     }
   };
 
   return (
     <div className="container mx-auto px-4 mt-8 pb-4 md:pb-8">
       <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-center">
-        
-        {/* LEFT : VIDEO */}
-        {/* <div className="w-full md:w-1/2 bg-red-600 rounded-xl overflow-hidden relative">
-          <video
-            ref={videoRef}
-            poster={howToShopPoster} // thumbnail image
-            className="w-full h-[220px] sm:h-[260px] md:h-[300px] object-cover"
-            controls
-          >
-            <source src="/assets/how-to-shop.mp4" type="video/mp4" />
-            Your browser does not support video.
-          </video>
-        </div> */}
 
                 {/* LEFT : VIDEO */}
         <div className="w-full md:w-1/2 bg-brand-primary rounded-xl overflow-hidden">
+          
+          {!videoError ? (
           <video
             src={howToShopVideo}
             poster={howToShopPoster}
@@ -109,8 +100,17 @@ const HowToShopBanner = () => {
             loop
             playsInline
             // controls={false}
-            className="w-full h-[220px] sm:h-[260px] md:h-[300px] object-cover"
+            className="w-full h-[220px] sm:h-[260px] md:h-[300px] xl:h-[400px] object-fill"
+            onError={() => setVideoError(true)}
           />
+          ) : (
+                    <img
+          src={howToShopPoster}     // fallback image
+          alt="How to Shop on ReldIndia"
+          className="w-full h-[220px] sm:h-[260px] md:h-[300px] xl:h-[400px] object-fill"
+          loading="lazy"
+        />
+      )}
         </div>
 
         {/* RIGHT : CONTENT */}
