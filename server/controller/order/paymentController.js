@@ -107,6 +107,25 @@ exports.createCheckout = async (req, res) => {
   }
 };
 
+const getProductImageUrl = (productImage) => {
+  if (!productImage || !Array.isArray(productImage)) return "";
+
+  const first = productImage[0];
+
+  // Case 1: String URL
+  if (typeof first === "string") {
+    return first;
+  }
+
+  // Case 2: Object { url, type }
+  if (typeof first === "object" && first.url) {
+    return first.url;
+  }
+
+  return "";
+};
+
+
 exports.paymentController = async (req, res) => {
     try {
         const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode  } = req.body;
@@ -124,7 +143,9 @@ if (paymentMode === "CASH_ON_HAND") {
       productName: item.productId.productName,
       quantity: item.quantity,
       sellingPrice: item.productId.sellingPrice,
-      productImage: item.productId.productImage[0],
+      // productImage: item.productId.productImage[0],
+      productImage: getProductImageUrl(item.productId.productImage),
+
     })),
     email: customerInfo.email,
     userId: req.userId,
@@ -301,7 +322,9 @@ const totalAmount = finalAmount * 100;
                     price: item.productId.price,
                     availability: item.productId.availability,
                     sellingPrice: item.productId.sellingPrice,
-                    productImage: item.productId.productImage[0],
+                    // productImage: item.productId.productImage[0],
+                    productImage: getProductImageUrl(item.productId.productImage),
+
                 })),
                 email: user.email,
                 userId: req.userId,
