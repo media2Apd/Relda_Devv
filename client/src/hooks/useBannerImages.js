@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 // Dummy fallback (for now)
-import topBanner1 from "../assest/banner/Relda Tv home page banner Demo.jpg";
+import topBanner1 from "../assest/banner/Relda Tv home page banner Demo2.jpg";
 // import topBanner2 from "../assest/banner/Banner2.png";
 import bottomBanner2 from "../assest/banner/BottomBanner1.png";
 // import banner3 from "../assest/banner/Banner3.png";

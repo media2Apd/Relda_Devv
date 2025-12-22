@@ -36,7 +36,7 @@ const BannerProduct = ({ type = "home" }) => {
               alt="banner"
               className="
                 w-full
-                max-h-[520px]
+                max-h-[620px]
                 mx-auto
               "
             />
