@@ -14,6 +14,11 @@ module.exports = {
           textMuted: "#6A7282",     // paragraph / secondary heading
           offer: "#4F9835",         // offer / discount / success
           productCardImageBg: "#F0F2F5",         // product card img bg
+          productCardBorder: "#E5E5E5",         // product card img bg
+          buttonAccent: '#0b8524',//green->button
+          buttonAccentHover: '#074916',
+          buttonSecondary: '#033dfc', //blue->button
+          buttonSecondaryHover: '#030bfc',
         },
       },
       animation: {

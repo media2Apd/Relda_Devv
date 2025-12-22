@@ -144,7 +144,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SummaryApi from "../common";
-import ProductCard from "./ProductCard";
+import VerticalCard from "../components/VerticalCard";
 
 const RecentlyViewProductPage = () => {
   const [related, setRelated] = useState([]);
@@ -174,9 +174,9 @@ const RecentlyViewProductPage = () => {
       </h1>
 
       {/* RESPONSIVE GRID */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 md:gap-6">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
         {related.map(product => (
-          <ProductCard
+          <VerticalCard
             key={product._id}
             product={product}
             onClick={() => navigate(`/product/${product._id}`)}

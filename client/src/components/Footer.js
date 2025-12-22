@@ -62,7 +62,7 @@ import {
   FiMail, 
   FiClock 
 } from "react-icons/fi";
-import Logo from "../assest/Logo.png";
+import Logo from "../assest/LogoWhite.svg";
 import { BsTwitterX } from "react-icons/bs";
 import { FaRegCopyright } from 'react-icons/fa';
 import SummaryApi from '../common';

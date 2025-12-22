@@ -11,10 +11,9 @@ import {
   FaFacebookF,
   FaWhatsapp,
   FaTruck,
-  FaUndoAlt,
   FaShieldAlt,
 } from "react-icons/fa";
-import { IoIosShareAlt } from "react-icons/io";
+import { IoMdShareAlt } from "react-icons/io";
 import { GrInstagram } from "react-icons/gr";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
@@ -456,7 +455,7 @@ const ProductDetails = () => {
       <div className="min-h-[200px] flex flex-col lg:flex-row gap-4">
         {/***product Image */}
         <div className="h-96 flex flex-col lg:flex-row-reverse gap-4">
-          <div className="h-[300px] w-[300px] lg:h-96 lg:w-96 bg-slate-200 relative p-2 mx-auto">
+          <div className="h-[300px] w-[300px] lg:h-96 lg:w-96 bg-brand-productCardImageBg relative p-2 mx-auto">
          
 
             {renderMedia(activeMedia)}
@@ -495,7 +494,7 @@ const ProductDetails = () => {
                     }% `,
                   }} */}
             {zoomImage && typeof activeMedia === "string" && (
-              <div className="hidden lg:block absolute min-w-[500px] overflow-hidden min-h-[400px] bg-slate-200 p-1 -right-[510px] top-0">
+              <div className="hidden lg:block absolute min-w-[500px] overflow-hidden min-h-[400px] bg-brand-productCardImageBg p-1 -right-[510px] top-0">
                 <div
                   className="w-full h-full min-h-[400px] min-w-[500px] mix-blend-multiply scale-150"
                   style={{
@@ -548,7 +547,7 @@ const ProductDetails = () => {
               <div className="flex gap-2 lg:flex-col overflow-scroll scrollbar-none h-full">
                 {new Array(4).fill(null).map((_, index) => (
                   <div
-                    className="h-20 w-20 bg-slate-200 rounded animate-pulse"
+                    className="h-20 w-20 bg-brand-productCardImageBg rounded animate-pulse"
                     key={`loadingImage-${index}`}
                   ></div>
                 ))}
@@ -557,7 +556,7 @@ const ProductDetails = () => {
               <div className="flex lg:flex-col justify-center lg:justify-start gap-2  overflow-scroll scrollbar-none h-full">
                 {data?.productImage?.map((media, index) => (
                   <div
-                    className="h-20 w-20 bg-slate-200 rounded p-1 "
+                    className="h-20 w-20 bg-brand-productCardImageBg rounded p-1 "
                     key={media.url || media}
                   >
                     {media?.type === "video" ? (
@@ -590,7 +589,7 @@ const ProductDetails = () => {
             <h2 className="text-2xl lg:text-4xl font-medium h-6 lg:h-8  bg-slate-200 animate-pulse w-full">
               {" "}
             </h2>
-            <p className="capitalize text-slate-400 bg-slate-200 min-w-[100px] animate-pulse h-6 lg:h-8  w-full"></p>
+            <p className="capitalize text-slate-500 bg-slate-200 min-w-[100px] animate-pulse h-6 lg:h-8  w-full"></p>
 
             <div className="text-brand-primary bg-slate-200 h-6 lg:h-8  animate-pulse flex items-center gap-1 w-full"></div>
 
@@ -611,17 +610,17 @@ const ProductDetails = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <p className="bg-red-200 text-brand-primary px-2 rounded-full inline-block w-fit uppercase">
+            <p className="bg-red-200 text-brand-primary font-medium px-2 rounded-md inline-block w-fit uppercase">
               {data?.brandName}
             </p>
-            <h2 className="text-lg lg:text-4xl font-medium">
+            <h2 className="text-lg lg:text-2xl font-medium">
               {data?.productName}
             </h2>
             <div className="flex justify-between">
-              <p className="capitalize text-slate-500 font-medium">
+              <p className="capitalize text-sm md:text-base text-brand-textMuted font-medium">
                 {data?.category}
               </p>
-              <p className="capitalize text-slate-500 font-medium">
+              <p className="capitalize text-sm md:text-base text-brand-textMuted font-medium">
                 Availability:{" "}
                 <span
                   className={`${
@@ -650,22 +649,22 @@ const ProductDetails = () => {
               <span>
                 <LuDot />
               </span>
-              <span className="text-gray-500 font-medium">
+              <span className="text-brand-textMuted font-medium">
                 {" "}
                 {reviews.length} ratings
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-xl lg:text-3xl font-medium my-1">
-              <p className="text-brand-primary">
+            <div className="flex items-center gap-2 my-1">
+              <p className="font-semibold text-lg lg:text-2xl">
                 {displayINRCurrency(data.sellingPrice)}
               </p>
-              <p className="text-slate-400 line-through">
+              <p className="text-brand-textMuted text-base lg:text-xl line-through">
                 {displayINRCurrency(data.price)}
               </p>
               <span
-                className="px-2 py-1 text-xs font-medium rounded-md shadow"
-                style={{ backgroundColor: "#175E17", color: "#E8F5E9" }}
+                className="px-2 py-1 text-xs font-medium rounded-md bg-brand-offer"
+                
               >
                 {`${Math.ceil(
                   ((data.price - data.sellingPrice) / data.price) * 100
@@ -676,7 +675,7 @@ const ProductDetails = () => {
             <div className="flex items-center gap-3 my-2">
               {data?.isHidden || data?.availability === 0 ? (
                 <button
-                  className="text-sm bg-brand-primary hover:bg-brand-primaryHover text-white px-3 py-0.5 rounded-full"
+                  className="border-2 border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
                   onClick={handleEnquiry}
                 >
                   Enquiry Now
@@ -684,13 +683,13 @@ const ProductDetails = () => {
               ) : (
                 <>
                   <button
-                    className="border-2 border-brand-primary rounded px-3 py-1 min-w-[120px] text-brand-primary font-medium hover:bg-brand-primaryHover hover:text-white"
+                    className="border-2 border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] text-brand-primary font-medium hover:bg-brand-primaryHover hover:text-white"
                     onClick={(e) => handleBuyProduct(e, data?._id)}
                   >
                     Buy
                   </button>
                   <button
-                    className="border-2 border-brand-primary rounded px-3 py-1 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
+                    className="border-2 border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
                     onClick={(e) => handleAddToCart(e, data?._id)}
                   >
                     Add To Cart
@@ -698,10 +697,10 @@ const ProductDetails = () => {
                 </>
               )}
               <button
-                className="text-gray-500 hover:text-gray-700 ml-3"
+                className="text-brand-textMuted hover:text-brand-offer ml-2"
                 onClick={toggleShareOptions}
               >
-                <IoIosShareAlt size={24} />
+                <IoMdShareAlt className="w-8 h-8 md:w-10 md:h-10 " />
               </button>
 
               <div className="relative mt-1 text-[16px]">
@@ -832,7 +831,7 @@ const ProductDetails = () => {
         <div className="mt-4 p-2 xl:p-4  shadow-sm rounded-lg">
           {activeTab === "description" && (
             <div>
-              <p className="text-slate-600 font-medium my-1">Description:</p>
+              <p className="text-brand-textMuted font-medium my-1">Description:</p>
               <div className="pl-5">
                 {data?.description && (
                   <p className="text-gray-700 whitespace-pre-wrap break-words">
@@ -1122,7 +1121,7 @@ const ProductDetails = () => {
           <div>
             <h3 className="text-md md:text-lg font-bold text-yellow-600">
               Free Delivery{" "}
-              <span className="text-slate-400 line-through">
+              <span className="text-brand-textmuted line-through">
                 {displayINRCurrency(89)}
               </span>
             </h3>
