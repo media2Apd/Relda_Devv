@@ -6,12 +6,12 @@ const ShippingPolicy = () => {
       <h1 className="text-2xl font-bold mb-4">Shipping Policy</h1>
       <p className="mb-4">
         Given below are the details for shipping/delivery of the products sold by
-        reldaindia.com, a unit of LaMart Group.
+        <strong> RELDA</strong>.
       </p>
 
       <h2 className="text-xl font-semibold mb-2">Shipping/Delivery Area</h2>
       <p className="mb-4">
-        Currently, delivery of products purchased on reldaindia.com, a unit of LaMart Group, is
+        Currently, delivery of products purchased on <strong>RELDA</strong> is
         available across India. The Company shall exercise all possible measures to ensure that
         any product ordered on the Website is delivered as follows:
       </p>
@@ -33,7 +33,7 @@ const ShippingPolicy = () => {
 
       <h2 className="text-xl font-semibold mb-2">Shipping Charges</h2>
       <p className="mb-4">
-        All Products sold by reldaindia.com are delivered free across Tamilnadu.
+        All Products sold by <strong>RELDA</strong> are delivered free across Tamilnadu.
       </p>
       <p className="mb-4">
         Your shipping address pin code will be verified with our database before you proceed to pay
@@ -52,7 +52,7 @@ const ShippingPolicy = () => {
       <p className="mb-4">
         The delivery partner will make a maximum of three attempts to deliver your order. In case
         the User is not reachable or does not accept delivery of products in these attempts,
-        reldaindia.com reserves the right to cancel the order at its discretion.
+        <strong>RELDA</strong> reserves the right to cancel the order at its discretion.
       </p>
 
       <h2 className="text-xl font-semibold mb-2">Order Tracking</h2>
