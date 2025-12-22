@@ -66,7 +66,7 @@ const RecentlyViewProducts = () => {
               </p>
             </div>
 
-            {related.length > 6 && (
+            {related.length > 5 && (
               <button
                 onClick={() => navigate("/related-products")}
                 className="text-blue-600 hover:text-blue-700 text-sm md:text-base font-medium"
@@ -77,7 +77,7 @@ const RecentlyViewProducts = () => {
           </div>
 
           {/* LEFT ARROW */}
-          {related.length > 6 && canScrollLeft && (
+          {related.length > 5 && canScrollLeft && (
             <button
               onClick={() => scroll("left")}
               className="hidden 2xl:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
@@ -87,7 +87,7 @@ const RecentlyViewProducts = () => {
           )}
 
           {/* RIGHT ARROW */}
-          {related.length > 6 && canScrollRight && (
+          {related.length > 5 && canScrollRight && (
             <button
               onClick={() => scroll("right")}
               className="hidden 2xl:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"

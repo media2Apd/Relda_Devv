@@ -2,13 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import fetchCategoryWiseProduct from "../helpers/fetchCategoryWiseProduct";
 import addToCart from "../helpers/addToCart";
 import Context from "../context";
-import ProductCard from "../pages/ProductCard";
 import { useNavigate } from "react-router-dom";
+import VerticalCard from "./VerticalCard";
 
 const CategoryWiseProductDisplay = ({ category, heading }) => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const loadingList = new Array(8).fill(null);
+  const [loading, setLoading] = useState(false);
 
   const { fetchUserAddToCart } = useContext(Context);
   const navigate = useNavigate();
@@ -37,43 +36,61 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
         {heading}
       </h1>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 md:gap-6">
-        {loading
-          ? loadingList.map((_, i) => (
-              <div
-                key={i}
-                className="h-[420px] bg-gray-100 rounded-xl animate-pulse"
-              />
-            ))
-          : data.map((product) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                onClick={() => navigate(`/product/${product._id}`)}
-                actionSlot={
-                  product.isHidden || product.availability === 0 ? (
-                    <button
-                      className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/product/${product._id}`);
-                      }}
-                    >
-                      Enquiry Now
-                    </button>
-                  ) : (
-                    <button
-                      className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm"
-                      onClick={(e) =>
-                        handleAddToCart(e, product._id)
-                      }
-                    >
-                      Add to Cart
-                    </button>
-                  )
-                }
-              />
-            ))}
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {loading ? (
+                Array.from({ length: 8 }).map((_, index) => (
+                  <VerticalCard key={index} loading={true} />
+                ))
+              ) : data.length > 0 ? (
+              data.map((product) => (
+                  <VerticalCard
+                    key={product._id}
+                    product={product}
+                    onClick={() => navigate(`/product/${product._id}`)}
+                    actionSlot={
+                      product.isHidden || product.availability === 0 ? (
+                        <button
+                          className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/product/${product._id}`);
+                          }}
+                        >
+                          Enquiry Now
+                        </button>
+                      ) : (
+                        <button
+                          className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm"
+                          onClick={(e) =>
+                            handleAddToCart(e, product._id)
+                          }
+                        >
+                          Add to Cart
+                        </button>
+                      )
+                    }
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-20">
+                  <svg
+                    className='mx-auto h-24 w-24 text-brand-textMuted mb-4'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={1.5}
+                      d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
+                    />
+                  </svg>
+                  <p className="text-brand-primaryTextMuted text-lg">
+                    {`No products found`}
+                  </p>
+                </div>
+              )}
       </div>
     </div>
   );

@@ -36,8 +36,26 @@ select:-webkit-autofill:focus {
 /* this is to remove the background image */
 body, html, #root {
   background-image: none !important;
-  background-color: #000000; /* black */
+  background-color: white; /* black */
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0;
+}
+
 
 /* only show the content */
 /* body::before, body::after, html::before, html::after {

@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 import SummaryApi from "../common"; // Ensure it's properly imported
-import Context from "../context";
-import { MdDelete } from "react-icons/md";
-import displayINRCurrency from "../helpers/displayCurrency"; 
+import Context from "../context"; 
+import VerticalCard from "../components/VerticalCard";
 const WishlistView = () => {
   const user = useSelector((state) => state?.user?.user); // Get logged-in user
   const [wishlist, setWishlist] = useState([]);
@@ -120,23 +119,23 @@ const mergeWishlists = useCallback((dbList, localList) => {
 
 
   // Render the media (image) based on the product data
-  const renderMedia = (data) => {
-    if (Array.isArray(data?.productImage)) {
-      const imageMedia = data.productImage.find((media) => {
-        if (typeof media === 'string') return true; // String is an image URL
-        if (media?.type === 'image') return true; // Object with type 'image'
-        return false;
-      });
+  // const renderMedia = (data) => {
+  //   if (Array.isArray(data?.productImage)) {
+  //     const imageMedia = data.productImage.find((media) => {
+  //       if (typeof media === 'string') return true; // String is an image URL
+  //       if (media?.type === 'image') return true; // Object with type 'image'
+  //       return false;
+  //     });
 
-      if (typeof imageMedia === 'string') {
-        return <img src={imageMedia} alt="product" className="object-scale-down h-full hover:scale-110 transition-all mix-blend-multiply" />;
-      } else if (imageMedia?.url) {
-        return <img src={imageMedia.url} alt="product" className="object-scale-down h-full hover:scale-110 transition-all mix-blend-multiply" />;
-      }
-    }
+  //     if (typeof imageMedia === 'string') {
+  //       return <img src={imageMedia} alt="product" className="object-scale-down h-full hover:scale-110 transition-all mix-blend-multiply" />;
+  //     } else if (imageMedia?.url) {
+  //       return <img src={imageMedia.url} alt="product" className="object-scale-down h-full hover:scale-110 transition-all mix-blend-multiply" />;
+  //     }
+  //   }
 
-    return <img src="https://via.placeholder.com/150" alt="placeholder" className="object-scale-down h-full hover:scale-110 transition-all mix-blend-multiply" />;
-  };
+  //   return <img src="https://via.placeholder.com/150" alt="placeholder" className="object-scale-down h-full hover:scale-110 transition-all mix-blend-multiply" />;
+  // };
 
   // Handle deleting product from wishlist
   // Handle deleting product from wishlist
@@ -187,51 +186,42 @@ const handleDelete = async (productId) => {
 
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">My Wishlist</h2>
-      {loading ? (
-        <p>Loading...</p>
-      ) : wishlist.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {wishlist.map((product) => (
-            <div key={product._id} className="w-full min-w-[200px] max-w-[100%] bg-white rounded-sm shadow relative">
-              <div
-                className="bg-slate-200 h-48 p-4 min-w-[280px] md:min-w-[145px] flex justify-center items-center cursor-pointer"
-                onClick={() => navigate(`/product/${product._id}`)} // Navigate to product details page
-              >
-                {renderMedia(product)}
-              </div>
-              <div className="p-4 grid gap-3">
-                <h2 className="font-medium text-base md:text-lg text-ellipsis line-clamp-1 text-black">{product?.productName}</h2>
-                <p className="capitalize text-slate-500">{product?.category}</p>
-                <div className="flex gap-3">
-                  <p className="text-red-600 font-medium">{displayINRCurrency(product?.sellingPrice)}</p>
-                  <p className="text-slate-500 line-through">{displayINRCurrency(product?.price)}</p>
-                  <span
-                    className="px-2 py-1 text-xs font-medium rounded-md shadow"
-                    style={{ backgroundColor: "#175E17", color: "#E8F5E9" }}
-                  >
-                    {`${Math.ceil(((product?.price - product?.sellingPrice) / product?.price) * 100)}% OFF`}
-                  </span>
-                </div>
-              </div>
+    <div className="mx-auto px-4 md:px-6 lg:px-12 py-2">
+      <h2 className="text-lg md:text-2xl font-bold mb-4">My Wishlist</h2>
+{loading ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    {Array.from({ length: 8 }).map((_, i) => (
+      <VerticalCard key={i} loading />
+    ))}
+  </div>
+) : wishlist.length > 0 ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    {wishlist.map((product) => (
+      <VerticalCard
+        key={product._id}
+        product={product}
+        onClick={() => navigate(`/product/${product._id}`)}
+        actionSlot={
+          <button
+            className="w-full flex items-center justify-center gap-2
+                       bg-brand-primary hover:bg-brand-primaryHover
+                       text-white py-2 rounded-md text-sm font-medium"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(product._id);
+            }}
+          >
+            {/* <MdDelete size={18} /> */}
+            Remove
+          </button>
+        }
+      />
+    ))}
+  </div>
+) : (
+  <p className="item-center text-center text-brand-textMuted">Your wishlist is empty.</p>
+)}
 
-              {/* Delete button inside product card */}
-              <button
-                className="absolute bottom-4 right-4 p-2 bg-red-500 text-white rounded-full shadow-md"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering navigation
-                  handleDelete(product._id); // Handle the deletion
-                }}
-              >
-              <MdDelete />
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-500">Your wishlist is empty.</p>
-      )}
     </div>
   );
 };
