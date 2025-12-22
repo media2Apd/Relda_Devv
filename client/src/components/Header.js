@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
-import Logo from "../assest/Logo.png";
+import Logo from "../assest/Logo.svg";
+// import Logo from "../assest/Logo.png";
 import { Helmet } from 'react-helmet';
 import { Menu, ShoppingCart, CircleUser, MapPin, Search } from 'lucide-react';
 import { IoClose } from "react-icons/io5";
@@ -22,11 +23,20 @@ const Header = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const context = useContext(Context);
   const navigate = useNavigate();
-  const searchInput = useLocation();
-  const URLSearch = new URLSearchParams(searchInput?.search);
-  const searchQuery = URLSearch.getAll("q");
-  const [search, setSearch] = useState(searchQuery);
-  
+  // const searchInput = useLocation();
+  // const URLSearch = new URLSearchParams(searchInput?.search);
+  // const searchQuery = URLSearch.getAll("q");
+  // const [search, setSearch] = useState(searchQuery);
+  const location = useLocation();
+
+const [search, setSearch] = useState("");
+
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const q = params.get("q") || "";
+  setSearch(q);
+}, [location.search]);
+
   const { pathname } = useLocation();
   const canonicalURL = `${window.location.origin}${pathname}`;
 
@@ -122,6 +132,7 @@ const Header = () => {
   
     fetchUserData();
   }, [user]);
+  
 
   const handleAddressSelection = (id) => {
     const updatedAddresses = addresses.map((address) => 
@@ -240,6 +251,8 @@ const Header = () => {
     return acc;
   }, {});
   
+  
+
   return (
     <>
       <Helmet>
@@ -250,7 +263,7 @@ const Header = () => {
       <header className="bg-white fixed w-full z-50 top-0">
         {/* Top Header Section */}
         <div className="bg-white border-b border-gray-200">
-          <div className="mx-auto px-4 lg:px-6 py-3 md:py-4">
+          <div className="mx-auto px-4 lg:px-12 py-3 md:py-4">
             <div className="flex items-center justify-between">
               {/* Logo */}
               <div className="flex-shrink-0">
@@ -258,7 +271,7 @@ const Header = () => {
                   onClick={() => navigate("/")}
                   src={Logo}
                   alt="Relda Logo"
-                  className="cursor-pointer h-10 md:h-12 w-auto"
+                  className="cursor-pointer h-8 md:h-10 w-auto"
                 />
               </div>
 
@@ -519,7 +532,7 @@ const Header = () => {
         </div>
 
         {/* Navigation Bar - Desktop */}
-        <nav className="hidden lg:block bg-gradient-to-r from-[#7A0100] via-[#AA0000] to-[#7A0100]">
+        <nav className="hidden lg:block bg-brand-primary">
           <div className="container mx-auto">
             <ul className="flex items-center justify-center space-x-8 text-white font-medium">
               <li>
@@ -540,7 +553,7 @@ const Header = () => {
               </button>
               
               {/* Mega Dropdown - 4 Column Layout */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-[90vw] max-w-[360px] sm:max-w-[540px] md:max-w-[720px] lg:max-w-[675px] xl:max-w-[1070px] 2xl:max-w-[1440px] bg-white shadow-2xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+              <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-[90vw] max-w-[360px] sm:max-w-[540px] md:max-w-[720px] lg:max-w-[675px] xl:max-w-[1070px] 2xl:max-w-[1320px] bg-white shadow-2xl rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                 <div className="mx-auto py-8 px-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     
@@ -566,10 +579,10 @@ const Header = () => {
                         ) : categories && categories.length > 0 ? (
                           <>
                             {/* Show first 2 categories */}
-                            {categories.slice(0, 2).map((category) => (
+                            {categories.map((category) => (
                               <li key={category._id}>
                                 <Link
-                                  to={`/product-category?category=${category.name}`}
+                                  to={`/product-category?parentCategory=${category.name}`}
                                   className="
                                     text-brand-primaryTextMuted hover:text-brand-primary transition
                                     text-sm block py-1
@@ -625,7 +638,7 @@ const Header = () => {
                         </li>
                         
                         {/* Show next 2 categories */}
-                        {categories && categories.length > 2 && (
+                        {/* {categories && categories.length > 2 && (
                           <>
                             <li className="pt-2 mt-2 border-t border-gray-200">
                               <span className="text-xs font-semibold text-gray-900 uppercase">
@@ -648,7 +661,7 @@ const Header = () => {
                               </li>
                             ))}
                           </>
-                        )}
+                        )} */}
                       </ul>
                     </div>
 
@@ -694,7 +707,7 @@ const Header = () => {
                             {categories.slice(4, 6).map((category) => (
                               <li key={category._id}>
                                 <Link 
-                                  to={`/product-category?category=${category.name}`}
+                                  to={`/product-category?parentCategory=${category.name}`}
                                   className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
                                 >
                                   {category.name}

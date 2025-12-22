@@ -1,185 +1,50 @@
-// import { useNavigate } from "react-router-dom";
-// import displayINRCurrency from "../helpers/displayCurrency";
-
-// const ProductCard = ({
-//   product,
-//   onClick,
-//   showButton = true,
-//   buttonText = "View Product",
-// }) => {
-//   const navigate = useNavigate();
-
-//   const handleCardClick = () => {
-//     if (onClick) {
-//       onClick(product);
-//     } else {
-//       navigate(`/product/${product._id}`);
-//     }
-//   };
-
-//   return (
-//     // <div
-//     //   onClick={handleCardClick}
-//     //   className="w-full min-w-[280px] md:min-w-[320px] max-w-[400px] md:max-w-[320px] bg-white rounded-sm border border-sm border-1 border-color-gray-100"
-//     // >
-//     <div
-//   onClick={handleCardClick}
-//   className="
-//     w-full min-w-[280px] md:min-w-[320px]
-//     max-w-[400px] md:max-w-[320px]
-//     bg-white
-//     rounded-2xl
-//     border border-[#E5E5E5]
-//     overflow-hidden
-//   "
-// >
-
-//       {/* Image */}
-//       <div className="bg-brand-productCardImageBg p-4 rounded-t-[14px] flex justify-center items-center">
-//         <img
-//           src={
-//             typeof product?.productImage?.[0] === "string"
-//               ? product.productImage[0]
-//               : product?.productImage?.[0]?.url
-//           }
-//           alt={product.productName}
-//           className="h-[200px] object-contain"
-//         />
-//       </div>
-
-//       {/* Content */}
-//       <div className="p-4 md:p-6 grid gap-3">
-//         <h4 className="font-medium text-base md:text-lg line-clamp-1">
-//           {product.productName}
-//         </h4>
-
-//         <p className="capitalize text-brand-textMuted">
-//           {product.category || "LED TV's"}
-//         </p>
-
-//         <div className="flex items-center gap-2 mt-2">
-//           <span className="font-semibold text-sm md:text-base">
-//             {displayINRCurrency(product.sellingPrice)}
-//           </span>
-
-//           <span className="text-xs md:text-sm line-through text-brand-textMuted">
-//             {displayINRCurrency(product.price)}
-//           </span>
-
-//           <span className="text-[11px] bg-brand-offer text-white px-2 py-0.5 rounded-sm">
-//             {`${Math.ceil(
-//               ((product.price - product.sellingPrice) / product.price) * 100
-//             )}% OFF`}
-//           </span>
-//         </div>
-
-//         {showButton && (
-//           <button className="mt-auto bg-brand-primary text-white py-2 rounded-md text-sm font-medium">
-//             {buttonText}
-//           </button>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProductCard;
-
-// import { useNavigate } from "react-router-dom";
-// import displayINRCurrency from "../helpers/displayCurrency";
-
-// const ProductCard = ({
-//   product,
-//   onClick,
-//   actionSlot,   // 👈 custom button area
-// }) => {
-//   const navigate = useNavigate();
-
-//   const handleCardClick = () => {
-//     if (onClick) {
-//       onClick(product);
-//     } else {
-//       navigate(`/product/${product._id}`);
-//     }
-//   };
-
-//   return (
-//     <div
-//       onClick={handleCardClick}
-//       className="
-//         w-full min-w-[280px] md:min-w-[320px]
-//         max-w-[400px] md:max-w-[320px]
-//         bg-white rounded-2xl
-//         border border-[#E5E5E5]
-//         overflow-hidden
-//         cursor-pointer
-//         transition
-//       "
-//     >
-//       {/* Image */}
-//       <div className="bg-brand-productCardImageBg p-4 flex justify-center items-center">
-//         <img
-//           src={
-//             typeof product?.productImage?.[0] === "string"
-//               ? product.productImage[0]
-//               : product?.productImage?.[0]?.url
-//           }
-//           alt={product.productName}
-//           className="h-[200px] object-contain"
-//         />
-//       </div>
-
-//       {/* Content */}
-//       <div className="p-4 md:p-6 grid gap-3">
-//         <h4 className="font-medium text-base md:text-lg line-clamp-1">
-//           {product.productName}
-//         </h4>
-
-//         <p className="capitalize text-brand-textMuted">
-//           {product.category}
-//         </p>
-
-//         <div className="flex items-center gap-2 mt-1 flex-wrap">
-//           <span className="font-semibold text-sm md:text-base">
-//             {displayINRCurrency(product.sellingPrice)}
-//           </span>
-
-//           <span className="text-xs md:text-sm line-through text-brand-textMuted">
-//             {displayINRCurrency(product.price)}
-//           </span>
-
-//           <span className="text-[11px] bg-brand-offer text-white px-2 py-0.5 rounded-md">
-//             {`${Math.ceil(
-//               ((product.price - product.sellingPrice) / product.price) * 100
-//             )}% OFF`}
-//           </span>
-//         </div>
-
-//         {/*  CUSTOM ACTION SLOT */}
-//         {actionSlot && (
-//           <div
-//           className="mt-1"
-//             onClick={(e) => e.stopPropagation()} 
-//           >
-//             {actionSlot}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProductCard;
-
 import { useNavigate } from "react-router-dom";
 import displayINRCurrency from "../helpers/displayCurrency";
 
-const ProductCard = ({ product, onClick, actionSlot }) => {
+const ProductCard = ({ product, onClick, actionSlot, loading }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
+    if (loading) return;
     if (onClick) onClick(product);
     else navigate(`/product/${product._id}`);
+  };
+
+    if (loading) {
+    return (
+      <div className="flex flex-col w-full bg-white rounded-2xl border border-[#E5E5E5] overflow-hidden">
+        <div className="bg-slate-200 h-[200px] animate-pulse"></div>
+        <div className="flex flex-col p-4 gap-2">
+          <div className="h-4 bg-slate-200 rounded animate-pulse"></div>
+          <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4"></div>
+          <div className="h-3 bg-slate-200 rounded animate-pulse w-1/2 mt-2"></div>
+          <div className="flex gap-2 mt-2">
+            <div className="h-4 bg-slate-200 rounded animate-pulse w-20"></div>
+            <div className="h-4 bg-slate-200 rounded animate-pulse w-20"></div>
+          </div>
+          <div className="h-9 bg-slate-200 rounded animate-pulse mt-2"></div>
+        </div>
+      </div>
+    );
+  }
+
+    // Get first image from productImage array
+  const getProductImage = () => {
+    if (!product?.productImage || product.productImage.length === 0) {
+      return "/no-image.png";
+    }
+
+    const firstImage = product.productImage[0];
+    
+    if (typeof firstImage === "string") {
+      return firstImage;
+    }
+    
+    if (firstImage?.url) {
+      return firstImage.url;
+    }
+    
+    return "/no-image.png";
   };
 
   return (
@@ -190,22 +55,21 @@ const ProductCard = ({ product, onClick, actionSlot }) => {
         w-full min-w-[260px] md:min-w-[300px]
         max-w-[320px]
         bg-white rounded-2xl
-        border border-[#E5E5E5]
+        border border-brand-productCardBorder
         overflow-hidden
         cursor-pointer
-        transition
+        transition-shadow duration-200
       "
     >
       {/* IMAGE (FIXED HEIGHT) */}
       <div className="bg-brand-productCardImageBg h-[200px] flex items-center justify-center p-4">
         <img
-          src={
-            typeof product?.productImage?.[0] === "string"
-              ? product.productImage[0]
-              : product?.productImage?.[0]?.url
-          }
+          src={getProductImage()}
           alt={product.productName}
-          className="max-h-full object-contain"
+          className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-200"
+          onError={(e) => {
+            e.target.src = "/no-image.png";
+          }}
         />
       </div>
 
@@ -213,21 +77,21 @@ const ProductCard = ({ product, onClick, actionSlot }) => {
       <div className="flex flex-col p-4 gap-2 flex-1">
         {/* Title */}
         <h4 className="font-medium text-sm md:text-base line-clamp-2 min-h-[40px]">
-          {product.productName}
+          {product?.productName || "Product Name"}
         </h4>
 
         {/* Category */}
-        <p className="text-xs text-brand-textMuted">
-          {product.category}
+        <p className="text-sm font-semibold text-brand-textMuted capitalize">
+          {product?.category || "Category"}
         </p>
 
         {/* PRICE */}
-        <div className="flex flex-wrap items-center gap-2 mt-1">
-          <span className="font-semibold text-sm">
+        <div className="flex flex-wrap items-center gap-2 mt-1 mb-2">
+          <span className="font-semibold text-base">
             {displayINRCurrency(product.sellingPrice)}
           </span>
 
-          <span className="text-xs line-through text-brand-textMuted">
+          <span className="text-sm line-through text-brand-textMuted">
             {displayINRCurrency(product.price)}
           </span>
 
@@ -241,7 +105,7 @@ const ProductCard = ({ product, onClick, actionSlot }) => {
         {/* BUTTON – ALWAYS AT BOTTOM */}
         {actionSlot && (
           <div
-            className="mt-auto"
+            className="mt-auto pt-2"
             onClick={(e) => e.stopPropagation()}
           >
             {actionSlot}
