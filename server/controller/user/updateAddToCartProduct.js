@@ -50,6 +50,8 @@
 
 const addToCartModel = require("../../models/cartProduct");
 
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
 const updateAddToCartProduct = async (req, res) => {
   try {
     const userId = req.userId || null;
@@ -64,7 +66,7 @@ const updateAddToCartProduct = async (req, res) => {
       });
     }
 
-    // 🔹 Find cart item (user OR session)
+    // 🔹 Find cart item
     const cartItem = await addToCartModel.findOne({
       _id,
       ...(userId ? { userId } : { sessionId })
@@ -78,7 +80,7 @@ const updateAddToCartProduct = async (req, res) => {
       });
     }
 
-    // 🔒 Minimum quantity lock
+    // 🔒 Minimum quantity
     if (quantity < 1) {
       return res.status(400).json({
         success: false,
@@ -87,16 +89,22 @@ const updateAddToCartProduct = async (req, res) => {
       });
     }
 
-    // 🔥 BLOCK INCREASE
-    if (quantity > cartItem.quantity) {
+    const now = Date.now();
+    const lastUpdated = new Date(cartItem.updatedAt).getTime();
+    const isNextDay = now - lastUpdated >= TWENTY_FOUR_HOURS;
+
+    // 🔥 BLOCK SAME-DAY INCREASE
+    if (quantity > cartItem.quantity && !isNextDay) {
       return res.status(400).json({
         success: false,
         error: true,
-        message: "Quantity increase is not allowed"
+        message:
+          "Quantity increase is allowed only after 24 hours for this product"
       });
     }
 
-    // ✅ ALLOW DECREASE
+    // ✅ ALLOW DECREASE (ANYTIME)
+    // ✅ ALLOW INCREASE (AFTER 24 HOURS)
     cartItem.quantity = quantity;
     await cartItem.save();
 
@@ -117,3 +125,4 @@ const updateAddToCartProduct = async (req, res) => {
 };
 
 module.exports = updateAddToCartProduct;
+
