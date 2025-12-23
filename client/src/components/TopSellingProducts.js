@@ -5,7 +5,7 @@ const TopSellingProducts = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto px-4 pb-6">
+    <div className="mx-auto px-4 lg:px-12 pb-6">
       {/* Heading */}
       <h2 className="text-xl md:text-2xl font-medium mb-4">
         Top Selling Products

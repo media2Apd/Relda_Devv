@@ -4,7 +4,9 @@ import addToCart from "../helpers/addToCart";
 import Context from "../context";
 import ProductCard from "../pages/ProductCard";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { ChevronLeft, ChevronRight } from "lucide-react";
+import { MdOutlineArrowBackIosNew, MdOutlineArrowForwardIos  } from "react-icons/md";
+
 
 const VerticalCardProduct = ({ category, heading }) => {
   const [data, setData] = useState([]);
@@ -65,31 +67,31 @@ const VerticalCardProduct = ({ category, heading }) => {
     await addToCart(e, id);
     fetchUserAddToCart();
   };
-const isScrollable = data.length > 4;
+const isScrollable = data.length > 3;
 
   return (
-    <div className="container mx-auto px-4 my-6 pb-4 relative">
+    <div className="mx-auto px-4 lg:px-12 my-6 pb-4 relative">
       <h2 className="text-xl md:text-2xl font-medium my-4">
         {heading}
       </h2>
 
            {/* LEFT ARROW */}
-      {data.length > 4 && canScrollLeft && (
+      {data.length > 3 && canScrollLeft && (
         <button
           onClick={() => scroll("left")}
-          className="hidden 2xl:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
+          className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2"
         >
-      <ChevronLeft />
+       <MdOutlineArrowBackIosNew className="w-7 h-7" />
         </button>
       )}
 
       {/* RIGHT ARROW */}
-      {data.length > 4 && canScrollRight && (
+      {data.length > 3 && canScrollRight && (
         <button
           onClick={() => scroll("right")}
-          className="hidden 2xl:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
+          className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2"
         >
-          <ChevronRight />
+       <MdOutlineArrowForwardIos className="w-7 h-7" />
         </button>
       )}
 
@@ -137,7 +139,7 @@ const isScrollable = data.length > 4;
                         navigate(`/product/${product._id}`);
                       }}
                     >
-                      Enquiry Now
+                      Enquire Now
                     </button>
                   ) : (
                     <button
@@ -298,7 +300,7 @@ export default VerticalCardProduct;
 //                       className="text-sm bg-brand-primary hover:bg-brand-primaryHover text-white px-3 py-1 rounded-sm"
 //                       onClick={(e) => handleEnquiry(e, product._id)}
 //                     >
-//                       Enquiry Now
+//                       Enquire Now
 //                     </button>
 //                   ) : (
 //                     <button
@@ -436,7 +438,7 @@ export default VerticalCardProduct;
 //                     "
 //                   >
 //                     {product.isHidden || product.availability === 0
-//                       ? 'Enquiry Now'
+//                       ? 'Enquire Now'
 //                       : 'Add to Cart'}
 //                   </button>
 //                 </div>
@@ -610,7 +612,7 @@ export default VerticalCardProduct;
 //                                   </div>
 //                                   {product?.isHidden || product?.availability === 0 ? (
 //                                       <button className="text-sm bg-brand-primary hover:bg-brand-primaryHover text-white px-3 py-0.5 rounded-full">
-//                                           Enquiry Now
+//                                           Enquire Now
 //                                       </button>
 //                                   ) : (
 //                                       <button

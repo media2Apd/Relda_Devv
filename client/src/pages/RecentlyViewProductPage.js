@@ -168,7 +168,7 @@ const RecentlyViewProductPage = () => {
     return <p className="text-center py-10">No related products found</p>;
 
   return (
-    <div className="mx-auto px-4 py-4">
+    <div className="mx-auto px-4 lg:px-12 py-4">
       <h1 className="text-2xl font-semibold mb-6">
         Recently Viewed Products
       </h1>

@@ -58,7 +58,7 @@
 //                                     )}% OFF`}
 //                                 </span>
 //                              </div>
-//                              {product?.isHidden || product?.availability === 0 ? (<button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full' >Enquiry Now</button>) : (<button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full' onClick={(e)=>handleAddToCart(e,product?._id)}>Add to Cart</button>)}
+//                              {product?.isHidden || product?.availability === 0 ? (<button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full' >Enquire Now</button>) : (<button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full' onClick={(e)=>handleAddToCart(e,product?._id)}>Add to Cart</button>)}
 //                          </div>
 //                      </Link>
 //                  )
@@ -128,7 +128,7 @@
 //           </span>
 //         </div>
 //         {data?.isHidden || data?.availability === 0 ? (
-//           <button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full'>Enquiry Now</button>
+//           <button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full'>Enquire Now</button>
 //         ) : (
 //           <button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full' onClick={(e) => handleAddToCart(e, data?._id)}>
 //             Add to Cart
@@ -245,7 +245,7 @@
 //           </span>
 //         </div>
 //         {data?.isHidden || data?.availability === 0 ? (
-//           <button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full'>Enquiry Now</button>
+//           <button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full'>Enquire Now</button>
 //         ) : (
 //           <button className='text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-full' onClick={(e) => handleAddToCart(e, data?._id)}>
 //             Add to Cart

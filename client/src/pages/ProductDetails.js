@@ -451,7 +451,7 @@ const ProductDetails = () => {
     totalRatings ? `${(count / totalRatings) * 100}%` : "0%";
 
   return (
-    <div className="container mx-auto p-4 bg-white">
+    <div className="mx-auto p-4 lg:px-12 bg-white">
       <div className="min-h-[200px] flex flex-col lg:flex-row gap-4">
         {/***product Image */}
         <div className="h-96 flex flex-col lg:flex-row-reverse gap-4">
@@ -678,7 +678,7 @@ const ProductDetails = () => {
                   className="border-2 border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
                   onClick={handleEnquiry}
                 >
-                  Enquiry Now
+                  Enquire Now
                 </button>
               ) : (
                 <>
@@ -1173,7 +1173,7 @@ const ProductDetails = () => {
       {data.category && (
         <CategoryWiseProductDisplay
           category={data?.category}
-          heading={"Recommended Product"}
+          heading={"Related Product"}
         />
       )}
     </div>

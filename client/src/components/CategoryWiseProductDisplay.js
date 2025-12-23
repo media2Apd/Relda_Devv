@@ -31,7 +31,7 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
   };
 
   return (
-    <div className="container mx-auto px-1 md:px-4 my-6">
+    <div className="container mx-auto my-6">
       <h1 className="text-xl md:text-2xl font-semibold py-4">
         {heading}
       </h1>
@@ -54,9 +54,10 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/product/${product._id}`);
+                            console.log(product._id);
                           }}
                         >
-                          Enquiry Now
+                          Enquire Now
                         </button>
                       ) : (
                         <button
@@ -220,7 +221,7 @@ export default CategoryWiseProductDisplay;
 //                                 </div>
 //                                 {product?.isHidden || product?.availability === 0 ? (
 //                                     <button className="text-sm bg-[#e60000] hover:bg-red-700 text-white px-3 py-0.5 rounded-full">
-//                                         Enquiry Now
+//                                         Enquire Now
 //                                     </button>
 //                                 ) : (
 //                                     <button
