@@ -1526,13 +1526,13 @@ const handlePaymentLink = async () => {
         {/* Right Column - Order Details */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
-          <div className="bg-white border rounded-md p-4 shadow-md">
+          <div className="">
             {loading ? (
               <p>Loading...</p>
             ) : (
               <>
-                <div className="bg-white p-4 rounded-md shadow-lg mb-4">
-                  <h2 className="font-bold text-lg mb-4">Your Order</h2>
+                <div className="bg-white p-4 border border-color-brand-productCardBorder rounded-md mb-4">
+                  {/* <h2 className="font-bold text-lg mb-4">Your Order</h2> */}
                   {cartItems.map((item, index) => {
                     // Handling Mixed Image Format Logic
                     const images = item?.productId?.productImage || [];
@@ -1542,7 +1542,7 @@ const handlePaymentLink = async () => {
                     return (
                       <div key={`item.id-${index}`} className="flex justify-between mb-2 border-b pb-2">
                         <div>
-                          <h3 className="font-bold text-sm mb-1 line-clamp-1">
+                          <h3 className="font-bold text-base md:text-lg mb-1 line-clamp-1">
                             {item.productId.productName}
                           </h3>
                           <div className="w-24 h-24 bg-gray-50 rounded">
@@ -1555,7 +1555,7 @@ const handlePaymentLink = async () => {
                           </div>
                           <p className="font-bold text-sm mt-1">Qty: {item.quantity}</p>
                         </div>
-                        <p className="font-bold flex items-center text-brand-primary">
+                        <p className="font-bold flex items-center">
                           <FaRupeeSign className="text-xs" />
                           {item.quantity * item.productId.sellingPrice}
                         </p>
@@ -1583,8 +1583,8 @@ const handlePaymentLink = async () => {
                   <hr className="my-4 border-gray-300" />
                   <div className="flex justify-between font-bold text-xl">
                     <p>Order Total</p>
-                    <p className="flex items-center text-brand-primary">
-                      <FaRupeeSign className="mr-1" />
+                    <p className="flex items-center">
+                      <FaRupeeSign className="text-base mt-0.5" />
                       {totalPrice}
                     </p>
                   </div>
@@ -1592,7 +1592,7 @@ const handlePaymentLink = async () => {
 
                 <button
                   onClick={handleSubmit}
-                  className="mt-6 bg-brand-primary hover:bg-brand-primaryHover text-white font-bold py-3 rounded-lg w-full transition-all active:scale-95 shadow-lg shadow-red-100"
+                  className="mt-6 bg-brand-primary hover:bg-brand-primaryHover text-white font-bold py-3 rounded-lg w-full transition-all active:scale-95"
                   disabled={!isFormComplete()}
                 >
                   Checkout

@@ -50,7 +50,7 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
                     actionSlot={
                       product.isHidden || product.availability === 0 ? (
                         <button
-                          className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm"
+                          className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-medium"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/product/${product._id}`);
@@ -60,7 +60,7 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
                         </button>
                       ) : (
                         <button
-                          className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm"
+                          className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-medium"
                           onClick={(e) =>
                             handleAddToCart(e, product._id)
                           }

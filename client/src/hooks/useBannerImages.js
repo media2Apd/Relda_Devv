@@ -52,6 +52,7 @@ import { useEffect, useState } from "react";
 
 // Desktop images
 import homeDesktop1 from "../assest/banner/DeskTopBanner1.jpg";
+// import homeDesktop2 from "../assest/banner/DeskTopBanner2.jpg";
 import bottomDesktop1 from "../assest/banner/DeskBottomBanner1.png";
 
 // Mobile images
@@ -64,11 +65,11 @@ const HOME_BANNERS = [
     desktopImage: homeDesktop1,
     mobileImage: homeMobile1,
   },
-  {
-    id: 2,
-    desktopImage: homeDesktop1,
-    mobileImage: homeMobile1,
-  },
+  // {
+  //   id: 2,
+  //   desktopImage: homeDesktop2,
+  //   mobileImage: homeMobile1,
+  // },
 ];
 
 const BOTTOM_BANNERS = [

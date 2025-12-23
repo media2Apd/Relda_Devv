@@ -138,7 +138,7 @@ const BannerProduct = ({ type = "home" }) => {
               className="
                 block md:hidden
                 w-full
-                h-[220px] sm:h-[260px]
+                h-[185px] sm:h-[260px]
                 object-cover
               "
             />
@@ -151,7 +151,7 @@ const BannerProduct = ({ type = "home" }) => {
                 hidden md:block
                 w-full
                 max-h-[620px]
-                object-contain
+                object-cover
                 mx-auto
               "
             />
@@ -167,7 +167,7 @@ const BannerProduct = ({ type = "home" }) => {
             <button
               key={index}
               onClick={() => setCurrent(index)}
-              className="relative w-10 h-[3px] bg-white overflow-hidden"
+              className="relative w-w-6 md:w-8 lg:w-10 h-[3px] bg-white overflow-hidden"
             >
               {current === index && (
                 <div
