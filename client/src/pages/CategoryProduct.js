@@ -744,7 +744,7 @@
 //                             // Handle enquiry
 //                           }}
 //                         >
-//                           Enquiry Now
+//                           Enquire Now
 //                         </button>
 //                       ) : (
 //                         <button 
@@ -1157,7 +1157,7 @@
 //                           // console.log('Enquiry for:', product._id);
 //                         }}
 //                       >
-//                         Enquiry Now
+//                         Enquire Now
 //                       </button>
 //                     ) : (
 //                       <button 
@@ -1540,21 +1540,21 @@ const CategoryProduct = () => {
                 </div>
                 
                 {/* This div is scrollable */}
-<div className="flex-1 overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-300">
-  <div className="space-y-2">
-    {childCategories.map((category) => (
-      <label key={category.value} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50">
-        <input
-          type="checkbox"
-          checked={selectCategory[category.value] || false}
-          value={category.value}
-          onChange={handleSelectCategory}
-        />
-        <span className="text-sm">{category.label}</span>
-      </label>
-    ))}
-  </div>
-</div>
+              <div className="flex-1 overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-300">
+                <div className="space-y-2">
+                  {childCategories.map((category) => (
+                    <label key={category.value} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50">
+                      <input
+                        type="checkbox"
+                        checked={selectCategory[category.value] || false}
+                        value={category.value}
+                        onChange={handleSelectCategory}
+                      />
+                      <span className="text-sm">{category.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
               </div>
             </div>
@@ -1615,10 +1615,10 @@ const CategoryProduct = () => {
                           className='w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded-md text-sm font-semibold'
                           onClick={(e) => {
                             e.stopPropagation();
-                            console.log('Enquiry for:', product._id);
+                            navigate(`/product/${product._id}`);
                           }}
                         >
-                          Enquiry Now
+                          Enquire Now
                         </button>
                       ) : (
                         <button 

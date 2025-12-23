@@ -48,7 +48,7 @@ const CategoryList = () => {
                 if (category?.name && category._id) {
                   return (
                     <Link
-                      to={`/product-category?parentCategory=${encodeURIComponent(category.name)}&category=${encodeURIComponent(category._id)}`} // Use category.name as parentCategory in the URL
+                      to={`/product-category?parentCategory=${category.name}`} // Use category.name as parentCategory in the URL
                       className='cursor-pointer flex flex-col items-center min-w-[80px] snap-start'
                       key={category?._id} // Use category _id as the unique key
                     >

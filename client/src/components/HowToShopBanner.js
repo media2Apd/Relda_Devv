@@ -69,7 +69,7 @@
 // export default HowToShopBanner;
 
 import { useRef, useState } from "react";
-import howToShopVideo from "../assest/Howtoshop.mp4";
+// import howToShopVideo from "../assest/Howtoshop.mp4";
 import howToShopPoster from "../assest/HowToShop.jpg";
 
 const HowToShopBanner = () => {
@@ -85,7 +85,7 @@ const HowToShopBanner = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 mt-8 pb-4 md:pb-8">
+    <div className="mx-auto px-4 lg:px-12 mt-8 pb-4 md:pb-8">
       <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-center">
 
                 {/* LEFT : VIDEO */}
@@ -93,21 +93,21 @@ const HowToShopBanner = () => {
           
           {!videoError ? (
           <video
-            src={howToShopVideo}
+            // src={howToShopVideo}
             poster={howToShopPoster}
             // autoPlay
             // muted
             loop
             playsInline
             // controls={false}
-            className="w-full h-[220px] sm:h-[260px] md:h-[300px] xl:h-[400px] object-fill"
+            className="w-full object-cover"
             onError={() => setVideoError(true)}
           />
           ) : (
                     <img
           src={howToShopPoster}     // fallback image
           alt="How to Shop on ReldIndia"
-          className="w-full h-[220px] sm:h-[260px] md:h-[300px] xl:h-[400px] object-fill"
+          className="w-full object-cover"
           loading="lazy"
         />
       )}

@@ -299,7 +299,7 @@
 //                       console.log('Enquiry for:', product._id);
 //                     }}
 //                   >
-//                     Enquiry Now
+//                     Enquire Now
 //                   </button>
 //                 ) : (
 //                   <button
@@ -445,7 +445,7 @@ const SearchProduct = () => {
 
   /* ======================= UI ======================= */
   return (
-    <div className="mx-auto px-2 md:px-4 py-4 mt-12 md:mt-0 min-h-screen">
+    <div className="mx-auto px-4 lg:px-12 py-4 mt-12 md:mt-0 min-h-screen">
       
       {/* HEADER */}
       <div className="bg-white rounded-lg mb-6">
@@ -528,8 +528,14 @@ const SearchProduct = () => {
               product={product}
               actionSlot={
                 product?.isHidden || product?.availability === 0 ? (
-                  <button className="w-full bg-brand-primary text-white py-2 rounded-md">
-                    Enquiry Now
+                  <button 
+                    className="w-full bg-brand-primary text-white py-2 rounded-md"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/product/${product._id}`);
+                    }}
+                  >
+                    Enquire Now
                   </button>
                 ) : (
                   <button

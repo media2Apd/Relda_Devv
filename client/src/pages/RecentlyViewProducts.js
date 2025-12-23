@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SummaryApi from "../common";
 import ProductCard from "./ProductCard";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
+// import { ChevronLeft, ChevronRight } from "lucide-react";
+import { MdOutlineArrowBackIosNew, MdOutlineArrowForwardIos  } from "react-icons/md";
 const RecentlyViewProducts = () => {
   const [related, setRelated] = useState([]);
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ const RecentlyViewProducts = () => {
   return (
     <>
       {related.length > 0 && (
-        <div className="container mx-auto px-4 my-10 relative">
+        <div className="mx-auto px-4 lg:px-12 my-10 relative">
           {/* Heading */}
           <div className="flex justify-between items-center mb-5">
             <div>
@@ -80,9 +80,9 @@ const RecentlyViewProducts = () => {
           {related.length > 5 && canScrollLeft && (
             <button
               onClick={() => scroll("left")}
-              className="hidden 2xl:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
+              className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2"
             >
-              <ChevronLeft />
+              <MdOutlineArrowBackIosNew className="w-7 h-7" />
             </button>
           )}
 
@@ -90,9 +90,9 @@ const RecentlyViewProducts = () => {
           {related.length > 5 && canScrollRight && (
             <button
               onClick={() => scroll("right")}
-              className="hidden 2xl:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2"
+              className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2"
             >
-              <ChevronRight />
+              <MdOutlineArrowForwardIos className="w-7 h-7" />
             </button>
           )}
 
