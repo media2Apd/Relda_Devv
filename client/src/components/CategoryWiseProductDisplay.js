@@ -54,7 +54,6 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/product/${product._id}`);
-                            console.log(product._id);
                           }}
                         >
                           Enquire Now

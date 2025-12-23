@@ -1616,7 +1616,6 @@ const CategoryProduct = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/product/${product._id}`);
-                            console.log('Enquiry for:', product._id);
                           }}
                         >
                           Enquire Now
