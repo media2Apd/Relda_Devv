@@ -382,7 +382,7 @@ const SummaryApi = {
                 method: 'get'
             }
         },
- 	forgotPassword: {
+ 	    forgotPassword: {
             url: `${backendDomain}/api/forget-password`,
             method: 'post'
         },
@@ -392,6 +392,11 @@ const SummaryApi = {
                 method: 'post'
             }
         },
+        createCoupon: { url: `${backendDomain}/api/create-coupon`, method: 'post' },
+        allCoupons: { url: `${backendDomain}/api/all-coupons`, method: 'get' },
+        updateCoupon: { url: `${backendDomain}/api/update-coupon`, method: 'put' },
+        deleteCoupon: { url: `${backendDomain}/api/delete-coupon`, method: 'delete' },
+        toggleCoupon: { url: `${backendDomain}/api/toggle-coupon-status`, method: 'patch' },
 }
 
 export default SummaryApi;
