@@ -21,16 +21,6 @@ const AdminCouponCard = ({ data, fetchData }) => {
     }
   };
 
-  // const handleToggleStatus = async () => {
-  //   const response = await fetch(`${SummaryApi.toggleCoupon.url}/${data._id}`, {
-  //     method: SummaryApi.toggleCoupon.method,
-  //   });
-  //   const resData = await response.json();
-  //   if (resData.success) {
-  //     toast.success(resData.message);
-  //     fetchData();
-  //   }
-  // };
   const handleToggleStatus = async () => {
   try {
     const response = await fetch(
