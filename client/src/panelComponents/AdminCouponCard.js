@@ -7,6 +7,9 @@ import UploadCoupon from './UploadCoupon';
 const AdminCouponCard = ({ data, fetchData }) => {
   const [editOpen, setEditOpen] = useState(false);
 
+  console.log(data);
+  
+
   const handleDelete = async () => {
     const response = await fetch(`${SummaryApi.deleteCoupon.url}/${data._id}`, {
       method: SummaryApi.deleteCoupon.method,

@@ -757,6 +757,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 import SummaryApi from '../common';
 import { toast } from 'react-toastify';
+import { Loader2 } from 'lucide-react';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -769,6 +770,7 @@ const SignUp = () => {
     confirmPassword: "",
     mobile: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -825,6 +827,8 @@ const SignUp = () => {
     
     if (!validate()) return;
 
+    setLoading(true);
+
     try {
       const dataResponse = await fetch(SummaryApi.signUP.url, {
         method: SummaryApi.signUP.method,
@@ -850,11 +854,13 @@ const SignUp = () => {
       }
     } catch (error) {
       toast.error('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <section className="min-h-screen  bg-gray-100 flex items-center justify-center p-4 py-20">
+    <section className="min-h-screen flex items-center justify-center p-4 py-20">
       <div className="bg-white p-8 md:p-12 w-full max-w-[500px] rounded-2xl shadow-xl">
         
         <div className="text-center mb-8">
@@ -970,10 +976,11 @@ const SignUp = () => {
           </div>
 
           <button 
-            type="submit"
-            className="bg-[#E60000] hover:bg-[#CC0000] text-white font-bold py-3 rounded-lg mt-4 transition-all active:scale-95 shadow-lg shadow-red-100"
+              type="submit"
+              disabled={loading}
+              className="bg-[#E60000] hover:bg-[#CC0000] text-white font-bold py-3 rounded-lg mt-2 transition-all active:scale-95 shadow-md shadow-red-100 flex items-center justify-center"
           >
-            Signup
+            {loading ? <Loader2 className="animate-spin" /> : 'Signup'}
           </button>
 
           <div className="text-center mt-2">
