@@ -21,16 +21,46 @@ const AdminCouponCard = ({ data, fetchData }) => {
     }
   };
 
+  // const handleToggleStatus = async () => {
+  //   const response = await fetch(`${SummaryApi.toggleCoupon.url}/${data._id}`, {
+  //     method: SummaryApi.toggleCoupon.method,
+  //   });
+  //   const resData = await response.json();
+  //   if (resData.success) {
+  //     toast.success(resData.message);
+  //     fetchData();
+  //   }
+  // };
   const handleToggleStatus = async () => {
-    const response = await fetch(`${SummaryApi.toggleCoupon.url(data._id)}`, {
-      method: SummaryApi.toggleCoupon.method,
-    });
+  try {
+    const response = await fetch(
+      `${SummaryApi.toggleCoupon.url(data._id)}`,
+      {
+        method: SummaryApi.toggleCoupon.method, // PUT
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          isActive: !data.isActive   // 🔥 explicit toggle
+        })
+      }
+    );
+
     const resData = await response.json();
-    if (resData.success) {
-      toast.success(resData.message);
-      fetchData();
+
+    if (!response.ok) {
+      throw new Error(resData.message || "Failed to update status");
     }
-  };
+
+    toast.success(resData.message);
+    fetchData();
+
+  } catch (err) {
+    console.error("Toggle coupon error:", err);
+    toast.error(err.message || "Something went wrong");
+  }
+};
+
 
   return (
     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">

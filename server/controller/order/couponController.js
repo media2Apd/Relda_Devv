@@ -296,7 +296,12 @@ exports.deleteCoupon = async (req, res) => {
 ----------------------------------- */
 exports.toggleCouponStatus = async (req, res) => {
   try {
+    const { isActive } = req.body; // optional (true / false)
+
     const coupon = await Coupon.findById(req.params.id);
+console.log(req.params.id);
+console.log(coupon);
+
 
     if (!coupon) {
       return res.status(404).json({
@@ -305,19 +310,36 @@ exports.toggleCouponStatus = async (req, res) => {
       });
     }
 
-    coupon.isActive = !coupon.isActive;
+    // 🔒 Expiry validation (enable not allowed)
+    if (
+      isActive === true &&
+      coupon.expiryDate &&
+      new Date(coupon.expiryDate) < new Date()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Expired coupon cannot be enabled"
+      });
+    }
+
+    // 🔁 Toggle OR explicit set
+    coupon.isActive =
+      typeof isActive === "boolean"
+        ? isActive
+        : !coupon.isActive;
+
     await coupon.save();
 
     return res.json({
       success: true,
-      message: `Coupon ${coupon.isActive ? "enabled" : "disabled"}`,
+      message: `Coupon ${coupon.isActive ? "enabled" : "disabled"} successfully`,
       data: coupon
     });
 
   } catch (err) {
-    return res.status(400).json({
+    return res.status(500).json({
       success: false,
-      message: err.message
+      message: err.message || "Internal server error"
     });
   }
 };
