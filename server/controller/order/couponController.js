@@ -116,9 +116,11 @@ exports.createCoupon = async (req, res) => {
       discountValue,
       minOrderAmount,
       maxDiscountAmount,
+      startDate,
       expiryDate,
       isActive,
       usageLimit,
+      perUserLimit,
       parentCategory,
       productCategory,
       products
@@ -130,9 +132,11 @@ exports.createCoupon = async (req, res) => {
       discountValue,
       minOrderAmount,
       maxDiscountAmount,
+      startDate: startDate || new Date(),
       expiryDate,
       isActive,
       usageLimit,
+      perUserLimit,
       parentCategory: parentCategory || null,
       productCategory: productCategory || null,
       products: Array.isArray(products) ? products : []
@@ -151,6 +155,7 @@ exports.createCoupon = async (req, res) => {
     });
   }
 };
+
 
 /* -----------------------------------
    GET ALL COUPONS (ADMIN)
@@ -209,15 +214,17 @@ exports.updateCoupon = async (req, res) => {
   try {
     const allowedUpdates = [
       "discountType",
-      "discountValue",
-      "minOrderAmount",
-      "maxDiscountAmount",
-      "expiryDate",
-      "isActive",
-      "usageLimit",
-      "parentCategory",
-      "productCategory",
-      "products"
+  "discountValue",
+  "minOrderAmount",
+  "maxDiscountAmount",
+  "startDate",
+  "expiryDate",
+  "isActive",
+  "usageLimit",
+  "perUserLimit",
+  "parentCategory",
+  "productCategory",
+  "products"
     ];
 
     const updateData = {};

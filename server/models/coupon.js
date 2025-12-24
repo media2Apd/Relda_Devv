@@ -55,6 +55,12 @@ const couponSchema = new mongoose.Schema({
 
   maxDiscountAmount: Number,
 
+  // ✅ ADD THIS
+  startDate: {
+    type: Date,
+    default: Date.now
+  },
+
   expiryDate: Date,
 
   isActive: {
@@ -63,15 +69,21 @@ const couponSchema = new mongoose.Schema({
   },
 
   usageLimit: Number,
+
+  // ✅ ADD THIS
+  perUserLimit: {
+    type: Number,
+    default: 1
+  },
+
   usedCount: {
     type: Number,
     default: 0
   },
 
-  // 🔥 OPTIONAL APPLICABILITY
   parentCategory: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "ProductCategory",
+    ref: "ParentCategory",
     default: null
   },
 
@@ -89,5 +101,6 @@ const couponSchema = new mongoose.Schema({
   ]
 
 }, { timestamps: true });
+
 
 module.exports = mongoose.model("Coupon", couponSchema);
