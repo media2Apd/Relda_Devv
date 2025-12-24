@@ -326,7 +326,7 @@ const VerticalCard = ({ product, onClick, actionSlot, loading }) => {
       </div>
 
       {/* CONTENT */}
-      <div className="flex flex-col p-4 gap-2 flex-1">
+      <div className="flex flex-col px-3 py-4 md:p-4 gap-2 flex-1">
         {/* Title */}
         <h4 className="font-medium text-sm md:text-base line-clamp-2 min-h-[40px]">
           {product?.productName || "Product Name"}
