@@ -649,6 +649,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import SummaryApi from "../common";
 import { toast } from "react-toastify";
 import Context from "../context";
+import { Loader2 } from "lucide-react";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -658,6 +659,7 @@ const Login = () => {
     otp: "", 
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -690,6 +692,7 @@ const Login = () => {
 
   const handleOtpVerify = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const otpVerifyResponse = await fetch(SummaryApi.verifyOtp.url, {
         method: SummaryApi.verifyOtp.method,
@@ -708,11 +711,14 @@ const Login = () => {
       }
     } catch (error) {
       toast.error("An error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handlePhoneAndEmailWithPassword = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const dataResponse = await fetch(SummaryApi.signIn.url, {
         method: SummaryApi.signIn.method,
@@ -734,6 +740,8 @@ const Login = () => {
     } catch (error) {
       console.error("Error during login:", error);
       toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -743,7 +751,7 @@ const Login = () => {
   };
 
   return (
-    <section className="min-h-screen -mt-24 bg-gray-100 flex items-center justify-center p-4">
+    <section className="min-h-screen -mt-24 flex items-center justify-center p-4">
       <div className="bg-white p-8 md:p-12 w-full max-w-[500px] rounded-2xl shadow-xl">
         
         <div className="text-center mb-8">
@@ -793,9 +801,10 @@ const Login = () => {
 
             <button 
                 type="submit"
-                className="bg-[#E60000] hover:bg-[#CC0000] text-white font-bold py-3 rounded-lg mt-2 transition-all active:scale-95 shadow-md shadow-red-100"
+                disabled={loading}
+                className="bg-[#E60000] hover:bg-[#CC0000] text-white font-bold py-3 rounded-lg mt-2 transition-all active:scale-95 shadow-md shadow-red-100 flex items-center justify-center"
             >
-              Login
+              {loading ? <Loader2 className="animate-spin" /> : 'Login'}
             </button>
 
             <div className="text-center mt-4">
@@ -854,8 +863,12 @@ const Login = () => {
               </div>
             </div>
 
-            <button className="bg-[#E60000] hover:bg-[#CC0000] text-white font-bold py-3 rounded-lg mt-2 transition-all">
-              Login
+            <button 
+                type="submit"
+                disabled={loading}
+                className="bg-[#E60000] hover:bg-[#CC0000] text-white font-bold py-3 rounded-lg mt-2 transition-all active:scale-95 shadow-md shadow-red-100 flex items-center justify-center"
+            >
+              {loading ? <Loader2 className="animate-spin" /> : 'Login'}
             </button>
             <div className="text-center mt-4">
                <p className="text-sm text-gray-600">
