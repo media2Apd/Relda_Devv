@@ -1255,8 +1255,8 @@ const handlePaymentLink = async () => {
       if (paymentResponseData.success) {
         // Razorpay options for initiating the payment
         const options = {
-          // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
-          key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
+          key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
+          // key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
           amount: totalPrice * 100, // Amount in paise (Razorpay expects paise)
           currency: "INR",
           name: "Relda India",

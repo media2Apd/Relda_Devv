@@ -396,7 +396,7 @@ const SummaryApi = {
         allCoupons: { url: `${backendDomain}/api/all-coupons`, method: 'get' },
         updateCoupon: { url: `${backendDomain}/api/update-coupon:id`, method: 'put' },
         deleteCoupon: { url: `${backendDomain}/api/delete-coupon`, method: 'delete' },
-        toggleCoupon: { url: `${backendDomain}/api/toggle-coupon-status`, method: 'patch' },
+        toggleCoupon: { url: `${backendDomain}/api/toggle-coupon-status`, method: 'put' },
 }
 
 export default SummaryApi;
