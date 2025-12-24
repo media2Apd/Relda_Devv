@@ -329,6 +329,7 @@ import Context from '../context';
 import addToCart from '../helpers/addToCart';
 import VerticalCard from '../components/VerticalCard';
 import { useDebounce } from 'use-debounce';
+import SelectDropdown from '../customStyles/SelectDropdown';
 
 const SearchProduct = () => {
   const location = useLocation();
@@ -338,6 +339,13 @@ const SearchProduct = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState('relevance');
+
+  const sortOptions = [
+  { value: "asc", label: "Price: Low to High" },
+  { value: "dsc", label: "Price: High to Low" },
+  { value: "name-asc", label: "Name: A to Z" },
+  { value: "name-desc", label: "Name: Z to A" },
+  ];
 
   /* ---------------- GET SEARCH TERM FROM URL ---------------- */
   const searchTerm = useMemo(() => {
@@ -410,30 +418,35 @@ const SearchProduct = () => {
   }, [debouncedSearchTerm, fetchAllProducts, fetchSearchProducts]);
 
   /* ---------------- SORT ---------------- */
-  const handleSortChange = useCallback((e) => {
-    const value = e.target.value;
+  const handleSortChange = useCallback((value) => {
     setSortBy(value);
 
     setData((prev) => {
       const sorted = [...prev];
+
       switch (value) {
-        case 'price-asc':
+        case "asc":
           return sorted.sort((a, b) => a.sellingPrice - b.sellingPrice);
-        case 'price-desc':
+
+        case "desc":
           return sorted.sort((a, b) => b.sellingPrice - a.sellingPrice);
-        case 'name-asc':
+
+        case "name-asc":
           return sorted.sort((a, b) =>
             a.productName.localeCompare(b.productName)
           );
-        case 'name-desc':
+
+        case "name-desc":
           return sorted.sort((a, b) =>
             b.productName.localeCompare(a.productName)
           );
+
         default:
-          return sorted.sort((a, b) => a.isHidden - b.isHidden);
+          return sorted; // 👈 Default = no sort
       }
     });
   }, []);
+
 
   /* ---------------- ADD TO CART ---------------- */
   const handleAddToCart = useCallback(async (e, id) => {
@@ -464,17 +477,21 @@ const SearchProduct = () => {
           {!loading && data.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-brand-textMuted">Sort by:</span>
-              <select
+              <SelectDropdown
                 value={sortBy}
+                valueKey="value"
+                labelKey="label"
                 onChange={handleSortChange}
-                className="border rounded-md px-3 py-2 text-sm"
-              >
-                <option value="relevance">Relevance</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="name-asc">Name: A to Z</option>
-                <option value="name-desc">Name: Z to A</option>
-              </select>
+                options={sortOptions}
+                placeholder="Default"
+                parentClassName="w-[170px]"
+                error={!!sortBy}
+                ChildClassName="
+                  border rounded px-3 py-1.5 text-sm h-[38px]
+                  bg-white
+                "
+              />
+
             </div>
           )}
         </div>

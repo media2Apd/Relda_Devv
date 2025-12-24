@@ -3207,6 +3207,7 @@ import Context from '../context';
 import addToCart from '../helpers/addToCart';
 import { SlidersHorizontal } from 'lucide-react';
 import TempBanner from "../assest/banner/DeskTopBanner2.png";
+import SelectDropdown from '../customStyles/SelectDropdown';
 
 
 const CategoryProduct = () => {
@@ -3239,6 +3240,13 @@ const CategoryProduct = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { fetchUserAddToCart } = useContext(Context);
+
+  const sortOptions = [
+  { value: "asc", label: "Price: Low to High" },
+  { value: "dsc", label: "Price: High to Low" },
+  { value: "name-asc", label: "Name: A to Z" },
+  { value: "name-desc", label: "Name: Z to A" },
+  ];
 
   // Parse URL parameters
   const urlSearch = useMemo(() => new URLSearchParams(location.search), [location.search]);
@@ -3426,16 +3434,24 @@ const CategoryProduct = () => {
 
 
   // Handle sort change
-  const handleOnChangeSortBy = useCallback((e) => {
-    const { value } = e.target;
-    setSortBy(value);
-    setData(prev => {
-      const sortedData = [...prev].sort((a, b) =>
-        value === 'asc' ? a.sellingPrice - b.sellingPrice : b.sellingPrice - a.sellingPrice
-      );
-      return sortedData;
+const handleOnChangeSortBy = useCallback((value) => {
+  setSortBy(value);
+
+  setData(prev => {
+    if (!value) return prev;
+
+    const sortedData = [...prev].sort((a, b) => {
+      if (value === "asc") return a.sellingPrice - b.sellingPrice;
+      if (value === "dsc") return b.sellingPrice - a.sellingPrice;
+      if (value === "name-asc") return a.productName.localeCompare(b.productName);
+      if (value === "name-desc") return b.productName.localeCompare(a.productName);
+      return 0;
     });
-  }, []);
+
+    return sortedData;
+  });
+}, []);
+
 
   // Selected category offer posters
   const selectedCategoryOfferPosters = useMemo(() => {
@@ -3625,33 +3641,34 @@ const CategoryProduct = () => {
             </span>
           </div>
 
-          <div className='flex items-center gap-2'>
-            <select
-              className='border border-brand-productCardBorder rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-buttonSecondary'
-              value={sortBy}
-              onChange={handleOnChangeSortBy}
-            >
-              <option value=''>Sort By</option>
-              <option value='asc'>Price: Low to High</option>
-              <option value='dsc'>Price: High to Low</option>
-            </select>
-
-            <button
-              className='flex items-center gap-2 border border-brand-productCardBorder rounded px-3 py-1.5 text-sm hover:bg-slate-50'
-              onClick={() => setShowModal(true)}
-            >
-              {/* <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg> */}
-              <SlidersHorizontal size={20} />
-              Filter
-              {selectedCount > 0 && (
-                <span className='bg-brand-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>
-                  {selectedCount}
-                </span>
-              )}
-            </button>
-          </div>
+          <div className="flex items-center gap-2">
+          <SelectDropdown
+            value={sortBy}
+            valueKey="value"
+            labelKey="label"
+            onChange={handleOnChangeSortBy}
+            options={sortOptions}
+            placeholder="Default"
+            parentClassName="w-[170px]"
+            error={!!sortBy}
+            ChildClassName="
+              border rounded px-3 py-1.5 text-sm h-[38px]
+              bg-white
+            "
+          />
+          <button
+            className="flex items-center gap-2 border border-brand-productCardBorder rounded-md px-3 py-1.5 text-sm hover:bg-slate-50"
+            onClick={() => setShowModal(true)}
+          >
+            <SlidersHorizontal size={20} />
+            Filter
+            {selectedCount > 0 && (
+              <span className="bg-brand-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {selectedCount}
+              </span>
+            )}
+          </button>
+        </div>
         </div>
       </div>
 
@@ -3915,7 +3932,7 @@ const CategoryProduct = () => {
                     {isCategoryOpen && (
                       <div className='px-4 pb-4 space-y-2 max-h-80 overflow-y-auto'>
                         {childCategories.map((category) => (
-                          <label className="flex items-center gap-4 py-2 cursor-pointer">
+                          <label key={category._id} className="flex items-center gap-4 py-2 cursor-pointer">
                             <input
                               type="checkbox"
                               checked={selectCategory[category.value] || false}
@@ -4104,18 +4121,29 @@ const CategoryProduct = () => {
                 </p>
               </div>
 
-              <div className='flex items-center gap-2'>
-                <span className='text-sm lg:text-base font-medium'>Sort by</span>
-                <select
-                  className='border border-brand-productCardBorder rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary'
-                  value={sortBy}
-                  onChange={handleOnChangeSortBy}
-                >
-                  <option value=''>Default</option>
-                  <option value='asc'>Price: Low to High</option>
-                  <option value='dsc'>Price: High to Low</option>
-                </select>
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm lg:text-base font-medium">
+                Sort by
+              </span>
+
+            <SelectDropdown
+              value={sortBy}
+              valueKey="value"
+              labelKey="label"
+              onChange={handleOnChangeSortBy}
+              options={sortOptions}
+              placeholder="Default"
+              parentClassName="w-[170px]"
+              error={!!sortBy}
+              ChildClassName="
+                border rounded px-3 py-1.5 text-sm h-[38px]
+                bg-white
+              "
+            />
+
+
+
+            </div>
             </div>
 
             {/* Products Grid with scroll */}
