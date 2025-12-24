@@ -144,16 +144,16 @@ const Footer = () => {
             <div className="mt-4">
               <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-4">FOLLOW US ON</h4>
               <div className="flex gap-3">
-                <a href="https://facebook.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-red-600 hover:text-white transition-all">
+                <a href="https://facebook.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
                   <IoLogoFacebook size={20} />
                 </a>
-                <a href="https://instagram.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-red-600 hover:text-white transition-all">
+                <a href="https://instagram.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
                   <IoLogoInstagram size={20} />
                 </a>
-                <a href="https://x.com/ReldaIndia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-red-600 hover:text-white transition-all">
+                <a href="https://x.com/ReldaIndia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
                   <BsTwitterX size={20} />
                 </a>
-                <a href="https://www.youtube.com/@Relda_India" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-red-600 hover:text-white transition-all">
+                <a href="https://www.youtube.com/@Relda_India" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
                   <IoLogoYoutube size={20} />
                 </a>
               </div>
@@ -163,7 +163,7 @@ const Footer = () => {
           {/* 2. Products Section */}
           <div>
             <h3 className="text-white font-bold text-base mb-6 flex items-center">
-              <span className="block w-1 h-5 bg-red-600 mr-2"></span>
+              <span className="block w-1 h-5 bg-brand-primary mr-2 rounded-md"></span>
               PRODUCTS
             </h3>
             {loading ? (
@@ -188,7 +188,7 @@ const Footer = () => {
           {/* 3. Support Section */}
           <div>
             <h3 className="text-white font-bold text-base mb-6 flex items-center">
-              <span className="block w-1 h-5 bg-red-600 mr-2"></span>
+              <span className="block w-1 h-5 bg-brand-primary mr-2 rounded-md"></span>
               SUPPORT
             </h3>
             <ul className="flex flex-col gap-3 text-sm">
@@ -203,7 +203,7 @@ const Footer = () => {
           {/* 4. Contact Section */}
           <div>
             <h3 className="text-white font-bold text-base mb-6 flex items-center">
-              <span className="block w-1 h-5 bg-red-600 mr-2"></span>
+              <span className="block w-1 h-5 bg-brand-primary mr-2 rounded-md"></span>
               CONTACT
             </h3>
             <div className="flex flex-col gap-5 text-sm">

@@ -1169,7 +1169,7 @@ useEffect(() => {
       </header>
 
       {/* Spacer to prevent content from hiding under fixed header */}
-      <div className="h-[100px] md:h-[105px] lg:h-[136px]"></div>
+      <div className="h-[94px] md:h-[105px] lg:h-[129px]"></div>
     </>
   );
 };

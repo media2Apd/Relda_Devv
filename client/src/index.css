@@ -56,7 +56,6 @@ body, html, #root {
   background-color: #a0aec0;
 }
 
-
 /* only show the content */
 /* body::before, body::after, html::before, html::after {
   display: none !important;
