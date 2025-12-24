@@ -221,9 +221,18 @@ exports.updateCoupon = async (req, res) => {
     ];
 
     const updateData = {};
+
     allowedUpdates.forEach(key => {
       if (req.body[key] !== undefined) {
-        updateData[key] = req.body[key];
+        // 🔥 convert empty string to null
+        if (
+          (key === "parentCategory" || key === "productCategory") &&
+          req.body[key] === ""
+        ) {
+          updateData[key] = null;
+        } else {
+          updateData[key] = req.body[key];
+        }
       }
     });
 
@@ -253,6 +262,7 @@ exports.updateCoupon = async (req, res) => {
     });
   }
 };
+
 
 /* -----------------------------------
    DELETE COUPON
