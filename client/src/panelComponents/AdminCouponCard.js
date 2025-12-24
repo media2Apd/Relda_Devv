@@ -11,7 +11,7 @@ const AdminCouponCard = ({ data, fetchData }) => {
   
 
   const handleDelete = async () => {
-    const response = await fetch(`${SummaryApi.deleteCoupon.url}/${data._id}`, {
+    const response = await fetch(`${SummaryApi.deleteCoupon.url(data._id)}`, {
       method: SummaryApi.deleteCoupon.method,
     });
     const resData = await response.json();
@@ -22,7 +22,7 @@ const AdminCouponCard = ({ data, fetchData }) => {
   };
 
   const handleToggleStatus = async () => {
-    const response = await fetch(`${SummaryApi.toggleCoupon.url}/${data._id}`, {
+    const response = await fetch(`${SummaryApi.toggleCoupon.url(data._id)}`, {
       method: SummaryApi.toggleCoupon.method,
     });
     const resData = await response.json();

@@ -498,7 +498,7 @@ const UploadCoupon = ({ onClose, fetchData, editData }) => {
         
         // FIX: Ensure correct URL construction for Update
         const url = editData 
-            ? SummaryApi.updateCoupon.url.replace(":id", editData._id) 
+            ? SummaryApi.updateCoupon.url(editData._id) 
             : SummaryApi.createCoupon.url;
         
         const method = editData ? "PUT" : "POST";
