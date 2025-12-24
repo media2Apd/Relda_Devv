@@ -476,7 +476,7 @@ const SearchProduct = () => {
 
           {!loading && data.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-brand-textMuted">Sort by:</span>
+              <span className="text-sm lg:text-base font-semibold text-brand-textMuted whitespace-nowrap">Sort By</span>
               <SelectDropdown
                 value={sortBy}
                 valueKey="value"
@@ -484,7 +484,7 @@ const SearchProduct = () => {
                 onChange={handleSortChange}
                 options={sortOptions}
                 placeholder="Default"
-                parentClassName="w-[170px]"
+                parentClassName="w-[190px]"
                 error={!!sortBy}
                 ChildClassName="
                   border rounded px-3 py-1.5 text-sm h-[38px]
