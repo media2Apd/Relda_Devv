@@ -1102,6 +1102,11 @@ const UploadCoupon = ({ onClose, fetchData, editData }) => {
                         <div><label className='text-xs font-bold text-gray-500 uppercase'>Per User Limit</label><input type='number' name='perUserLimit' value={data.perUserLimit} onChange={handleOnChange} className='w-full p-2 border rounded text-sm' /></div>
                     </div>
 
+                                         <div className='flex items-center gap-2 mt-2'>
+                         <input type='checkbox' name='isActive' checked={data.isActive} onChange={handleOnChange} id='active' className='w-4 h-4' />
+                         <label htmlFor='active' className='text-sm font-medium cursor-pointer'>Enabled</label>
+                     </div>
+
                     <div className='flex gap-3 mt-4 border-t pt-4'>
                         <button type='button' onClick={onClose} className='flex-1 py-2 border rounded font-bold'>Cancel</button>
                         <button type='submit' className='flex-1 py-2 bg-red-600 text-white rounded font-bold'>
