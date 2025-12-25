@@ -36,7 +36,7 @@
 //               alt="banner"
 //               className="
 //                 w-full
-//                 max-h-[620px]
+//                 max-h-[520px]
 //                 mx-auto
 //               "
 //             />
@@ -100,11 +100,13 @@
 // export default BannerProduct;
 
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useBannerImages from "../hooks/useBannerImages";
 
-const BannerProduct = ({ type = "home" }) => {
+const BannerProduct = ({ type = "home-top" }) => {
   const { banners, loading } = useBannerImages(type);
   const [current, setCurrent] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!banners.length) return;
@@ -117,50 +119,40 @@ const BannerProduct = ({ type = "home" }) => {
   }, [banners]);
 
   if (loading) {
-    return <div className="w-full h-[220px] md:h-[420px] animate-pulse bg-gray-200" />;
+    return <div className="w-full h-[300px] animate-pulse" />;
   }
+
+  if (!banners.length) return null;
 
   return (
     <div className="relative w-full overflow-hidden">
-
-      {/* SLIDER */}
+      {/* Slider */}
       <div
         className="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
         {banners.map((item, index) => (
-          <div key={item.id || index} className="w-full flex-shrink-0">
-
-            {/* ✅ MOBILE IMAGE */}
-            <img
-              src={item.mobileImage}
-              alt="banner mobile"
-              className="
-                block md:hidden
-                w-full
-                h-[185px] sm:h-[260px]
-                object-cover
-              "
-            />
-
-            {/* ✅ DESKTOP IMAGE */}
-            <img
-              src={item.desktopImage}
-              alt="banner desktop"
-              className="
-                hidden md:block
-                w-full
-                max-h-[620px]
-                object-cover
-                mx-auto
-              "
-            />
-
+          <div
+            key={item._id || index}
+            className="w-full flex-shrink-0 cursor-pointer"
+            onClick={() => item.link && navigate(item.link)}
+          >
+            <picture>
+              <source
+                media="(max-width: 768px)"
+                srcSet={item.mobileImage}
+              />
+              <img
+                src={item.desktopImage}
+                alt={item.title || "banner"}
+                className="w-full max-h-[520px] mx-auto"
+              />
+            </picture>
           </div>
         ))}
       </div>
 
-      {/* INDICATOR */}
+      {/* Indicators */}
       {banners.length > 1 && (
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3">
           {banners.map((_, index) => (
@@ -170,10 +162,7 @@ const BannerProduct = ({ type = "home" }) => {
               className="relative w-w-6 md:w-8 lg:w-10 h-[3px] bg-white overflow-hidden"
             >
               {current === index && (
-                <div
-                  key={current}
-                  className="absolute inset-0 bg-brand-primary animate-progress"
-                />
+                <div className="absolute left-0 top-0 h-full w-full bg-brand-primary animate-progress" />
               )}
             </button>
           ))}

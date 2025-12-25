@@ -397,6 +397,42 @@ const SummaryApi = {
     updateCoupon: { url: (id) => `${backendDomain}/api/update-coupon/${id}`, method: 'put' },
     deleteCoupon: { url: (id) => `${backendDomain}/api/delete-coupon/${id}`, method: 'delete' },
     toggleCoupon: { url: (id) => `${backendDomain}/api/toggle-coupon-status/${id}`, method: 'put' },
+    getBanners: {
+        url: `${backendDomain}/api/banners`,
+        method: "get",
+    },
+    getAllBannersAdmin: {
+        url: `${backendDomain}/api/admin/banners`,
+        method: "get",
+    },
+    getOneBannerAdmin: (id) => ({
+        url: `${backendDomain}/api/admin/banner/${id}`,
+        method: "get",
+    }),
+
+    createBanner: {
+        url: `${backendDomain}/api/admin/banner`,
+        method: "post",
+    },
+
+    updateBanner: (id) => ({
+        url: `${backendDomain}/api/admin/banner/${id}`,
+        method: "put",
+    }),
+
+    toggleBannerStatus: (id) => ({
+        url: `${backendDomain}/api/admin/banner/toggle/${id}`,
+        method: "patch",
+    }),
+
+    deleteBanner: (id) => ({
+        url: `${backendDomain}/api/admin/banner/${id}`,
+        method: "delete",
+    }),
+    updateBannerOrder: {
+        url: `${backendDomain}/api/admin/banner/reorder`,
+        method: "put",
+    },
 }
 
 export default SummaryApi;

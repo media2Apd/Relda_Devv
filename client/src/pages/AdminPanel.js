@@ -170,6 +170,17 @@ const AdminPanel = () => {
             </Link>
             <Link
               onClick={scrollTop}
+              to={"banner-list"}
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
+                isActive("/admin-panel/banner-list")
+                  ? "bg-brand-primary text-white"
+                  : "hover:text-gray-900 hover:bg-slate-100"
+              }`}
+            >
+              All Banners
+            </Link>
+            <Link
+              onClick={scrollTop}
               to={"all-offerposter"}
               className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/all-offerposter")

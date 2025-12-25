@@ -56,6 +56,7 @@ import RecentlyViewProductPage from '../pages/RecentlyViewProductPage'
 import WishlistView from '../pages/WishlistView'
 import AdminBlog from '../pages/adminBlog'
 import AllCoupons from '../panelPages/AllCoupons'
+import BannerList from '../components/bannerComponents/BannerList'
 
 
 
@@ -181,7 +182,11 @@ const router = createBrowserRouter([
                     {
                         path: "all-offerposter",
                         element: <AllOfferPosters />
-                    }
+                    },
+                    {
+                        path: "banner-list",
+                        element: <BannerList />
+                    },
 
 
                 ]
@@ -299,7 +304,7 @@ const router = createBrowserRouter([
             {
                 path: '/wishlist',
                 element: <WishlistView />
-            }
+            },
 
         ]
     }
