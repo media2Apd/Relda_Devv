@@ -683,13 +683,13 @@ const ProductDetails = () => {
               ) : (
                 <>
                   <button
-                    className="border-2 border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] text-brand-primary font-medium hover:bg-brand-primaryHover hover:text-white"
+                    className="border border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] text-brand-primary font-medium hover:bg-brand-primaryHover hover:text-white"
                     onClick={(e) => handleBuyProduct(e, data?._id)}
                   >
                     Buy
                   </button>
                   <button
-                    className="border-2 border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
+                    className="border border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
                     onClick={(e) => handleAddToCart(e, data?._id)}
                   >
                     Add To Cart
