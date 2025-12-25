@@ -686,7 +686,7 @@ const ProductDetails = () => {
                     className="border border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] text-brand-primary font-medium hover:bg-brand-primaryHover hover:text-white"
                     onClick={(e) => handleBuyProduct(e, data?._id)}
                   >
-                    Buy
+                    Buy Now
                   </button>
                   <button
                     className="border border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"

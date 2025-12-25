@@ -59,6 +59,7 @@ import CustomerEnquiry from '../pages/CustomerEnquiry'
 import CustomerComplaint from '../pages/CustomerComplaint'
 import AllCoupons from '../panelPages/AllCoupons'
 import BannerList from '../components/bannerComponents/BannerList'
+import FAQPage from '../pages/FAQPage'
 
 
 
@@ -222,6 +223,10 @@ const router = createBrowserRouter([
             {
                 path: "blog-page",
                 element: <BlogPage />
+            },
+            {
+                path: "faqs",
+                element: <FAQPage />
             },
             {
                 path: "blog-post/:id",
