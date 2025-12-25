@@ -99,7 +99,7 @@ const AdminBlog = () => {
   // Loading state
   if (isAuthorized === null) {
     return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-gray-100 to-gray-200 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-white px-4">
            <div className="max-w-md text-center animate-fade-in-up transition-all duration-700 ease-in-out">
              <div className="flex justify-center mb-4">
                <div className="bg-red-100 p-4 rounded-full shadow-md animate-pulse">
@@ -113,7 +113,7 @@ const AdminBlog = () => {
                Access Forbidden
              </h2>
              <p className="mt-2 text-brand-textMuted">
-               You don’t have permission to access this section of the site.
+               You don't have permission to access this section of the site.
              </p>
              <Link
                to="/"
@@ -129,7 +129,7 @@ const AdminBlog = () => {
   // 403 Forbidden page
   if (!isAuthorized) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-gray-100 to-gray-200 px-4">
+      <div className="flex items-center justify-center min-h-screen bg-white px-4">
       <div className="max-w-md text-center animate-fade-in-up transition-all duration-700 ease-in-out">
         <div className="flex justify-center mb-4">
           <div className="bg-red-100 p-4 rounded-full shadow-md animate-pulse">
