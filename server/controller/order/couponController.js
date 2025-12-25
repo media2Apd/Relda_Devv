@@ -465,48 +465,122 @@ exports.verifyCoupon = async (req, res) => {
   }
 };
 
+// exports.getApplicableCoupons = async (req, res) => {
+//   try {
+//     const { productId, productCategory, parentCategory } = req.query;
+
+//     const now = new Date();
+
+//     const coupons = await Coupon.find({
+//       isActive: true,
+//       $or: [
+//         // 🥇 Product specific
+//         productId
+//           ? { products: productId }
+//           : null,
+
+//         // 🥈 Sub-category
+//         productCategory
+//           ? { productCategory }
+//           : null,
+
+//         // 🥉 Parent category
+//         parentCategory
+//           ? { parentCategory }
+//           : null,
+
+//         // 🌍 Global coupons
+//         {
+//           products: { $size: 0 },
+//           productCategory: null,
+//           parentCategory: null
+//         }
+//       ].filter(Boolean), // 🔥 remove nulls
+//       $and: [
+//         {
+//           $or: [
+//             { expiryDate: null },
+//             { expiryDate: { $gte: now } }
+//           ]
+//         },
+//         {
+//           $or: [
+//             { startDate: null },
+//             { startDate: { $lte: now } }
+//           ]
+//         }
+//       ]
+//     })
+//       .sort({ createdAt: -1 })
+//       .populate("parentCategory", "name")
+//       .populate("productCategory", "value")
+//       .populate("products", "productName");
+
+//     return res.json({
+//       success: true,
+//       count: coupons.length,
+//       data: coupons
+//     });
+
+//   } catch (err) {
+//     return res.status(500).json({
+//       success: false,
+//       message: err.message || "Internal server error"
+//     });
+//   }
+// };
+
 exports.getApplicableCoupons = async (req, res) => {
   try {
-    const { productId, productCategory, parentCategory } = req.query;
-
+    const { products = [] } = req.body;
     const now = new Date();
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Products data required"
+      });
+    }
+
+    // 🔥 Extract IDs
+    const productIds = products.map(p => p.productId);
+    const productCategoryIds = products.map(p => p.productCategory);
+    const parentCategoryIds = products.map(p => p.parentCategory);
 
     const coupons = await Coupon.find({
       isActive: true,
+
+      // 🧠 MATCH ANY LEVEL
       $or: [
         // 🥇 Product specific
-        productId
-          ? { products: productId }
-          : null,
+        { products: { $in: productIds } },
 
-        // 🥈 Sub-category
-        productCategory
-          ? { productCategory }
-          : null,
+        // 🥈 Product category
+        { productCategory: { $in: productCategoryIds } },
 
         // 🥉 Parent category
-        parentCategory
-          ? { parentCategory }
-          : null,
+        { parentCategory: { $in: parentCategoryIds } },
 
-        // 🌍 Global coupons
+        // 🌍 Global coupon
         {
           products: { $size: 0 },
           productCategory: null,
           parentCategory: null
         }
-      ].filter(Boolean), // 🔥 remove nulls
+      ],
+
+      // ⏱ Date validity
       $and: [
-        {
-          $or: [
-            { expiryDate: null },
-            { expiryDate: { $gte: now } }
-          ]
-        },
         {
           $or: [
             { startDate: null },
             { startDate: { $lte: now } }
+          ]
+        },
+        {
+          $or: [
+            { expiryDate: null },
+            { expiryDate: { $gte: now } }
           ]
         }
       ]
