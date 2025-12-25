@@ -5205,8 +5205,8 @@ const handlePaymentLink = async () => {
       if (paymentResponseData.success) {
         // Razorpay options for initiating the payment
         const options = {
-          key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
-          // key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
+          // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
+          key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
           amount: (totalPrice - discountAmount) * 100, // 🔥 Updated to final amount
           currency: "INR",
           name: "Relda India",
@@ -5527,7 +5527,7 @@ const handlePaymentLink = async () => {
                                 onClick={() => setShowCouponsModal(true)}
                                 className="text-xs font-bold text-brand-primary hover:underline"
                             >
-                                VIEW ALL
+                                VIEW ALL({applicableCoupons.length})
                             </button>
                         )}
                     </div>
@@ -5611,7 +5611,7 @@ const handlePaymentLink = async () => {
 
                 <button
                   onClick={handleSubmit}
-                  className="mt-6 bg-brand-primary hover:bg-brand-primaryHover text-white font-bold py-3 rounded-lg w-full transition-all active:scale-95"
+                  className="mt-6 bg-brand-primary hover:bg-brand-primaryHover text-white font-bold py-2 rounded-lg w-full transition-all active:scale-95"
                   disabled={!isFormComplete()}
                 >
                   Checkout
