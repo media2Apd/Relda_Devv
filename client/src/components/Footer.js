@@ -209,7 +209,7 @@ const Footer = () => {
             <div className="flex flex-col gap-5 text-sm">
               <div className="flex items-start gap-3">
                 <FiMapPin className="text-white mt-1 shrink-0" size={18} />
-                <p>Plot No 17A, Majestic Avenue, Krishna Nagar,<br />Madhavaram Milk Colony, Chennai, Tamilnadu 600051.</p>
+                <p>Plot No 17A, Majestic Avenue, Krishna Nagar,<br />Madhavaram Milk Colony, Chennai, Tamil Nadu 600051.</p>
               </div>
               <div className="flex items-center gap-3">
                 <FiPhoneCall className="text-white shrink-0" size={18} />

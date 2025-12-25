@@ -334,12 +334,12 @@ const CustomerEnquiry = () => {
             <div className="space-y-8 mb-16">
               <div className="flex gap-4">
                 <FiPhone className="w-5 h-5 mt-1" />
-                <p className="text-[#99A1AF]">+91 98848 90934</p>
+                <a href="tel:+919884890934" className="text-[#99A1AF]">+91 98848 90934</a>
               </div>
 
               <div className="flex gap-4">
                 <FiMail className="w-5 h-5 mt-1" />
-                <p className="text-[#99A1AF]">support@relda.india.com</p>
+                <a href="mailto:support@relda.india.com" className="text-[#99A1AF]">support@relda.india.com</a>
               </div>
 
               <div className="flex gap-4">
@@ -348,7 +348,7 @@ const CustomerEnquiry = () => {
                   Plot No 17A<br />
                   Majestic Avenue, Krishna Nagar,<br />
                   Madhavaram Milk Colony,<br />
-                  Chennai, Tamilnadu 600051.
+                  Chennai, Tamil Nadu 600051.
                 </p>
               </div>
 

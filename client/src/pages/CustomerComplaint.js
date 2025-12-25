@@ -225,12 +225,12 @@ const CustomerComplaint = () => {
             <div className="space-y-8 mb-16">
               <div className="flex gap-4">
                 <FiPhone className="w-5 h-5 mt-1" />
-                <p className="text-[#99A1AF]">+91 98848 90934</p>
+                <a href="tel:9884890934" className="text-[#99A1AF]">+91 98848 90934</a>
               </div>
 
               <div className="flex gap-4">
                 <FiMail className="w-5 h-5 mt-1" />
-                <p className="text-[#99A1AF]">support@reldaindia.com</p>
+                <a href="mailto:support@reldaindia.com" className="text-[#99A1AF]">support@reldaindia.com</a>
               </div>
 
               <div className="flex gap-4">
