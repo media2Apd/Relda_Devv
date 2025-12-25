@@ -372,7 +372,7 @@ const ProductDetails = () => {
   };
 
   const handleEnquiry = () => {
-    navigate("/CustomerSupport"); // Redirect to Customer Support Enquiry page
+    navigate("/customer-enquiry"); // Redirect to Customer Support Enquiry page
   };
   
   const renderMedia = (media) => {

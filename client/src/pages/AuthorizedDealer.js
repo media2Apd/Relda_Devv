@@ -177,7 +177,7 @@ const AuthorizedDealer = () => {
   };
 
 const inputClass =
-  "w-full py-2 border-b border-brand-productCardBorder outline-none bg-transparent text-sm placeholder-[#666666] transition-colors duration-200";
+  "w-full px-2 py-2 border-b border-brand-productCardBorder outline-none bg-transparent text-sm placeholder-[#666666] transition-colors duration-200";
 
   return (
     <div className="min-h-screen bg-white py-10 px-4">
@@ -195,7 +195,7 @@ const inputClass =
         {/* CARD */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-xl shadow-md px-6 md:px-16 py-8"
+          className="bg-white rounded-xl shadow-md px-6 md:px-16 py-4"
         >
           {/* First + Last */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
@@ -324,11 +324,11 @@ const inputClass =
           </div>
 
           {/* BUTTON */}
-          <div className="flex justify-end">
+          <div className="flex justify-center md:justify-end">
             <button
               type="submit"
               disabled={loading}
-              className={`px-10 py-2 rounded-md text-white text-sm font-medium
+              className={`w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium
                 ${loading ? "bg-brand-primaryHover" : "bg-brand-primary hover:bg-brand-primaryHover"}
               `}
             >

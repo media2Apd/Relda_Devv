@@ -55,6 +55,8 @@ import AllOfferPosters from '../pages/allOfferPosters'
 import RecentlyViewProductPage from '../pages/RecentlyViewProductPage'
 import WishlistView from '../pages/WishlistView'
 import AdminBlog from '../pages/adminBlog'
+import CustomerEnquiry from '../pages/CustomerEnquiry'
+import CustomerComplaint from '../pages/CustomerComplaint'
 
 
 
@@ -226,6 +228,14 @@ const router = createBrowserRouter([
             {
                 path : "CustomerSupport",
                 element : <CustomerSupport/>
+            },
+            {
+                path : "customer-enquiry",
+                element : <CustomerEnquiry/>
+            },
+            {
+                path : "customer-complaint",
+                element : <CustomerComplaint/>
             },
             {
                 path : "ProductRegistration",

@@ -194,7 +194,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-3 text-sm">
               <li><a href="/ProductRegistration" className="hover:text-white transition-colors">Product Registration</a></li>
               <li><a href="/AuthorizedDealer" className="hover:text-white transition-colors">Authorized Dealers</a></li>
-              <li><a href="/CustomerSupport" className="hover:text-white transition-colors">Enquiry</a></li>
+              <li><a href="/customer-enquiry" className="hover:text-white transition-colors">Enquiry</a></li>
               <li><a href="/AboutUs" className="hover:text-white transition-colors">About Us</a></li>
               <li><a href="/ContactUsPage" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>

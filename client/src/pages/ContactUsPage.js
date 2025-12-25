@@ -301,7 +301,7 @@ const handleSubmit = async (e) => {
                     value={formData.firstName}
                     onChange={handleChange}
                     placeholder="John"
-                    className={`w-full py-2 border-b outline-none bg-transparent
+                    className={`w-full px-2 py-2 border-b outline-none bg-transparent
                     ${errors.firstName ? "border-brand-primary" : "border-brand-productCardBorder"}`}
                   />
                   {errors.firstName && (
@@ -319,7 +319,7 @@ const handleSubmit = async (e) => {
                     value={formData.lastName}
                     onChange={handleChange}
                     placeholder="Doe"
-                    className={`w-full py-2 border-b outline-none bg-transparent
+                    className={`w-full px-2 py-2 border-b outline-none bg-transparent
                     ${errors.lastName ? "border-brand-primary" : "border-brand-productCardBorder"}`}
                   />
                   {errors.lastName && (
@@ -339,7 +339,7 @@ const handleSubmit = async (e) => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="johndoe@gmail.com"
-                    className={`w-full py-2 border-b outline-none bg-transparent
+                    className={`w-full px-2 py-2 border-b outline-none bg-transparent
                     ${errors.email ? "border-brand-primary" : "border-brand-productCardBorder"}`}
                   />
                   {errors.email && (
@@ -357,7 +357,7 @@ const handleSubmit = async (e) => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="+91 2345678901"
-                    className={`w-full py-2 border-b outline-none bg-transparent
+                    className={`w-full px-2 py-2 border-b outline-none bg-transparent
                     ${errors.phone ? "border-brand-primary" : "border-brand-productCardBorder"}`}
                   />
                   {errors.phone && (
@@ -376,7 +376,7 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   rows="4"
                   placeholder="Write us a message"
-                    className={`w-full py-2 border-b outline-none bg-transparent
+                    className={`w-full px-2 py-2 border-b outline-none bg-transparent
                     ${errors.message ? "border-brand-primary" : "border-brand-productCardBorder"}`}
                   />
                   {errors.message && (
