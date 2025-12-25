@@ -24,7 +24,7 @@ import Success from '../pages/Success'
 import Cancel from '../pages/Cancel'
 import OrderPage from '../pages/OrderPage'
 import AllOrder from '../pages/AllOrder'
-import Order  from '../pages/order'
+import Order from '../pages/order'
 import AdminEnquiriesMsg from '../pages/AdminCutomerSupport'
 import ComplaintMessages from '../pages/AdminComplaintPage'
 import ContactUsMessages from '../pages/AdminContactUs'
@@ -55,247 +55,252 @@ import AllOfferPosters from '../pages/allOfferPosters'
 import RecentlyViewProductPage from '../pages/RecentlyViewProductPage'
 import WishlistView from '../pages/WishlistView'
 import AdminBlog from '../pages/adminBlog'
+import BannerList from '../components/bannerComponents/BannerList'
 
 
 
 const router = createBrowserRouter([
     {
-        path : "/",
-        element : <App/>,
-        children : [
+        path: "/",
+        element: <App />,
+        children: [
             {
-                path : "",
-                element : <Home/>
+                path: "",
+                element: <Home />
             },
             {
-                path : "login",
-                element : <Login/>
+                path: "login",
+                element: <Login />
             },
             {
-                path : "forgot-password",
-                element : <ForgotPassowrd/>
+                path: "forgot-password",
+                element: <ForgotPassowrd />
             },
             {
-                path : "sign-up",
-                element : <SignUp/>
+                path: "sign-up",
+                element: <SignUp />
             },
             {
-                path : "product-category",
-                element : <CategoryProduct/>
+                path: "product-category",
+                element: <CategoryProduct />
             },
             {
-                path : "product/:id",
-                element : <ProductDetails/>
+                path: "product/:id",
+                element: <ProductDetails />
             },
             {
-                path : 'cart',
-                element : <Cart/>
+                path: 'cart',
+                element: <Cart />
             },
             {
-                path : "search",
-                element : <SearchProduct/>
+                path: "search",
+                element: <SearchProduct />
             },
             {
-                path : "admin-panel",
-                element : <AdminPanel/>,
-                children : [
-                    {
-                        path : "dashboard",
-                        element : <Dashboard/>
-                    },
-                    {
-                        path : "all-users",
-                        element : <AllUsers/>
-                    },
-                    {
-                        path : "all-products",
-                        element : <AllProducts/>
-                    },
-                    {
-                      path : "all-categories",
-                      element : <AddCategory/>
-                    },
-                    {
-                        path : "AdminApplications",
-                        element : <AdminApplications/>
-                    },
-                    {
-                        path : "all-dealer-applications",
-                        element : <DealerApplications/>
-                    },
-                    {
-                        path : "all-orders",
-                        element : <AllOrder/>
-                    },
-                    {
-                        path : "orders",
-                        element : <Order/>
-                    },
-                   
-                    {
-                        path : "all-enquiries",
-                        element : <AdminEnquiriesMsg/>
-                    },
-                    {
-                        path : "all-complaints",
-                        element : <ComplaintMessages/>
-                    },
-                    {
-                        path : "all-contactus",
-                        element : <ContactUsMessages/>
-                    },
-                    {
-                        path : "all-product-registration",
-                        element : <AdminProductRegistration/>
-
-                    },
-                     {
-                        path : "all-careers",
-                        element : <CareerApplications/>
-                    },
-                    {
-                       path : "all-returned-products",
-                       element : <ReturnedProducts/>
-                   },
-{
-                    path : "all-cart-items",
-                    element : <AllCartSummary/>
-                   },
-                   {
-                    path:"all-cookies-page",
-                    element:<CookiePage/>
-                   },
-                   {
-                    path:"add-parent-category",
-                    element:<AddParentCategory/>
-                   },
-                   {
-                    path:"upload-blogs",
-                    element:<AllBlogs/>
-                   },
-                   {
-                    path:"all-offerposter",
-                    element:<AllOfferPosters/>
-                   }
-
-
-                ]
-            },
- 		{
-		path:'adminBlog',
-                element:<AdminBlog/>,
+                path: "admin-panel",
+                element: <AdminPanel />,
                 children: [
-                {
-                    path :"upload-blogs",
-                    element : <AllBlogs/>
-                },
+                    {
+                        path: "dashboard",
+                        element: <Dashboard />
+                    },
+                    {
+                        path: "all-users",
+                        element: <AllUsers />
+                    },
+                    {
+                        path: "all-products",
+                        element: <AllProducts />
+                    },
+                    {
+                        path: "all-categories",
+                        element: <AddCategory />
+                    },
+                    {
+                        path: "AdminApplications",
+                        element: <AdminApplications />
+                    },
+                    {
+                        path: "all-dealer-applications",
+                        element: <DealerApplications />
+                    },
+                    {
+                        path: "all-orders",
+                        element: <AllOrder />
+                    },
+                    {
+                        path: "orders",
+                        element: <Order />
+                    },
+
+                    {
+                        path: "all-enquiries",
+                        element: <AdminEnquiriesMsg />
+                    },
+                    {
+                        path: "all-complaints",
+                        element: <ComplaintMessages />
+                    },
+                    {
+                        path: "all-contactus",
+                        element: <ContactUsMessages />
+                    },
+                    {
+                        path: "all-product-registration",
+                        element: <AdminProductRegistration />
+
+                    },
+                    {
+                        path: "all-careers",
+                        element: <CareerApplications />
+                    },
+                    {
+                        path: "all-returned-products",
+                        element: <ReturnedProducts />
+                    },
+                    {
+                        path: "all-cart-items",
+                        element: <AllCartSummary />
+                    },
+                    {
+                        path: "all-cookies-page",
+                        element: <CookiePage />
+                    },
+                    {
+                        path: "add-parent-category",
+                        element: <AddParentCategory />
+                    },
+                    {
+                        path: "upload-blogs",
+                        element: <AllBlogs />
+                    },
+                    {
+                        path: "all-offerposter",
+                        element: <AllOfferPosters />
+                    },
+                    {
+                        path: "banner-list",
+                        element: <BannerList />
+                    },
+
+
                 ]
             },
             {
-                path : 'success',
-                element : <Success/>
+                path: 'adminBlog',
+                element: <AdminBlog />,
+                children: [
+                    {
+                        path: "upload-blogs",
+                        element: <AllBlogs />
+                    },
+                ]
             },
             {
-                path : "cancel",
-                element : <Cancel/>
+                path: 'success',
+                element: <Success />
             },
             {
-                path : 'order',
-                element : <OrderPage/>
+                path: "cancel",
+                element: <Cancel />
+            },
+            {
+                path: 'order',
+                element: <OrderPage />
             },
             {
                 path: "order/:orderId", // Add this route for order tracking
-                element: <OrderTracking/>, // Add the OrderTracking component
-              },
-             {
-                path :"blog-page",
-                element: <BlogPage/>
+                element: <OrderTracking />, // Add the OrderTracking component
             },
             {
-                path :"blog-post/:id",
-                element: <BlogPost/>
+                path: "blog-page",
+                element: <BlogPage />
             },
             {
-                path : "ContactUsPage",
-                element: <ContactUsPage/>
+                path: "blog-post/:id",
+                element: <BlogPost />
             },
             {
-                path : "ServiceRequest",
-                element : <ServiceRequest/>
+                path: "ContactUsPage",
+                element: <ContactUsPage />
             },
             {
-                path : "CustomerSupport",
-                element : <CustomerSupport/>
+                path: "ServiceRequest",
+                element: <ServiceRequest />
             },
             {
-                path : "ProductRegistration",
-                element : <ProductRegistration/>
+                path: "CustomerSupport",
+                element: <CustomerSupport />
             },
             {
-                path : "AuthorizedDealer",
-                element : <AuthorizedDealer/>
+                path: "ProductRegistration",
+                element: <ProductRegistration />
             },
             {
-                path : "AuthorizedServiceCenter",
-                element : <AuthorizedServiceCenter/>
-            },
-		{
-                path : "PricingPolicy",
-                element : <PricingPolicy/>
+                path: "AuthorizedDealer",
+                element: <AuthorizedDealer />
             },
             {
-                path : "MemberShip",
-                element : <Membership/>
-            },
-                 {
-                path : "PrivacyPolicy",
-                element : <PrivacyPolicy/>
-            },
-		{
-                path : "PricingPolicy",
-                element : <PricingPolicy/>
+                path: "AuthorizedServiceCenter",
+                element: <AuthorizedServiceCenter />
             },
             {
-                path : "TermsAndConditions",
-                element : <TermsAndConditions/>
+                path: "PricingPolicy",
+                element: <PricingPolicy />
             },
             {
-                path : "ShippingPolicy",
-                element : <ShippingPolicy/>
-            },
-                {
-                path : "reset-password/:token",
-                element : <ResetPassword/>
-            },
-                {
-                path : "checkout",
-                element : <CheckoutPage/>
-            },
-             {
-                path : "CareerPage",
-                element : <CareerPage/>
+                path: "MemberShip",
+                element: <Membership />
             },
             {
-                path : "AboutUs",
-                element : <AboutUs/>
+                path: "PrivacyPolicy",
+                element: <PrivacyPolicy />
             },
-                {
-                path : "user-Profile",
-                element : <UserProfile/>
+            {
+                path: "PricingPolicy",
+                element: <PricingPolicy />
             },
-		 {
+            {
+                path: "TermsAndConditions",
+                element: <TermsAndConditions />
+            },
+            {
+                path: "ShippingPolicy",
+                element: <ShippingPolicy />
+            },
+            {
+                path: "reset-password/:token",
+                element: <ResetPassword />
+            },
+            {
+                path: "checkout",
+                element: <CheckoutPage />
+            },
+            {
+                path: "CareerPage",
+                element: <CareerPage />
+            },
+            {
+                path: "AboutUs",
+                element: <AboutUs />
+            },
+            {
+                path: "user-Profile",
+                element: <UserProfile />
+            },
+            {
                 path: '*',
                 element: <NotFound />,
             },
-{
+            {
                 path: '/related-products',
                 element: <RecentlyViewProductPage />
             },
-                      {
+            {
                 path: '/wishlist',
-                element: <WishlistView/>
-            }
-                   
+                element: <WishlistView />
+            },
+
         ]
     }
 ])
