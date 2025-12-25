@@ -52,8 +52,7 @@ const {getViewedProducts} = require('../controller/product/relatedProducts')
 const addressController = require("../controller/user/addaddressController");
 const { addOfferPoster, getAllOfferPosters, editOfferPoster, deleteOfferPoster, getOfferPosterById } = require('../controller/offerposter/offerPosterController');
 const couponController = require("../controller/order/couponController");
-const bannerUpload = require("../middleware/bannerUpload");
-const bannerController = require("../controller/bannerPosts/bannerController");
+// const bannerController = require("../controller/bannerPosts/bannerController");
 const sitemapGenerator = require('../utils/sitemapGenerator');
 const { createBlogPost, getAllBlogPosts, editBlogPost, deleteBlogPost, getBlogPostById } = require('../controller/blog/blogsController');
 const { addDeveloperIP, removeDeveloperIP } = require('../controller/DeveloperIp');
@@ -62,6 +61,19 @@ const { storage } = require('../config/blogCloudinary');
 const multer = require('multer');
 const uploads = multer({ storage });
 const blogImageUpload = require('../config/blogCloudinary')
+
+const bannerUpload = require("../middleware/bannerUpload");
+const {
+  createBanner,
+  getBanners,
+  getActiveBanners,
+  getOneBanner,
+  toggleBanner,
+  updateBanner,
+  deleteBanner,
+  reorderBanners
+} = require("../controller/banner/bannerController");
+
 router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
 router.get('/get-blogs', getAllBlogPosts);
 router.put('/update-blog/:id', blogImageUpload.single('image'), editBlogPost);
@@ -210,19 +222,62 @@ router.post(
 );
 // server/routes/index.js
 router.post("/coupons/verify-coupon", couponController.verifyCoupon);
+
+// router.post(
+//   "/banner/upload",
+//   bannerUpload.fields([
+//     { name: "desktop", maxCount: 1 },
+//     { name: "mobile", maxCount: 1 }
+//   ]),
+//   bannerController.createBanner
+// );
+
+// // FRONTEND GET BANNERS
+// router.get("/banner/view-all", bannerController.getBanners);
+
+// router.get('/sales/:period', getSales)
+
+// ADMIN – Create banner
 router.post(
-  "/banner/upload",
+  "/admin/banner",
+  authToken,
   bannerUpload.fields([
     { name: "desktop", maxCount: 1 },
     { name: "mobile", maxCount: 1 }
   ]),
-  bannerController.createBanner
+  createBanner
 );
 
-// FRONTEND GET BANNERS
-router.get("/banner/view-all", bannerController.getBanners);
+// ADMIN – Get all active banners (admin view)
+router.get("/admin/banners", authToken, getActiveBanners);
 
-// router.get('/sales/:period', getSales)
+// ADMIN – View one banner
+router.get("/admin/banner/:id", authToken, getOneBanner);
+
+// ADMIN – Toggle banner active/inactive
+router.patch("/admin/banner/toggle/:id", authToken, toggleBanner);
+
+router.put("/admin/banner/reorder", authToken, reorderBanners);
+
+// ADMIN – Update banner
+router.put(
+  "/admin/banner/:id",
+  authToken,
+  bannerUpload.fields([
+    { name: "desktop", maxCount: 1 },
+    { name: "mobile", maxCount: 1 }
+  ]),
+  updateBanner
+);
+
+// ADMIN – Delete banner
+router.delete("/admin/banner/:id", authToken, deleteBanner);
+
+// FRONTEND – Get banners (top / bottom)
+router.get("/banners", getBanners);
+
+
+
 
 module.exports = router;
 

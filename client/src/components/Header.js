@@ -570,7 +570,7 @@ useEffect(() => {
       </button>
       
       {/* Mega Dropdown - TRULY FULL WIDTH */}
-      <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl">
+      <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl shadow-lg">
         <div className="container mx-auto py-6 md:py-8 px-4 md:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             
@@ -732,7 +732,7 @@ useEffect(() => {
       </button>
       
       {/* Mega Dropdown */}
-      <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl">
+      <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl shadow-lg">
         <div className="container mx-auto py-6 md:py-8 px-4 md:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             
@@ -744,10 +744,10 @@ useEffect(() => {
               <ul className="space-y-2">
                 <li>
                   <Link 
-                    to="/CustomerSupport" 
+                    to="/customer-enquiry" 
                     className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                   >
-                    Customer Support
+                    Customer Enquiry
                   </Link>
                 </li>
                 <li>
@@ -760,10 +760,10 @@ useEffect(() => {
                 </li>
                 <li>
                   <Link 
-                    to="/CustomerSupport" 
+                    to="/customer-complaint" 
                     className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
                   >
-                    Enquiry
+                    Customer Complaint
                   </Link>
                 </li>
                 <li>
@@ -807,6 +807,14 @@ useEffect(() => {
                     Authorized Dealers
                   </Link>
                 </li>
+                {/* <li>
+                  <Link 
+                    to="/AuthorizedDealer" 
+                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                  >
+                    Service Center
+                  </Link>
+                </li> */}
               </ul>
             </div>
 
@@ -970,11 +978,11 @@ useEffect(() => {
                 {servicesDropdownOpen && (
                   <div className="bg-brand-productCardImageBg px-6 py-2">
                     <Link 
-                      to="/CustomerSupport" 
+                      to="/customer-enquiry" 
                       className="block pb-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
-                      Customer Support
+                      Customer Enquiry
                     </Link>
                     <Link 
                       to="/ProductRegistration" 
@@ -982,6 +990,13 @@ useEffect(() => {
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       Product Registration
+                    </Link>
+                    <Link 
+                      to="/customer-complaint" 
+                      className="block pb-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
+                      onClick={() => setMobileMenuDisplay(false)}
+                    >
+                      Customer Complaint
                     </Link>
                     <Link 
                       to="/AuthorizedDealer" 

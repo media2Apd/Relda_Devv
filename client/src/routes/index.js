@@ -55,7 +55,10 @@ import AllOfferPosters from '../pages/allOfferPosters'
 import RecentlyViewProductPage from '../pages/RecentlyViewProductPage'
 import WishlistView from '../pages/WishlistView'
 import AdminBlog from '../pages/adminBlog'
+import CustomerEnquiry from '../pages/CustomerEnquiry'
+import CustomerComplaint from '../pages/CustomerComplaint'
 import AllCoupons from '../panelPages/AllCoupons'
+import BannerList from '../components/bannerComponents/BannerList'
 
 
 
@@ -181,7 +184,11 @@ const router = createBrowserRouter([
                     {
                         path: "all-offerposter",
                         element: <AllOfferPosters />
-                    }
+                    },
+                    {
+                        path: "banner-list",
+                        element: <BannerList />
+                    },
 
 
                 ]
@@ -227,6 +234,18 @@ const router = createBrowserRouter([
             {
                 path: "ServiceRequest",
                 element: <ServiceRequest />
+            },
+            {
+                path : "customer-enquiry",
+                element : <CustomerEnquiry/>
+            },
+            {
+                path : "customer-complaint",
+                element : <CustomerComplaint/>
+            },
+            {
+                path : "ProductRegistration",
+                element : <ProductRegistration/>
             },
             {
                 path: "CustomerSupport",
@@ -299,7 +318,7 @@ const router = createBrowserRouter([
             {
                 path: '/wishlist',
                 element: <WishlistView />
-            }
+            },
 
         ]
     }

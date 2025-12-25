@@ -1,7 +1,7 @@
 // import { useEffect, useState } from "react";
 
 // // Dummy fallback (for now)
-// import topBanner1 from "../assest/banner/Relda Tv home page banner Demo2.jpg";
+// import topBanner1 from "../assest/banner/Relda Tv home page banner Demo.jpg";
 // // import topBanner2 from "../assest/banner/Banner2.png";
 // import bottomBanner2 from "../assest/banner/BottomBanner1.png";
 // // import banner3 from "../assest/banner/Banner3.png";
@@ -49,53 +49,41 @@
 // export default useBannerImages;
 
 import { useEffect, useState } from "react";
+import SummaryApi from "../common";
 
-// Desktop images
-import homeDesktop1 from "../assest/banner/DeskTopBanner1.jpg";
-// import homeDesktop2 from "../assest/banner/DeskTopBanner2.jpg";
-import bottomDesktop1 from "../assest/banner/DeskBottomBanner1.png";
-
-// Mobile images
-import homeMobile1 from "../assest/banner/MobileBanner1.jpg";
-import bottomMobile1 from "../assest/banner/MobileBanner1.jpg";
-
-const HOME_BANNERS = [
-  {
-    id: 1,
-    desktopImage: homeDesktop1,
-    mobileImage: homeMobile1,
-  },
-  // {
-  //   id: 2,
-  //   desktopImage: homeDesktop2,
-  //   mobileImage: homeMobile1,
-  // },
-];
-
-const BOTTOM_BANNERS = [
-  {
-    id: 101,
-    desktopImage: bottomDesktop1,
-    mobileImage: bottomMobile1,
-  },
-];
-
-const useBannerImages = (type = "home") => {
+const useBannerImages = (type = "home-top") => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      if (type === "home") {
-        setBanners(HOME_BANNERS);
-      } else if (type === "bottom") {
-        setBanners(BOTTOM_BANNERS);
+    const fetchBanners = async () => {
+      try {
+        // const res = await fetch(SummaryApi.getBanners.url, {
+        //   method: SummaryApi.getBanners.method,
+        // });
+        const res = await fetch(
+          `${SummaryApi.getBanners.url}?position=${type}`,
+          { method: "GET" }
+        );
+
+        const data = await res.json();
+
+        if (data.success) {
+          // filter by position (home-top / home-bottom)
+          const filtered = data.data.filter(
+            (banner) => banner.position === type
+          );
+
+          setBanners(filtered);
+        }
+      } catch (error) {
+        console.error("Error fetching banners", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchBanners();
   }, [type]);
 
   return { banners, loading };
