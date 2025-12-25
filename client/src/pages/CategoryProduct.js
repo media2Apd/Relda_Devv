@@ -3649,7 +3649,7 @@ const handleOnChangeSortBy = useCallback((value) => {
             onChange={handleOnChangeSortBy}
             options={sortOptions}
             placeholder="Default"
-            parentClassName="w-[170px]"
+            parentClassName="w-[190px]"
             error={!!sortBy}
             ChildClassName="
               border rounded px-3 py-1.5 text-sm h-[38px]
@@ -4122,8 +4122,8 @@ const handleOnChangeSortBy = useCallback((value) => {
               </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm lg:text-base font-medium">
-                Sort by
+              <span className="text-sm lg:text-base font-medium whitespace-nowrap">
+                Sort By
               </span>
 
             <SelectDropdown
@@ -4133,7 +4133,7 @@ const handleOnChangeSortBy = useCallback((value) => {
               onChange={handleOnChangeSortBy}
               options={sortOptions}
               placeholder="Default"
-              parentClassName="w-[170px]"
+              parentClassName="w-[190px]"
               error={!!sortBy}
               ChildClassName="
                 border rounded px-3 py-1.5 text-sm h-[38px]
