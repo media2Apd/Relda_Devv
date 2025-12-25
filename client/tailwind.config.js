@@ -25,6 +25,10 @@ module.exports = {
         progress: "progress 3s linear forwards",
         grow: 'grow 2s ease-in-out forwards',
         'grow-sm': 'grow-sm 2s ease-in-out forwards', // Separate small-screen animation
+        'blob': 'blob 7s infinite',
+        'swing': 'swing 3s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'float-delayed': 'float-delayed 3s ease-in-out infinite 1s',
       },
       keyframes: {
         grow: {
@@ -38,6 +42,24 @@ module.exports = {
         progress: {
           "0%": { transform: "scaleX(0)" },
           "100%": { transform: "scaleX(1)" },
+        },
+                blob: {
+          '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+        },
+        swing: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(5deg)' },
+          '75%': { transform: 'rotate(-5deg)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-15px)' },
+        },
+        'float-delayed': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
         },
       },
     },
