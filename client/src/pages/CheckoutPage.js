@@ -1753,7 +1753,7 @@
 //   // --- Coupon States ---
 //   const [couponCode, setCouponCode] = useState("");
 //   const [appliedCoupon, setAppliedCoupon] = useState(null);
-//   const [discountAmount, setDiscountAmount] = useState(0);
+//   const [discountAmount, setCouponDiscount] = useState(0);
 //   const [isCouponLoading, setIsCouponLoading] = useState(false);
 
 //   const handleAddressClick = (address) => {
@@ -1957,12 +1957,12 @@
 
 //       if (data.success) {
 //         setAppliedCoupon(data.data);
-//         setDiscountAmount(data.discountAmount);
+//         setCouponDiscount(data.discountAmount);
 //         toast.success("Coupon applied successfully!");
 //       } else {
 //         toast.error(data.message || "Invalid coupon code");
 //         setAppliedCoupon(null);
-//         setDiscountAmount(0);
+//         setCouponDiscount(0);
 //       }
 //     } catch (error) {
 //       toast.error("Error applying coupon");
@@ -1973,7 +1973,7 @@
 
 //   const handleRemoveCoupon = () => {
 //     setAppliedCoupon(null);
-//     setDiscountAmount(0);
+//     setCouponDiscount(0);
 //     setCouponCode("");
 //     toast.info("Coupon removed");
 //   };
@@ -2710,7 +2710,7 @@
 //   // --- 🔥 Coupon States ---
 //   const [couponCode, setCouponCode] = useState("");
 //   const [appliedCoupon, setAppliedCoupon] = useState(null);
-//   const [discountAmount, setDiscountAmount] = useState(0);
+//   const [discountAmount, setCouponDiscount] = useState(0);
 //   const [isCouponLoading, setIsCouponLoading] = useState(false);
 //   const [availableCoupons, setAvailableCoupons] = useState([]);
 //   const [showCouponModal, setShowCouponModal] = useState(false);
@@ -2939,14 +2939,14 @@
 
 //       if (data.success) {
 //         setAppliedCoupon(data.data);
-//         setDiscountAmount(data.data.discountAmount);
+//         setCouponDiscount(data.data.discountAmount);
 //         setCouponCode(data.data.coupon);
 //         setShowCouponModal(false);
 //         toast.success(data.message);
 //       } else {
 //         toast.error(data.message || "Invalid coupon code");
 //         setAppliedCoupon(null);
-//         setDiscountAmount(0);
+//         setCouponDiscount(0);
 //       }
 //     } catch (error) {
 //       toast.error("Error applying coupon");
@@ -2957,7 +2957,7 @@
 
 //   const handleRemoveCoupon = () => {
 //     setAppliedCoupon(null);
-//     setDiscountAmount(0);
+//     setCouponDiscount(0);
 //     setCouponCode("");
 //     toast.info("Coupon removed");
 //   };
@@ -3768,7 +3768,7 @@
 //   // 🔥 NEW COUPON STATES
 //   const [couponCode, setCouponCode] = useState("");
 //   const [appliedCoupon, setAppliedCoupon] = useState(null);
-//   const [discountAmount, setDiscountAmount] = useState(0);
+//   const [discountAmount, setCouponDiscount] = useState(0);
 //   const [applicableCoupons, setApplicableCoupons] = useState([]);
 //   const [isCouponLoading, setIsCouponLoading] = useState(false);
 
@@ -3895,13 +3895,13 @@
         
 //         if(data.success) {
 //             setAppliedCoupon(data.data);
-//             setDiscountAmount(data.data.discountAmount);
+//             setCouponDiscount(data.data.discountAmount);
 //             setCouponCode(data.data.coupon);
 //             toast.success("Coupon Applied!");
 //         } else {
 //             toast.error(data.message);
 //             setAppliedCoupon(null);
-//             setDiscountAmount(0);
+//             setCouponDiscount(0);
 //         }
 //     } catch (err) {
 //         toast.error("Error verifying coupon");
@@ -3912,7 +3912,7 @@
 
 //   const handleRemoveCoupon = () => {
 //     setAppliedCoupon(null);
-//     setDiscountAmount(0);
+//     setCouponDiscount(0);
 //     setCouponCode("");
 //     toast.info("Coupon removed");
 //   }
@@ -4769,7 +4769,7 @@ function CheckoutPage() {
   // --- Coupon States ---
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [discountAmount, setDiscountAmount] = useState(0);
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const [applicableCoupons, setApplicableCoupons] = useState([]);
   const [isCouponLoading, setIsCouponLoading] = useState(false);
   const [showCouponsModal, setShowCouponsModal] = useState(false); // To toggle Coupon Modal
@@ -5006,7 +5006,7 @@ function CheckoutPage() {
 
       if (data.success) {
         setAppliedCoupon(data.data);
-        setDiscountAmount(data.data.discountAmount);
+        setCouponDiscount(data.data.discountAmount);
         setCouponCode(data.data.coupon);
         setShowCouponsModal(false); // Close modal if user applied from there
         toast.success("Coupon applied successfully!");
@@ -5022,7 +5022,7 @@ function CheckoutPage() {
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
-    setDiscountAmount(0);
+    setCouponDiscount(0);
     setCouponCode("");
     toast.info("Coupon removed");
   };
@@ -5084,7 +5084,7 @@ const handlePaymentLink = async () => {
       shippingOption,
       usePaymentLink: true, // Important!
       couponCode: appliedCoupon?.coupon || null, 
-      discountAmount: discountAmount 
+      couponDiscount: couponDiscount 
     };
 
     const response = await fetch(SummaryApi.payment.url, {
@@ -5138,7 +5138,7 @@ const handlePaymentLink = async () => {
         billingSameAsShipping,
         paymentMode: "CASH_ON_HAND",
         couponCode: appliedCoupon?.coupon || null,
-        discountAmount: discountAmount
+        couponDiscount: couponDiscount
       };
 
       const response = await fetch(SummaryApi.payment.url, {
@@ -5187,7 +5187,7 @@ const handlePaymentLink = async () => {
         billingSameAsShipping,
         shippingOption, // Add the shipping option
         couponCode: appliedCoupon?.coupon || null,
-        discountAmount: discountAmount
+        couponDiscount: couponDiscount
       };
 
       // Send the payload to the payment API
@@ -5207,7 +5207,7 @@ const handlePaymentLink = async () => {
         const options = {
           // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
           key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
-          amount: (totalPrice - discountAmount) * 100, // 🔥 Updated to final amount
+          amount: (totalPrice - couponDiscount) * 100, // 🔥 Updated to final amount
           currency: "INR",
           name: "Relda India",
           description: "e-commerce",
@@ -5232,7 +5232,7 @@ const handlePaymentLink = async () => {
                 cartItems,
                 customerInfo,
                 couponCode: appliedCoupon?.coupon || null,
-                discountAmount: discountAmount
+                couponDiscount: couponDiscount
               }),
             });            
 
@@ -5555,7 +5555,7 @@ const handlePaymentLink = async () => {
                           <FaCheckCircle className="text-green-600 text-lg" />
                           <div>
                             <p className="text-xs font-bold text-green-700 uppercase">'{appliedCoupon.coupon}' Applied</p>
-                            <p className="text-[10px] text-green-600 font-medium">You saved ₹{discountAmount} on this order!</p>
+                            <p className="text-[10px] text-green-600 font-medium">You saved ₹{couponDiscount} on this order!</p>
                           </div>
                         </div>
                         <button 
@@ -5582,7 +5582,7 @@ const handlePaymentLink = async () => {
                     </p>
                   </div>
 
-                  {discountAmount > 0 && (
+                  {couponDiscount > 0 && (
                     <div className="flex justify-between mt-1 items-center">
                         <div className="flex items-center gap-1">
                             <FaPercentage className="text-green-600 text-[10px]" />
@@ -5590,7 +5590,7 @@ const handlePaymentLink = async () => {
                         </div>
                         <p className="flex items-center font-bold text-green-600">
                             - <FaRupeeSign className="mr-1 text-xs" />
-                            {discountAmount}
+                            {couponDiscount}
                         </p>
                     </div>
                   )}
@@ -5604,7 +5604,7 @@ const handlePaymentLink = async () => {
                     <p>Order Total</p>
                     <p className="flex items-center">
                       <FaRupeeSign className="text-base mt-0.5" />
-                      {totalPrice - discountAmount} 
+                      {totalPrice - couponDiscount} 
                     </p>
                   </div>
                 </div>
