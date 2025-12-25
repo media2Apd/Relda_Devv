@@ -532,56 +532,66 @@ exports.verifyCoupon = async (req, res) => {
 
 exports.getApplicableCoupons = async (req, res) => {
   try {
-    const { products = [] } = req.body;
-    const now = new Date();
+    const { productIds } = req.body;
 
-    if (!Array.isArray(products) || products.length === 0) {
+    if (!Array.isArray(productIds) || productIds.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Products data required"
+        message: "productIds array is required"
       });
     }
 
-    // 🔥 Extract IDs
-    const productIds = products.map(p => p.productId);
-    const productCategoryIds = products.map(p => p.productCategory);
-    const parentCategoryIds = products.map(p => p.parentCategory);
+    const now = new Date();
 
+    // 1️⃣ Fetch products
+    const products = await Product.find(
+      { _id: { $in: productIds } },
+      "_id category"
+    );
+
+    const productIdList = products.map(p => p._id);
+    const productCategoryList = products.map(p => p.category);
+
+    // 2️⃣ Fetch parent categories
+    const categories = await ProductCategory.find(
+      { value: { $in: productCategoryList } },
+      "_id"
+    );
+
+    const parentCategoryList = categories.map(c => c._id);
+
+    // 3️⃣ Fetch applicable coupons
     const coupons = await Coupon.find({
       isActive: true,
-
-      // 🧠 MATCH ANY LEVEL
-      $or: [
-        // 🥇 Product specific
-        { products: { $in: productIds } },
-
-        // 🥈 Product category
-        { productCategory: { $in: productCategoryIds } },
-
-        // 🥉 Parent category
-        { parentCategory: { $in: parentCategoryIds } },
-
-        // 🌍 Global coupon
-        {
-          products: { $size: 0 },
-          productCategory: null,
-          parentCategory: null
-        }
-      ],
-
-      // ⏱ Date validity
       $and: [
-        {
-          $or: [
-            { startDate: null },
-            { startDate: { $lte: now } }
-          ]
-        },
         {
           $or: [
             { expiryDate: null },
             { expiryDate: { $gte: now } }
           ]
+        },
+        {
+          $or: [
+            { startDate: null },
+            { startDate: { $lte: now } }
+          ]
+        }
+      ],
+      $or: [
+        // 🥇 Product specific
+        { products: { $in: productIdList } },
+
+        // 🥈 Sub-category
+        { productCategory: { $in: productCategoryList } },
+
+        // 🥉 Parent-category
+        { parentCategory: { $in: parentCategoryList } },
+
+        // 🌍 Global coupons
+        {
+          products: { $size: 0 },
+          productCategory: null,
+          parentCategory: null
         }
       ]
     })
@@ -597,6 +607,7 @@ exports.getApplicableCoupons = async (req, res) => {
     });
 
   } catch (err) {
+    console.error("Coupon fetch error:", err);
     return res.status(500).json({
       success: false,
       message: err.message || "Internal server error"
