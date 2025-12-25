@@ -88,7 +88,7 @@ const Home = () => {
       </Helmet>
       <CookieConsent /> {/* Include the CookieConsent component */}
       <CategoryList />
-      <BannerProduct type="home" />
+      <BannerProduct type="home-top" />
       <RecentlyViewProducts />
       {categories.map((category, index) => {
         if (category.productCount === 0) return null;
@@ -107,6 +107,7 @@ const Home = () => {
         );
       })}
       <BannerProduct type="bottom" />
+      <BannerProduct type="home-bottom" />
       <HowToShopBanner />
 
     </div>

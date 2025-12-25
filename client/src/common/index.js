@@ -1,4 +1,4 @@
-const backendDomain =  "http://localhost:8080" ; 
+const backendDomain = "http://localhost:8080";
 // const backendDomain =  "https://www.reldaindia.com" ; 
 
 const SummaryApi = {
@@ -184,7 +184,7 @@ const SummaryApi = {
         url: (userId) => `${backendDomain}/api/user/${userId}`,
         method: 'PUT'
     },
-    viewuser:{
+    viewuser: {
         url: (userId) => `${backendDomain}/api/user/${userId}`,
         method: 'GET'
     },
@@ -204,84 +204,84 @@ const SummaryApi = {
         url: `${backendDomain}/api/getcomplaintFile/${complaintId}`,
         method: 'get'
     }),
-    cookies:{
-        url : `${backendDomain}/api/accept-cookies`,
-        method : 'POST'
+    cookies: {
+        url: `${backendDomain}/api/accept-cookies`,
+        method: 'POST'
     },
-    updateOrderStatus:{
-        url : `${backendDomain}/api/update-order-status`,
-        method : 'POST'
+    updateOrderStatus: {
+        url: `${backendDomain}/api/update-order-status`,
+        method: 'POST'
     },
     searchOrder: (orderId) => ({
         url: `${backendDomain}/api/search/${orderId}`,
         method: 'get'
     }),
     complaintSupport: {
-        url : `${backendDomain}/api/complaint`,
-        method : 'POST'
+        url: `${backendDomain}/api/complaint`,
+        method: 'POST'
     },
-    CancelOrder : {
+    CancelOrder: {
         url: `${backendDomain}/api/cancel-order`,
-        method : 'PUT'
+        method: 'PUT'
     },
     getProductReviews: {
         url: `${backendDomain}/api/reviews`,
         method: 'GET',
-      },
+    },
 
-      submitReview: {
+    submitReview: {
         url: `${backendDomain}/api/review`,
         method: 'POST',
-      },
-      getAddressList: {
+    },
+    getAddressList: {
         url: `${backendDomain}/api/allAddress`,
         method: 'GET',
-      },
-      addAddress: {
+    },
+    addAddress: {
         url: `${backendDomain}/api/addAddress`,
         method: 'POST',
-      },
-      updateAddress: {
+    },
+    updateAddress: {
         url: `${backendDomain}/api/updateAddress`,
         method: 'PUT',
-      },
-      deleteAddress: {
+    },
+    deleteAddress: {
         url: `${backendDomain}/api/addresses`,
         method: 'DELETE',
-      },
-      setDefaultAddress: {
+    },
+    setDefaultAddress: {
         url: `${backendDomain}/api/setDefault`,
         method: 'PUT',
-      },
-      addProductCategory: {
+    },
+    addProductCategory: {
         url: `${backendDomain}/api/add-product-categories`,
         method: 'post',
-      },
+    },
 
-      editProductCategory: {
+    editProductCategory: {
         url: `${backendDomain}/api/edit-product-categories/:id`,
         method: 'put',
-      },
+    },
 
-      getProductCategory: {
+    getProductCategory: {
         url: `${backendDomain}/api/get-product-categories`,
         method: 'get',
-      },
+    },
 
-       getActiveProductCategory: {
+    getActiveProductCategory: {
         url: `${backendDomain}/api/get-active-product-categories`,
         method: 'get',
-      },
+    },
 
-      deleteProductCategory: {
+    deleteProductCategory: {
         url: `${backendDomain}/api/delete-product-categories/:id`,
         method: 'delete',
-      },
-	 getDashboard: {
+    },
+    getDashboard: {
         url: `${backendDomain}/api/dashboard`,
         method: 'get',
-      },
-	allCart: {
+    },
+    allCart: {
         url: `${backendDomain}/api/getCart`,
         method: 'get'
     },
@@ -289,109 +289,151 @@ const SummaryApi = {
         url: `${backendDomain}/api/delete-order`,
         method: 'delete'
     },
-     allCookies: {
+    allCookies: {
         url: `${backendDomain}/api/all-cookies`
-     },
+    },
     AddParentCategory: {
         url: `${backendDomain}/api/add-parent-category`,
         method: 'post'
-     },
-     editParentCategory: {
+    },
+    editParentCategory: {
         url: `${backendDomain}/api/edit-parent-category/:id`,
         method: 'put'
-     },
-     deleteParentCategory: {
+    },
+    deleteParentCategory: {
         url: `${backendDomain}/api/delete-parent-category/:id`,
         method: 'delete'
-     },
-     getParentCategories: {
+    },
+    getParentCategories: {
         url: `${backendDomain}/api/get-parent-categories`,
         method: 'get'
-     },
-     getActiveParentCategories: {
+    },
+    getActiveParentCategories: {
         url: `${backendDomain}/api/get-active-parent-categories`,
         method: 'get'
-     },
-	UploadBlog: {
+    },
+    UploadBlog: {
         url: `${backendDomain}/api/add-blog`,
         method: 'post'
-     },
-        getBlogs: {
-            url: `${backendDomain}/api/get-blogs`,
+    },
+    getBlogs: {
+        url: `${backendDomain}/api/get-blogs`,
+        method: 'get'
+    },
+    getOneBlog: (id) => {
+        return {
+            url: `${backendDomain}/api/get-blog/${id}`,
             method: 'get'
-        },  
-        getOneBlog: (id)=>{
-            return {
-                url: `${backendDomain}/api/get-blog/${id}`,
-                method: 'get'
-            }
-        },
-        updateBlog:(id)=>{ 
-            return{
-                url: `${backendDomain}/api/update-blog/${id}`,
-                method: 'PUT'
         }
-        },
-        deleteBlog:(id) => {
-            return{
-                url: `${backendDomain}/api/delete-blog/${id}`,
-                method: 'delete'
-            }
-        },
-        UploadOfferPoster: {
-            url: `${backendDomain}/api/add-offerposter`,
-            method: 'post'
-        },
-        getOfferPosters: {
-            url: `${backendDomain}/api/get-offerposters`,
+    },
+    updateBlog: (id) => {
+        return {
+            url: `${backendDomain}/api/update-blog/${id}`,
+            method: 'PUT'
+        }
+    },
+    deleteBlog: (id) => {
+        return {
+            url: `${backendDomain}/api/delete-blog/${id}`,
+            method: 'delete'
+        }
+    },
+    UploadOfferPoster: {
+        url: `${backendDomain}/api/add-offerposter`,
+        method: 'post'
+    },
+    getOfferPosters: {
+        url: `${backendDomain}/api/get-offerposters`,
+        method: 'get'
+    },
+    getOneOfferPoster: (id) => {
+        return {
+            url: `${backendDomain}/api/get-offerposter/${id}`,
             method: 'get'
-        },
-        getOneOfferPoster: (id)=>{
-            return {
-                url: `${backendDomain}/api/get-offerposter/${id}`,
-                method: 'get'
-            }
-        },
-        updateOfferPoster:(id)=>{ 
-            return{
-                url: `${backendDomain}/api/update-offerposter/${id}`,
-                method: 'PUT'
         }
-        },
-        deleteOfferPoster:(id) => {
-            return{
-                url: `${backendDomain}/api/delete-offerposter/${id}`,
-                method: 'delete'
-            }
-        },
-        relatedProducts:(viewed) => {
-            return{
-                url: `${backendDomain}/api/products/related?ids=${viewed.join(",")}`,
-                method: 'get'
-            }
-        },
-        wishlistAddRemove: (userId, productId) => {
-            return {
-                url: `${backendDomain}/api/${userId}/wishlist/${productId}`,
-                method: 'post'
-            }
-        },
-        getWishlist: (userId) => {
-            return {
-                url: `${backendDomain}/api/${userId}/wishlist`,
-                method: 'get'
-            }
-        },
- 	forgotPassword: {
-            url: `${backendDomain}/api/forget-password`,
+    },
+    updateOfferPoster: (id) => {
+        return {
+            url: `${backendDomain}/api/update-offerposter/${id}`,
+            method: 'PUT'
+        }
+    },
+    deleteOfferPoster: (id) => {
+        return {
+            url: `${backendDomain}/api/delete-offerposter/${id}`,
+            method: 'delete'
+        }
+    },
+    relatedProducts: (viewed) => {
+        return {
+            url: `${backendDomain}/api/products/related?ids=${viewed.join(",")}`,
+            method: 'get'
+        }
+    },
+    wishlistAddRemove: (userId, productId) => {
+        return {
+            url: `${backendDomain}/api/${userId}/wishlist/${productId}`,
             method: 'post'
-        },
-        resetPassword: (token) => {
-            return {
-                url: `${backendDomain}/api/reset-password/${token}`,
-                method: 'post'
-            }
-        },
+        }
+    },
+    getWishlist: (userId) => {
+        return {
+            url: `${backendDomain}/api/${userId}/wishlist`,
+            method: 'get'
+        }
+    },
+    forgotPassword: {
+        url: `${backendDomain}/api/forget-password`,
+        method: 'post'
+    },
+    resetPassword: (token) => {
+        return {
+            url: `${backendDomain}/api/reset-password/${token}`,
+            method: 'post'
+        }
+    },
+    createCoupon: { url: `${backendDomain}/api/create-coupon`, method: 'post' },
+    allCoupons: { url: `${backendDomain}/api/all-coupons`, method: 'get' },
+    updateCoupon: { url: (id) => `${backendDomain}/api/update-coupon/${id}`, method: 'put' },
+    deleteCoupon: { url: (id) => `${backendDomain}/api/delete-coupon/${id}`, method: 'delete' },
+    toggleCoupon: { url: (id) => `${backendDomain}/api/toggle-coupon-status/${id}`, method: 'put' },
+    getBanners: {
+        url: `${backendDomain}/api/banners`,
+        method: "get",
+    },
+    getAllBannersAdmin: {
+        url: `${backendDomain}/api/admin/banners`,
+        method: "get",
+    },
+    getOneBannerAdmin: (id) => ({
+        url: `${backendDomain}/api/admin/banner/${id}`,
+        method: "get",
+    }),
+
+    createBanner: {
+        url: `${backendDomain}/api/admin/banner`,
+        method: "post",
+    },
+
+    updateBanner: (id) => ({
+        url: `${backendDomain}/api/admin/banner/${id}`,
+        method: "put",
+    }),
+
+    toggleBannerStatus: (id) => ({
+        url: `${backendDomain}/api/admin/banner/toggle/${id}`,
+        method: "patch",
+    }),
+
+    deleteBanner: (id) => ({
+        url: `${backendDomain}/api/admin/banner/${id}`,
+        method: "delete",
+    }),
+    updateBannerOrder: {
+        url: `${backendDomain}/api/admin/banner/reorder`,
+        method: "put",
+    },
 }
 
 export default SummaryApi;
+

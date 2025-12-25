@@ -148,6 +148,17 @@ const AdminPanel = () => {
             </Link>
             <Link
               onClick={scrollTop}
+              to={"all-coupons"}
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
+                isActive("/admin-panel/all-coupons")
+                  ? "bg-brand-primary text-white"
+                  : "hover:text-gray-900 hover:bg-slate-100"
+              }`}
+            >
+              All Coupons
+            </Link>
+            <Link
+              onClick={scrollTop}
               to={"upload-blogs"}
               className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
                 isActive("/admin-panel/upload-blogs")
@@ -156,6 +167,17 @@ const AdminPanel = () => {
               }`}
             >
               All Blogs
+            </Link>
+            <Link
+              onClick={scrollTop}
+              to={"banner-list"}
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
+                isActive("/admin-panel/banner-list")
+                  ? "bg-brand-primary text-white"
+                  : "hover:text-gray-900 hover:bg-slate-100"
+              }`}
+            >
+              All Banners
             </Link>
             <Link
               onClick={scrollTop}
