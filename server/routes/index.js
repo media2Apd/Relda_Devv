@@ -48,7 +48,7 @@ const { acceptCookies, getAllCookieAcceptanceData } = require('../controller/coo
 
 const { getDashboardCounts } = require('../controller/dashboard/dashboardController');
 const {getViewedProducts} = require('../controller/product/relatedProducts')
-
+const { getActiveCategoriesTree } = require('../controller/product/getCategoryTree')
 const addressController = require("../controller/user/addaddressController");
 const { addOfferPoster, getAllOfferPosters, editOfferPoster, deleteOfferPoster, getOfferPosterById } = require('../controller/offerposter/offerPosterController');
 const couponController = require("../controller/order/couponController");
@@ -138,6 +138,7 @@ router.get("/get-parent-categories", getParentCategories);
 router.get("/get-active-parent-categories", getActiveParentCategories);
 router.put("/edit-parent-category/:id", editParentCategory);
 router.delete("/delete-parent-category/:id", deleteParentCategory);
+router.get("/get-active-categories-tree", getActiveCategoriesTree);
 //product
 router.post("/upload-product",authToken,UploadProductController)
 router.get("/get-product",getProductController)
@@ -216,11 +217,7 @@ router.get("/view-coupon/:id", couponController.getCouponById);
 router.put("/update-coupon/:id", couponController.updateCoupon);
 router.delete("/delete-coupon/:id", couponController.deleteCoupon);
 router.put("/toggle-coupon-status/:id", couponController.toggleCouponStatus);
-router.get(
-  "/coupons/applicable",
-  couponController.getApplicableCoupons
-);
-// server/routes/index.js
+router.post("/coupons/applicable", couponController.getApplicableCoupons);
 router.post("/coupons/verify-coupon", couponController.verifyCoupon);
 
 // router.post(
