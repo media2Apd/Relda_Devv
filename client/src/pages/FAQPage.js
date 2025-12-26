@@ -5,21 +5,45 @@ const FAQPage = () => {
 
   const faqs = [
     {
-      question: "What interest rate can I expect?",
-      answer: "Generally, the shorter the loan term, the lower the interest rate offered by most loan companies. Some lenders even offer an autopay discount if you authorize your monthly loan payments to be directly withdrawn from your checking account or savings account. Qualifying for lower rates offered by a lender is dependent on your online loan application, credit history and credit score, whether you get a short-term loan or a long-term loan, loan purpose, and other factors. The better the interest rate you can qualify for."
+      question: "What types of appliances does Relda offer?",
+      answer: "Relda offers a wide range of home and kitchen appliances, including chimneys, hobs, mixers, nutri-mixers, kettles, LED TVs, and commercial mixers—affordable for every household."
     },
     {
-      question: "What can I use a personal loan for?",
-      answer: "Personal loans can be used for various purposes including debt consolidation, home improvements, medical expenses, wedding costs, vacation expenses, and other major purchases or financial needs."
+      question: "Are Relda products suitable for both home and commercial use?",
+      answer: "Yes! Relda appliances are designed to meet both home and commercial requirements, ensuring durability and efficiency."
     },
     {
-      question: "How can I get a personal loan?",
-      answer: "To get a personal loan, you typically need to: 1) Check your credit score, 2) Compare lenders and rates, 3) Get pre-qualified, 4) Submit a formal application, 5) Provide required documentation, and 6) Review and sign the loan agreement once approved."
+      question: "Do Relda products come with a warranty?",
+      answer: "Yes, all Relda products come with a standard manufacturer's warranty. Warranty duration may vary depending on the product."
     },
     {
-      question: "What is a personal loan?",
-      answer: "A personal loan is an unsecured loan that you can use for various purposes. Unlike mortgages or auto loans, personal loans are not tied to a specific asset and can be used at your discretion for most legal purposes."
-    }
+      question: "How do I register my product for warranty?",
+      answer: "You can register your product online via our website or by contacting our customer support team. Registration is simple and ensures smooth service if needed."
+    },
+    {
+      question: "Does Relda deliver products nationwide?",
+      answer: "Yes, Relda delivers across India. Delivery times may vary based on location, and you can track your order online after purchase."
+    },
+        {
+      question: "What payment options are available?",
+      answer: "We accept payments via credit/debit cards, net banking, UPI, (where applicable). EMI options are also available on select products."
+    },
+    {
+      question: "What is the return or replacement policy?",
+      answer: "As per policy details, eligible products can be, replaced, or repaired."
+    },
+    {
+      question: "Can I visit a Relda store to see the products?",
+      answer: "Yes, Relda stores are open for customers to explore and test products before purchasing. Visit our website to find your nearest store."
+    },
+    {
+      question: "Does Relda provide installation services?",
+      answer: "Yes, professional installation services are available for most kitchen appliances purchased from Relda. Our team ensures safe and proper setup."
+    },
+    {
+      question: "How can I become a Relda franchise partner?",
+      answer: "You can join the Relda family by filling out the franchise inquiry form on our website. We provide full support and guidance for new franchise partners."
+    },
   ];
 
   const toggleFAQ = (index) => {
@@ -37,9 +61,9 @@ const FAQPage = () => {
           <h1 className="text-3xl md:text-4xl font-bold mb-3">
             Frequently asked questions
           </h1>
-          <p className="text-[#99A1AF] text-sm sm:text-base">
+          {/* <p className="text-[#99A1AF] text-sm sm:text-base">
             There's no such thing as too many questions
-          </p>
+          </p> */}
         </div>
 
         {/* FAQ Items */}
