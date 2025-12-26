@@ -317,11 +317,221 @@
 // export default OrderPage;
 
 
+// import React, { useEffect, useState } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import moment from "moment";
+// import displayINRCurrency from "../helpers/displayCurrency";
+// import SummaryApi from "../common";
+// import { FaBoxOpen, FaShoppingBag } from "react-icons/fa";
+
+// const OrderPage = () => {
+//   const [data, setData] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const navigate = useNavigate();
+
+//   const fetchOrders = async () => {
+//     try {
+//       setLoading(true);
+//       const response = await fetch(SummaryApi.getOrder.url, {
+//         method: SummaryApi.getOrder.method,
+//         credentials: "include",
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           "Content-Type": "application/json",
+//         },
+//       });
+//       const result = await response.json();
+
+//       setData(result.success ? result.data : []);
+//     } catch (err) {
+//       console.error("Error fetching orders:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchOrders();
+//   }, []);
+
+//   // Robust Helper function to extract image from either format
+//   const getProductThumbnail = (imageSource) => {
+//     if (!imageSource) return "";
+
+//     // If it's an array (both formats are arrays)
+//     if (Array.isArray(imageSource)) {
+//       const firstItem = imageSource[0];
+      
+//       // Format 1: ["url", "url"]
+//       if (typeof firstItem === 'string') {
+//         return firstItem;
+//       }
+      
+//       // Format 2: [{url: "url", type: "image"}]
+//       if (typeof firstItem === 'object' && firstItem !== null) {
+//         return firstItem.url || "";
+//       }
+//     }
+
+//     // Fallback if the backend sent a single string instead of an array
+//     if (typeof imageSource === 'string') {
+//       return imageSource;
+//     }
+
+//     return "";
+//   };
+
+//   if (loading) return (
+//     <div className="flex flex-col items-center justify-center min-h-[60vh]">
+//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E60000]"></div>
+//         <p className="mt-4 text-gray-500 font-medium">Loading your orders...</p>
+//     </div>
+//   );
+
+//   // Modern Empty State Section
+//   if (!data.length) {
+//     return (
+//       <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
+//         <div className="bg-gray-100 p-8 rounded-full mb-6">
+//           <FaBoxOpen className="text-gray-400 text-7xl" />
+//         </div>
+//         <h2 className="text-3xl font-extrabold text-gray-900 mb-2">No Orders Found</h2>
+//         <p className="text-gray-500 max-w-md mb-8">
+//           Looks like you haven't placed any orders yet. Start exploring our products and find something you love!
+//         </p>
+//         <Link 
+//           to="/" 
+//           className="flex items-center gap-2 bg-[#E60000] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-red-700 transition-all active:scale-95"
+//         >
+//           <FaShoppingBag /> Start Shopping
+//         </Link>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="p-4 max-w-7xl mx-auto mt-6">
+//       <h1 className="text-2xl font-bold mb-4">All orders</h1>
+//       {!data.length && <p className="text-center mt-8">No orders available.</p>}
+
+//       <div className="space-y-4">
+//         {data.map((order) => (
+//           <div
+//             key={order.orderId}
+//             onClick={() => navigate(`/order/${order.orderId}`)}
+//             className="relative border bg-gray-50 rounded-lg p-4 shadow-sm cursor-pointer flex flex-col md:flex-row transition-all hover:bg-white hover:shadow-md"
+//           >
+//             {/* Products within the order */}
+//             <div className="space-y-4 flex-1">
+//               {order.productDetails.map((product, index) => {
+                
+//                 // Get image using the robust helper
+//                 const displayImage = getProductThumbnail(product.productImage);
+
+//                 return (
+//                   <div
+//                     key={index}
+//                     className="flex items-start pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0"
+//                   >
+//                     <div className="w-24 h-24 bg-white rounded-lg border flex-shrink-0 flex items-center justify-center overflow-hidden">
+//                       {displayImage ? (
+//                         <img
+//                           src={displayImage}
+//                           alt={product.altTitle || product.productName}
+//                           title={product.altTitle || product.productName}
+//                           className="w-full h-full object-scale-down mix-blend-multiply p-1"
+//                         />
+//                       ) : (
+//                         <div className="text-[10px] text-gray-400">No Image</div>
+//                       )}
+//                     </div>
+                    
+//                     <div className="ml-3 sm:ml-4 flex-1">
+//                       <h2 className="text-[#E60000] text-sm font-bold uppercase tracking-wider">
+//                         {product.brandName}
+//                       </h2>
+//                       <p className="text-sm md:text-base text-gray-900 font-bold line-clamp-1">
+//                         {product.productName}
+//                       </p>
+//                       <p className="text-xs text-gray-500 font-bold mt-1">
+//                         OrderId: <span className="text-gray-800">{order.orderId}</span>
+//                       </p>
+                      
+//                       <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+//                         <p className="text-xs text-gray-500 font-semibold">
+//                           Category: <span className="text-gray-700">{product.category}</span>
+//                         </p>
+//                         <p className="text-xs text-gray-500 font-semibold">
+//                           Qty: <span className="text-[#175E17] font-bold">{product.quantity}</span>
+//                         </p>
+//                       </div>
+
+//                       <div className="text-sm font-bold mt-2 flex items-center gap-2">
+//                         <span className="text-[#E60000]">{displayINRCurrency(product.sellingPrice)}</span>
+//                         {product.price > product.sellingPrice && (
+//                           <>
+//                             <span className="line-through text-gray-400 font-normal text-xs">
+//                               {displayINRCurrency(product.price)}
+//                             </span>
+//                             <span className="px-1.5 py-0.5 text-[10px] rounded bg-[#175E17] text-[#E8F5E9]">
+//                               {`${Math.ceil(((product.price - product.sellingPrice) / product.price) * 100)}% OFF`}
+//                             </span>
+//                           </>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 );
+//               })}
+//             </div>
+
+//             {/* Order-level details */}
+//             <div className="mt-4 md:mt-0 md:ml-6 md:min-w-[220px] border-t md:border-t-0 md:border-l pt-4 md:pt-0 md:pl-6 flex flex-col justify-center">
+//               <div className="mb-2">
+//                  {/* <span className="text-xs font-bold text-gray-400 uppercase">Status</span> */}
+//                  <div className="flex items-center gap-2 mt-1">
+//                   <span className="text-xs font-bold text-gray-400 uppercase">Status</span>
+//                     <div className={`w-2 h-2 rounded-full ${
+//                         order.order_status === "delivered" ? "bg-green-500" : 
+//                         order.order_status === "cancelled" ? "bg-red-500" : "bg-orange-500"
+//                     }`}></div>
+//                     <p className={`text-sm font-bold capitalize ${
+//                         order.order_status === "delivered" ? "text-green-600" : 
+//                         order.order_status === "cancelled" ? "text-red-600" : "text-orange-600"
+//                     }`}>
+//                         {order.order_status}
+//                     </p>
+//                  </div>
+//               </div>
+
+//               <p className="text-xs text-gray-500 font-semibold">
+//                 Updated on {moment(order.statusUpdatedAt).format("DD MMM YYYY")}
+//               </p>
+//               <p className="text-xs text-gray-400">
+//                 {moment(order.statusUpdatedAt).format("hh:mm A")}
+//               </p>
+              
+//               <div className="mt-4 p-2 bg-white rounded border border-dashed border-gray-300">
+//                  <p className="text-xs font-bold text-gray-600">
+//                     Total Items: <span className="text-black">{order.productDetails.reduce((t, p) => t + p.quantity, 0)}</span>
+//                  </p>
+//               </div>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default OrderPage;
+
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import displayINRCurrency from "../helpers/displayCurrency";
 import SummaryApi from "../common";
+import { FaBoxOpen, FaShoppingBag, FaTicketAlt } from "react-icons/fa"; // FaTicketAlt for order icon
 
 const OrderPage = () => {
   const [data, setData] = useState([]);
@@ -353,39 +563,47 @@ const OrderPage = () => {
     fetchOrders();
   }, []);
 
-  // Robust Helper function to extract image from either format
   const getProductThumbnail = (imageSource) => {
     if (!imageSource) return "";
-
-    // If it's an array (both formats are arrays)
     if (Array.isArray(imageSource)) {
       const firstItem = imageSource[0];
-      
-      // Format 1: ["url", "url"]
-      if (typeof firstItem === 'string') {
-        return firstItem;
-      }
-      
-      // Format 2: [{url: "url", type: "image"}]
-      if (typeof firstItem === 'object' && firstItem !== null) {
-        return firstItem.url || "";
-      }
+      if (typeof firstItem === 'string') return firstItem;
+      if (typeof firstItem === 'object' && firstItem !== null) return firstItem.url || "";
     }
-
-    // Fallback if the backend sent a single string instead of an array
-    if (typeof imageSource === 'string') {
-      return imageSource;
-    }
-
+    if (typeof imageSource === 'string') return imageSource;
     return "";
   };
 
-  if (loading) return <p className="text-center mt-8">Loading...</p>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E60000]"></div>
+        <p className="mt-4 text-gray-500 font-medium">Loading your orders...</p>
+    </div>
+  );
+
+  if (!data.length) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
+        <div className="bg-gray-100 p-8 rounded-full mb-6">
+          <FaBoxOpen className="text-gray-400 text-7xl" />
+        </div>
+        <h2 className="text-3xl font-extrabold text-gray-900 mb-2">No Orders Found</h2>
+        <p className="text-gray-500 max-w-md mb-8">
+          Looks like you haven't placed any orders yet. Start exploring our products and find something you love!
+        </p>
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 bg-[#E60000] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-red-700 transition-all active:scale-95"
+        >
+          <FaShoppingBag /> Start Shopping
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 max-w-7xl mx-auto mt-6">
       <h1 className="text-2xl font-bold mb-4">All orders</h1>
-      {!data.length && <p className="text-center mt-8">No orders available.</p>}
 
       <div className="space-y-4">
         {data.map((order) => (
@@ -397,10 +615,7 @@ const OrderPage = () => {
             {/* Products within the order */}
             <div className="space-y-4 flex-1">
               {order.productDetails.map((product, index) => {
-                
-                // Get image using the robust helper
                 const displayImage = getProductThumbnail(product.productImage);
-
                 return (
                   <div
                     key={index}
@@ -459,9 +674,8 @@ const OrderPage = () => {
             </div>
 
             {/* Order-level details */}
-            <div className="mt-4 md:mt-0 md:ml-6 md:min-w-[220px] border-t md:border-t-0 md:border-l pt-4 md:pt-0 md:pl-6 flex flex-col justify-center">
+            <div className="mt-4 md:mt-0 md:ml-6 md:min-w-[240px] border-t md:border-t-0 md:border-l pt-4 md:pt-0 md:pl-6 flex flex-col justify-center">
               <div className="mb-2">
-                 {/* <span className="text-xs font-bold text-gray-400 uppercase">Status</span> */}
                  <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs font-bold text-gray-400 uppercase">Status</span>
                     <div className={`w-2 h-2 rounded-full ${
@@ -484,10 +698,25 @@ const OrderPage = () => {
                 {moment(order.statusUpdatedAt).format("hh:mm A")}
               </p>
               
-              <div className="mt-4 p-2 bg-white rounded border border-dashed border-gray-300">
-                 <p className="text-xs font-bold text-gray-600">
-                    Total Items: <span className="text-black">{order.productDetails.reduce((t, p) => t + p.quantity, 0)}</span>
-                 </p>
+              {/* items and discount */}
+              <div className="mt-4 p-3 bg-white rounded border border-dashed border-gray-300 space-y-1.5">
+                 <div className="flex justify-between items-center">
+                    <p className="text-[11px] font-bold text-gray-500 uppercase">Items:</p>
+                    <p className="text-xs font-bold text-black">{order.productDetails.reduce((t, p) => t + p.quantity, 0)}</p>
+                 </div>
+
+                 {/* coupon details */}
+                 {order.discountAmount > 0 && (
+                    <>
+                      <div className="flex justify-between items-center border-t border-gray-100 pt-1.5">
+                         <div className="flex items-center gap-1 text-green-600">
+                            <FaTicketAlt size={10} />
+                            <p className="text-[10px] font-bold uppercase">Coupon:</p>
+                         </div>
+                         <p className="text-[10px] font-bold text-green-700 px-1 rounded uppercase">-{displayINRCurrency(order.discountAmount)}</p>
+                      </div>
+                    </>
+                 )}
               </div>
             </div>
           </div>

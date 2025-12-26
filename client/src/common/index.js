@@ -414,7 +414,7 @@ const SummaryApi = {
     },
     getApplicableCoupons: { 
         url: `${backendDomain}/api/coupons/applicable`, 
-        method: 'get' 
+        method: 'post' 
     },
     verifyCoupon: { 
         url: `${backendDomain}/api/coupons/verify-coupon`, 

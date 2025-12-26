@@ -5205,8 +5205,8 @@ const handlePaymentLink = async () => {
       if (paymentResponseData.success) {
         // Razorpay options for initiating the payment
         const options = {
-          // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
-          key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
+          key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
+          // key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
           amount: (totalPrice - couponDiscount) * 100, // 🔥 Updated to final amount
           currency: "INR",
           name: "Relda India",
