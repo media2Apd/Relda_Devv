@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IoLogoFacebook, IoLogoInstagram } from "react-icons/io5";
-import { BsTwitterX, BsYoutube } from "react-icons/bs";
+import { BsYoutube } from "react-icons/bs";
 import SummaryApi from '../common';
 
 const CustomerSupport = () => {
