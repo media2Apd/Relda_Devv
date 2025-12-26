@@ -101,7 +101,7 @@ const orderSchema = new mongoose.Schema({
 },
     subTotal: Number,
     discountAmount: { type: Number, default: 0 },
-    couponCode: { type: String, default: null },
+    couponCode: { type: String, default: null },        
 
     billing_name: { type: String },
     billing_email: { type: String },
