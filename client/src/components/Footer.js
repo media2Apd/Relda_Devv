@@ -194,7 +194,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-3 text-sm">
               <li><a href="/ProductRegistration" className="hover:text-white transition-colors">Product Registration</a></li>
               <li><a href="/AuthorizedDealer" className="hover:text-white transition-colors">Authorized Dealers</a></li>
-              <li><a href="/CustomerSupport" className="hover:text-white transition-colors">Enquiry</a></li>
+              <li><a href="/customer-enquiry" className="hover:text-white transition-colors">Enquiry</a></li>
               <li><a href="/AboutUs" className="hover:text-white transition-colors">About Us</a></li>
               <li><a href="/ContactUsPage" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>
@@ -209,7 +209,7 @@ const Footer = () => {
             <div className="flex flex-col gap-5 text-sm">
               <div className="flex items-start gap-3">
                 <FiMapPin className="text-white mt-1 shrink-0" size={18} />
-                <p>Plot No 17A, Majestic Avenue, Krishna Nagar,<br />Madhavaram Milk Colony, Chennai, Tamilnadu 600051.</p>
+                <p>Plot No 17A, Majestic Avenue, Krishna Nagar,<br />Madhavaram Milk Colony, Chennai, Tamil Nadu 600051.</p>
               </div>
               <div className="flex items-center gap-3">
                 <FiPhoneCall className="text-white shrink-0" size={18} />

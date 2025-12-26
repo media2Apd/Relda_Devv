@@ -457,6 +457,10 @@ const SummaryApi = {
         url: `${backendDomain}/api/admin/banner/reorder`,
         method: "put",
     },
+    categoriesTrees: {
+        url: `${backendDomain}/api/get-active-categories-tree`,
+        method: "get",
+    },
 }
 
 export default SummaryApi;

@@ -55,8 +55,11 @@ import AllOfferPosters from '../pages/allOfferPosters'
 import RecentlyViewProductPage from '../pages/RecentlyViewProductPage'
 import WishlistView from '../pages/WishlistView'
 import AdminBlog from '../pages/adminBlog'
+import CustomerEnquiry from '../pages/CustomerEnquiry'
+import CustomerComplaint from '../pages/CustomerComplaint'
 import AllCoupons from '../panelPages/AllCoupons'
 import BannerList from '../components/bannerComponents/BannerList'
+import FAQPage from '../pages/FAQPage'
 
 
 
@@ -222,6 +225,10 @@ const router = createBrowserRouter([
                 element: <BlogPage />
             },
             {
+                path: "faqs",
+                element: <FAQPage />
+            },
+            {
                 path: "blog-post/:id",
                 element: <BlogPost />
             },
@@ -232,6 +239,18 @@ const router = createBrowserRouter([
             {
                 path: "ServiceRequest",
                 element: <ServiceRequest />
+            },
+            {
+                path : "customer-enquiry",
+                element : <CustomerEnquiry/>
+            },
+            {
+                path : "customer-complaint",
+                element : <CustomerComplaint/>
+            },
+            {
+                path : "ProductRegistration",
+                element : <ProductRegistration/>
             },
             {
                 path: "CustomerSupport",

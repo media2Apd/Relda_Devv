@@ -91,7 +91,18 @@ const orderSchema = new mongoose.Schema({
         payment_method_type: String,
         payment_status: String,
     },
-    coupon: Object,
+    // coupon: Object,
+    coupon: {
+  code: String,
+  discountType: String,
+  discountValue: Number,
+  discountAmount: Number,
+  minOrderAmount: Number
+},
+    subTotal: Number,
+    discountAmount: { type: Number, default: 0 },
+    couponCode: { type: String, default: null },        
+
     billing_name: { type: String },
     billing_email: { type: String },
     billing_tel: { type: String },

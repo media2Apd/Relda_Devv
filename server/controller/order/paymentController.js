@@ -126,54 +126,303 @@ const getProductImageUrl = (productImage) => {
 };
 
 
+// exports.paymentController = async (req, res) => {
+//     try {
+//         const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode  } = req.body;
+// // 💰 CASH ON HAND FLOW
+// if (paymentMode === "CASH_ON_HAND") {
+
+//   const subTotal = cartItems.reduce((t, i) =>
+//     t + i.quantity * i.productId.sellingPrice, 0
+//   );
+
+//   const order = await orderModel.create({
+//     orderId: `CASH-${uuidv4().slice(0, 8)}`,
+//     productDetails: cartItems.map(item => ({
+//       productId: item.productId._id,
+//       productName: item.productId.productName,
+//       quantity: item.quantity,
+//       sellingPrice: item.productId.sellingPrice,
+//       // productImage: item.productId.productImage[0],
+//       productImage: getProductImageUrl(item.productId.productImage),
+
+//     })),
+//     email: customerInfo.email,
+//     userId: req.userId,
+//     totalAmount: subTotal,
+//     paymentDetails: {
+//       payment_status: "cash_on_hand",
+//       payment_method_type: "CASH"
+//     },
+//     billing_address: customerInfo.street,
+//     shipping_address: customerInfo.street,
+//     statusUpdates: [{
+//       status: "ORDER_CONFIRMED",
+//       updatedAt: new Date()
+//     }],
+//     createdAt: new Date()
+//   });
+
+//   return res.json({
+//     success: true,
+//     message: "Order confirmed with Cash on Hand",
+//     orderId: order.orderId
+//   });
+// }
+
+//         if (!customerInfo || typeof customerInfo !== 'object') {
+//             return res.status(400).json({ message: "Invalid customer information", success: false });
+//         }
+
+//         const shippingAddress = {
+//             street: customerInfo.street || '',
+//             city: customerInfo.city || '',
+//             state: customerInfo.state || '',
+//             postalCode: customerInfo.postalCode || '',
+//             country: customerInfo.country || '',
+//         };
+
+//         const billingAddress = billingSameAsShipping
+//             ? shippingAddress
+//             : {
+//                 street: customerInfo.billingAddress?.street || '',
+//                 city: customerInfo.billingAddress?.city || '',
+//                 state: customerInfo.billingAddress?.state || '',
+//                 postalCode: customerInfo.billingAddress?.postalCode || '',
+//                 country: customerInfo.billingAddress?.country || '',
+//             };
+
+//         const user = await userModel.findById(req.userId);
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found", success: false });
+//         }
+
+//         // const totalAmount = cartItems.reduce((total, item) => {
+//         //     return total + item.quantity * item.productId.sellingPrice;
+//         // }, 0) * 100;
+
+//         let subTotal = cartItems.reduce((total, item) => {
+//   return total + item.quantity * item.productId.sellingPrice;
+// }, 0);
+
+// let discountAmount = 0;
+// let appliedCoupon = null;
+
+// if (req.body.couponCode) {
+//   const coupon = await Coupon.findOne({
+//     code: req.body.couponCode.toUpperCase(),
+//     isActive: true
+//   });
+
+//   if (!coupon) {
+//     return res.status(400).json({ success: false, message: "Invalid coupon" });
+//   }
+
+//   if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+//     return res.status(400).json({ success: false, message: "Coupon expired" });
+//   }
+
+//   if (subTotal < coupon.minOrderAmount) {
+//     return res.status(400).json({
+//       success: false,
+//       message: `Minimum order ₹${coupon.minOrderAmount}`
+//     });
+//   }
+
+//   discountAmount =
+//     coupon.discountType === "percentage"
+//       ? (subTotal * coupon.discountValue) / 100
+//       : coupon.discountValue;
+
+//   if (coupon.maxDiscountAmount) {
+//     discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+//   }
+
+//   appliedCoupon = {
+//     code: coupon.code,
+//     discountAmount: discountAmount
+//   };
+// }
+
+// // FINAL AMOUNT
+// const finalAmount = Math.max(subTotal - discountAmount, 0);
+// const totalAmount = finalAmount * 100;
+
+
+//         const receiptId = `order_rcptid_${uuidv4().slice(0, 8)}`;
+
+//         // ?? PAYMENT ORDER OR LINK
+//         let paymentResponse;
+//         let orderIdOrLink;
+
+//         if (usePaymentLink) {
+//             // ?? Create Payment Link
+//             paymentResponse = await razorpay.paymentLink.create({
+//                 amount: totalAmount,
+//                 currency: "INR",
+//                 accept_partial: false,
+//                 description: "Purchase from Online Store",
+//                 customer: {
+//                     name: customerInfo.firstName,
+//                     contact: customerInfo.phone,
+//                     email: customerInfo.email,
+//                 },
+//                 notify: {
+//                     sms: true,
+//                     email: true
+//                 },
+//                 reminder_enable: true,
+//                 callback_url: "http://yourwebsite.com/payment/verify",
+//                 callback_method: "get"
+//             });
+
+//             if (!paymentResponse || !paymentResponse.id) {
+//                 throw new Error("Failed to create Razorpay Payment Link");
+//             }
+
+//             orderIdOrLink = paymentResponse.id;
+
+//         } else {
+//             // ?? Create Razorpay Order
+//             const options = {
+//                 amount: totalAmount,
+//                 currency: "INR",
+//                 receipt: receiptId,
+//                 payment_capture: 1
+//             };
+
+//             paymentResponse = await razorpay.orders.create(options);
+//             if (!paymentResponse || !paymentResponse.id) {
+//                 throw new Error("Failed to create Razorpay order.");
+//             }
+
+//             orderIdOrLink = paymentResponse.id;
+//         }
+
+//         const statusId = `pending-${req.userId}-${uuidv4()}`;
+
+//         const existingOrder = await orderModel.findOne({ orderId: orderIdOrLink });
+//         if (existingOrder) {
+//             if (!existingOrder.statusUpdates.some(status => status.status === statusId)) {
+//                 existingOrder.statusUpdates.push({
+//                     status: statusId,
+//                     updatedAt: new Date()
+//                 });
+//                 await existingOrder.save();
+//             }
+//         } else {
+//             await orderModel.create({
+//                 orderId: orderIdOrLink,
+//                 productDetails: cartItems.map(item => ({
+//                     productId: item.productId._id,
+//                     brandName: item.productId.brandName,
+//                     productName: item.productId.productName,
+//                     category: item.productId.category,
+//                     quantity: item.quantity,
+//                     price: item.productId.price,
+//                     availability: item.productId.availability,
+//                     sellingPrice: item.productId.sellingPrice,
+//                     // productImage: item.productId.productImage[0],
+//                     productImage: getProductImageUrl(item.productId.productImage),
+
+//                 })),
+//                 email: user.email,
+//                 userId: req.userId,
+//                 totalAmount: totalAmount / 100,
+//                 paymentDetails: {
+//                     paymentId: "",
+//                     payment_method_type: "",
+//                     payment_status: "pending",
+//                 },
+//                 billing_name: customerInfo.firstName,
+//                 billing_email: customerInfo.email,
+//                 billing_tel: customerInfo.phone,
+//                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+//                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+//                 statusUpdates: [{
+//                     status: statusId,
+//                     updatedAt: new Date()
+//                 }],
+//                 createdAt: new Date(),
+//             });
+//         }
+
+//         // ? Return correct response
+//         res.json({
+//             success: true,
+//             mode: usePaymentLink ? 'link' : 'order',
+//             orderId: orderIdOrLink,
+//             amount: totalAmount,
+//             currency: "INR",
+//             customerInfo,
+//             ...(usePaymentLink && { paymentLink: paymentResponse.short_url })
+//         });
+
+//     } catch (error) {
+//         console.error("Error initiating payment:", error);
+//         res.status(500).json({
+//             message: error.message || "Internal Server Error",
+//             success: false,
+//         });
+//     }
+// };
 exports.paymentController = async (req, res) => {
     try {
-        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode  } = req.body;
-// 💰 CASH ON HAND FLOW
-if (paymentMode === "CASH_ON_HAND") {
-
-  const subTotal = cartItems.reduce((t, i) =>
-    t + i.quantity * i.productId.sellingPrice, 0
-  );
-
-  const order = await orderModel.create({
-    orderId: `CASH-${uuidv4().slice(0, 8)}`,
-    productDetails: cartItems.map(item => ({
-      productId: item.productId._id,
-      productName: item.productId.productName,
-      quantity: item.quantity,
-      sellingPrice: item.productId.sellingPrice,
-      // productImage: item.productId.productImage[0],
-      productImage: getProductImageUrl(item.productId.productImage),
-
-    })),
-    email: customerInfo.email,
-    userId: req.userId,
-    totalAmount: subTotal,
-    paymentDetails: {
-      payment_status: "cash_on_hand",
-      payment_method_type: "CASH"
-    },
-    billing_address: customerInfo.street,
-    shipping_address: customerInfo.street,
-    statusUpdates: [{
-      status: "ORDER_CONFIRMED",
-      updatedAt: new Date()
-    }],
-    createdAt: new Date()
-  });
-
-  return res.json({
-    success: true,
-    message: "Order confirmed with Cash on Hand",
-    orderId: order.orderId
-  });
-}
-
+        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode, couponCode } = req.body;
+        
+        // Validate customer info first
         if (!customerInfo || typeof customerInfo !== 'object') {
             return res.status(400).json({ message: "Invalid customer information", success: false });
         }
 
+        // Calculate subtotal first (for all payment modes)
+        let subTotal = cartItems.reduce((total, item) => {
+            return total + item.quantity * item.productId.sellingPrice;
+        }, 0);
+        
+        // Apply coupon logic (for all payment modes)
+        let discountAmount = 0;
+        let appliedCoupon = null;
+        
+        if (couponCode) {
+            const coupon = await Coupon.findOne({
+                code: couponCode.toUpperCase(),
+                isActive: true
+            });
+            
+            if (!coupon) {
+                return res.status(400).json({ success: false, message: "Invalid coupon" });
+            }
+            
+            if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+                return res.status(400).json({ success: false, message: "Coupon expired" });
+            }
+            
+            if (subTotal < coupon.minOrderAmount) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Minimum order ₹${coupon.minOrderAmount}`
+                });
+            }
+            
+            discountAmount = coupon.discountType === "percentage"
+                ? (subTotal * coupon.discountValue) / 100
+                : coupon.discountValue;
+            
+            if (coupon.maxDiscountAmount) {
+                discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+            }
+            
+            appliedCoupon = {
+                code: coupon.code,
+                discountAmount: discountAmount
+            };
+        }
+        
+        // Calculate final amount after discount
+        const finalAmount = Math.max(subTotal - discountAmount, 0);
+
+        // Prepare addresses
         const shippingAddress = {
             street: customerInfo.street || '',
             city: customerInfo.city || '',
@@ -192,73 +441,70 @@ if (paymentMode === "CASH_ON_HAND") {
                 country: customerInfo.billingAddress?.country || '',
             };
 
+        // 💰 CASH ON HAND FLOW
+        if (paymentMode === "CASH_ON_HAND") {
+            const order = await orderModel.create({
+                orderId: `CASH-${uuidv4().slice(0, 8)}`,
+                productDetails: cartItems.map(item => ({
+                    productId: item.productId._id,
+                    productName: item.productId.productName,
+                    brandName: item.productId.brandName,
+                    category: item.productId.category,
+                    quantity: item.quantity,
+                    price: item.productId.price,
+                    sellingPrice: item.productId.sellingPrice,
+                    productImage: getProductImageUrl(item.productId.productImage),
+                })),
+                email: customerInfo.email,
+                userId: req.userId,
+                subTotal: subTotal,
+                discountAmount: discountAmount || 0,
+                couponCode: appliedCoupon?.code || null,
+                totalAmount: finalAmount,
+                paymentDetails: {
+                    payment_status: "cash_on_hand",
+                    payment_method_type: "CASH"
+                },
+                billing_name: customerInfo.firstName,
+                billing_email: customerInfo.email,
+                billing_tel: customerInfo.phone,
+                billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+                shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+                statusUpdates: [{
+                    status: "ORDER_CONFIRMED",
+                    updatedAt: new Date()
+                }],
+                createdAt: new Date()
+            });
+
+            return res.json({
+                success: true,
+                message: "Order confirmed with Cash on Hand",
+                orderId: order.orderId,
+                totalAmount: finalAmount,
+                discountAmount: discountAmount,
+                couponCode: appliedCoupon?.code || null
+            });
+        }
+
+        // 💳 ONLINE PAYMENT FLOW (Razorpay)
         const user = await userModel.findById(req.userId);
         if (!user) {
             return res.status(404).json({ message: "User not found", success: false });
         }
 
-        // const totalAmount = cartItems.reduce((total, item) => {
-        //     return total + item.quantity * item.productId.sellingPrice;
-        // }, 0) * 100;
-
-        let subTotal = cartItems.reduce((total, item) => {
-  return total + item.quantity * item.productId.sellingPrice;
-}, 0);
-
-let discountAmount = 0;
-let appliedCoupon = null;
-
-if (req.body.couponCode) {
-  const coupon = await Coupon.findOne({
-    code: req.body.couponCode.toUpperCase(),
-    isActive: true
-  });
-
-  if (!coupon) {
-    return res.status(400).json({ success: false, message: "Invalid coupon" });
-  }
-
-  if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-    return res.status(400).json({ success: false, message: "Coupon expired" });
-  }
-
-  if (subTotal < coupon.minOrderAmount) {
-    return res.status(400).json({
-      success: false,
-      message: `Minimum order ₹${coupon.minOrderAmount}`
-    });
-  }
-
-  discountAmount =
-    coupon.discountType === "percentage"
-      ? (subTotal * coupon.discountValue) / 100
-      : coupon.discountValue;
-
-  if (coupon.maxDiscountAmount) {
-    discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
-  }
-
-  appliedCoupon = {
-    code: coupon.code,
-    discountAmount: discountAmount
-  };
-}
-
-// FINAL AMOUNT
-const finalAmount = Math.max(subTotal - discountAmount, 0);
-const totalAmount = finalAmount * 100;
-
-
+        // Convert to paise for Razorpay
+        const totalAmountInPaise = finalAmount * 100;
         const receiptId = `order_rcptid_${uuidv4().slice(0, 8)}`;
 
-        // ?? PAYMENT ORDER OR LINK
+        // Create Payment Order or Link
         let paymentResponse;
         let orderIdOrLink;
 
         if (usePaymentLink) {
-            // ?? Create Payment Link
+            // Create Payment Link
             paymentResponse = await razorpay.paymentLink.create({
-                amount: totalAmount,
+                amount: totalAmountInPaise,
                 currency: "INR",
                 accept_partial: false,
                 description: "Purchase from Online Store",
@@ -283,9 +529,9 @@ const totalAmount = finalAmount * 100;
             orderIdOrLink = paymentResponse.id;
 
         } else {
-            // ?? Create Razorpay Order
+            // Create Razorpay Order
             const options = {
-                amount: totalAmount,
+                amount: totalAmountInPaise,
                 currency: "INR",
                 receipt: receiptId,
                 payment_capture: 1
@@ -301,13 +547,22 @@ const totalAmount = finalAmount * 100;
 
         const statusId = `pending-${req.userId}-${uuidv4()}`;
 
+        // Check if order exists and update or create new
         const existingOrder = await orderModel.findOne({ orderId: orderIdOrLink });
+        
         if (existingOrder) {
             if (!existingOrder.statusUpdates.some(status => status.status === statusId)) {
                 existingOrder.statusUpdates.push({
                     status: statusId,
                     updatedAt: new Date()
                 });
+                
+                // Update discount info if it changed
+                existingOrder.discountAmount = discountAmount || 0;
+                existingOrder.couponCode = appliedCoupon?.code || null;
+                existingOrder.subTotal = subTotal;
+                existingOrder.totalAmount = finalAmount;
+                
                 await existingOrder.save();
             }
         } else {
@@ -322,13 +577,14 @@ const totalAmount = finalAmount * 100;
                     price: item.productId.price,
                     availability: item.productId.availability,
                     sellingPrice: item.productId.sellingPrice,
-                    // productImage: item.productId.productImage[0],
                     productImage: getProductImageUrl(item.productId.productImage),
-
                 })),
                 email: user.email,
                 userId: req.userId,
-                totalAmount: totalAmount / 100,
+                subTotal: subTotal,
+                discountAmount: discountAmount || 0,
+                couponCode: appliedCoupon?.code || null,
+                totalAmount: finalAmount,
                 paymentDetails: {
                     paymentId: "",
                     payment_method_type: "",
@@ -347,14 +603,18 @@ const totalAmount = finalAmount * 100;
             });
         }
 
-        // ? Return correct response
+        // Return response with all payment details
         res.json({
             success: true,
             mode: usePaymentLink ? 'link' : 'order',
             orderId: orderIdOrLink,
-            amount: totalAmount,
+            amount: totalAmountInPaise,
             currency: "INR",
             customerInfo,
+            subTotal: subTotal,
+            discountAmount: discountAmount,
+            couponCode: appliedCoupon?.code || null,
+            finalAmount: finalAmount,
             ...(usePaymentLink && { paymentLink: paymentResponse.short_url })
         });
 

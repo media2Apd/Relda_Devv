@@ -4093,7 +4093,7 @@ const handleOnChangeSortBy = useCallback((value) => {
                 <div className='p-4 flex-shrink-0'>
                   <button
                     onClick={resetAllFilters}
-                    className='w-full bg-white border-2 border-brand-primary text-brand-primary px-4 py-2 rounded font-semibold hover:bg-brand-primary hover:text-white transition-colors'
+                    className='w-full bg-white border border-brand-primary text-brand-primary px-4 py-2 rounded font-semibold hover:bg-brand-primary hover:text-white transition-colors'
                   >
                     Reset Filter
                   </button>
