@@ -663,7 +663,7 @@ const ProductDetails = () => {
                 {displayINRCurrency(data.price)}
               </p>
               <span
-                className="px-2 py-1 text-xs font-medium rounded-md bg-brand-offer"
+                className="px-2 py-1 text-xs font-medium rounded-md bg-brand-offer text-white"
                 
               >
                 {`${Math.ceil(

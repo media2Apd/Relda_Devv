@@ -63,7 +63,7 @@ const AdminPanel = () => {
 
  if (!isAuthorized) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-gray-100 to-gray-200 px-4">
+      <div className="flex items-center justify-center min-h-screen bg-white px-4">
         <div className="max-w-md text-center animate-fade-in-up transition-all duration-700 ease-in-out">
           <div className="flex justify-center mb-4">
             <div className="bg-red-100 p-4 rounded-full shadow-md animate-pulse">

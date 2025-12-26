@@ -104,7 +104,8 @@
 //   }
 // };
 const Coupon = require("../../models/coupon");
-
+const Product = require("../../models/productModel");
+const ProductCategory = require("../../models/productCategory");
 /* -----------------------------------
    CREATE COUPON
 ----------------------------------- */
@@ -465,49 +466,158 @@ exports.verifyCoupon = async (req, res) => {
   }
 };
 
+// exports.getApplicableCoupons = async (req, res) => {
+//   try {
+//     const { productId, productCategory, parentCategory } = req.query;
+
+//     const now = new Date();
+
+//     const coupons = await Coupon.find({
+//       isActive: true,
+//       $or: [
+//         // 🥇 Product specific
+//         productId
+//           ? { products: productId }
+//           : null,
+
+//         // 🥈 Sub-category
+//         productCategory
+//           ? { productCategory }
+//           : null,
+
+//         // 🥉 Parent category
+//         parentCategory
+//           ? { parentCategory }
+//           : null,
+
+//         // 🌍 Global coupons
+//         {
+//           products: { $size: 0 },
+//           productCategory: null,
+//           parentCategory: null
+//         }
+//       ].filter(Boolean), // 🔥 remove nulls
+//       $and: [
+//         {
+//           $or: [
+//             { expiryDate: null },
+//             { expiryDate: { $gte: now } }
+//           ]
+//         },
+//         {
+//           $or: [
+//             { startDate: null },
+//             { startDate: { $lte: now } }
+//           ]
+//         }
+//       ]
+//     })
+//       .sort({ createdAt: -1 })
+//       .populate("parentCategory", "name")
+//       .populate("productCategory", "value")
+//       .populate("products", "productName");
+
+//     return res.json({
+//       success: true,
+//       count: coupons.length,
+//       data: coupons
+//     });
+
+//   } catch (err) {
+//     return res.status(500).json({
+//       success: false,
+//       message: err.message || "Internal server error"
+//     });
+//   }
+// };
+
 exports.getApplicableCoupons = async (req, res) => {
   try {
-    const { productId, productCategory, parentCategory } = req.query;
+    const { productIds } = req.body;
+
+    // 🔒 Basic validation
+    if (!Array.isArray(productIds) || productIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "productIds array is required"
+      });
+    }
 
     const now = new Date();
 
+    /* --------------------------------------------------
+       1️⃣ FETCH PRODUCTS
+    -------------------------------------------------- */
+    const products = await Product.find(
+      { _id: { $in: productIds } },
+      "_id category"
+    ).lean();
+
+    if (!products.length) {
+      return res.json({
+        success: true,
+        count: 0,
+        data: []
+      });
+    }
+
+    const productIdList = products.map(p => p._id);
+    const productCategoryValues = products
+      .map(p => p.category)
+      .filter(Boolean);
+
+    /* --------------------------------------------------
+       2️⃣ FETCH PRODUCT CATEGORIES (ObjectIds)
+    -------------------------------------------------- */
+    const productCategories = await ProductCategory.find(
+      { value: { $in: productCategoryValues } },
+      "_id parentCategory"
+    ).lean();
+
+    const productCategoryIds = productCategories.map(c => c._id);
+
+    const parentCategoryIds = productCategories
+      .map(c => c.parentCategory)
+      .filter(Boolean);
+
+    /* --------------------------------------------------
+       3️⃣ FETCH APPLICABLE COUPONS
+    -------------------------------------------------- */
     const coupons = await Coupon.find({
       isActive: true,
+
+      // ⏱ date validation
+      $and: [
+        {
+          $or: [
+            { startDate: null },
+            { startDate: { $lte: now } }
+          ]
+        },
+        {
+          $or: [
+            { expiryDate: null },
+            { expiryDate: { $gte: now } }
+          ]
+        }
+      ],
+
+      // 🎯 applicability
       $or: [
         // 🥇 Product specific
-        productId
-          ? { products: productId }
-          : null,
+        { products: { $in: productIdList } },
 
-        // 🥈 Sub-category
-        productCategory
-          ? { productCategory }
-          : null,
+        // 🥈 Product category specific
+        { productCategory: { $in: productCategoryIds } },
 
-        // 🥉 Parent category
-        parentCategory
-          ? { parentCategory }
-          : null,
+        // 🥉 Parent category specific
+        { parentCategory: { $in: parentCategoryIds } },
 
         // 🌍 Global coupons
         {
           products: { $size: 0 },
           productCategory: null,
           parentCategory: null
-        }
-      ].filter(Boolean), // 🔥 remove nulls
-      $and: [
-        {
-          $or: [
-            { expiryDate: null },
-            { expiryDate: { $gte: now } }
-          ]
-        },
-        {
-          $or: [
-            { startDate: null },
-            { startDate: { $lte: now } }
-          ]
         }
       ]
     })
@@ -516,6 +626,9 @@ exports.getApplicableCoupons = async (req, res) => {
       .populate("productCategory", "value")
       .populate("products", "productName");
 
+    /* --------------------------------------------------
+       4️⃣ RESPONSE
+    -------------------------------------------------- */
     return res.json({
       success: true,
       count: coupons.length,
@@ -523,6 +636,7 @@ exports.getApplicableCoupons = async (req, res) => {
     });
 
   } catch (err) {
+    console.error("getApplicableCoupons error:", err);
     return res.status(500).json({
       success: false,
       message: err.message || "Internal server error"

@@ -214,7 +214,9 @@ router.get("/all-coupons", couponController.getAllCoupons);
 router.get("/view-coupon/:id", couponController.getCouponById);
 router.put("/update-coupon/:id", couponController.updateCoupon);
 router.delete("/delete-coupon/:id", couponController.deleteCoupon);
-router.patch("/toggle-coupon-status/:id", couponController.toggleCouponStatus);
+router.put("/toggle-coupon-status/:id", couponController.toggleCouponStatus);
+router.post("/coupons/applicable", couponController.getApplicableCoupons);
+router.post("/coupons/verify-coupon", couponController.verifyCoupon);
 
 // router.post(
 //   "/banner/upload",

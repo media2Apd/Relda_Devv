@@ -392,11 +392,35 @@ const SummaryApi = {
             method: 'post'
         }
     },
-    createCoupon: { url: `${backendDomain}/api/create-coupon`, method: 'post' },
-    allCoupons: { url: `${backendDomain}/api/all-coupons`, method: 'get' },
-    updateCoupon: { url: (id) => `${backendDomain}/api/update-coupon/${id}`, method: 'put' },
-    deleteCoupon: { url: (id) => `${backendDomain}/api/delete-coupon/${id}`, method: 'delete' },
-    toggleCoupon: { url: (id) => `${backendDomain}/api/toggle-coupon-status/${id}`, method: 'put' },
+    createCoupon: { 
+        url: `${backendDomain}/api/create-coupon`, 
+        method: 'post' 
+    },
+    allCoupons: { 
+        url: `${backendDomain}/api/all-coupons`, 
+        method: 'get' 
+    },
+    updateCoupon: { 
+        url: (id) => `${backendDomain}/api/update-coupon/${id}`, 
+        method: 'put' 
+    },
+    deleteCoupon: { 
+        url: (id) => `${backendDomain}/api/delete-coupon/${id}`, 
+        method: 'delete' 
+    },
+    toggleCoupon: { 
+        url: (id) => `${backendDomain}/api/toggle-coupon-status/${id}`, 
+        method: 'put' 
+    },
+    getApplicableCoupons: { 
+        url: `${backendDomain}/api/coupons/applicable`, 
+        method: 'post' 
+    },
+    verifyCoupon: { 
+        url: `${backendDomain}/api/coupons/verify-coupon`, 
+        method: 'post' 
+    },
+    
     getBanners: {
         url: `${backendDomain}/api/banners`,
         method: "get",
