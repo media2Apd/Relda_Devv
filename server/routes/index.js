@@ -12,7 +12,7 @@ const allUsers = require('../controller/user/allUsers')
 const updateUser = require('../controller/user/updateUser')
 const { forgetPassword, resetPassword } = require('../controller/user/forgetPassword')
 const UploadProductController = require('../controller/product/uploadProduct')
-const {getProductController, getActiveProductController } = require('../controller/product/getProduct')
+const { getProductController, getActiveProductController } = require('../controller/product/getProduct')
 const updateProductController = require('../controller/product/updateProduct')
 const getCategoryProduct = require('../controller/product/getCategoryProductOne')
 const getCategoryWiseProduct = require('../controller/product/getCategoryWiseProduct')
@@ -141,7 +141,6 @@ router.delete("/delete-parent-category/:id", deleteParentCategory);
 //product
 router.post("/upload-product",authToken,UploadProductController)
 router.get("/get-product",getProductController)
-router.get("/get-active-product",getActiveProductController)
 router.post("/update-product",authToken,updateProductController)
 router.get("/get-categoryProduct",getCategoryProduct)
 router.post("/category-product",getCategoryWiseProduct)
@@ -215,13 +214,7 @@ router.get("/all-coupons", couponController.getAllCoupons);
 router.get("/view-coupon/:id", couponController.getCouponById);
 router.put("/update-coupon/:id", couponController.updateCoupon);
 router.delete("/delete-coupon/:id", couponController.deleteCoupon);
-router.put("/toggle-coupon-status/:id", couponController.toggleCouponStatus);
-router.get(
-  "/coupons/applicable",
-  couponController.getApplicableCoupons
-);
-// server/routes/index.js
-router.post("/coupons/verify-coupon", couponController.verifyCoupon);
+router.patch("/toggle-coupon-status/:id", couponController.toggleCouponStatus);
 
 // router.post(
 //   "/banner/upload",
