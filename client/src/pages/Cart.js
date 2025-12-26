@@ -367,10 +367,10 @@ import SummaryApi from "../common";
 import Context from "../context";
 import displayINRCurrency from "../helpers/displayCurrency";
 // import { MdDelete } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FiMinus, FiPlus } from "react-icons/fi";
-import { Trash2 } from 'lucide-react';
+import { ArrowRight, ShoppingCart, Trash2 } from 'lucide-react';
 const Cart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -631,11 +631,27 @@ const Cart = () => {
     )}
 
     {/* EMPTY CART */}
-    {!loading && data.length === 0 && (
-      <h1 className="text-center bg-white py-10 font-medium text-brand-textMuted">
-        Your Cart is Empty. Please add products to proceed!
-      </h1>
-    )}
+    {/* MODERN EMPTY CART STATE */}
+      {!loading && data.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+            <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <ShoppingCart size={48} className="text-gray-300 md:hidden" />
+                <ShoppingCart size={64} className="text-gray-300 hidden md:block" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">
+                Your cart is feeling a bit light!
+            </h2>
+            <p className="text-brand-textMuted max-w-md mb-10 leading-relaxed">
+                Looks like you haven't added anything to your cart yet. Explore our latest collection and find something you love.
+            </p>
+            <Link 
+                to="/" 
+                className="flex items-center gap-2 bg-brand-primary text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-brand-primaryHover transition-all active:scale-95"
+            >
+                Start Shopping <ArrowRight size={18} />
+            </Link>
+        </div>
+      )}
 
     <div className="flex flex-col lg:flex-row gap-10">
 

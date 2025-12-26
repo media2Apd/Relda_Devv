@@ -1077,7 +1077,7 @@ const OrderTracking = () => {
           <div className="mt-2 space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-500 font-semibold">Subtotal</span>
-              <span>{displayINRCurrency(orderDetails.subTotal)}</span>
+              <span>{displayINRCurrency(orderDetails.subTotal || orderDetails.totalAmount + (orderDetails.discountAmount || 0))}</span>
             </div>
             
             {/* Catalog/Product Discount */}
