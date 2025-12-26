@@ -12,8 +12,37 @@ import { setUserDetails } from "../store/userSlice";
 import ROLE from "../common/role";
 import Context from "../context";
 import axios from "axios";
+import ironBox1 from '../assest/topSell/IronBox1.png'
+import mixer2 from '../assest/topSell/Mixer2.png'
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
-import hob from "../assest/topSell/Hob1.png";
+// import hob from "../assest/topSell/Hob1.png";
+// const dummy =[
+//   {
+//     _id: "1",
+//     name: "Home Appliances",
+//     subCategories: ["TV", "Fan", "Iron Box"]
+//   },
+//   {
+//     _id: "2",
+//     name: "Kitchen Appliances",
+//     subCategories: ["Mixer Grinder", "Chimney", "HOB"]
+//   },
+//   {
+//     _id: "3",
+//     name: "Institution Appliances",
+//     subCategories: ["Commercial Mixers", "Water Coolers"]
+//   },
+//   {
+//     _id: "4",
+//     name: "Lightings",
+//     subCategories: ["LED Panels", "Product Categories"]
+//   },
+//   {
+//     _id: "5",
+//     name: "Switches & Accessories",
+//     subCategories: ["Product Categories"]
+//   }
+// ]
 
 const Header = () => {
   const user = useSelector((state) => state?.user?.user);
@@ -30,6 +59,8 @@ const Header = () => {
   const location = useLocation();
 
 const [search, setSearch] = useState("");
+const [shopOpen, setShopOpen] = useState(false);
+const [servicesOpen, setServicesOpen] = useState(false);
 
 useEffect(() => {
   const params = new URLSearchParams(location.search);
@@ -51,7 +82,7 @@ useEffect(() => {
   // State for categories
   const [categories, setCategories] = useState([]);
   
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   
   const menuRef = useRef(null);
   const modalRef = useRef(null);
@@ -68,22 +99,23 @@ useEffect(() => {
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true);
+      // setLoading(true);
       try {
-        const response = await fetch(SummaryApi.getActiveParentCategories.url, {
+        const response = await fetch(SummaryApi.categoriesTrees.url, {
           // method: SummaryApi.getParentCategories.method,
         });
         const result = await response.json();
         
         if (result.success) {
-          setCategories(result.categories || []);
+          setCategories(result.data || []);
         }
         
       } catch (error) {
         console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
-      }
+      } 
+      // finally {
+      //   setLoading(false);
+      // }
     };
 
     fetchCategories();
@@ -549,352 +581,474 @@ useEffect(() => {
 
         {/* Navigation Bar - Desktop */}
 {/* Navigation Bar - Desktop - REMOVE container class */}
-<nav className="hidden lg:block bg-brand-primary">
-  {/* Remove "container mx-auto" here */}
-  <ul className="flex items-center justify-center space-x-8 text-white font-medium py-0">
-    <li>
-      <Link 
-        to="/" 
-        className="block py-4 px-2 transition-colors relative group"
-      >
-        Home
-        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-      </Link>
-    </li>
+        <nav className="hidden lg:block bg-brand-primary">
+          {/* Remove "container mx-auto" here */}
+          <ul className="flex items-center justify-center space-x-8 text-white font-medium py-0">
+            <li>
+              <Link 
+                to="/" 
+                className="block py-4 px-2 transition-colors relative group"
+              >
+                Home
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            </li>
 
-    {/* Shop Dropdown - TRUE FULL WIDTH */}
-    <li className="group static">
-      <button className="py-4 px-2 transition-colors relative">
-        Shop
-        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-      </button>
-      
-      {/* Mega Dropdown - TRULY FULL WIDTH */}
-      <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl shadow-lg">
-        <div className="container mx-auto py-6 md:py-8 px-4 md:px-8 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            
-            {/* Column 1 - Product Categories */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-primary">
-                Product Categories
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link 
-                    to="/product-category" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
-                  >
-                    All Products
-                  </Link>
-                </li>
-                
-                {loading ? (
-                  <li className="text-center py-4">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-brand-primary"></div>
-                  </li>
-                ) : categories && categories.length > 0 ? (
-                  <>
-                    {categories.map((category) => (
-                      <li key={category._id}>
-                        <Link
-                          to={`/product-category?parentCategory=${category.name}`}
-                          className="text-brand-primaryTextMuted hover:text-brand-primary transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primary"
-                        >
-                          {category.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </>
-                ) : (
-                  <li className="text-sm text-brand-primaryTextMuted py-2">No categories available</li>
-                )}
-              </ul>
-            </div>
+            {/* Shop Dropdown - TRUE FULL WIDTH */}
+            {/* <li className="group static">
+              <button className="py-4 px-2 transition-colors relative">
+                Shop
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+              </button>
+              
+              <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl shadow-lg">
+                <div className="container mx-auto py-6 md:py-8 px-4 md:px-8 lg:px-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                    
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-primary">
+                        Product Categories
+                      </h3>
+                      <ul className="space-y-2">
+                        <li>
+                          <Link 
+                            to="/product-category" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1"
+                          >
+                            All Products
+                          </Link>
+                        </li>
+                        
+                        {loading ? (
+                          <li className="text-center py-4">
+                            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-brand-primary"></div>
+                          </li>
+                        ) : categories && categories.length > 0 ? (
+                          <>
+                            {categories.map((category) => (
+                              <li key={category._id}>
+                                <Link
+                                  to={`/product-category?parentCategory=${category.name}`}
+                                  className="text-brand-primaryTextMuted hover:text-brand-primary transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primary"
+                                >
+                                  {category.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </>
+                        ) : (
+                          <li className="text-sm text-brand-primaryTextMuted py-2">No categories available</li>
+                        )}
+                      </ul>
+                    </div>
 
-            {/* Column 2 - Shopping */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-primary">
-                Shopping
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    to="/Cart"
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Shopping Cart
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/wishlist" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Wishlist
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/order" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    My Orders
-                  </Link>
-                </li>
-              </ul>
-            </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-primary">
+                        Shopping
+                      </h3>
+                      <ul className="space-y-2">
+                        <li>
+                          <Link
+                            to="/Cart"
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Shopping Cart
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/wishlist" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Wishlist
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/order" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            My Orders
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
 
-            {/* Column 3 - Featured */}
-            {/* <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-primary">
-                Featured
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link 
-                    to="/new-arrivals" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    New Arrivals
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/best-sellers" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Best Sellers
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/special-offers" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Special Offers
-                  </Link>
-                </li>
-              </ul>
-            </div> */}
+                  
+                    <div className="bg-gray-100 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+                      <Link to="/product-category" className="block h-full group/img">
+                        <div className="relative h-[350px] overflow-hidden">
+                          <img 
+                            src={hob} 
+                            alt="Shop Banner" 
+                            className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                            <h4 className="text-xl font-bold mb-2">Special Offers</h4>
+                            <p className="text-sm opacity-90 mb-3">Up to 50% off on selected items</p>
+                            <span className="inline-block bg-brand-primary text-white px-4 py-2 rounded text-sm font-medium hover:bg-brand-primaryHover transition">
+                              Shop Now →
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
 
-            {/* Column 4 - Image Banner */}
-            <div className="bg-gray-100 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
-              <Link to="/product-category" className="block h-full group/img">
-                <div className="relative h-[350px] overflow-hidden">
-                  <img 
-                    src={hob} 
-                    alt="Shop Banner" 
-                    className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <h4 className="text-xl font-bold mb-2">Special Offers</h4>
-                    <p className="text-sm opacity-90 mb-3">Up to 50% off on selected items</p>
-                    <span className="inline-block bg-brand-primary text-white px-4 py-2 rounded text-sm font-medium hover:bg-brand-primaryHover transition">
-                      Shop Now →
-                    </span>
                   </div>
                 </div>
+              </div>
+            </li> */}
+        <li className="group static"
+            onMouseEnter={() => setShopOpen(true)}
+            onMouseLeave={() => setShopOpen(false)}
+            >
+          <button className="py-4 px-2 relative">
+            Shop by Category
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+          </button>
+
+          {/* Mega Dropdown */}
+          {shopOpen && (
+          <div className="absolute left-0 right-0 top-full w-full bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 shadow-lg">
+            <div className="mx-auto px-4 lg:px-12 py-8">
+
+              <div className="grid grid-cols-12 gap-8">
+
+                {/* LEFT : Categories */}
+                <div className="col-span-8 grid grid-cols-3 gap-6">
+
+                  {categories.map((cat) => (
+                    <div key={cat._id}>
+                      {/* Top Category */}
+                      <h4 className="font-semibold text-gray-900 border-b border-red-500 inline-block mb-3">
+                        {cat.name}
+                      </h4>
+
+                      {/* Sub Categories */}
+                      <ul className="space-y-2 mt-2">
+                        {cat.subCategories?.map((sub, idx) => (
+                          <li key={sub._id}>
+                            <Link
+                            onClick={() => setShopOpen(false)}
+                              to={`/product-category?parentCategory=${cat.name}&category=${sub.name}`}
+                              className="text-sm text-gray-600 hover:text-brand-primary transition"
+                            >
+                              {sub.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+
+                </div>
+
+                {/* RIGHT : Dummy Images */}
+                <div className="col-span-4 grid grid-cols-2 gap-4">
+                  <div className="bg-gray-200 rounded-lg h-[260px]">
+                    <img src={ironBox1} alt="placeholder" className="object-fil w-full h-full" />
+                  </div>
+                  <div className="bg-gray-200 rounded-lg h-[260px]">
+                    <img src={mixer2} alt="placeholder" className="object-fil w-full h-full" />
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          )}
+        </li>
+
+            <li>
+              <Link 
+                to="/blog-page" 
+                className="block py-4 px-2 transition-colors relative group"
+              >
+                Blog
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
               </Link>
-            </div>
+            </li>
 
-          </div>
-        </div>
-      </div>
-    </li>
+            <li>
+              <Link 
+                to="/ContactUsPage" 
+                className="block py-4 px-2 transition-colors relative group"
+              >
+                Contact Us
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            </li>
 
-    <li>
-      <Link 
-        to="/blog-page" 
-        className="block py-4 px-2 transition-colors relative group"
-      >
-        Blog
-        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-      </Link>
-    </li>
-
-    <li>
-      <Link 
-        to="/ContactUsPage" 
-        className="block py-4 px-2 transition-colors relative group"
-      >
-        Contact Us
-        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-      </Link>
-    </li>
-
-    {/* Services & Supports Dropdown - TRUE FULL WIDTH */}
-    <li className="group static">
-      <button className="py-4 px-2 transition-colors relative">
-        Services & Supports
-        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-      </button>
-      
-      {/* Mega Dropdown */}
-      <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl shadow-lg">
-        <div className="container mx-auto py-6 md:py-8 px-4 md:px-8 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            
-            {/* Support Section */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary mb-4">
-                Support
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link 
-                    to="/customer-enquiry" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Customer Enquiry
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/ProductRegistration" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Product Registration
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/customer-complaint" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Customer Complaint
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/ContactUsPage" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    FAQs
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Company Section */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary mb-4">
-                Company
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link 
-                    to="/AboutUs" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/CareerPage" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/AuthorizedDealer" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Authorized Dealers
-                  </Link>
-                </li>
-                {/* <li>
-                  <Link 
-                    to="/AuthorizedDealer" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Service Center
-                  </Link>
-                </li> */}
-              </ul>
-            </div>
-
-            {/* Policies Section */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary mb-4">
-                Policies
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link 
-                    to="/PrivacyPolicy" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/TermsAndConditions" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Terms & Conditions
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    to="/ShippingPolicy" 
-                    className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
-                  >
-                    Shipping Policy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Banner/Image Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary">
-                Need Help?
-              </h3>
+            {/* Services & Supports Dropdown - TRUE FULL WIDTH */}
+            {/* <li className="group static">
+              <button className="py-4 px-2 transition-colors relative">
+                Services & Supports
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+              </button>
               
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg overflow-hidden shadow-md h-[200px] flex flex-col">
-                <div className="p-5 flex-1 flex flex-col">
-                  <img 
-                    src={Logo} 
-                    alt="Customer Support" 
-                    className="w-full h-28 object-contain mb-3"
-                  />
-                  <h4 className="font-semibold text-gray-900 mb-1">24/7 Support</h4>
-                  <p className="text-xs text-brand-primaryTextMuted mb-3 flex-1">We're here to help you anytime</p>
-                  <Link 
-                    to="/ContactUsPage" 
-                    className="block text-center bg-brand-primary text-white text-sm py-2 rounded hover:bg-brand-primaryHover transition"
-                  >
-                    Contact Us
-                  </Link>
+              <div className="mx-auto absolute left-0 right-0 top-full w-[97vw] bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 rounded-b-3xl shadow-lg">
+                <div className="container mx-auto py-6 md:py-8 px-4 md:px-8 lg:px-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                    
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary mb-4">
+                        Support
+                      </h3>
+                      <ul className="space-y-2">
+                        <li>
+                          <Link 
+                            to="/customer-enquiry" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Customer Enquiry
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/ProductRegistration" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Product Registration
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/customer-complaint" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Customer Complaint
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/faqs" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            FAQs
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary mb-4">
+                        Company
+                      </h3>
+                      <ul className="space-y-2">
+                        <li>
+                          <Link 
+                            to="/AboutUs" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            About Us
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/CareerPage" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Careers
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/AuthorizedDealer" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Authorized Dealers
+                          </Link>
+                        </li>
+
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary mb-4">
+                        Policies
+                      </h3>
+                      <ul className="space-y-2">
+                        <li>
+                          <Link 
+                            to="/PrivacyPolicy" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Privacy Policy
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/TermsAndConditions" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Terms & Conditions
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/ShippingPolicy" 
+                            className="text-brand-primaryTextMuted hover:text-brand-primaryHover transition text-sm block py-1 hover:pl-2 hover:border-l-2 hover:border-brand-primaryHover"
+                          >
+                            Shipping Policy
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-bold text-gray-900 pb-2 border-b-2 border-brand-primary">
+                        Need Help?
+                      </h3>
+                      
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg overflow-hidden shadow-md h-[200px] flex flex-col">
+                        <div className="p-5 flex-1 flex flex-col">
+                          <img 
+                            src={Logo} 
+                            alt="Customer Support" 
+                            className="w-full h-28 object-contain mb-3"
+                          />
+                          <h4 className="font-semibold text-gray-900 mb-1">24/7 Support</h4>
+                          <p className="text-xs text-brand-primaryTextMuted mb-3 flex-1">We're here to help you anytime</p>
+                          <Link 
+                            to="/ContactUsPage" 
+                            className="block text-center bg-brand-primary text-white text-sm py-2 rounded hover:bg-brand-primaryHover transition"
+                          >
+                            Contact Us
+                          </Link>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 shadow-md h-[140px] flex flex-col justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-1">Join Our Team</h4>
+                          <p className="text-xs text-brand-primaryTextMuted mb-2">Explore career opportunities</p>
+                        </div>
+                        <Link 
+                          to="/CareerPage" 
+                          className="text-brand-primary hover:text-brand-primaryHover text-sm font-medium inline-flex items-center"
+                        >
+                          View Openings →
+                        </Link>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
               </div>
-              
-              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 shadow-md h-[140px] flex flex-col justify-between">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-1">Join Our Team</h4>
-                  <p className="text-xs text-brand-primaryTextMuted mb-2">Explore career opportunities</p>
+            </li> */}
+            <li className="group static"
+              onMouseEnter={() => setServicesOpen(true)}
+       onMouseLeave={() => setServicesOpen(false)}>
+          <button className="py-4 px-2 relative">
+            Services & Supports
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+          </button>
+
+          {/* Mega Dropdown */}
+          {servicesOpen && (
+          <div className="absolute left-0 right-0 top-full w-full bg-white opacity-0 invisible 
+                          group-hover:opacity-100 group-hover:visible transition-all duration-300 
+                          z-50 shadow-lg">
+            <div className="mx-auto px-4 lg:px-12 py-8">
+
+              <div className="grid grid-cols-12 gap-8">
+
+                {/* LEFT : Service Categories */}
+                <div className="col-span-8 grid grid-cols-3 gap-6">
+
+                  {/* Support */}
+                  <div>
+                    <h4 className="font-semibold text-gray-900 border-b border-red-500 inline-block mb-3">
+                      Support
+                    </h4>
+                    <ul className="space-y-2 mt-2">
+                      <li>
+                        <Link to="/customer-enquiry" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Customer Enquiry
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/ProductRegistration" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Product Registration
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/customer-complaint" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Customer Complaint
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/faqs" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          FAQs
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Company */}
+                  <div>
+                    <h4 className="font-semibold text-gray-900 border-b border-red-500 inline-block mb-3">
+                      Company
+                    </h4>
+                    <ul className="space-y-2 mt-2">
+                      <li>
+                        <Link to="/AboutUs" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          About Us
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/CareerPage" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Careers
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/AuthorizedDealer" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Authorized Dealers
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Policies */}
+                  <div>
+                    <h4 className="font-semibold text-gray-900 border-b border-red-500 inline-block mb-3">
+                      Policies
+                    </h4>
+                    <ul className="space-y-2 mt-2">
+                      <li>
+                        <Link to="/PrivacyPolicy" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Privacy Policy
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/TermsAndConditions" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Terms & Conditions
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/ShippingPolicy" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                          Shipping Policy
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
                 </div>
-                <Link 
-                  to="/CareerPage" 
-                  className="text-brand-primary hover:text-brand-primaryHover text-sm font-medium inline-flex items-center"
-                >
-                  View Openings →
-                </Link>
+
+                {/* RIGHT : Dummy Image Section */}
+                <div className="col-span-4 grid grid-cols-2 gap-4">
+                  <div className="bg-gray-200 rounded-lg h-[260px]"></div>
+                  <div className="bg-gray-200 rounded-lg h-[260px]"></div>
+                </div>
+
               </div>
             </div>
-
           </div>
-        </div>
-      </div>
-    </li>
-  </ul>
-</nav>
+          )}
+            </li>
+          </ul>
+        </nav>
 
 
         {/* Mobile Menu */}
@@ -1129,7 +1283,7 @@ useEffect(() => {
       </header>
 
       {/* Spacer to prevent content from hiding under fixed header */}
-      <div className="h-[94px] md:h-[105px] lg:h-[129px]"></div>
+      <div className="h-[89px] md:h-[100px] lg:h-[119px]"></div>
     </>
   );
 };
