@@ -1,7 +1,7 @@
 import mixer1 from "../assest/topSell/Mixer1.png";
-import iron from "../assest/topSell/IronBox1.png";
-import hob from "../assest/topSell/Hob1.png";
-import mixer2 from "../assest/topSell/Mixer2.png";
+import iron from "../assest/topSell/IronBox1.jpg";
+import hob from "../assest/topSell/Hob1.jpg";
+import mixer2 from "../assest/topSell/Mixer2.jpg";
 
 const topSellingProducts = [
   {

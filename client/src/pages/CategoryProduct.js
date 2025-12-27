@@ -3206,9 +3206,10 @@ import SummaryApi from '../common';
 import Context from '../context';
 import addToCart from '../helpers/addToCart';
 import { SlidersHorizontal } from 'lucide-react';
-import TempBanner from "../assest/banner/DeskTopBanner2.png";
 import SelectDropdown from '../customStyles/SelectDropdown';
-
+import offer1 from '../assest/offer/Offer1.jpg';
+import offer2 from '../assest/offer/Offer2.jpg';
+import offer3 from '../assest/offer/Offer3.jpg';
 
 const CategoryProduct = () => {
   const [data, setData] = useState([]);
@@ -3222,6 +3223,23 @@ const CategoryProduct = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [isFilterVisible, setIsFilterVisible] = useState(true); // Toggle filter visibility
   const USE_TEMP_BANNER = true;
+
+  const tempOfferPosters = [
+  { id: 1, image: offer1 },
+  { id: 2, image: offer2 },
+  { id: 3, image: offer3 },
+  ];
+  useEffect(() => {
+    if (!USE_TEMP_BANNER || tempOfferPosters.length === 0) return;
+
+    const timer = setInterval(() => {
+      setOfferPosterIndex((prev) => (prev + 1) % tempOfferPosters.length);
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [USE_TEMP_BANNER, tempOfferPosters.length]);
+
+
 
   // Filter section toggle states
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
@@ -3470,22 +3488,26 @@ const handleOnChangeSortBy = useCallback((value) => {
   }, [childCategories, selectCategory, validParentCategory]);
 
   // Reset poster index when posters change
-  useEffect(() => {
-    setOfferPosterIndex(0);
-  }, [selectedCategoryOfferPosters.length]);
+useEffect(() => {
+  setOfferPosterIndex(0);
+}, [USE_TEMP_BANNER]);
+
 
   // Auto-rotate offer posters
-  useEffect(() => {
-    if (selectedCategoryOfferPosters.length > 1) {
-      const interval = setInterval(() => {
-        setOfferPosterIndex(prev =>
-          (prev + 1) % selectedCategoryOfferPosters.length
-        );
-      }, 4000);
+useEffect(() => {
+  if (USE_TEMP_BANNER) return; // ⛔ stop category slider
 
-      return () => clearInterval(interval);
-    }
-  }, [selectedCategoryOfferPosters.length]);
+  if (selectedCategoryOfferPosters.length > 1) {
+    const interval = setInterval(() => {
+      setOfferPosterIndex((prev) =>
+        (prev + 1) % selectedCategoryOfferPosters.length
+      );
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }
+}, [USE_TEMP_BANNER, selectedCategoryOfferPosters.length]);
+
 
 
   // Handle Add to Cart
@@ -3571,12 +3593,45 @@ const handleOnChangeSortBy = useCallback((value) => {
 
 {USE_TEMP_BANNER ? (
   <div className="relative w-full mb-6">
-    <div className="relative w-full overflow-hidden">
-      <img
-        src={TempBanner}
-        alt="Category Offer"
-        className="w-full max-h-[620px] object-contain mx-auto"
-      />
+    <div className="relative w-full h-[200px] md:h-[350px] lg:h-[400px] xl:h-[550px] 2xl:h-[650px] overflow-hidden">
+
+      {/* SLIDER */}
+      <div
+        className="flex h-full transition-transform duration-700 ease-in-out"
+        style={{
+          width: `${tempOfferPosters.length * 100}%`,
+          transform: `translateX(-${offerPosterIndex * (100 / tempOfferPosters.length)}%)`,
+        }}
+      >
+        {tempOfferPosters.map((poster) => (
+          <div
+            key={poster.id}
+            className="flex-shrink-0 w-full"
+            style={{ width: `${100 / tempOfferPosters.length}%` }}
+          >
+            <img
+              src={poster.image}
+              alt="Offer Banner"
+              className="w-full h-full object-fill"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* INDICATORS */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+        {tempOfferPosters.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setOfferPosterIndex(index)}
+            className="relative w-6 md:w-8 lg:w-10 h-[3px] bg-white/60 overflow-hidden"
+          >
+            {offerPosterIndex === index && (
+              <div className="absolute inset-0 bg-brand-primary animate-progress" />
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   </div>
 ) : (

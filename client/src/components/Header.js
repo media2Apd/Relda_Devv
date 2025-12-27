@@ -12,8 +12,9 @@ import { setUserDetails } from "../store/userSlice";
 import ROLE from "../common/role";
 import Context from "../context";
 import axios from "axios";
-import ironBox1 from '../assest/topSell/IronBox1.png'
-import mixer2 from '../assest/topSell/Mixer2.png'
+import image1 from '../assest/ChimneyMegaMenu.png'
+import image2 from '../assest/MixerGrinder.png'
+
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
 // import hob from "../assest/topSell/Hob1.png";
 // const dummy =[
@@ -283,7 +284,10 @@ useEffect(() => {
     return acc;
   }, {});
   
-  
+  const handleNavigateClick = (cat, sub) => {
+         setShopOpen(false);
+         navigate(`/product-category?category=${sub.name}&parentCategory=${cat.name}`);
+  }
 
   return (
     <>
@@ -728,14 +732,12 @@ useEffect(() => {
                       {/* Sub Categories */}
                       <ul className="space-y-2 mt-2">
                         {cat.subCategories?.map((sub, idx) => (
-                          <li key={sub._id}>
-                            <Link
-                            onClick={() => setShopOpen(false)}
-                              to={`/product-category?parentCategory=${cat.name}&category=${sub.name}`}
-                              className="text-sm text-gray-600 hover:text-brand-primary transition"
+                          <li key={sub._id}
+                              onClick={() => handleNavigateClick(cat,sub)}
+                              // to={`/product-category?parentCategory=${cat.name}&category=${sub.name}`}
+                              className="text-sm text-gray-600 hover:text-brand-primary transition cursor-pointer"
                             >
                               {sub.name}
-                            </Link>
                           </li>
                         ))}
                       </ul>
@@ -745,12 +747,12 @@ useEffect(() => {
                 </div>
 
                 {/* RIGHT : Dummy Images */}
-                <div className="col-span-4 grid grid-cols-2 gap-4">
-                  <div className="bg-gray-200 rounded-lg h-[260px]">
-                    <img src={ironBox1} alt="placeholder" className="object-fil w-full h-full" />
+                <div className="col-span-4 grid xl:grid-cols-2 gap-4">
+                  <div className="bg-gray-200 rounded-lg w-[260px] h-[260px]">
+                    <img src={image1} alt="placeholder" className="object-fil w-full h-full rounded-lg" />
                   </div>
-                  <div className="bg-gray-200 rounded-lg h-[260px]">
-                    <img src={mixer2} alt="placeholder" className="object-fil w-full h-full" />
+                  <div className="bg-gray-200 rounded-lg w-[260px] h-[260px]">
+                    <img src={image2} alt="placeholder" className="object-fil w-full h-full rounded-lg" />
                   </div>
                 </div>
 
