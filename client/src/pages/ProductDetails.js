@@ -1713,7 +1713,7 @@ const ProductDetails = () => {
                     }% `,
                   }} */}
             {zoomImage && typeof activeMedia === "string" && (
-              <div className="hidden lg:block absolute min-w-[500px] overflow-hidden min-h-[400px] bg-brand-productCardImageBg p-1 -right-[510px] top-0">
+              <div className="hidden lg:block absolute min-w-[500px] overflow-hidden min-h-[400px] bg-brand-productCardImageBg p-1 -right-[510px] top-0 z-40">
                 <div
                   className="w-full h-full min-h-[400px] min-w-[500px] mix-blend-multiply scale-150"
                   style={{
@@ -1891,7 +1891,7 @@ const ProductDetails = () => {
               </span>
             </div>
 
-            {/* 🔥 NEW: OFFERS AVAILABLE BUTTON */}
+            {/* NEW: OFFERS AVAILABLE BUTTON */}
             {applicableCoupons.length > 0 && (
                 <div className="my-2">
                     <button 
