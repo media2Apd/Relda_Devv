@@ -180,6 +180,36 @@ const jwt = require('jsonwebtoken');
 const userModel = require('../../models/userModel');
 const addToCartModel = require('../../models/cartProduct');
 
+// const mergeGuestCartToUser = async (userId, sessionId) => {
+//   if (!userId || !sessionId) return;
+
+//   const guestCartItems = await addToCartModel.find({ sessionId });
+
+//   for (const item of guestCartItems) {
+//     const existingUserItem = await addToCartModel.findOne({
+//       userId,
+//       productId: item.productId,
+//     });
+
+//     if (existingUserItem) {
+//       // same product already in user cart → increase qty
+//       existingUserItem.quantity += item.quantity;
+//       await existingUserItem.save();
+
+//       // remove guest row
+//       await addToCartModel.findByIdAndDelete(item._id);
+//     } else {
+//       // move guest cart to user cart
+//       item.userId = userId;
+//       item.sessionId = null;
+//       await item.save();
+//     }
+//   }
+
+//   // cleanup
+//   await addToCartModel.deleteMany({ sessionId, userId: null });
+// };
+
 const mergeGuestCartToUser = async (userId, sessionId) => {
   if (!userId || !sessionId) return;
 
@@ -192,23 +222,24 @@ const mergeGuestCartToUser = async (userId, sessionId) => {
     });
 
     if (existingUserItem) {
-      // same product already in user cart → increase qty
-      existingUserItem.quantity += item.quantity;
-      await existingUserItem.save();
-
-      // remove guest row
+      // ✅ SAME PRODUCT EXISTS → DELETE GUEST ITEM
       await addToCartModel.findByIdAndDelete(item._id);
     } else {
-      // move guest cart to user cart
-      item.userId = userId;
-      item.sessionId = null;
-      await item.save();
+      // ✅ MOVE GUEST ITEM TO USER
+      await addToCartModel.updateOne(
+        { _id: item._id },
+        {
+          $set: { userId },
+          $unset: { sessionId: "" }
+        }
+      );
     }
   }
 
-  // cleanup
+  // ✅ SAFETY CLEANUP
   await addToCartModel.deleteMany({ sessionId, userId: null });
 };
+
 
 
 const { TWILIO_AUTH_TOKEN, TWILIO_ACCOUNT_SID, TWILIO_SERVICE_SID } = process.env;
