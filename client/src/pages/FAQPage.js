@@ -55,10 +55,8 @@ const FAQPage = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12">
-          <h3 className="text-brand-primary text-base sm:text-lg font-bold mb-3 sm:mb-4 tracking-wider">
-            FAQ
-          </h3>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">
+
+          <h1 className="text-3xl font-bold mb-3">
             Frequently asked questions
           </h1>
           {/* <p className="text-[#99A1AF] text-sm sm:text-base">
@@ -82,7 +80,7 @@ const FAQPage = () => {
                 onClick={() => toggleFAQ(index)}
                 className="w-full px-5 sm:px-8 py-4 flex justify-between items-center text-left"
               >
-                <span className="text-base sm:text-lg lg:text-xl font-semibold pr-4">
+                <span className="text-base lg:text-lg font-medium pr-4">
                   {faq.question}
                 </span>
                 <span className="flex-shrink-0 text-brand-primary text-2xl sm:text-3xl font-light">

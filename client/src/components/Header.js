@@ -296,7 +296,7 @@ useEffect(() => {
         <title>Relda India | Smart Home & Electronic Appliances Store</title>
       </Helmet>
 
-      <header className="bg-white lg:border-b lg:border-brand-primary fixed w-full z-50 top-0">
+      <header className="bg-white lg:border-b lg:border-brand-primary fixed w-full z-[9999] top-0">
         {/* Top Header Section */}
         <div className="bg-white border-b border-gray-200">
           <div className="mx-auto px-4 lg:px-12 py-3">
@@ -317,12 +317,12 @@ useEffect(() => {
                   <input
                     type="text"
                     placeholder="What are you looking for..."
-                    className="w-full border rounded-md py-2 px-4 pr-10 focus:outline-none focus:border-brand-primary font-semibold text-sm"
+                    className="w-full border rounded-md py-2 px-4 pr-10 focus:outline-none focus:border-brand-primary font-regular text-sm"
                     onChange={handleSearch}
                     value={search}
                   />
                   <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                    <Search strokeWidth={1} className="w-6 h-6" />
+                    <Search strokeWidth={1} className="w-6 h-6 text-[#666666]" />
                   </button>
                 </div>
               </div>
@@ -747,11 +747,11 @@ useEffect(() => {
                 </div>
 
                 {/* RIGHT : Dummy Images */}
-                <div className="col-span-4 grid xl:grid-cols-2 gap-4">
-                  <div className="bg-gray-200 rounded-lg w-[260px] h-[260px]">
+                <div className="col-span-4 grid xl:grid-cols-2 gap-6">
+                  <div className="bg-gray-200 rounded-lg w-[260px] h-[260px] lg:w-[200px] lg:h-[200px] 2xl:w-[260px] 2xl:h-[260px]">
                     <img src={image1} alt="placeholder" className="object-fil w-full h-full rounded-lg" />
                   </div>
-                  <div className="bg-gray-200 rounded-lg w-[260px] h-[260px]">
+                  <div className="bg-gray-200 rounded-lg w-[260px] h-[260px] lg:w-[200px] lg:h-[200px] 2xl:w-[260px] 2xl:h-[260px]">
                     <img src={image2} alt="placeholder" className="object-fil w-full h-full rounded-lg" />
                   </div>
                 </div>
@@ -1040,8 +1040,8 @@ useEffect(() => {
 
                 {/* RIGHT : Dummy Image Section */}
                 <div className="col-span-4 grid grid-cols-2 gap-4">
-                  <div className="bg-gray-200 rounded-lg h-[260px]"></div>
-                  <div className="bg-gray-200 rounded-lg h-[260px]"></div>
+                  <div className="bg-gray-200 rounded-lg w-[340px] h-[170px]"></div>
+                  {/* <div className="bg-gray-200 rounded-lg h-[260px]"></div> */}
                 </div>
 
               </div>

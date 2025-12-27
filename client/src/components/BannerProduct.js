@@ -145,7 +145,7 @@ const BannerProduct = ({ type = "home-top" }) => {
               <img
                 src={item.desktopImage}
                 alt={item.title || "banner"}
-                className="w-full max-h-[520px] mx-auto"
+                className="w-full h-[200px] md:h-[350px] lg:h-[400px] xl:h-[550px] 2xl:h-[650px] mx-auto object-fill"
               />
             </picture>
           </div>
@@ -173,3 +173,147 @@ const BannerProduct = ({ type = "home-top" }) => {
 };
 
 export default BannerProduct;
+// import React, { useEffect, useState, useMemo } from "react";
+// import { useNavigate } from "react-router-dom";
+// import useBannerImages from "../hooks/useBannerImages";
+// import openingImg from "../assest/offer/Offer1.jpg";
+
+// // 🔥 OPENING DATE
+// const OPENING_DATE = new Date("2026-01-01T00:00:00");
+
+// const BannerProduct = ({ type = "home-top" }) => {
+//   const { banners, loading } = useBannerImages(type);
+//   const [current, setCurrent] = useState(0);
+//   const navigate = useNavigate();
+
+//   // 🔥 CHECK OPENING DATE
+//   const showOpeningBanner = new Date() < OPENING_DATE;
+
+//   // 🔥 OPENING BANNER OBJECT
+//   const openingBanner = {
+//     _id: "opening-banner",
+//     type: "opening",
+//     desktopImage: openingImg,
+//     mobileImage: openingImg,
+//     openingDate: OPENING_DATE,
+//   };
+
+//   // 🔥 FINAL BANNERS ARRAY
+//   const finalBanners = useMemo(() => {
+//     if (showOpeningBanner) {
+//       return [openingBanner, ...(banners || [])];
+//     }
+//     return banners || [];
+//   }, [banners, showOpeningBanner]);
+
+//   // 🔥 AUTO SLIDE
+//   useEffect(() => {
+//     if (!finalBanners.length) return;
+
+//     const timer = setInterval(() => {
+//       setCurrent((prev) => (prev + 1) % finalBanners.length);
+//     }, 4000);
+
+//     return () => clearInterval(timer);
+//   }, [finalBanners.length]);
+
+//   // 🔥 COUNTDOWN FUNCTION
+//   const getTimeLeft = (date) => {
+//     const diff = date - new Date();
+//     if (diff <= 0) return null;
+
+//     return {
+//       days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+//       hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+//       minutes: Math.floor((diff / (1000 * 60)) % 60),
+//       seconds: Math.floor((diff / 1000) % 60),
+//     };
+//   };
+
+//   // 🔴 LOADING
+//   if (loading) {
+//     return <div className="w-full h-[300px] animate-pulse" />;
+//   }
+
+//   if (!finalBanners.length) return null;
+
+//   return (
+//     <div className="relative w-full overflow-hidden">
+//       {/* SLIDER */}
+//       <div
+//         className="flex transition-transform duration-700 ease-in-out"
+//         style={{ transform: `translateX(-${current * 100}%)` }}
+//       >
+//         {finalBanners.map((item, index) => {
+//           const timeLeft =
+//             item.type === "opening"
+//               ? getTimeLeft(item.openingDate)
+//               : null;
+
+//           // 🔴 OPENING TIME OVER → REMOVE BANNER
+//           if (item.type === "opening" && !timeLeft) return null;
+
+//           return (
+//             <div
+//               key={item._id || index}
+//               className="relative w-full flex-shrink-0 cursor-pointer"
+//               onClick={() => item.link && navigate(item.link)}
+//             >
+//               <picture>
+//                 <source
+//                   media="(max-width: 768px)"
+//                   srcSet={item.mobileImage}
+//                 />
+//                 <img
+//                   src={item.desktopImage}
+//                   alt={item.title || "banner"}
+//                   className="w-full h-[200px] md:h-[350px] lg:h-[400px] xl:h-[550px] 2xl:h-[650px] object-fill"
+//                 />
+//               </picture>
+
+//               {/* 🔥 COUNTDOWN OVERLAY (ONLY OPENING BANNER) */}
+//               {item.type === "opening" && timeLeft && (
+//                 <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
+//                   <h2 className="text-2xl md:text-4xl font-bold mb-4">
+//                     Opening In
+//                   </h2>
+
+//                   <div className="flex gap-3">
+//                     {Object.entries(timeLeft).map(([label, value]) => (
+//                       <div
+//                         key={label}
+//                         className="bg-black/70 px-4 py-3 rounded-lg text-center min-w-[70px]"
+//                       >
+//                         <div className="text-2xl font-bold">{value}</div>
+//                         <div className="text-xs uppercase">{label}</div>
+//                       </div>
+//                     ))}
+//                   </div>
+//                 </div>
+//               )}
+//             </div>
+//           );
+//         })}
+//       </div>
+
+//       {/* INDICATORS */}
+//       {finalBanners.length > 1 && (
+//         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3">
+//           {finalBanners.map((_, index) => (
+//             <button
+//               key={index}
+//               onClick={() => setCurrent(index)}
+//               className="relative w-6 md:w-8 lg:w-10 h-[3px] bg-white overflow-hidden"
+//             >
+//               {current === index && (
+//                 <div className="absolute inset-0 bg-brand-primary animate-progress" />
+//               )}
+//             </button>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default BannerProduct;
