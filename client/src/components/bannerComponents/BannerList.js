@@ -304,11 +304,16 @@ const SortableRow = ({ banner, children }) => {
     };
 
     return (
-        <tr ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <tr ref={setNodeRef} style={style} {...attributes}>
+            {/* Drag Handle */}
+            <td className="px-2 cursor-grab text-center" {...listeners}>
+                ⠿
+            </td>
             {children}
         </tr>
     );
 };
+
 
 
 const BannerList = () => {
@@ -413,13 +418,28 @@ const BannerList = () => {
     };
 
     /* ---------------- ACTIONS ---------------- */
+    // const toggleBanner = async (id) => {
+    //     await fetch(SummaryApi.toggleBannerStatus(id).url, {
+    //         method: "PATCH",
+    //         credentials: "include",
+    //     });
+    //     fetchBanners();
+    // };
     const toggleBanner = async (id) => {
-        await fetch(SummaryApi.toggleBannerStatus(id).url, {
+        const res = await fetch(SummaryApi.toggleBannerStatus(id).url, {
             method: "PATCH",
             credentials: "include",
         });
-        fetchBanners();
+
+        const data = await res.json();
+        if (data.success) {
+            toast.success("Banner status updated");
+            fetchBanners();
+        } else {
+            toast.error("Failed to update status");
+        }
     };
+
 
     const deleteBanner = async (id) => {
         if (!window.confirm("Delete this banner?")) return;
@@ -504,6 +524,7 @@ const BannerList = () => {
                 <table className="w-full text-left">
                     <thead className="bg-gray-100 text-xs uppercase text-brand-textMuted">
                         <tr>
+                            <th className="px-2 py-3 text-center">Move</th>
                             <th className="px-4 py-3">Preview</th>
                             <th className="px-4 py-3">Position</th>
                             <th className="px-4 py-3">Link</th>
@@ -581,7 +602,7 @@ const BannerList = () => {
                                             <td className="px-4 py-3 text-center">{b.order}</td>
                                             <td className="px-4 py-3 text-center">
                                                 <button
-                                                    onClick={() => toggleBanner(b._id)}
+                                                    onClick={(e) => { e.stopPropagation(); toggleBanner(b._id) }}
                                                     className={`px-2 py-1 rounded text-white text-xs ${b.isActive ? "bg-[#e60000]" : "bg-gray-400"
                                                         }`}
                                                 >
@@ -591,13 +612,13 @@ const BannerList = () => {
                                             <td className="px-4 py-3 text-center">
                                                 <div className="flex justify-center gap-3">
                                                     <button
-                                                        onClick={() => openEditModal(b)}
+                                                        onClick={(e) => { e.stopPropagation(); openEditModal(b) }}
                                                         className="p-2 bg-green-100 text-brand-buttonAccent rounded-md hover:bg-brand-buttonAccentHover hover:text-white"
                                                     >
                                                         <MdModeEdit size={18} />
                                                     </button>
                                                     <button
-                                                        onClick={() => deleteBanner(b._id)}
+                                                        onClick={(e) => { e.stopPropagation(); deleteBanner(b._id) }}
                                                         className="p-2 bg-red-100 text-brand-primary rounded-md hover:bg-brand-primaryHover hover:text-white"
                                                     >
                                                         <MdDelete size={18} />
