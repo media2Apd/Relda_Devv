@@ -4473,6 +4473,7 @@ const CategoryProduct = () => {
       isUpdatingFromUrl.current = true;
       setSelectCategory(restoredCategories);
     }
+  //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlCategoryListingArray,]); // Only depends on the array parsed from URL
 
   /**
@@ -4545,7 +4546,7 @@ const CategoryProduct = () => {
     } else {
       fetchData(selectedCategories, selectedScreenSizes);
     }
-
+  //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectCategory, selectScreenSize, validParentCategory, childCategories, initialLoad, fetchData, navigate]);
 
   // Handle category selection
@@ -4727,7 +4728,8 @@ const CategoryProduct = () => {
               onChange={handleOnChangeSortBy}
               options={sortOptions}
               placeholder="Default"
-              parentClassName="w-[190px]"
+              parentClassName="sm:min-w-[170px]"
+              dropdownClassName="min-w-[170px]"
               error={!!sortBy}
               ChildClassName="border rounded px-3 py-1.5 text-sm h-[38px] bg-white"
             />
@@ -4958,7 +4960,7 @@ const CategoryProduct = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm lg:text-base font-medium whitespace-nowrap">Sort By</span>
-                <SelectDropdown value={sortBy} valueKey="value" labelKey="label" onChange={handleOnChangeSortBy} options={sortOptions} placeholder="Default" parentClassName="w-[190px]" error={!!sortBy} ChildClassName="border rounded px-3 py-1.5 text-sm h-[38px] bg-white" />
+                <SelectDropdown value={sortBy} valueKey="value" labelKey="label" onChange={handleOnChangeSortBy} options={sortOptions} placeholder="Default" parentClassName="min-w-[120px] sm:min-w-[170px]" error={!!sortBy} ChildClassName="border rounded px-3 py-1.5 text-sm h-[38px] bg-white" />
               </div>
             </div>
 

@@ -296,7 +296,7 @@ useEffect(() => {
         <title>Relda India | Smart Home & Electronic Appliances Store</title>
       </Helmet>
 
-      <header className="bg-white fixed w-full z-50 top-0">
+      <header className="bg-white lg:border-b lg:border-brand-primary fixed w-full z-50 top-0">
         {/* Top Header Section */}
         <div className="bg-white border-b border-gray-200">
           <div className="mx-auto px-4 lg:px-12 py-3">
@@ -1071,7 +1071,7 @@ useEffect(() => {
                   className="w-full flex items-center justify-between text-black font-medium px-6 py-3 hover:bg-gray-100 transition"
                   onClick={() => setShopDropdownOpen(!shopDropdownOpen)}
                 >
-                  <span>Shop</span>
+                  <span>Shop by Category</span>
                   {shopDropdownOpen ? <RiArrowDropUpLine size={24} /> : <RiArrowDropDownLine size={24} />}
                 </button>
                 
