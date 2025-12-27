@@ -14,7 +14,7 @@ import Context from "../context";
 import axios from "axios";
 import image1 from '../assest/ChimneyMegaMenu.png'
 import image2 from '../assest/MixerGrinder.png'
-
+import image3 from '../assest/SupportMegaMenu.png'
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
 // import hob from "../assest/topSell/Hob1.png";
 // const dummy =[
@@ -1040,7 +1040,9 @@ useEffect(() => {
 
                 {/* RIGHT : Dummy Image Section */}
                 <div className="col-span-4 grid grid-cols-2 gap-4">
-                  <div className="bg-gray-200 rounded-lg w-[340px] h-[170px]"></div>
+                  <div className="rounded-lg w-[340px] h-[200px]">
+                    <img alt="" className="shadow-[0_0_24px_rgba(0,0,0,0.08)] rounded-lg w-full h-full object-cover" src={image3}/>
+                  </div>
                   {/* <div className="bg-gray-200 rounded-lg h-[260px]"></div> */}
                 </div>
 
