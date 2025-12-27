@@ -484,7 +484,7 @@ const SearchProduct = () => {
                 onChange={handleSortChange}
                 options={sortOptions}
                 placeholder="Default"
-                parentClassName="w-[190px]"
+                parentClassName="min-w-[170px]"
                 error={!!sortBy}
                 ChildClassName="
                   border rounded px-3 py-1.5 text-sm h-[38px]
