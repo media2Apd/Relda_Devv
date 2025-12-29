@@ -969,7 +969,7 @@ const SignUp = () => {
                 className="accent-[#E60000] cursor-pointer w-4 h-4" 
                 />
                 <label htmlFor="terms" className="text-xs font-semibold text-gray-700 cursor-pointer">
-                    Agree with <Link to="/TermsAndConditions" className="text-[#E60000] underline">Terms & Condition</Link>
+                    Agree with <a href="/TermsAndConditions" target="_blank" className="text-[#E60000] underline">Terms & Condition</a>
                 </label>
             </div>
             {errors.terms && <p className="text-[#E60000] text-[10px] font-medium ml-6">{errors.terms}</p>}
