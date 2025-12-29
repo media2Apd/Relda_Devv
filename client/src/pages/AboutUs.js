@@ -178,7 +178,7 @@ const AboutUs = () => {
    </div>
 
       {/* ================= MISSION ================= */}
-<section className="max-w-4xl mx-auto px-4 md:px-6 py-16">
+<section className="max-w-7xl mx-auto px-4 md:px-6 py-16">
   <div className="bg-white rounded-xl shadow-[0_0_24px_rgba(0,0,0,0.08)] p-8 md:p-10 text-center">
     <h2 className="text-lg md:text-xl font-medium mb-4">
       Our mission is simple

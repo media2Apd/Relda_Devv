@@ -396,7 +396,7 @@ const handleSubmit = async (e) => {
                   type="button"
                   className="w-full px-6 py-2 flex items-center justify-center gap-2
                             border border-[#99A1AF] text-[#99A1AF]
-                            rounded-md font-medium"
+                            rounded-md font-medium hover:bg-[#40C351] hover:text-white "
                 >
                   <FaWhatsapp className="text-lg" />
 
