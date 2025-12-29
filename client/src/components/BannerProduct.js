@@ -145,7 +145,7 @@ const BannerProduct = ({ type = "home-top" }) => {
               <img
                 src={item.desktopImage}
                 alt={item.title || "banner"}
-                className="w-full h-[200px] md:h-[350px] lg:h-[400px] xl:h-[550px] 2xl:h-[650px] mx-auto object-fill"
+                className="w-full h-[200px] md:h-[350px] lg:h-[400px] xl:h-[550px] 2xl:h-[690px] mx-auto object-fill"
               />
             </picture>
           </div>

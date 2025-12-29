@@ -69,7 +69,8 @@
 
 // export default AboutUs;
 import React from "react";
-import openingImg from "../assest/offer/Offer1.jpg";
+import aboutUs1 from "../assest/AboutUs1.png";
+import aboutUs2 from "../assest/AboutUs2.png";
 
 const AboutUs = () => {
   return (
@@ -100,7 +101,7 @@ const AboutUs = () => {
           <div className="w-full">
             <div className="w-full h-[200px] md:h-[260px] bg-gray-200 rounded-xl overflow-hidden">
               <img
-                src={openingImg}
+                src={aboutUs1}
                 alt="Home Appliances"
                 className="w-full h-full object-cover"
               />
@@ -133,9 +134,9 @@ const AboutUs = () => {
 
           {/* RIGHT IMAGE (MATCH CARD HEIGHT) */}
           <div className="w-full">
-            <div className="w-full h-[200px] md:h-[240px] bg-gray-200 rounded-xl overflow-hidden">
+            <div className="w-full h-[250px] md:h-[320px] bg-gray-200 rounded-xl overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1600489000022-c2086d79f9d4?q=80&w=1200"
+                src={aboutUs2}
                 alt="Indian Family Home"
                 className="w-full h-full object-cover"
               />
