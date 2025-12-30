@@ -160,7 +160,7 @@ const Footer = () => {
   {/* <a href="https://www.youtube.com/@Relda_India" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
     <IoLogoYoutube size={20} />
   </a>  */}
-  <a 
+                  <a 
                     href="https://www.facebook.com/reldaindia" 
                     target="_blank" 
                     rel="noopener noreferrer"
@@ -176,7 +176,7 @@ const Footer = () => {
                   >
                     <RiInstagramFill className="w-10 h-10" />
                   </a>
-                    <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
+                    <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover transition-all">
     <RiLinkedinFill size={22} />
   </a>
                  
@@ -186,7 +186,7 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
                   >
-                    <BsYoutube className="w-10 h-10" />
+                    <BsYoutube className="text-[40px]" />
                   </a>
                    <a 
                     href="https://www.linkedin.com" 
@@ -194,7 +194,7 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
                   >
-                    <FaSquareXTwitter className="w-10 h-10" />
+                    <FaSquareXTwitter className="w-9 h-9" />
                   </a>
 </div>
             </div>

@@ -1,430 +1,588 @@
-// import React, { useState, useRef } from 'react';
-// import bannerImage from '../assest/banner/career-img.jpg';
-// import teamCollaboration from '../assest/banner/cr=t_5.35,w_89.webp'
-// import SummaryApi from '../common';
+// import React, { useState, useRef } from "react";
+// import bannerImage from "../assest/banner/career-img.jpg";
+// import teamCollaboration from "../assest/banner/cr=t_5.35,w_89.webp";
+// import SummaryApi from "../common";
 
 // const CareerPage = () => {
-//   const [name, setName] = useState('');
-//   const [email, setEmail] = useState('');
-//   const [educationalQualification, setEducationalQualification] = useState('');
-//   const [lookingFor, setLookingFor] = useState('');
-//   const [experience, setExperience] = useState('');
-//   const [phone, setPhone] = useState('');
-//   const [summary, setSummary] = useState('');
-//   const [resume, setResume] = useState(null); // Handle file input
-//   const [errors, setErrors] = useState({}); // Tracks field-specific errors
+//   const [loading, setLoading] = useState(false);
+//   const [errors, setErrors] = useState({});
 //   const fileInputRef = useRef(null);
 
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     email: "",
+//     educationalQualification: "",
+//     lookingFor: "",
+//     experience: "",
+//     phone: "",
+//     summary: "",
+//     resume: null,
+//   });
+
 //   const validateForm = () => {
-//     const newErrors = {};
+//     const e = {};
 
-//     if (!name.trim()) newErrors.name = 'Name is required.';
-//     if (!email.trim()) {
-//       newErrors.email = 'Email is required.';
-//     } else if (!/\S+@\S+\.\S+/.test(email)) {
-//       newErrors.email = 'Please enter a valid email address.';
+//     if (!formData.name.trim()) e.name = "Name is required";
+//     if (!formData.email) {
+//       e.email = "Email is required";
+//     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+//       e.email = "Enter valid email";
 //     }
-//     if (!educationalQualification.trim()) newErrors.educationalQualification = 'Educational Qualification is required.';
-//     if (!lookingFor.trim()) newErrors.lookingFor = 'This field is required.';
-//     if (!experience.trim()) newErrors.experience = 'Experience is required.';
-//     if (!phone.trim()) {
-//       newErrors.phone = 'Phone number is required.';
-//     } else if (!/^\d{10}$/.test(phone)) {
-//       newErrors.phone = 'Please enter a valid 10-digit phone number.';
-//     }
-//     if (!summary.trim()) newErrors.summary = 'Summary is required.';
-//     if (!resume) newErrors.resume = 'Please attach your resume.';
-//     setErrors(newErrors);
-//     return Object.keys(newErrors).length === 0; // Return true if no errors
+//     if (!formData.educationalQualification)
+//       e.educationalQualification = "Educational qualification required";
+//     if (!formData.lookingFor) e.lookingFor = "This field is required";
+//     if (!formData.experience) e.experience = "Experience is required";
+//     if (!/^\d{10}$/.test(formData.phone))
+//       e.phone = "Enter valid 10 digit phone";
+//     if (!formData.summary) e.summary = "Summary is required";
+//     if (!formData.resume) e.resume = "Resume is required";
+
+//     setErrors(e);
+//     return Object.keys(e).length === 0;
 //   };
-
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
+//     if (!validateForm()) return;
 
-//     if (!validateForm()) return; // Stop submission if validation fails
-    
-//     const formData = new FormData();
-//     formData.append('name', name);
-//     formData.append('email', email);
-//     formData.append('educationalQualification', educationalQualification);
-//     formData.append('lookingFor', lookingFor);
-//     formData.append('experience', experience);
-//     formData.append('phone', phone);
-//     formData.append('summary', summary);
-//     formData.append('resume', resume); // Attach the resume file
+//     const fd = new FormData();
+//     Object.entries(formData).forEach(([key, value]) =>
+//       fd.append(key, value)
+//     );
 
 //     try {
-//       const response = await fetch(SummaryApi.career.url, {
+//       setLoading(true);
+//       await fetch(SummaryApi.career.url, {
 //         method: SummaryApi.career.method,
-//         body: formData,
+//         body: fd,
 //       });
-      
-//       const data = await response.json();
-//       if (data.message) {
-//         alert('Application submitted successfully');
-// 	setName('');
-//         setEmail('')
-//         setEducationalQualification('');
-//         setLookingFor('');
-//         setExperience('');
-//         setPhone('');
-//         setSummary('');
-//         setResume(null); // Reset the resume file input
-//         setErrors({}); // Clear errors on successful submission
-//         if (fileInputRef.current) {
-//           fileInputRef.current.value = ''; // Reset the file input
-//         }
-//       }
-//     } catch (error) {
-//       console.error('Error submitting form', error);
-//     }
-// };
 
+//       alert("Application submitted successfully");
+//       setFormData({
+//         name: "",
+//         email: "",
+//         educationalQualification: "",
+//         lookingFor: "",
+//         experience: "",
+//         phone: "",
+//         summary: "",
+//         resume: null,
+//       });
+//       setErrors({});
+//       fileInputRef.current.value = "";
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//  const inputClass =
+//   "w-full px-2 py-2 border-b outline-none bg-transparent text-sm transition-colors duration-200";
 
 //   return (
 //     <div>
-//       {/* Banner Section */}
+//       {/* Banner */}
 //       <div className="relative">
-//         <img 
-//           src={bannerImage} 
-//           alt="Explore a Career" 
-//           className="w-full md:h-[400px] object-cover"
-//         />
-//         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-//           <h1 className="text-white text-2xl md:text-4xl lg:text-6xl font-bold transition-transform transform hover:scale-105">
+//         <img src={bannerImage} alt="banner" className="w-full md:h-[400px] object-cover" />
+//         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+//           <h1 className="text-white text-2xl md:text-5xl font-bold">
 //             EXPLORE A CAREER AT RELDA
 //           </h1>
 //         </div>
 //       </div>
 
-//       {/* Who We Are Section */}
-//       <section className="text-center py-6 md:py-10">
-//         <h2 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Who we are</h2>
-//         <p className="text-brand-textMuted max-w-2xl mx-auto text-sm md:text-base">
-//           Our mission is People <span className="font-bold">Work Together</span> to get a new technology.
-//           We take inspiration from what people want to accomplish in their lives and work to create products that empower in new ways.
-//           This is what drives our innovation forward.
+//       {/* Who We Are */}
+//       <section className="text-center py-10">
+//         <h2 className="text-2xl font-semibold mb-4">Who we are</h2>
+//         <p className="max-w-2xl mx-auto text-brand-textMuted">
+//           Our mission is People <b>Work Together</b> to get a new technology.
 //         </p>
-//         <div className="mt-6 md:mt-8">
-//           <img src={teamCollaboration} alt="Team collaboration" className="mx-auto max-w-full h-auto" />
-//         </div>
+//         <img src={teamCollaboration} alt="team" className="mx-auto mt-6" />
 //       </section>
 
-//       {/* Job Application Form Section */}
-//       <section className="bg-brand-productCardImageBg py-6 md:py-8">
-//         <div className="max-w-lg mx-auto px-4 md:px-0">
-//           <h2 className="text-center text-xl md:text-2xl font-bold mb-4 md:mb-6">JOIN THE TEAM !!</h2>
-//           <p className="text-center mb-4 md:mb-6 text-brand-textMuted">Explore exciting opportunities and apply now to join us.</p>
-//           <form className="space-y-4" onSubmit={handleSubmit}>
-//             <div className="grid grid-cols-1 gap-3 md:gap-4">
-//               <input
-//                 type="text"
-//                 placeholder="Name*"
-//                 className={`p-2 rounded bg-white border ${errors.name ? 'border-brand-primary' : 'border-brand-200'}`}
-//                 value={name}
-//                 onChange={(e) => setName(e.target.value)}
-//               />
-//               {errors.name && <p className="text-brand-primary text-sm">{errors.name}</p>}
+//       {/* FORM */}
+//       <section className="px-4 py-10">
+//         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md px-6 md:px-16 py-8">
+//           <h2 className="text-2xl font-bold text-center mb-6">
+//             JOIN THE TEAM !!
+//           </h2>
 
-//               <input
-//                 type="email"
-//                 placeholder="Email*"
-//                 className={`p-2 rounded bg-white border ${errors.email ? 'border-brand-primary' : 'border-gray-200'}`}
-//                 value={email}
-//                 onChange={(e) => setEmail(e.target.value)}
-//               />
-//               {errors.email && <p className="text-brand-primary text-sm">{errors.email}</p>}
+//         <form onSubmit={handleSubmit} className="space-y-6">
 
-//               <input
-//                 type="text"
-//                 placeholder="Educational Qualification*"
-//                 className={`p-2 rounded bg-white border ${errors.educationalQualification ? 'border-brand-primary' : 'border-gray-200'}`}
-//                 value={educationalQualification}
-//                 onChange={(e) => setEducationalQualification(e.target.value)}
-//               />
-//               {errors.educationalQualification && (
-//                 <p className="text-brand-primary text-sm">{errors.educationalQualification}</p>
-//               )}
+//           {/* INPUT GRID */}
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//             {[
+//               ["name", "Name", "Jhon Doe"],
+//               ["email", "Email", "johndoe@gmail.com"],
+//               ["educationalQualification", "Educational Qualification", "Educational Qualification"],
+//               ["lookingFor", "Looking For", "Looking For"],
+//               ["experience", "Experience", "Enter your experience"],
+//               ["phone", "Phone", "+91 2345678901"],
+//             ].map(([key, label, placeholder]) => (
+//               <div key={key}>
+//                 <label className="text-sm font-medium">{label}</label>
+//                 <input
+//                   name={key}
+//                   placeholder={placeholder}
+//                   value={formData[key]}
+//                   onChange={(e) =>
+//                     setFormData({ ...formData, [key]: e.target.value })
+//                   }
+//                   className={`${inputClass} ${
+//                     errors[key]
+//                       ? "border-brand-primary"
+//                       : "border-brand-productCardBorder"
+//                   }`}
+//                 />
+//                 <p className="text-xs text-brand-primary mt-1 min-h-[14px]">
+//                   {errors[key] || ""}
+//                 </p>
+//               </div>
+//             ))}
+//           </div>
 
-//               <input
-//                 type="text"
-//                 placeholder="Looking For*"
-//                 className={`p-2 rounded bg-white border ${errors.lookingFor ? 'border-brand-primary' : 'border-gray-200'}`}
-//                 value={lookingFor}
-//                 onChange={(e) => setLookingFor(e.target.value)}
-//               />
-//               {errors.lookingFor && <p className="text-brand-primary text-sm">{errors.lookingFor}</p>}
-
-//               <input
-//                 type="text"
-//                 placeholder="Experience*"
-//                 className={`p-2 rounded bg-white border ${errors.experience ? 'border-brand-primary' : 'border-gray-200'}`}
-//                 value={experience}
-//                 onChange={(e) => setExperience(e.target.value)}
-//               />
-//               {errors.experience && <p className="text-brand-primary text-sm">{errors.experience}</p>}
-
-//               <input
-//                 type="text"
-//                 placeholder="Phone*"
-//                 className={`p-2 rounded bg-white border ${errors.phone ? 'border-brand-primary' : 'border-gray-200'}`}
-//                 value={phone}
-//                 onChange={(e) => setPhone(e.target.value)}
-//               />
-//               {errors.phone && <p className="text-brand-primary text-sm">{errors.phone}</p>}
-//             </div>
-
+//           {/* SUMMARY – FULL WIDTH */}
+//           <div>
+//             <label className="text-sm font-medium">Summary</label>
 //             <textarea
-//               placeholder="Write a summary about yourself..."
-//               className={`p-2 rounded bg-white border ${errors.summary ? 'border-brand-primary' : 'border-gray-200'} w-full`}
-//               rows="4"
-//               value={summary}
-//               onChange={(e) => setSummary(e.target.value)}
+//               rows="3"
+//               value={formData.summary}
+//               placeholder="Write us a message"
+//               onChange={(e) =>
+//                 setFormData({ ...formData, summary: e.target.value })
+//               }
+//               className={`${inputClass} ${
+//                 errors.summary
+//                   ? "border-brand-primary"
+//                   : "border-brand-productCardBorder"
+//               }`}
 //             />
-//             {errors.summary && <p className="text-brand-primary text-sm">{errors.summary}</p>}
+//             <p className="text-xs text-brand-primary mt-1 min-h-[14px]">
+//               {errors.summary || ""}
+//             </p>
+//           </div>
 
-
-//             <label htmlFor="fileUpload" className="flex items-center justify-center p-2 mt-2 border-none rounded cursor-pointer">Attach Resume</label>
+//           {/* RESUME */}
+//           <div>
+//             <p className="text-sm text-[#99A1AF] mb-2 font-medium">Attach Resume</p>
 //             <input
 //               type="file"
-//               accept=".pdf, .doc, .docx"
-//               required
-//               className={`w-full my-2 p-2 bg-white border ${errors.resume ? 'border-brand-primary' : 'border-gray-200'} rounded text-gray-400`}
-//               onChange={(e) => setResume(e.target.files[0])}
 //               ref={fileInputRef}
+//               accept=".pdf,.doc,.docx"
+//               onChange={(e) =>
+//                 setFormData({ ...formData, resume: e.target.files[0] })
+//               }
+//               className={`w-full border rounded-md text-sm px-2 py-1
+//                 ${
+//                   errors.resume
+//                     ? "border-brand-primary"
+//                     : "border-brand-productCardBorder"
+//                 }
+//                 file:border-0
+//                 file:bg-[#E5E5E5]
+//                 file:text-[#040404]
+//                 file:px-4
+//                 file:py-1.5
+//                 file:rounded-md
+//                 file:cursor-pointer
+//               `}
 //             />
-//             {errors.resume && <p className="text-brand-primary text-sm">{errors.resume}</p>}
+//             <p className="text-xs text-brand-primary mt-1 min-h-[14px]">
+//               {errors.resume || ""}
+//             </p>
+//           </div>
 
+//           {/* BUTTON */}
+//           <div className="flex justify-center md:justify-end">
 //             <button
-//               onClick={handleSubmit}
-//               type="submit"
-//               className="w-full bg-brand-primary hover:bg-brand-primaryHover text-white py-2 rounded font-semibold"
+//               disabled={loading}
+//               className={`w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium
+//                 ${
+//                   loading
+//                     ? "bg-brand-primaryHover"
+//                     : "bg-brand-primary hover:bg-brand-primaryHover"
+//                 }`}
 //             >
-//               Submit Application
+//               {loading ? "Submitting..." : "Submit Application"}
 //             </button>
-//           </form>
+//           </div>
+//         </form>
+
 //         </div>
 //       </section>
 //     </div>
 //   );
-// }
+// };
 
 // export default CareerPage;
 
-import React, { useState, useRef } from "react";
-import bannerImage from "../assest/banner/career-img.jpg";
-import teamCollaboration from "../assest/banner/cr=t_5.35,w_89.webp";
-import SummaryApi from "../common";
+import { MapPin, MoveUpRight, Search } from "lucide-react";
+import React, { useState } from "react";
+import career1 from "../assest/career/Career1.png";
+import career2 from "../assest/career/Career2.png";
+import career3 from "../assest/career/Career3.png";
+import career4 from "../assest/career/Career4.png";
+import career5 from "../assest/career/Career5.png";
+import careerCardImg from "../assest/career/CareerCardImg.png";
+import CareerApplicationForm from "../components/CareerApplicationForm";
 
-const CareerPage = () => {
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const fileInputRef = useRef(null);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    educationalQualification: "",
-    lookingFor: "",
-    experience: "",
-    phone: "",
-    summary: "",
-    resume: null,
-  });
-
-  const validateForm = () => {
-    const e = {};
-
-    if (!formData.name.trim()) e.name = "Name is required";
-    if (!formData.email) {
-      e.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      e.email = "Enter valid email";
-    }
-    if (!formData.educationalQualification)
-      e.educationalQualification = "Educational qualification required";
-    if (!formData.lookingFor) e.lookingFor = "This field is required";
-    if (!formData.experience) e.experience = "Experience is required";
-    if (!/^\d{10}$/.test(formData.phone))
-      e.phone = "Enter valid 10 digit phone";
-    if (!formData.summary) e.summary = "Summary is required";
-    if (!formData.resume) e.resume = "Resume is required";
-
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    const fd = new FormData();
-    Object.entries(formData).forEach(([key, value]) =>
-      fd.append(key, value)
-    );
-
-    try {
-      setLoading(true);
-      await fetch(SummaryApi.career.url, {
-        method: SummaryApi.career.method,
-        body: fd,
-      });
-
-      alert("Application submitted successfully");
-      setFormData({
-        name: "",
-        email: "",
-        educationalQualification: "",
-        lookingFor: "",
-        experience: "",
-        phone: "",
-        summary: "",
-        resume: null,
-      });
-      setErrors({});
-      fileInputRef.current.value = "";
-    } finally {
-      setLoading(false);
-    }
-  };
-
- const inputClass =
-  "w-full px-2 py-2 border-b outline-none bg-transparent text-sm transition-colors duration-200";
+const Careers = () => {
+  const [openModal, setOpenModal] = useState(false);
 
   return (
-    <div>
-      {/* Banner */}
-      <div className="relative">
-        <img src={bannerImage} alt="banner" className="w-full md:h-[400px] object-cover" />
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <h1 className="text-white text-2xl md:text-5xl font-bold">
-            EXPLORE A CAREER AT RELDA
-          </h1>
-        </div>
-      </div>
+    <div className="w-full bg-white">
 
-      {/* Who We Are */}
-      <section className="text-center py-10">
-        <h2 className="text-2xl font-semibold mb-4">Who we are</h2>
-        <p className="max-w-2xl mx-auto text-brand-textMuted">
-          Our mission is People <b>Work Together</b> to get a new technology.
-        </p>
-        <img src={teamCollaboration} alt="team" className="mx-auto mt-6" />
-      </section>
+      {/* ================= HERO SECTION ================= */}
+      <section className="mx-auto px-4 sm:px-6 lg:px-12 py-10 ">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
-      {/* FORM */}
-      <section className="px-4 py-10">
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md px-6 md:px-16 py-8">
-          <h2 className="text-2xl font-bold text-center mb-6">
-            JOIN THE TEAM !!
-          </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* INPUT GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              ["name", "Name", "Jhon Doe"],
-              ["email", "Email", "johndoe@gmail.com"],
-              ["educationalQualification", "Educational Qualification", "Educational Qualification"],
-              ["lookingFor", "Looking For", "Looking For"],
-              ["experience", "Experience", "Enter your experience"],
-              ["phone", "Phone", "+91 2345678901"],
-            ].map(([key, label, placeholder]) => (
-              <div key={key}>
-                <label className="text-sm font-medium">{label}</label>
-                <input
-                  name={key}
-                  placeholder={placeholder}
-                  value={formData[key]}
-                  onChange={(e) =>
-                    setFormData({ ...formData, [key]: e.target.value })
-                  }
-                  className={`${inputClass} ${
-                    errors[key]
-                      ? "border-brand-primary"
-                      : "border-brand-productCardBorder"
-                  }`}
-                />
-                <p className="text-xs text-brand-primary mt-1 min-h-[14px]">
-                  {errors[key] || ""}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* SUMMARY – FULL WIDTH */}
+          {/* LEFT CONTENT */}
           <div>
-            <label className="text-sm font-medium">Summary</label>
-            <textarea
-              rows="3"
-              value={formData.summary}
-              placeholder="Write us a message"
-              onChange={(e) =>
-                setFormData({ ...formData, summary: e.target.value })
-              }
-              className={`${inputClass} ${
-                errors.summary
-                  ? "border-brand-primary"
-                  : "border-brand-productCardBorder"
-              }`}
-            />
-            <p className="text-xs text-brand-primary mt-1 min-h-[14px]">
-              {errors.summary || ""}
-            </p>
-          </div>
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+              Careers at <span className="text-brand-primary">RELDA India</span>
+            </h1>
 
-          {/* RESUME */}
-          <div>
-            <p className="text-sm text-[#99A1AF] mb-2 font-medium">Attach Resume</p>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".pdf,.doc,.docx"
-              onChange={(e) =>
-                setFormData({ ...formData, resume: e.target.files[0] })
-              }
-              className={`w-full border rounded-md text-sm px-2 py-1
-                ${
-                  errors.resume
-                    ? "border-brand-primary"
-                    : "border-brand-productCardBorder"
-                }
-                file:border-0
-                file:bg-[#E5E5E5]
-                file:text-[#040404]
-                file:px-4
-                file:py-1.5
-                file:rounded-md
-                file:cursor-pointer
-              `}
-            />
-            <p className="text-xs text-brand-primary mt-1 min-h-[14px]">
-              {errors.resume || ""}
+            <p className="leading-relaxed mb-4">
+              At RELDA India, we are more than a home and kitchen appliance brand—
+              we are on a <span className="text-brand-primary">mission to transform homes</span> and make modern living
+              accessible to every Indian family.
             </p>
-          </div>
 
-          {/* BUTTON */}
-          <div className="flex justify-center md:justify-end">
-            <button
-              disabled={loading}
-              className={`w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium
-                ${
-                  loading
-                    ? "bg-brand-primaryHover"
-                    : "bg-brand-primary hover:bg-brand-primaryHover"
-                }`}
-            >
-              {loading ? "Submitting..." : "Submit Application"}
+            <p className="leading-relaxed mb-4">
+              Behind every reliable, affordable, and innovative product is a team
+              of passionate individuals driving change, innovation, and impact.
+            </p>
+
+            <p className="text-brand-primary font-medium mb-6">
+              We believe that our people are our greatest strength.
+            </p>
+
+            <button className="bg-brand-primary text-white px-6 py-2 rounded-md text-sm font-medium hover:opacity-90 transition">
+              View Open Positions
             </button>
           </div>
-        </form>
+
+          {/* RIGHT IMAGE PLACEHOLDER */}
+          <div className=" bg-gray-200 rounded-lg">
+            <img alt="card" src={careerCardImg} className="w-full h-[400px] rounded-lg"/>
+          </div>
+        </div>
+
+        <div className="px-2 pt-8 max-w-3xl xl:max-w-5xl mx-auto text-left md:text-center ">
+          <p>
+            Every employee at RELDA India contributes to building a future where <span className="text-brand-primary">quality, trust, and affordability</span> are at the heart of Indian homes. Whether you're a fresh graduate, a seasoned professional, or an innovator with a bold idea, RELDA India is a place where your work makes a tangible difference.
+          </p>
+        </div>
+      </section>
+
+      {/* ================= WHY JOIN SECTION ================= */}
+      <section className="mx-auto px-4 lg:px-12 py-10">
+
+        <p className="text-center text-brand-primary text-sm  md:text-base font-regular mb-2">
+          Benefits & Culture
+        </p>
+
+        <h2 className="text-center text-2xl lg:text-3xl font-medium mb-10">
+          Why Join RELDA India?
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          {[
+            {
+              title: "Make an Impact",
+              img: career1,
+              desc: "Your work will directly influence products that touch the lives of millions of families across India. Every solution we create is designed to solve real problems and bring convenience, efficiency, and joy into homes."
+            },
+            {
+              title: "Culture of Innovation",
+              img: career2,
+              desc: "We embrace creativity and innovation at every level. Your ideas will be encouraged, nurtured, and implemented to make RELDA products better and more accessible."
+            },
+            {
+              title: "Growth & Development",
+              img: career3,
+              desc: "We are committed to your personal and professional growth. From learning programs to mentorship opportunities, we provide the tools and support to help you achieve your career goals."
+            },
+            {
+              title: "Inclusive & Collaborative Environment",
+              img: career4,
+              desc: "At RELDA India, diversity is our strength. We celebrate different perspectives and foster a culture of collaboration, respect, and teamwork."
+            }
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex gap-4 items-start"
+            >
+              {/* ICON */}
+              <div className="w-11 h-11 min-w-[44px] flex items-center justify-center bg-gradient-to-r from-[#D80A07] to-[#B70300] rounded-lg">
+              <img alt="img" src={item.img} className="w-8 h-8"/>
+              </div>
+
+              {/* CONTENT */}
+              <div>
+                <h3 className="text-lg font-semibold mb-2">
+                  {item.title}
+                </h3>
+
+                <p className="text-sm leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+
+          {/* CENTERED LAST CARD */}
+          <div className="md:col-span-2 flex justify-center">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex gap-4 items-start max-w-2xl w-full">
+              
+              <div className="w-11 h-11 min-w-[44px] flex items-center justify-center bg-gradient-to-r from-[#D80A07] to-[#B70300] rounded-lg">
+                <img alt="img" src={career5} className="text-white w-8 h-8"/>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2">
+                  Proudly Made in India
+                </h3>
+
+                <p className="text-sm leading-relaxed">
+                  Joining RELDA means being part of a brand that is truly home-grown,
+                  committed to empowering rural and urban communities alike. Every
+                  product we deliver embodies the values of quality, reliability, and
+                  affordability.
+                </p>
+              </div>
+            </div>
+          </div>
 
         </div>
       </section>
+
+      {/* ================= WHO WE ARE LOOKING FOR ================= */}
+      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-10">
+
+        <p className="text-center text-brand-primary text-sm md:text-base font-regular mb-2">
+          Join our Team
+        </p>
+
+        <h2 className="text-center text-2xl sm:text-3xl font-bold mb-4">
+          Who We Are Looking For
+        </h2>
+
+        <p className="text-center mb-10">
+          We are always on the lookout for talented, motivated, and passionate
+          individuals across various domains.
+        </p>
+
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 max-w-6xl mx-auto">
+
+  {[
+    "Product Development & Engineering",
+    "Sales & Marketing",
+    "Operations & Supply Chain",
+    "Customer Experience & Support",
+    "Technology & Innovation",
+  ].map((role, i) => (
+    <div
+      key={i}
+      className="
+        relative bg-white rounded-xl px-4 py-8
+        shadow-[0_6px_24px_rgba(0,0,0,0.06)]
+        text-center
+        lg:col-span-2 border-l-2 border-brand-primary
+      "
+    >
+
+      <p className="text-sm font-medium leading-snug">
+        {role}
+      </p>
+    </div>
+  ))}
+
+</div>
+
+      </section> */}
+
+<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14">
+
+  <p className="text-center text-brand-primary text-sm md:text-base font-medium mb-2">
+    Join our Team
+  </p>
+
+  <h2 className="text-center text-2xl sm:text-3xl font-semibold mb-4">
+    Who We Are Looking For
+  </h2>
+
+  <p className="text-center text-gray-500 mb-14 max-w-2xl mx-auto">
+    We are always on the lookout for talented, motivated, and passionate
+    individuals across various domains.
+  </p>
+
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 max-w-6xl mx-auto">
+
+  {[
+    "Product Development & Engineering",
+    "Sales & Marketing",
+    "Operations & Supply Chain",
+    "Customer Experience & Support",
+    "Technology & Innovation",
+  ].map((role, i) => {
+
+    let colStart = "";
+    if (i === 3) colStart = "lg:col-start-2"; // 4th card
+    if (i === 4) colStart = "lg:col-start-4"; // 5th card
+
+    return (
+      <div
+        key={i}
+        className={`
+          relative bg-white rounded-xl
+          px-6 py-8
+          shadow-[0_8px_30px_rgba(0,0,0,0.06)]
+          text-center
+          lg:col-span-2 border-l-2 border-brand-primary
+          ${colStart}
+        `}
+      >
+
+        <p className="text-sm font-medium leading-snug max-w-[200px] mx-auto">
+          {role}
+        </p>
+      </div>
+    );
+  })}
+
+</div>
+
+</section>
+
+
+      {/* ================= CTA SECTION ================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-16">
+        <div className="rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-8 text-center">
+          <h3 className="text-2xl font-semibold mb-8">
+            Are You Ready to Make a Difference?
+          </h3>
+
+          <p className="max-w-2xl mx-auto">
+            If you are ambitious, solution-oriented, and driven to make a real
+            impact, RELDA India is the place to grow, learn, and leave your mark.
+          </p>
+        </div>
+      </section>
+
+<section className="bg-[#F4F6F8] py-16 px-4 sm:px-6 lg:px-12">
+  <div className="max-w-7xl mx-auto">
+
+    {/* ---------- HEADER ---------- */}
+    <p className="text-center text-brand-primary text-sm font-medium mb-2">
+      Current Openings
+    </p>
+
+    <h2 className="text-center text-3xl sm:text-3xl font-semibold mb-3">
+      Opportunities Available
+    </h2>
+
+    <p className="text-center text-gray-500 mb-10">
+      Join our growing team across India
+    </p>
+
+    {/* ---------- SEARCH BAR ---------- */}
+    <div className="bg-white rounded-lg shadow-sm flex flex-col sm:flex-row items-center gap-3 p-3 max-w-6xl mx-auto mb-16  border border-[#E5E5E5]">
+      <div className="flex items-center gap-2 w-full px-3">
+        <Search strokeWidth={1} className="w-6 h-6"/>
+        <input
+          type="text"
+          placeholder="Job Title or Keywords"
+          className="w-full outline-none text-sm placeholder:text-[#666666]"
+        />
+      </div>
+
+      <div className="hidden sm:block h-6 w-px bg-[#999999]"></div>
+
+      <div className="flex items-center gap-2 w-full px-3">
+        <MapPin strokeWidth={1} className="w-6 h-6"/>
+
+        <input
+          type="text"
+          placeholder="Location"
+          className="w-full outline-none text-sm placeholder:text-[#666666]"
+        />
+      </div>
+
+      <button className="bg-brand-primary text-white text-sm px-6 py-1.5 rounded-md">
+        Search
+      </button>
+    </div>
+
+    {/* ---------- JOB CARDS GRID ---------- */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-14 max-w-6xl mx-auto">
+
+  {[
+    {
+      title: "Branch Manager",
+      desc: "Lead branch operations, drive sales, and ensure an outstanding customer experience.",
+    },
+    {
+      title: "Regional Manager",
+      desc: "Lead multiple branches, drive regional sales growth, ensure operational excellence, and build high-performing teams.",
+    },
+    {
+      title: "Area Sales Manager",
+      desc: "Drive regional sales growth, build strong dealer & showroom networks, and achieve revenue targets.",
+    },
+    {
+      title: "Area Sales Executive",
+      desc: "Drive regional sales growth, manage dealer/retail networks, and expand market presence.",
+    },
+    {
+      title: "Direct Selling Women",
+      desc: "Engage directly with customers, explain products confidently, build trust, and drive sales through relationship-based selling.",
+    },
+
+  ].map((job, i) => {
+    const isLast = i === 4;
+
+    return (
+<div
+  key={i}
+  className={`
+    relative bg-white rounded-2xl
+    px-8 py-8
+    lg:col-span-2
+    ${isLast ? "lg:col-start-2" : ""}
+  `}
+>
+  {/* CUT-OUT CORNER + ARROW */}
+  <div className="absolute -top-4 -right-4 bg-[#F4F6F8] w-20 h-20 rounded-full flex items-center justify-center">
+    <div className="w-12 h-12 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-lg"  onClick={() => setOpenModal(true)}>
+      <MoveUpRight />
+    </div>
+  </div>
+
+  {/* CONTENT */}
+  <h3 className="text-brand-primary text-xl font-medium mb-4">
+    {job.title}
+  </h3>
+
+  <p className="leading-relaxed max-w-md">
+    {job.desc}
+  </p>
+</div>
+
+    );
+  })}
+
+</div>
+
+  </div>
+</section>
+{openModal && (
+  <CareerApplicationForm onClose={() => setOpenModal(false)} />
+)}
+
+
     </div>
   );
 };
 
-export default CareerPage;
+export default Careers;
