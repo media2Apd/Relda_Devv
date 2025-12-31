@@ -102,8 +102,9 @@
 
 import React, { useState } from "react";
 import { IoLogoFacebook } from "react-icons/io5";
-import { RiInstagramFill } from "react-icons/ri";
-import { BsTwitterX, BsYoutube } from "react-icons/bs";
+import { RiInstagramFill, RiLinkedinFill } from "react-icons/ri";
+import { BsYoutube } from "react-icons/bs";
+import { FaSquareXTwitter } from "react-icons/fa6";
 import { FiPhone, FiMail, FiMapPin, FiClock } from "react-icons/fi";
 import SummaryApi from "../common";
 import { FaWhatsapp } from "react-icons/fa";
@@ -121,81 +122,81 @@ const ContactUsPage = () => {
   });
 
   const validateForm = () => {
-  const newErrors = {};
+    const newErrors = {};
 
-  if (!formData.firstName.trim()) {
-    newErrors.firstName = "First name is required";
-  }
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
 
-  if (!formData.lastName.trim()) {
-    newErrors.lastName = "Last name is required";
-  }
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
 
-  if (!formData.email) {
-    newErrors.email = "Email is required";
-  } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-    newErrors.email = "Enter a valid email";
-  }
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = "Enter a valid email";
+    }
 
-  if (!formData.phone) {
-    newErrors.phone = "Phone number is required";
-  } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ""))) {
-    newErrors.phone = "Enter a valid 10-digit phone number";
-  }
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ""))) {
+      newErrors.phone = "Enter a valid 10-digit phone number";
+    }
 
-  if (!formData.message.trim()) {
-    newErrors.message = "Message is required";
-  }
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+    }
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const response = await fetch(SummaryApi.contactUs.url, {
-      method: SummaryApi.contactUs.method,
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message,
-      }),
-    });
-
-    if (response.ok) {
-      toast.success("Message sent successfully");
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        message: "",
+      const response = await fetch(SummaryApi.contactUs.url, {
+        method: SummaryApi.contactUs.method,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+        }),
       });
-      setErrors({});
-    } else {
-      toast.error("Failed to send message");
-    }
-  } catch (error) {
-    console.error(error);
-    toast.error("Something went wrong");
-  } finally {
+
+      if (response.ok) {
+        toast.success("Message sent successfully");
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          message: "",
+        });
+        setErrors({});
+      } else {
+        toast.error("Failed to send message");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    } finally {
       setLoading(false);
- }
-};
+    }
+  };
 
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
@@ -246,46 +247,49 @@ const handleSubmit = async (e) => {
               <div className="flex gap-4">
                 <FiClock className="w-5 h-5 mt-1" />
                 <p className="text-[#99A1AF]">
-                 Working Hours: Mon - Sat<br />
+                  Working Hours: Mon - Sat<br />
                   09:00 am - 05:00 pm
                 </p>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://www.facebook.com/reldaindia"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center transition-colors text-white hover:text-brand-primaryHover"
+              >
+                <IoLogoFacebook className="w-10 h-10" />
+              </a>
+              <a
+                href="https://www.instagram.com/reldaindia/?hl=en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+              >
+                <RiInstagramFill className="w-10 h-10" />
+              </a>
+              <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover transition-all">
+                <RiLinkedinFill size={22} />
+              </a>
 
-             <div className="flex gap-6">
-                <a 
-                  href="https://www.facebook.com/reldaindia" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center transition-colors hover:text-brand-primaryHover"
-                >
-                  <IoLogoFacebook className="w-5 h-5 md:w-8 md:h-8 " />
-                </a>
-                <a 
-                  href="https://www.instagram.com/reldaindia/?hl=en" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center hover:text-brand-primaryHover transition-colors"
-                >
-                  <RiInstagramFill className="w-5 h-5 md:w-8 md:h-8 " />
-                </a>
-                <a 
-                  href="https://www.linkedin.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center hover:text-brand-primaryHover transition-colors"
-                >
-                  <BsTwitterX className="w-4 h-4 md:w-7 md:h-7" />
-                </a>
-                <a 
-                  href="https://www.youtube.com/channel/UClkiHCA4tVLtbtIc2fjhCgQ" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center hover:text-brand-primaryHover transition-colors"
-                >
-                  <BsYoutube className="w-5 h-5 md:w-8 md:h-8" />
-                </a>
-             </div>
+              <a
+                href="https://www.youtube.com/channel/UClkiHCA4tVLtbtIc2fjhCgQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+              >
+                <BsYoutube className="text-[40px]" />
+              </a>
+              <a
+                href="https://www.linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+              >
+                <FaSquareXTwitter className="w-9 h-9" />
+              </a>
+            </div>
           </div>
 
           {/* RIGHT – FORM */}
@@ -376,14 +380,14 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   rows="4"
                   placeholder="Write us a message"
-                    className={`w-full px-2 py-2 border-b outline-none bg-transparent
+                  className={`w-full px-2 py-2 border-b outline-none bg-transparent
                     ${errors.message ? "border-brand-primary" : "border-brand-productCardBorder"}`}
-                  />
-                  {errors.message && (
-                    <p className="text-brand-primary text-xs mt-1">
-                      {errors.message}
-                    </p>
-                  )}
+                />
+                {errors.message && (
+                  <p className="text-brand-primary text-xs mt-1">
+                    {errors.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row justify-between gap-4 lg:pt-20">
@@ -392,24 +396,24 @@ const handleSubmit = async (e) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                <button
-                  type="button"
-                  className="w-full px-6 py-2 flex items-center justify-center gap-2
+                  <button
+                    type="button"
+                    className="w-full px-6 py-2 flex items-center justify-center gap-2
                             border border-[#99A1AF] text-[#99A1AF]
                             rounded-md font-medium hover:bg-[#40C351] hover:text-white "
-                >
-                  <FaWhatsapp className="text-lg" />
+                  >
+                    <FaWhatsapp className="text-lg" />
 
-                  {/* Desktop */}
-                  <span className="hidden md:inline text-sm">
-                    Message us on WhatsApp
-                  </span>
+                    {/* Desktop */}
+                    <span className="hidden md:inline text-sm">
+                      Message us on WhatsApp
+                    </span>
 
-                  {/* Mobile */}
-                  <span className="md:hidden text-sm">
-                    WhatsApp
-                  </span>
-                </button>
+                    {/* Mobile */}
+                    <span className="md:hidden text-sm">
+                      WhatsApp
+                    </span>
+                  </button>
 
                 </a>
 

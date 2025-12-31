@@ -51,17 +51,16 @@
 
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { 
-  IoLogoFacebook, 
+import {
+  IoLogoFacebook,
 } from "react-icons/io5";
 import { FaSquareXTwitter } from "react-icons/fa6";
-import { RiInstagramFill } from "react-icons/ri";
-import {  BsYoutube } from "react-icons/bs";
-import { RiLinkedinFill } from "react-icons/ri";
-import { 
-  FiMapPin, 
-  FiPhoneCall, 
-  FiMail, 
+import { RiInstagramFill, RiLinkedinFill } from "react-icons/ri";
+import { BsYoutube } from "react-icons/bs";
+import {
+  FiMapPin,
+  FiPhoneCall,
+  FiMail,
   FiClock,
 } from "react-icons/fi";
 import Logo from "../assest/LogoWhite.svg";
@@ -73,7 +72,7 @@ const Footer = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  
+
   const FooterSkeleton = ({ lines = 6 }) => {
     return (
       <ul className="flex flex-col gap-3">
@@ -92,7 +91,7 @@ const Footer = () => {
       setLoading(true);
       const response = await fetch(SummaryApi.getActiveParentCategories.url);
       const data = await response.json();
-      
+
       // Validate if data contains categories and is an array
       if (data.success && Array.isArray(data.categories)) {
         setCategories(data.categories); // Directly set categories without filtering
@@ -112,91 +111,91 @@ const Footer = () => {
 
   return (
     // 'style' is used to set the background color of the footer and remove any background images
-    <footer 
+    <footer
       className="text-[#99A1AF] pt-16 pb-8 border-t border-slate-800"
-      style={{ 
-        backgroundColor: '#0F172A', 
-        backgroundImage: 'none', 
+      style={{
+        backgroundColor: '#0F172A',
+        backgroundImage: 'none',
         backgroundAttachment: 'scroll',
         position: 'relative',
         // zIndex: 50
       }}
     >
       <div className="px-4 lg:px-12 mx-auto">
-        
+
         {/* Main Sections Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          
+
           {/* 1. Brand Section */}
           <div className="flex flex-col gap-6">
             {/* Logo */}
-               <div className="flex-shrink-0">
-                <img
-                  // onClick={() => navigate("/")}
-                  src={Logo}
-                  alt="Relda Logo"
-                  className="cursor-pointer h-10 md:h-12 w-auto"
-                />
-              </div>
+            <div className="flex-shrink-0">
+              <img
+                // onClick={() => navigate("/")}
+                src={Logo}
+                alt="Relda Logo"
+                className="cursor-pointer h-10 md:h-12 w-auto"
+              />
+            </div>
             <p className="text-sm leading-relaxed">
-              Shop premium home and kitchen appliances in Tamil Nadu with Relda India. 
+              Shop premium home and kitchen appliances in Tamil Nadu with Relda India.
               Smart, stylish, and energy-efficient solutions for every home.
             </p>
             <div className="mt-4">
               <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-4">FOLLOW US ON</h4>
               <div className="flex items-center gap-3">
-  {/* <a href="https://facebook.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
-    <IoLogoFacebook size={20} />
-  </a>
-  <a href="https://instagram.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
-    <IoLogoInstagram size={20} />
-  </a>
-  <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
-    <IoLogoLinkedin size={20} />
-  </a>
-  <a href="https://x.com/ReldaIndia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
-    <BsTwitterX size={20} />
-  </a>*/}
-  {/* <a href="https://www.youtube.com/@Relda_India" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
-    <IoLogoYoutube size={20} />
-  </a>  */}
-                  <a 
-                    href="https://www.facebook.com/reldaindia" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center transition-colors text-white hover:text-brand-primaryHover"
-                  >
-                    <IoLogoFacebook className="w-10 h-10" />
-                  </a>
-                  <a 
-                    href="https://www.instagram.com/reldaindia/?hl=en" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
-                  >
-                    <RiInstagramFill className="w-10 h-10" />
-                  </a>
-                    <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover transition-all">
-    <RiLinkedinFill size={22} />
-  </a>
-                 
-                  <a 
-                    href="https://www.youtube.com/channel/UClkiHCA4tVLtbtIc2fjhCgQ" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
-                  >
-                    <BsYoutube className="text-[40px]" />
-                  </a>
-                   <a 
-                    href="https://www.linkedin.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
-                  >
-                    <FaSquareXTwitter className="w-9 h-9" />
-                  </a>
-</div>
+                {/* <a href="https://facebook.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
+                  <IoLogoFacebook size={20} />
+                </a>
+                <a href="https://instagram.com/reldaindia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
+                  <IoLogoInstagram size={20} />
+                </a>
+                <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
+                  <IoLogoLinkedin size={20} />
+                </a>
+                <a href="https://x.com/ReldaIndia" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
+                  <BsTwitterX size={20} />
+                </a>*/}
+                              {/* <a href="https://www.youtube.com/@Relda_India" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover hover:text-white transition-all">
+                  <IoLogoYoutube size={20} />
+                </a>  */}
+                <a
+                  href="https://www.facebook.com/reldaindia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center transition-colors text-white hover:text-brand-primaryHover"
+                >
+                  <IoLogoFacebook className="w-10 h-10" />
+                </a>
+                <a
+                  href="https://www.instagram.com/reldaindia/?hl=en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+                >
+                  <RiInstagramFill className="w-10 h-10" />
+                </a>
+                <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover transition-all">
+                  <RiLinkedinFill size={22} />
+                </a>
+
+                <a
+                  href="https://www.youtube.com/channel/UClkiHCA4tVLtbtIc2fjhCgQ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+                >
+                  <BsYoutube className="text-[40px]" />
+                </a>
+                <a
+                  href="https://www.linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+                >
+                  <FaSquareXTwitter className="w-9 h-9" />
+                </a>
+              </div>
             </div>
           </div>
 
