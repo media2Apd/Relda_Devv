@@ -374,13 +374,13 @@ const CustomerComplaint = () => {
               {/* FILE */}
               <div>
                 <label className="text-sm font-medium text-[#99A1AF]">
-                  Attach Supporting Document.
+                  Attach Supporting Document
                 </label>
                 <input
                 type="file"
                 onChange={handleChange}
                 name="fileUpload"
-                className={`mt-2 w-full border border-brand-productCardBorder rounded-md text-sm px-2 py-1 outline-none bg-transparent
+                className={`mt-2 w-full border border-brand-productCardBorder rounded-md text-sm px-1 py-1 outline-none bg-transparent
                 ${errors.fileUpload ? "border-brand-primary" : "border-brand-productCardBorder"}
                 file:border-0
                 file:bg-[#E5E5E5]

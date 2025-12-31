@@ -304,7 +304,7 @@ const inputClass =
             <input
               type="file"
               name="fileUpload"
-              className={`w-full border border-brand-productCardBorder rounded-md text-sm px-2 py-1 outline-none bg-transparent
+              className={`w-full border border-brand-productCardBorder rounded-md text-sm px-1 py-1 outline-none bg-transparent
                 ${errors.fileUpload ? "border-brand-primary" : "border-brand-productCardBorder"}
                 file:border-0
                 file:bg-[#E5E5E5]
