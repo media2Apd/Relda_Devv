@@ -138,14 +138,21 @@ const BannerProduct = ({ type = "home-top" }) => {
             onClick={() => item.link && navigate(item.link)}
           >
             <picture>
+              {/* Mobile only - small screens */}
               <source
-                media="(max-width: 768px)"
+                media="(max-width: 640px)"
                 srcSet={item.mobileImage}
               />
+              {/* All other screens (tablet, desktop, large screens) */}
+              <source
+                media="(min-width: 641px)"
+                srcSet={item.desktopImage}
+              />
               <img
-                src={item.desktopImage}
+                src={item.desktopImage} // fallback
                 alt={item.title || "banner"}
-                className="w-full h-[200px] md:h-[350px] lg:h-[400px] xl:h-[550px] 2xl:h-[690px] mx-auto object-fill"
+                className="w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[430px] xl:h-[580px] 2xl:h-[740px] object-cover"
+                loading="lazy"
               />
             </picture>
           </div>
@@ -154,12 +161,12 @@ const BannerProduct = ({ type = "home-top" }) => {
 
       {/* Indicators */}
       {banners.length > 1 && (
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3">
+        <div className="absolute bottom-4 sm:bottom-5 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3">
           {banners.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrent(index)}
-              className="relative w-w-6 md:w-8 lg:w-10 h-[3px] bg-white overflow-hidden"
+              className="relative w-6 sm:w-7 md:w-8 h-[3px] bg-white/50 hover:bg-white/70 transition-colors overflow-hidden"
             >
               {current === index && (
                 <div className="absolute left-0 top-0 h-full w-full bg-brand-primary animate-progress" />

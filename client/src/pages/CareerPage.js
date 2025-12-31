@@ -216,7 +216,7 @@
 // export default CareerPage;
 
 import { MapPin, MoveUpRight, Search } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import career1 from "../assest/career/Career1.png";
 import career2 from "../assest/career/Career2.png";
 import career3 from "../assest/career/Career3.png";
@@ -225,8 +225,73 @@ import career5 from "../assest/career/Career5.png";
 import careerCardImg from "../assest/career/CareerCardImg.png";
 import CareerApplicationForm from "../components/CareerApplicationForm";
 
+const jobsData = [
+    {
+      title: "Branch Manager",
+      location: "Chennai",
+      desc: "Lead branch operations, drive sales, and ensure an outstanding customer experience.",
+    },
+    {
+      title: "Regional Manager",
+      location: "Chennai",
+      desc: "Lead multiple branches, drive regional sales growth, ensure operational excellence, and build high-performing teams.",
+    },
+    {
+      title: "Area Sales Manager",
+      location: "Chennai",
+      desc: "Drive regional sales growth, build strong dealer & showroom networks, and achieve revenue targets.",
+    },
+    {
+      title: "Area Sales Executive",
+      location: "Chennai",
+      desc: "Drive regional sales growth, manage dealer/retail networks, and expand market presence.",
+    },
+    {
+      title: "Direct Selling Women",
+      location: "Chennai",
+      desc: "Engage directly with customers, explain products confidently, build trust, and drive sales through relationship-based selling.",
+    },
+
+  ]
+
 const Careers = () => {
   const [openModal, setOpenModal] = useState(false);
+const [searchTitle, setSearchTitle] = useState("");
+const [searchLocation, setSearchLocation] = useState("");
+const [filteredJobs, setFilteredJobs] = useState(jobsData);
+
+
+const filterJobs = (title, location) => {
+  const filtered = jobsData.filter((job) => {
+    const titleMatch = job.title
+      .toLowerCase()
+      .includes(title.toLowerCase());
+
+    const locationMatch = job.location
+      .toLowerCase()
+      .includes(location.toLowerCase());
+
+    return titleMatch && locationMatch;
+  });
+
+  setFilteredJobs(filtered);
+};
+
+useEffect(() => {
+  filterJobs(searchTitle, searchLocation);
+}, [searchTitle, searchLocation]);
+
+const handleKeyDown = (e) => {
+  if (e.key === "Enter") {
+    filterJobs(searchTitle, searchLocation);
+  }
+};
+
+const handleClearSearch = () => {
+  setSearchTitle("");
+  setSearchLocation("");
+  setFilteredJobs(jobsData);
+};
 
   return (
     <div className="w-full bg-white">
@@ -357,103 +422,58 @@ const Careers = () => {
         </div>
       </section>
 
-      {/* ================= WHO WE ARE LOOKING FOR ================= */}
-      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14">
 
-        <p className="text-center text-brand-primary text-sm md:text-base font-regular mb-2">
+        <p className="text-center text-brand-primary text-sm md:text-base font-medium mb-2">
           Join our Team
         </p>
 
-        <h2 className="text-center text-2xl sm:text-3xl font-bold mb-4">
+        <h2 className="text-center text-2xl sm:text-3xl font-semibold mb-4">
           Who We Are Looking For
         </h2>
 
-        <p className="text-center mb-10">
+        <p className="text-center text-gray-500 mb-14 max-w-2xl mx-auto">
           We are always on the lookout for talented, motivated, and passionate
           individuals across various domains.
         </p>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 max-w-6xl mx-auto">
 
-  {[
-    "Product Development & Engineering",
-    "Sales & Marketing",
-    "Operations & Supply Chain",
-    "Customer Experience & Support",
-    "Technology & Innovation",
-  ].map((role, i) => (
-    <div
-      key={i}
-      className="
-        relative bg-white rounded-xl px-4 py-8
-        shadow-[0_6px_24px_rgba(0,0,0,0.06)]
-        text-center
-        lg:col-span-2 border-l-2 border-brand-primary
-      "
-    >
+        {[
+          "Product Development & Engineering",
+          "Sales & Marketing",
+          "Operations & Supply Chain",
+          "Customer Experience & Support",
+          "Technology & Innovation",
+        ].map((role, i) => {
 
-      <p className="text-sm font-medium leading-snug">
-        {role}
-      </p>
-    </div>
-  ))}
+          let colStart = "";
+          if (i === 3) colStart = "lg:col-start-2"; // 4th card
+          if (i === 4) colStart = "lg:col-start-4"; // 5th card
 
-</div>
+          return (
+            <div
+              key={i}
+              className={`
+                relative bg-white rounded-xl
+                px-6 py-8
+                shadow-[0_8px_30px_rgba(0,0,0,0.06)]
+                text-center
+                lg:col-span-2 border-l-2 border-brand-primary
+                ${colStart}
+              `}
+            >
 
-      </section> */}
+              <p className="text-sm font-medium leading-snug max-w-[200px] mx-auto">
+                {role}
+              </p>
+            </div>
+          );
+        })}
 
-<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14">
-
-  <p className="text-center text-brand-primary text-sm md:text-base font-medium mb-2">
-    Join our Team
-  </p>
-
-  <h2 className="text-center text-2xl sm:text-3xl font-semibold mb-4">
-    Who We Are Looking For
-  </h2>
-
-  <p className="text-center text-gray-500 mb-14 max-w-2xl mx-auto">
-    We are always on the lookout for talented, motivated, and passionate
-    individuals across various domains.
-  </p>
-
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 max-w-6xl mx-auto">
-
-  {[
-    "Product Development & Engineering",
-    "Sales & Marketing",
-    "Operations & Supply Chain",
-    "Customer Experience & Support",
-    "Technology & Innovation",
-  ].map((role, i) => {
-
-    let colStart = "";
-    if (i === 3) colStart = "lg:col-start-2"; // 4th card
-    if (i === 4) colStart = "lg:col-start-4"; // 5th card
-
-    return (
-      <div
-        key={i}
-        className={`
-          relative bg-white rounded-xl
-          px-6 py-8
-          shadow-[0_8px_30px_rgba(0,0,0,0.06)]
-          text-center
-          lg:col-span-2 border-l-2 border-brand-primary
-          ${colStart}
-        `}
-      >
-
-        <p className="text-sm font-medium leading-snug max-w-[200px] mx-auto">
-          {role}
-        </p>
       </div>
-    );
-  })}
 
-</div>
-
-</section>
+      </section>
 
 
       {/* ================= CTA SECTION ================= */}
@@ -470,115 +490,129 @@ const Careers = () => {
         </div>
       </section>
 
-<section className="bg-[#F4F6F8] py-16 px-4 sm:px-6 lg:px-12">
-  <div className="max-w-7xl mx-auto">
+      <section className="bg-[#F4F6F8] py-16 px-4 sm:px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto">
 
-    {/* ---------- HEADER ---------- */}
-    <p className="text-center text-brand-primary text-sm font-medium mb-2">
-      Current Openings
-    </p>
+          {/* ---------- HEADER ---------- */}
+          <p className="text-center text-brand-primary text-sm font-medium mb-2">
+            Current Openings
+          </p>
 
-    <h2 className="text-center text-3xl sm:text-3xl font-semibold mb-3">
-      Opportunities Available
-    </h2>
+          <h2 className="text-center text-3xl sm:text-3xl font-semibold mb-3">
+            Opportunities Available
+          </h2>
 
-    <p className="text-center text-gray-500 mb-10">
-      Join our growing team across India
-    </p>
+          <p className="text-center text-gray-500 mb-10">
+            Join our growing team across India
+          </p>
 
-    {/* ---------- SEARCH BAR ---------- */}
-    <div className="bg-white rounded-lg shadow-sm flex flex-col sm:flex-row items-center gap-3 p-3 max-w-6xl mx-auto mb-16  border border-[#E5E5E5]">
-      <div className="flex items-center gap-2 w-full px-3">
-        <Search strokeWidth={1} className="w-6 h-6"/>
-        <input
-          type="text"
-          placeholder="Job Title or Keywords"
-          className="w-full outline-none text-sm placeholder:text-[#666666]"
-        />
-      </div>
+{/* ---------- SEARCH BAR ---------- */}
+<div className="bg-white rounded-lg shadow-sm flex flex-col sm:flex-row items-center gap-3 p-3 max-w-6xl mx-auto mb-16 border border-[#E5E5E5]">
 
-      <div className="hidden sm:block h-6 w-px bg-[#999999]"></div>
+  {/* JOB TITLE */}
+  <div className="flex items-center gap-2 w-full px-3">
+    <Search strokeWidth={1} className="w-6 h-6" />
+    <input
+      type="text"
+      placeholder="Job Title or Keywords"
+      className="w-full outline-none text-sm placeholder:text-[#666666]"
+      value={searchTitle}
+      onChange={(e) => setSearchTitle(e.target.value)}
+      onKeyDown={handleKeyDown}
+    />
+  </div>
 
-      <div className="flex items-center gap-2 w-full px-3">
-        <MapPin strokeWidth={1} className="w-6 h-6"/>
+  <div className="hidden sm:block h-6 w-px bg-[#999999]"></div>
 
-        <input
-          type="text"
-          placeholder="Location"
-          className="w-full outline-none text-sm placeholder:text-[#666666]"
-        />
-      </div>
+  {/* LOCATION */}
+  <div className="flex items-center gap-2 w-full px-3">
+    <MapPin strokeWidth={1} className="w-6 h-6" />
+    <input
+      type="text"
+      placeholder="Location"
+      className="w-full outline-none text-sm placeholder:text-[#666666]"
+      value={searchLocation}
+      onChange={(e) => setSearchLocation(e.target.value)}
+      onKeyDown={handleKeyDown}
+    />
+  </div>
 
-      <button className="bg-brand-primary text-white text-sm px-6 py-1.5 rounded-md">
-        Search
+  {/* ACTION BUTTONS */}
+  <div className="flex gap-2">
+    <button
+      onClick={() => filterJobs(searchTitle, searchLocation)}
+      className="bg-brand-primary text-white text-sm px-6 py-1.5 rounded-md"
+    >
+      Search
+    </button>
+
+    {(searchTitle || searchLocation) && (
+      <button
+        onClick={handleClearSearch}
+        className="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100"
+      >
+        Clear
       </button>
-    </div>
-
-    {/* ---------- JOB CARDS GRID ---------- */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-14 max-w-6xl mx-auto">
-
-  {[
-    {
-      title: "Branch Manager",
-      desc: "Lead branch operations, drive sales, and ensure an outstanding customer experience.",
-    },
-    {
-      title: "Regional Manager",
-      desc: "Lead multiple branches, drive regional sales growth, ensure operational excellence, and build high-performing teams.",
-    },
-    {
-      title: "Area Sales Manager",
-      desc: "Drive regional sales growth, build strong dealer & showroom networks, and achieve revenue targets.",
-    },
-    {
-      title: "Area Sales Executive",
-      desc: "Drive regional sales growth, manage dealer/retail networks, and expand market presence.",
-    },
-    {
-      title: "Direct Selling Women",
-      desc: "Engage directly with customers, explain products confidently, build trust, and drive sales through relationship-based selling.",
-    },
-
-  ].map((job, i) => {
-    const isLast = i === 4;
-
-    return (
-<div
-  key={i}
-  className={`
-    relative bg-white rounded-2xl
-    px-8 py-8
-    lg:col-span-2
-    ${isLast ? "lg:col-start-2" : ""}
-  `}
->
-  {/* CUT-OUT CORNER + ARROW */}
-  <div className="absolute -top-4 -right-4 bg-[#F4F6F8] w-20 h-20 rounded-full flex items-center justify-center">
-    <div className="w-12 h-12 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-lg"  onClick={() => setOpenModal(true)}>
-      <MoveUpRight />
-    </div>
+    )}
   </div>
-
-  {/* CONTENT */}
-  <h3 className="text-brand-primary text-xl font-medium mb-4">
-    {job.title}
-  </h3>
-
-  <p className="leading-relaxed max-w-md">
-    {job.desc}
-  </p>
-</div>
-
-    );
-  })}
 
 </div>
 
-  </div>
-</section>
-{openModal && (
-  <CareerApplicationForm onClose={() => setOpenModal(false)} />
-)}
+
+          {/* ---------- JOB CARDS GRID ---------- */}
+<div className="max-w-6xl mx-auto">
+
+  {filteredJobs.length === 0 ? (
+    <p className="text-center text-gray-500 py-10">
+      No jobs found matching your search.
+    </p>
+  ) : (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-14">
+
+      {filteredJobs.map((job, i) => {
+        const isLast = i === 4;
+
+        return (
+          <div
+            key={i}
+            className={`
+              relative bg-white rounded-2xl
+              px-8 py-8
+              lg:col-span-2
+              ${isLast ? "lg:col-start-2" : ""}
+            `}
+          >
+            {/* CUT-OUT CORNER + ARROW */}
+            <div className="absolute -top-4 -right-4 bg-[#F4F6F8] w-20 h-20 rounded-full flex items-center justify-center">
+              <div
+                className="w-12 h-12 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-lg cursor-pointer"
+                onClick={() => setOpenModal(true)}
+              >
+                <MoveUpRight />
+              </div>
+            </div>
+
+            {/* CONTENT */}
+            <h3 className="text-brand-primary text-xl font-medium mb-4">
+              {job.title}
+            </h3>
+
+            <p className="leading-relaxed max-w-md">
+              {job.desc}
+            </p>
+          </div>
+        );
+      })}
+
+    </div>
+  )}
+</div>
+
+        </div>
+      </section>
+      {openModal && (
+        <CareerApplicationForm onClose={() => setOpenModal(false)} />
+      )}
 
 
     </div>
