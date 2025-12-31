@@ -307,7 +307,7 @@ const handleClearSearch = () => {
             </h1>
 
             <p className="leading-relaxed mb-4">
-              At RELDA India, we are more than a home and kitchen appliance brand—
+              At RELDA India, we are more than a home and kitchen appliance brand -
               we are on a <span className="text-brand-primary">mission to transform homes</span> and make modern living
               accessible to every Indian family.
             </p>

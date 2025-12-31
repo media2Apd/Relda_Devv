@@ -506,7 +506,7 @@ const CareerApplicationForm = ({ onClose }) => {
                     onChange={(e) =>
                       setFormData({ ...formData, resume: e.target.files[0] })
                     }
-                    className="w-full border rounded-md text-sm px-2 py-1
+                    className="w-full border rounded-md text-sm px-1 py-1
                       border-brand-productCardBorder
                       file:border-0 file:bg-[#E5E5E5]
                       file:px-4 file:py-1.5 file:rounded-md"
