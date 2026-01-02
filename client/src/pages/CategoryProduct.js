@@ -4311,10 +4311,12 @@ import Context from '../context';
 import addToCart from '../helpers/addToCart';
 import { SlidersHorizontal } from 'lucide-react';
 import SelectDropdown from '../customStyles/SelectDropdown';
-import offer1 from '../assest/offer/Offer1.jpg';
-import offer2 from '../assest/offer/Offer2.jpg';
-import offer3 from '../assest/offer/Offer3.jpg';
-
+import offer1 from '../assest/offer/Offer1.png';
+import offer2 from '../assest/offer/Offer2.png';
+import offer3 from '../assest/offer/Offer3.png';
+import offerMobile1 from '../assest/offer/OfferMobile1.png';
+import offerMobile2 from '../assest/offer/OfferMobile2.png';
+import offerMobile3 from '../assest/offer/OfferMobile3.png';
 const CategoryProduct = () => {
   const [data, setData] = useState([]);
   const [allProducts, setAllProducts] = useState([]); // Store all products for frontend filtering
@@ -4332,10 +4334,23 @@ const CategoryProduct = () => {
   const isUpdatingFromUrl = useRef(false);
 
   const tempOfferPosters = [
-    { id: 1, image: offer1 },
-    { id: 2, image: offer2 },
-    { id: 3, image: offer3 },
+    {
+      id: 1,
+      desktop: offer1,
+      mobile: offerMobile1,
+    },
+    {
+      id: 2,
+      desktop: offer2,
+      mobile: offerMobile2,
+    },
+    {
+      id: 3,
+      desktop: offer3,
+      mobile: offerMobile3,
+    },
   ];
+
 
   // Banner Auto-rotate logic
   useEffect(() => {
@@ -4639,7 +4654,7 @@ const CategoryProduct = () => {
       {/* Top Banner Poster - Using USE_TEMP_BANNER logic */}
       {USE_TEMP_BANNER ? (
         <div className="relative w-full mb-6">
-          <div className="relative w-full h-[200px] md:h-[350px] lg:h-[400px] xl:h-[550px] 2xl:h-[650px] overflow-hidden">
+          <div className="relative w-full h-full overflow-hidden">
             <div
               className="flex h-full transition-transform duration-700 ease-in-out"
               style={{
@@ -4653,7 +4668,26 @@ const CategoryProduct = () => {
                   className="flex-shrink-0 w-full"
                   style={{ width: `${100 / tempOfferPosters.length}%` }}
                 >
-                  <img src={poster.image} alt="Offer Banner" className="w-full h-full object-fill" />
+                <picture className="block w-full h-full">
+                {/* Mobile */}
+                <source
+                  media="(max-width: 768px)"
+                  srcSet={poster.mobile}
+                />
+
+                {/* Tablet + Desktop */}
+                <source
+                  media="(min-width: 769px)"
+                  srcSet={poster.desktop}
+                />
+
+                <img
+                  src={poster.desktop} // fallback
+                  alt={poster.title || "banner"}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                </picture>
                 </div>
               ))}
             </div>
