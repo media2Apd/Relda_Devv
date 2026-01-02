@@ -140,18 +140,18 @@ const BannerProduct = ({ type = "home-top" }) => {
             <picture>
               {/* Mobile only - small screens */}
               <source
-                media="(max-width: 640px)"
+                media="(max-width: 768px)"
                 srcSet={item.mobileImage}
               />
               {/* All other screens (tablet, desktop, large screens) */}
               <source
-                media="(min-width: 641px)"
+                media="(min-width: 769px)"
                 srcSet={item.desktopImage}
               />
               <img
                 src={item.desktopImage} // fallback
                 alt={item.title || "banner"}
-                className="w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[430px] xl:h-[580px] 2xl:h-[740px] object-cover"
+                className="w-full h-auto object-contain"
                 loading="lazy"
               />
             </picture>

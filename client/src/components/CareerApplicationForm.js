@@ -368,7 +368,7 @@
 // export default CareerApplicationForm;
 
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import SummaryApi from "../common";
 
@@ -376,6 +376,7 @@ const CareerApplicationForm = ({ onClose }) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);
+  const modalRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -422,12 +423,28 @@ const CareerApplicationForm = ({ onClose }) => {
     }
   };
 
+  useEffect(() => {
+  const handleOutsideClick = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      onClose();
+    }
+  };
+
+  document.addEventListener("mousedown", handleOutsideClick);
+  return () => document.removeEventListener("mousedown", handleOutsideClick);
+}, [onClose]);
+
+
   const inputClass =
     "w-full px-2 py-2 border-b outline-none bg-transparent text-sm transition-colors duration-200";
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4 pt-24">
-      <div className="bg-white w-full max-w-4xl rounded-xl shadow-md relative max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center p-4 ">
+      <div
+        ref={modalRef}
+        className="bg-white w-full max-w-4xl rounded-xl shadow-md relative max-h-[90vh] overflow-hidden"
+      >
+
         
         {/* CLOSE BUTTON - Fixed position relative to modal */}
         <button
@@ -438,7 +455,8 @@ const CareerApplicationForm = ({ onClose }) => {
         </button>
 
         {/* Scrollable content container */}
-        <div className="h-[650px] 2xl:h-[700px] overflow-y-auto">
+        <div className="max-h-[90vh] overflow-y-auto">
+
           {/* FORM SECTION */}
           <section className="px-4 py-10">
             <div className="mx-auto px-6 md:px-16">

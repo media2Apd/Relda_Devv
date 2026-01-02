@@ -14,7 +14,7 @@ import Context from "../context";
 import axios from "axios";
 import image1 from '../assest/ChimneyMegaMenu.png'
 import image2 from '../assest/MixerGrinder.png'
-import image3 from '../assest/SupportMegaMenu1.png'
+import image3 from '../assest/SupportMegaMenu.png'
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
 // import hob from "../assest/topSell/Hob1.png";
 // const dummy =[
@@ -725,7 +725,7 @@ useEffect(() => {
                   {categories.map((cat) => (
                     <div key={cat._id}>
                       {/* Top Category */}
-                      <h4 className="font-semibold text-gray-900 border-b border-red-500 inline-block mb-3">
+                      <h4 className="font-semibold text-gray-900 border-b border-red-500 inline-block mb-3 capitalize">
                         {cat.name}
                       </h4>
 
@@ -735,7 +735,7 @@ useEffect(() => {
                           <li key={sub._id}
                               onClick={() => handleNavigateClick(cat,sub)}
                               // to={`/product-category?parentCategory=${cat.name}&category=${sub.name}`}
-                              className="text-sm text-gray-600 hover:text-brand-primary transition cursor-pointer"
+                              className="text-sm text-gray-600 hover:text-brand-primary transition cursor-pointer capitalize"
                             >
                               {sub.name}
                           </li>
@@ -1039,8 +1039,8 @@ useEffect(() => {
 
                 {/* RIGHT : Dummy Image Section */}
                 <div className="col-span-4 grid grid-cols-2 gap-4">
-                  <div className="rounded-lg w-[350px] h-[200px]">
-                    <img alt="" className="shadow-[0_0_24px_rgba(0,0,0,0.08)] rounded-lg w-full h-full object-cover" src={image3}/>
+                  <div className="rounded-lg w-[330px] h-[200px]">
+                    <img alt="" className="shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] rounded-lg w-full h-full object-cover" src={image3}/>
                   </div>
                   {/* <div className="bg-gray-200 rounded-lg h-[260px]"></div> */}
                 </div>
