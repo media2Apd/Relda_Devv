@@ -59,14 +59,14 @@ import { RiInstagramFill, RiLinkedinFill } from "react-icons/ri";
 import { BsYoutube } from "react-icons/bs";
 import {
   FiMapPin,
-  FiPhoneCall,
+  // FiPhoneCall,
   FiMail,
   FiClock,
 } from "react-icons/fi";
 import Logo from "../assest/LogoWhite.svg";
 import { FaRegCopyright } from 'react-icons/fa';
 import SummaryApi from '../common';
-
+import { Phone } from 'lucide-react';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [categories, setCategories] = useState([]);
@@ -251,7 +251,7 @@ const Footer = () => {
                 <p>Plot No 17A, Majestic Avenue, Krishna Nagar,<br />Madhavaram Milk Colony, Chennai, Tamil Nadu 600051.</p>
               </div>
               <div className="flex items-center gap-3">
-                <FiPhoneCall className="text-white shrink-0" size={18} />
+                <Phone className="text-white shrink-0" size={18} />
                 <a href="tel:+919884890934" className="hover:text-white transition-colors">+91 98848 90934</a>
               </div>
               <div className="flex items-center gap-3">

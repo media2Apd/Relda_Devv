@@ -69,7 +69,8 @@
 
 // export default AboutUs;
 import React from "react";
-import aboutUs1 from "../assest/AboutUs1.png";
+import aboutUs1 from "../assest/AboutUs.png";
+import aboutUsMobile from "../assest/AboutUsMobile.png";
 import aboutUs2 from "../assest/AboutUs2.png";
 
 const AboutUs = () => {
@@ -77,7 +78,7 @@ const AboutUs = () => {
     <div className="w-full bg-white">
 
       {/* ================= HERO SECTION ================= */}
-      <section className="mx-auto px-4 lg:px-12 py-12">
+      <section className="mx-auto px-4 lg:px-12 pt-12">
         <div className="grid md:grid-cols-2 gap-12 items-center">
 
           {/* LEFT CONTENT */}
@@ -99,11 +100,18 @@ const AboutUs = () => {
 
           {/* RIGHT IMAGE (FIXED SIZE LIKE DESIGN) */}
           <div className="w-full">
-            <div className="w-full h-[200px] md:h-[260px] bg-gray-200 rounded-xl overflow-hidden">
+            <div className="hidden lg:inline-flex w-full h-[170px] lg:h-[200px] xl:h-[260px] 2xl:h-[330px] bg-gray-200 rounded-xl overflow-hidden">
               <img
                 src={aboutUs1}
                 alt="Home Appliances"
                 className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="block lg:hidden w-full h-full bg-gray-200 rounded-xl overflow-hidden">
+              <img
+                src={aboutUsMobile}
+                alt="Home Appliances"
+                className="w-full  h-full object-cover"
               />
             </div>
           </div>
@@ -113,7 +121,7 @@ const AboutUs = () => {
 
       {/* ================= STORY SECTION ================= */}
       <section className="max-w-7xl mx-auto px-4 lg:px-12 py-12">
-        <div className="bg-white rounded-xl shadow-[0_0_24px_rgba(0,0,0,0.08)] px-6 lg:px-16 py-12 grid md:grid-cols-2 gap-12 items-center">
+        <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] px-6 lg:px-16 py-12 grid md:grid-cols-2 gap-12 items-center">
 
           {/* LEFT TEXT */}
           <div>
@@ -168,7 +176,7 @@ const AboutUs = () => {
           ].map((text, index) => (
             <div
               key={index}
-              className="bg-white border-l-2 border-brand-primary rounded-xl shadow-[0_0_24px_rgba(0,0,0,0.08)] p-6 flex items-start gap-4"
+              className="bg-white border-l-2 border-brand-primary rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] p-6 flex items-start gap-4"
             >
               <span className="w-[3px] h-full rounded-xl"></span>
               <p className="text-sm">{text}</p>
@@ -180,7 +188,7 @@ const AboutUs = () => {
 
       {/* ================= MISSION ================= */}
 <section className="max-w-7xl mx-auto px-4 md:px-6 py-16">
-  <div className="bg-white rounded-xl shadow-[0_0_24px_rgba(0,0,0,0.08)] p-8 md:p-10 text-center">
+  <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] p-8 md:p-10 text-center">
     <h2 className="text-lg md:text-xl font-medium mb-4">
       Our mission is simple
     </h2>

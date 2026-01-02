@@ -328,7 +328,7 @@ const handleClearSearch = () => {
 
           {/* RIGHT IMAGE PLACEHOLDER */}
           <div className=" bg-gray-200 rounded-lg">
-            <img alt="card" src={careerCardImg} className="w-full h-[400px] rounded-lg"/>
+            <img alt="card" src={careerCardImg} className="w-full h-[280px] md:h-[360px] lg:h-[310px] xl:h-[340px] 2xl:h-[400px] rounded-lg"/>
           </div>
         </div>
 
@@ -376,7 +376,7 @@ const handleClearSearch = () => {
           ].map((item, index) => (
             <div
               key={index}
-              className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex gap-4 items-start"
+              className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] flex gap-4 items-start"
             >
               {/* ICON */}
               <div className="w-11 h-11 min-w-[44px] flex items-center justify-center bg-gradient-to-r from-[#D80A07] to-[#B70300] rounded-lg">
@@ -398,7 +398,7 @@ const handleClearSearch = () => {
 
           {/* CENTERED LAST CARD */}
           <div className="md:col-span-2 flex justify-center">
-            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex gap-4 items-start max-w-2xl w-full">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] flex gap-4 items-start max-w-2xl w-full">
               
               <div className="w-11 h-11 min-w-[44px] flex items-center justify-center bg-gradient-to-r from-[#D80A07] to-[#B70300] rounded-lg">
                 <img alt="img" src={career5} className="text-white w-8 h-8"/>
@@ -434,7 +434,7 @@ const handleClearSearch = () => {
 
         <p className="text-center text-gray-500 mb-14 max-w-2xl mx-auto">
           We are always on the lookout for talented, motivated, and passionate
-          individuals across various domains.
+          individuals across various domains
         </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 max-w-6xl mx-auto">
@@ -457,7 +457,7 @@ const handleClearSearch = () => {
               className={`
                 relative bg-white rounded-xl
                 px-6 py-8
-                shadow-[0_8px_30px_rgba(0,0,0,0.06)]
+                shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)]
                 text-center
                 lg:col-span-2 border-l-2 border-brand-primary
                 ${colStart}
@@ -478,7 +478,7 @@ const handleClearSearch = () => {
 
       {/* ================= CTA SECTION ================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-16">
-        <div className="rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-8 text-center">
+        <div className="rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] p-8 text-center">
           <h3 className="text-2xl font-semibold mb-8">
             Are You Ready to Make a Difference?
           </h3>
@@ -495,7 +495,7 @@ const handleClearSearch = () => {
 
           {/* ---------- HEADER ---------- */}
           <p className="text-center text-brand-primary text-sm font-medium mb-2">
-            Current Openings
+            Join Us
           </p>
 
           <h2 className="text-center text-3xl sm:text-3xl font-semibold mb-3">
@@ -503,11 +503,11 @@ const handleClearSearch = () => {
           </h2>
 
           <p className="text-center text-gray-500 mb-10">
-            Join our growing team across India
+             At RELDA India, your career is more than just a job—it's a journey to create meaningful impact. Be a part of a dynamic, fast-growing, home-grown brand that is redefining modern living for every Indian household
           </p>
 
 {/* ---------- SEARCH BAR ---------- */}
-<div className="bg-white rounded-lg shadow-sm flex flex-col sm:flex-row items-center gap-3 p-3 max-w-6xl mx-auto mb-16 border border-[#E5E5E5]">
+<div className="bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] flex flex-col sm:flex-row items-center gap-3 p-3 max-w-6xl mx-auto mb-16 border border-[#E5E5E5]">
 
   {/* JOB TITLE */}
   <div className="flex items-center gap-2 w-full px-3">
@@ -522,7 +522,7 @@ const handleClearSearch = () => {
     />
   </div>
 
-  <div className="hidden sm:block h-6 w-px bg-[#999999]"></div>
+  <div className="hidden sm:block h-6 w-px bg-[#E5E5E5]"></div>
 
   {/* LOCATION */}
   <div className="flex items-center gap-2 w-full px-3">
