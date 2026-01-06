@@ -119,15 +119,17 @@ useEffect(() => {
           wishlistCount,   // ? expose to context
           setWishlistCount,  // ? expose setter too
       }}>
-        <ToastContainer 
-          position='top-center'
-        />
-        
+             
         <Header />
         <main className='bg-white min-h-[calc(100vh-120px)] overflow-hidden'>
           <Outlet/>
         </main>
         <Footer/>
+        
+        <ToastContainer
+          position="top-center"
+          // className="z-[99999]"
+        />
       </Context.Provider>
     </>
   );
