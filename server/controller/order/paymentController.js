@@ -23,6 +23,43 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+async function markCouponAsUsed({ couponId, userId, orderId }) {
+  if (!couponId || !userId || !orderId) return;
+
+  // 🔒 per-user limit
+  const userUsageCount = await CouponUsage.countDocuments({
+    couponId,
+    userId
+  });
+
+  const coupon = await Coupon.findById(couponId);
+  if (!coupon) throw new Error("Coupon not found");
+
+  if (coupon.perUserLimit && userUsageCount >= coupon.perUserLimit) {
+    throw new Error("Coupon usage limit reached for this user");
+  }
+
+  // 🔒 global usage limit
+  if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+    throw new Error("Coupon total usage limit reached");
+  }
+
+  // ✅ store usage
+  await CouponUsage.create({
+    couponId,
+    userId,
+    orderId
+  });
+
+  // ✅ atomic increment
+  await Coupon.updateOne(
+    { _id: couponId },
+    { $inc: { usedCount: 1 } }
+  );
+}
+
+
+
 exports.createCheckout = async (req, res) => {
   try {
     const { cartItems, couponCode } = req.body;
@@ -418,7 +455,6 @@ exports.paymentController = async (req, res) => {
                 discountAmount: discountAmount
             };
         }
-        
         // Calculate final amount after discount
         const finalAmount = Math.max(subTotal - discountAmount, 0);
 
@@ -476,7 +512,14 @@ exports.paymentController = async (req, res) => {
                 }],
                 createdAt: new Date()
             });
-
+   // ✅ MARK COUPON USED (ONLY HERE)
+      if (couponCode) {
+        await markCouponAsUsed({
+          coupon: couponCode,
+          userId: req.userId,
+          orderId: order.orderId
+        });
+      }
             return res.json({
                 success: true,
                 message: "Order confirmed with Cash on Hand",
@@ -602,7 +645,14 @@ exports.paymentController = async (req, res) => {
                 createdAt: new Date(),
             });
         }
-
+         // ✅ MARK COUPON USED (ONLY HERE)
+      if (couponCode) {
+        await markCouponAsUsed({
+          coupon: couponCode,
+          userId: req.userId,
+          orderId: orderIdOrLink
+        });
+      }
         // Return response with all payment details
         res.json({
             success: true,

@@ -10,6 +10,7 @@ const productSchema = mongoose.Schema({
     price : Number,
     sellingPrice : Number,
     availability: {type: Number},
+    reservedStock: { type: Number, default: 0 }, // Locked stock
     specifications: [
         {
             key: { type: String },

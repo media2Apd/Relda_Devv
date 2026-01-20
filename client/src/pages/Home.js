@@ -106,9 +106,11 @@ const Home = () => {
           </React.Fragment>
         );
       })}
-      <BannerProduct type="bottom" />
+      {/* <BannerProduct type="bottom" /> */}
+<div className="mb-10">
       <BannerProduct type="home-bottom" />
-      <HowToShopBanner />
+      </div>
+      {/* <HowToShopBanner /> */}
 
     </div>
   );
