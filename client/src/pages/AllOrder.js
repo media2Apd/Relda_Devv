@@ -1018,41 +1018,97 @@ const AllOrder = () => {
   };
 
   // Function to handle status change
-  const handleStatusChange = async (orderId, newStatus) => {
-    try {
-      // Check if the new status is different to avoid unnecessary API calls
-      const order = data.find((item) => item.orderId === orderId);
-      if (order && order.order_status === newStatus) {
-        return; // No update needed
-      }
+  // const handleStatusChange = async (orderId, newStatus) => {
+  //   try {
+  //     // Check if the new status is different to avoid unnecessary API calls
+  //     const order = data.find((item) => item.orderId === orderId);
+  //     if (order && order.order_status === newStatus) {
+  //       return; // No update needed
+  //     }
 
-      setLoadingOrder(orderId); // Set loading state for the specific order
+  //     setLoadingOrder(orderId); // Set loading state for the specific order
 
-      // Make the API request to update the order status
-      const response = await fetch(SummaryApi.updateOrderStatus.url, {
-        method: SummaryApi.updateOrderStatus.method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderId, order_status: newStatus }), // Update the body to match your API structure
-      });
+  //     // Make the API request to update the order status
+  //     const response = await fetch(SummaryApi.updateOrderStatus.url, {
+  //       method: SummaryApi.updateOrderStatus.method,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ orderId, order_status: newStatus }), // Update the body to match your API structure
+  //     });
 
-      if (!response.ok) {
-        throw new Error("Failed to update order status");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update order status");
+  //     }
 
-      // Update the local state immediately with the new status
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.orderId === orderId ? { ...item, order_status: newStatus } : item
-        )
+  //     // Update the local state immediately with the new status
+  //     setData((prevData) =>
+  //       prevData.map((item) =>
+  //         item.orderId === orderId ? { ...item, order_status: newStatus } : item
+  //       )
+  //     );
+  //   } catch (err) {
+  //     setError(err.message);
+  //   } finally {
+  //     setLoadingOrder(null); // Reset loading state after the operation
+  //   }
+  // };
+  const allowedNextStatus = {
+  ordered: ["packaged"],
+  packaged: ["shipped"],
+  shipped: ["delivered"],
+  delivered: [],
+};
+
+const handleStatusChange = async (orderId, newStatus) => {
+  try {
+    const order = data.find((item) => item.orderId === orderId);
+    if (!order) return;
+
+    // 🛑 BLOCK INVALID TRANSITION
+    const allowed =
+      allowedNextStatus[order.order_status] || [];
+
+    if (!allowed.includes(newStatus)) {
+      alert(
+        `Invalid status change: ${order.order_status} → ${newStatus}`
       );
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoadingOrder(null); // Reset loading state after the operation
+      return;
     }
-  };
+
+    setLoadingOrder(orderId);
+
+    const response = await fetch(
+      SummaryApi.updateOrderStatus.url,
+      {
+        method: SummaryApi.updateOrderStatus.method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          order_status: newStatus,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Status update failed");
+    }
+
+    setData((prev) =>
+      prev.map((item) =>
+        item.orderId === orderId
+          ? { ...item, order_status: newStatus }
+          : item
+      )
+    );
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoadingOrder(null);
+  }
+};
 
   // Function to handle order deletion
   const handleDeleteOrder = async (orderId) => {

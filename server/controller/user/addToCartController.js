@@ -184,7 +184,11 @@ const addToCartController = async (req, res) => {
       quantity: 1,
       ...(userId ? { userId } : { sessionId })
     };
-
+ // 🔥 RESERVE STOCK
+    await productModel.findByIdAndUpdate(
+      productId,
+      { $inc: { reservedStock: 1 } }
+    );
     const saved = await addToCartModel.create(payload);
 
     res.json({

@@ -88,7 +88,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, default: 'GENERAL' },
   mobile: { type: String, required: true, unique: true },
-
+  zohoCustomerId: { type: String },
   // Address fields
   addresses: [addressSchema],
   address: addressSchema,

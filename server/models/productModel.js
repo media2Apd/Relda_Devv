@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 
 const productSchema = mongoose.Schema({
+     zohoItemId: { type: String, unique: true },
+      zohoVariantId: { type: String, unique: true },       // variant item id'
     productName : String,
     brandName : String,
     category : String,
@@ -11,6 +13,9 @@ const productSchema = mongoose.Schema({
     sellingPrice : Number,
     availability: {type: Number},
     reservedStock: { type: Number, default: 0 }, // Locked stock
+      attributes: {
+    type: Object              // { Color: "Red", Size: "M" }
+  },
     specifications: [
         {
             key: { type: String },

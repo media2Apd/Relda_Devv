@@ -109,6 +109,12 @@ const orderSchema = new mongoose.Schema({
     billing_address: Object,
     shipping_address: Object,
     shippingOption: { type: String, enum: ['Free', 'Paid'], default: 'Free' },
+      // 🔥 ZOHO REFERENCES
+    zohoSalesOrderId: { type: String },
+    zohoInvoiceId: { type: String },
+    zohoPackageId: { type: String },
+    zohoPaymentId: { type: String },
+    zohoShipmentOrderId: { type: String },  
     order_status: { type: String, default: 'Pending' },
     statusUpdatedAt: { type: Date, default: Date.now },
     statusUpdates: [{
