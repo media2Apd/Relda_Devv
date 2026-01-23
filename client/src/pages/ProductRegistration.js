@@ -335,7 +335,7 @@ const ProductRegistration = () => {
               type="file"
               name="fileUpload"
               accept=".pdf,.doc,.docx,image/*"
-              className={`w-full border border-brand-productCardBorder rounded-md text-sm px-2 py-1 outline-none bg-transparent
+              className={`w-full border border-brand-productCardBorder rounded-md text-sm px-1 py-1 outline-none bg-transparent
                 ${errors.fileUpload ? "border-brand-primary" : ""}
                 file:border-0
                 file:bg-[#E5E5E5]

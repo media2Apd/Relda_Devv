@@ -1907,7 +1907,7 @@ const ProductDetails = () => {
             <div className="flex items-center gap-3 my-2">
               {data?.isHidden || data?.availability === 0 ? (
                 <button
-                  className="border-2 border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
+                  className="border border-brand-primary rounded-md px-4 py-1.5 min-w-[120px] font-medium text-white bg-brand-primary hover:text-brand-primaryHover hover:bg-white"
                   onClick={handleEnquiry}
                 >
                   Enquire Now
