@@ -226,72 +226,72 @@ import careerCardImg from "../assest/career/CareerCardImg.png";
 import CareerApplicationForm from "../components/CareerApplicationForm";
 
 const jobsData = [
-    {
-      title: "Branch Manager",
-      location: "Chennai",
-      desc: "Lead branch operations, drive sales, and ensure an outstanding customer experience.",
-    },
-    {
-      title: "Regional Manager",
-      location: "Chennai",
-      desc: "Lead multiple branches, drive regional sales growth, ensure operational excellence, and build high-performing teams.",
-    },
-    {
-      title: "Area Sales Manager",
-      location: "Chennai",
-      desc: "Drive regional sales growth, build strong dealer & showroom networks, and achieve revenue targets.",
-    },
-    {
-      title: "Area Sales Executive",
-      location: "Chennai",
-      desc: "Drive regional sales growth, manage dealer/retail networks, and expand market presence.",
-    },
-    {
-      title: "Direct Selling Women",
-      location: "Chennai",
-      desc: "Engage directly with customers, explain products confidently, build trust, and drive sales through relationship-based selling.",
-    },
+  {
+    title: "Branch Manager",
+    location: "Chennai",
+    desc: "Lead branch operations, drive sales, and ensure an outstanding customer experience.",
+  },
+  {
+    title: "Regional Manager",
+    location: "Chennai",
+    desc: "Lead multiple branches, drive regional sales growth, ensure operational excellence, and build high-performing teams.",
+  },
+  {
+    title: "Area Sales Manager",
+    location: "Chennai",
+    desc: "Drive regional sales growth, build strong dealer & showroom networks, and achieve revenue targets.",
+  },
+  {
+    title: "Area Sales Executive",
+    location: "Chennai",
+    desc: "Drive regional sales growth, manage dealer/retail networks, and expand market presence.",
+  },
+  {
+    title: "Direct Selling Women",
+    location: "Chennai",
+    desc: "Engage directly with customers, explain products confidently, build trust, and drive sales through relationship-based selling.",
+  },
 
-  ]
+]
 
 const Careers = () => {
   const [openModal, setOpenModal] = useState(false);
-const [searchTitle, setSearchTitle] = useState("");
-const [searchLocation, setSearchLocation] = useState("");
-const [filteredJobs, setFilteredJobs] = useState(jobsData);
+  const [searchTitle, setSearchTitle] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
+  const [filteredJobs, setFilteredJobs] = useState(jobsData);
 
 
-const filterJobs = (title, location) => {
-  const filtered = jobsData.filter((job) => {
-    const titleMatch = job.title
-      .toLowerCase()
-      .includes(title.toLowerCase());
+  const filterJobs = (title, location) => {
+    const filtered = jobsData.filter((job) => {
+      const titleMatch = job.title
+        .toLowerCase()
+        .includes(title.toLowerCase());
 
-    const locationMatch = job.location
-      .toLowerCase()
-      .includes(location.toLowerCase());
+      const locationMatch = job.location
+        .toLowerCase()
+        .includes(location.toLowerCase());
 
-    return titleMatch && locationMatch;
-  });
+      return titleMatch && locationMatch;
+    });
 
-  setFilteredJobs(filtered);
-};
+    setFilteredJobs(filtered);
+  };
 
-useEffect(() => {
-  filterJobs(searchTitle, searchLocation);
-}, [searchTitle, searchLocation]);
-
-const handleKeyDown = (e) => {
-  if (e.key === "Enter") {
+  useEffect(() => {
     filterJobs(searchTitle, searchLocation);
-  }
-};
+  }, [searchTitle, searchLocation]);
 
-const handleClearSearch = () => {
-  setSearchTitle("");
-  setSearchLocation("");
-  setFilteredJobs(jobsData);
-};
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      filterJobs(searchTitle, searchLocation);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTitle("");
+    setSearchLocation("");
+    setFilteredJobs(jobsData);
+  };
 
   return (
     <div className="w-full bg-white">
@@ -328,7 +328,7 @@ const handleClearSearch = () => {
 
           {/* RIGHT IMAGE PLACEHOLDER */}
           <div className=" bg-gray-200 rounded-lg">
-            <img alt="card" src={careerCardImg} className="w-full h-[280px] md:h-[360px] lg:h-[310px] xl:h-[340px] 2xl:h-[400px] rounded-lg"/>
+            <img alt="card" src={careerCardImg} className="w-full h-[280px] md:h-[360px] lg:h-[310px] xl:h-[340px] 2xl:h-[400px] rounded-lg" />
           </div>
         </div>
 
@@ -380,7 +380,7 @@ const handleClearSearch = () => {
             >
               {/* ICON */}
               <div className="w-11 h-11 min-w-[44px] flex items-center justify-center bg-gradient-to-r from-[#D80A07] to-[#B70300] rounded-lg">
-              <img alt="img" src={item.img} className="w-8 h-8"/>
+                <img alt="img" src={item.img} className="w-8 h-8" />
               </div>
 
               {/* CONTENT */}
@@ -399,9 +399,9 @@ const handleClearSearch = () => {
           {/* CENTERED LAST CARD */}
           <div className="md:col-span-2 flex justify-center">
             <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] flex gap-4 items-start max-w-2xl w-full">
-              
+
               <div className="w-11 h-11 min-w-[44px] flex items-center justify-center bg-gradient-to-r from-[#D80A07] to-[#B70300] rounded-lg">
-                <img alt="img" src={career5} className="text-white w-8 h-8"/>
+                <img alt="img" src={career5} className="text-white w-8 h-8" />
               </div>
 
               <div>
@@ -437,24 +437,24 @@ const handleClearSearch = () => {
           individuals across various domains
         </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 max-w-6xl mx-auto">
 
-        {[
-          "Product Development & Engineering",
-          "Sales & Marketing",
-          "Operations & Supply Chain",
-          "Customer Experience & Support",
-          "Technology & Innovation",
-        ].map((role, i) => {
+          {[
+            "Product Development & Engineering",
+            "Sales & Marketing",
+            "Operations & Supply Chain",
+            "Customer Experience & Support",
+            "Technology & Innovation",
+          ].map((role, i) => {
 
-          let colStart = "";
-          if (i === 3) colStart = "lg:col-start-2"; // 4th card
-          if (i === 4) colStart = "lg:col-start-4"; // 5th card
+            let colStart = "";
+            if (i === 3) colStart = "lg:col-start-2"; // 4th card
+            if (i === 4) colStart = "lg:col-start-4"; // 5th card
 
-          return (
-            <div
-              key={i}
-              className={`
+            return (
+              <div
+                key={i}
+                className={`
                 relative bg-white rounded-xl
                 px-6 py-8
                 shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)]
@@ -462,16 +462,16 @@ const handleClearSearch = () => {
                 lg:col-span-2 border-l-2 border-brand-primary
                 ${colStart}
               `}
-            >
+              >
 
-              <p className="text-sm font-medium leading-snug max-w-[200px] mx-auto">
-                {role}
-              </p>
-            </div>
-          );
-        })}
+                <p className="text-sm font-medium leading-snug max-w-[200px] mx-auto">
+                  {role}
+                </p>
+              </div>
+            );
+          })}
 
-      </div>
+        </div>
 
       </section>
 
@@ -503,110 +503,129 @@ const handleClearSearch = () => {
           </h2>
 
           <p className="text-center text-gray-500 mb-10">
-             At RELDA India, your career is more than just a job—it's a journey to create meaningful impact. Be a part of a dynamic, fast-growing, home-grown brand that is redefining modern living for every Indian household
+            At RELDA India, your career is more than just a job—it's a journey to create meaningful impact. Be a part of a dynamic, fast-growing, home-grown brand that is redefining modern living for every Indian household
           </p>
 
-{/* ---------- SEARCH BAR ---------- */}
-<div className="bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] flex flex-col sm:flex-row items-center gap-3 p-3 max-w-6xl mx-auto mb-16 border border-[#E5E5E5]">
+          {/* ---------- SEARCH BAR ---------- */}
+          <div className="bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.04)] flex flex-col sm:flex-row items-center gap-3 p-3 max-w-6xl mx-auto mb-16 border border-[#E5E5E5]">
 
-  {/* JOB TITLE */}
-  <div className="flex items-center gap-2 w-full px-3">
-    <Search strokeWidth={1} className="w-6 h-6" />
-    <input
-      type="text"
-      placeholder="Job Title or Keywords"
-      className="w-full outline-none text-sm placeholder:text-[#666666]"
-      value={searchTitle}
-      onChange={(e) => setSearchTitle(e.target.value)}
-      onKeyDown={handleKeyDown}
-    />
-  </div>
+            {/* JOB TITLE */}
+            <div className="flex items-center gap-2 w-full px-3">
+              <Search strokeWidth={1} className="w-6 h-6" />
+              <input
+                type="text"
+                placeholder="Job Title or Keywords"
+                className="w-full outline-none text-sm placeholder:text-[#666666]"
+                value={searchTitle}
+                onChange={(e) => setSearchTitle(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
 
-  <div className="hidden sm:block h-6 w-px bg-[#E5E5E5]"></div>
+            <div className="hidden sm:block h-6 w-px bg-[#E5E5E5]"></div>
 
-  {/* LOCATION */}
-  <div className="flex items-center gap-2 w-full px-3">
-    <MapPin strokeWidth={1} className="w-6 h-6" />
-    <input
-      type="text"
-      placeholder="Location"
-      className="w-full outline-none text-sm placeholder:text-[#666666]"
-      value={searchLocation}
-      onChange={(e) => setSearchLocation(e.target.value)}
-      onKeyDown={handleKeyDown}
-    />
-  </div>
+            {/* LOCATION */}
+            <div className="flex items-center gap-2 w-full px-3">
+              <MapPin strokeWidth={1} className="w-6 h-6" />
+              <input
+                type="text"
+                placeholder="Location"
+                className="w-full outline-none text-sm placeholder:text-[#666666]"
+                value={searchLocation}
+                onChange={(e) => setSearchLocation(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
 
-  {/* ACTION BUTTONS */}
-  <div className="flex gap-2">
-    <button
-      onClick={() => filterJobs(searchTitle, searchLocation)}
-      className="bg-brand-primary text-white text-sm px-6 py-1.5 rounded-md"
-    >
-      Search
-    </button>
+            {/* ACTION BUTTONS */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => filterJobs(searchTitle, searchLocation)}
+                className="bg-brand-primary text-white text-sm px-6 py-1.5 rounded-md"
+              >
+                Search
+              </button>
 
-    {(searchTitle || searchLocation) && (
-      <button
-        onClick={handleClearSearch}
-        className="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100"
-      >
-        Clear
-      </button>
-    )}
-  </div>
+              {(searchTitle || searchLocation) && (
+                <button
+                  onClick={handleClearSearch}
+                  className="text-sm px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
 
-</div>
+          </div>
 
 
           {/* ---------- JOB CARDS GRID ---------- */}
-<div className="max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto">
 
-  {filteredJobs.length === 0 ? (
-    <p className="text-center text-gray-500 py-10">
-      No jobs found matching your search.
-    </p>
-  ) : (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-14">
+            {filteredJobs.length === 0 ? (
+              <p className="text-center text-gray-500 py-10">
+                No jobs found matching your search.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-14">
 
-      {filteredJobs.map((job, i) => {
-        const isLast = i === 4;
+                {filteredJobs.map((job, i) => {
+                  const isLast = i === 4;
 
-        return (
-          <div
-            key={i}
-            className={`
-              relative bg-white rounded-2xl
-              px-8 py-8
-              lg:col-span-2
-              ${isLast ? "lg:col-start-2" : ""}
-            `}
-          >
-            {/* CUT-OUT CORNER + ARROW */}
-            <div className="absolute -top-4 -right-4 bg-[#F4F6F8] w-20 h-20 rounded-full flex items-center justify-center">
-              <div
-                className="w-12 h-12 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-lg cursor-pointer"
-                onClick={() => setOpenModal(true)}
-              >
-                <MoveUpRight />
+                  return (
+                    <div
+                      key={i}
+                      className={`relative bg-white rounded-2xl px-8 py-10 lg:col-span-2 overflow-hidden
+                      ${isLast ? "lg:col-start-2" : ""}`}
+                    >
+                      {/* CUT-OUT CORNER + ARROW */}
+                      {/* <div className="absolute top-0 right-0 w-20 h-20 bg-[#F4F6F8] rounded-bl-[20px] flex items-center justify-center">
+                        <div
+                          className="w-12 h-12 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-lg cursor-pointer"
+                          onClick={() => setOpenModal(true)}
+                        >
+                          <MoveUpRight />
+                        </div>
+                      </div> */}
+
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-[#F4F6F8] rounded-bl-[20px]">
+
+                        {/* ✅ OUTER CURVE - TOP LEFT */}
+                        <div className="absolute -left-6 top-0 w-6 h-6 bg-[#F4F6F8] rounded-bl-full ">
+                          <div className="absolute left-0 top-0 w-6 h-6 bg-white rounded-tr-full"></div>
+                        </div>
+
+                        {/* ✅ OUTER CURVE - BOTTOM RIGHT */}
+                        <div className="absolute right-0 -bottom-6 w-6 h-6 bg-[#F4F6F8] rounded-bl-full">
+                          <div className="absolute right-0 bottom-0 w-6 h-6 bg-white rounded-tr-full"></div>
+                        </div>
+
+                        {/* ARROW BUTTON */}
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div
+                            className="w-12 h-12 rounded-full bg-[#0F172A] flex items-center justify-center text-white cursor-pointer"
+                            onClick={() => setOpenModal(true)}
+                          >
+                            <MoveUpRight />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* CONTENT */}
+                      <h3 className="text-brand-primary text-xl font-medium mb-4">
+                        {job.title}
+                      </h3>
+
+                      <p className="leading-relaxed max-w-md">
+                        {job.desc}
+                      </p>
+                    </div>
+                  );
+                })}
+
               </div>
-            </div>
-
-            {/* CONTENT */}
-            <h3 className="text-brand-primary text-xl font-medium mb-4">
-              {job.title}
-            </h3>
-
-            <p className="leading-relaxed max-w-md">
-              {job.desc}
-            </p>
+            )}
           </div>
-        );
-      })}
-
-    </div>
-  )}
-</div>
 
         </div>
       </section>
