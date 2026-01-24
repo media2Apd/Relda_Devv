@@ -70,9 +70,64 @@
 
 //   return customerUser.zohoCustomerId;
 // };
+// const {
+//   searchZohoCustomerByEmail,
+//   createZohoCustomerFromOrder,
+//   createZohoCustomer
+// } = require("../services/zohoCustomer.service");
+
+// exports.ensureZohoCustomerForOrder = async (order) => {
+
+//   if (!order) {
+//     throw new Error("Order missing");
+//   }
+
+//   /* ================= BUILD CUSTOMER SNAPSHOT ================= */
+//   const customer = {
+//     name: order.billing_name,
+//     email: order.billing_email,
+//     mobile: order.billing_tel,
+//     address: parseAddress(order.billing_address)
+//   };
+
+//   if (!order.email) {
+//     throw new Error("Order customer email missing");
+//   }
+
+//   // 🔥 If already mapped → reuse
+//   if (order.zohoCustomerId) {
+//     console.log("✅ Using existing Zoho customer:", order.zohoCustomerId);
+//     return order.zohoCustomerId;
+//   }
+
+//   // 🔥 Create Zoho customer
+//   const zohoCustomer = await createZohoCustomer(customer);
+
+//   // 🔥 Save mapping in order itself
+//   order.zohoCustomerId = zohoCustomer.contact_id;
+//   await order.save();
+
+//   console.log("🆕 Zoho customer created for order:", zohoCustomer.contact_id);
+
+//   return zohoCustomer.contact_id;
+// };
+
+// /* ================= ADDRESS PARSER ================= */
+// function parseAddress(addressString = "") {
+//   // "ganapathy nagar, aranthangi, Aranthangi, Tamilnadu, 614616, India"
+//   const parts = addressString.split(",").map(p => p.trim());
+
+//   return {
+//     street: parts[0] || "",
+//     city: parts[2] || parts[1] || "",
+//     state: parts[3] || "",
+//     pinCode: parts[4] || "",
+//     country: parts[5] || "India"
+//   };
+// }
+
+
 const {
-  searchZohoCustomerByEmail,
-  createZohoCustomerFromOrder,
   createZohoCustomer
 } = require("../services/zohoCustomer.service");
 
@@ -85,12 +140,13 @@ exports.ensureZohoCustomerForOrder = async (order) => {
   /* ================= BUILD CUSTOMER SNAPSHOT ================= */
   const customer = {
     name: order.billing_name,
-    email: order.billing_email,
+    email: order.billing_email,   // 🔥 SOURCE OF TRUTH
     mobile: order.billing_tel,
     address: parseAddress(order.billing_address)
   };
 
-  if (!order.email) {
+  // ✅ CORRECT VALIDATION
+  if (!customer.email) {
     throw new Error("Order customer email missing");
   }
 
@@ -100,7 +156,7 @@ exports.ensureZohoCustomerForOrder = async (order) => {
     return order.zohoCustomerId;
   }
 
-  // 🔥 Create Zoho customer
+  // 🔥 Create Zoho customer (OLD FLOW)
   const zohoCustomer = await createZohoCustomer(customer);
 
   // 🔥 Save mapping in order itself
@@ -114,7 +170,6 @@ exports.ensureZohoCustomerForOrder = async (order) => {
 
 /* ================= ADDRESS PARSER ================= */
 function parseAddress(addressString = "") {
-  // "ganapathy nagar, aranthangi, Aranthangi, Tamilnadu, 614616, India"
   const parts = addressString.split(",").map(p => p.trim());
 
   return {
@@ -125,6 +180,4 @@ function parseAddress(addressString = "") {
     country: parts[5] || "India"
   };
 }
-
-
 

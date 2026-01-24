@@ -303,18 +303,114 @@ const {
 //   console.log("✅ Sales Order flow completed for:", order.orderId);
 // };
 
+// module.exports = async function createSalesOrderAndReleaseStock(
+//   order,
+//   customerUser,
+//   reqUser
+// ) {
+
+//   /* ================= ENSURE ZOHO CUSTOMER ================= */
+//   const zohoCustomerId = await ensureZohoCustomerForOrder({
+//     order,
+//     customerUser,
+//     reqUser
+//   });
+
+//   /* ================= PREPARE LINE ITEMS ================= */
+//   const products = await Promise.all(
+//     order.productDetails.map(async p => {
+//       const prod = await productModel.findById(p.productId);
+
+//       if (!prod?.zohoVariantId) {
+//         throw new Error(`Zoho item missing for product ${p.productId}`);
+//       }
+
+//       return {
+//         item_id: prod.zohoVariantId,
+//         quantity: p.quantity,
+//         rate: p.sellingPrice
+//       };
+//     })
+//   );
+
+//   /* ================= CLEAN ZOHO PAYLOAD ================= */
+//   // const payload = {
+//   //   customer_id: zohoCustomerId,
+//   //   date: new Date().toISOString().split("T")[0],
+//   //   reference_number: order.orderId, // 🔥 website order reference
+//   //    paymentId: order.paymentDetails.paymentId, // ✅ SAFE
+//   //   notes: "Order created from Website",
+//   //   line_items: products
+//   // };
+
+//   // // add salesperson ONLY if MANAGESALES
+//   // if (reqUser?.role === "MANAGESALES" && reqUser?.name) {
+//   //   payload.salesperson_name = reqUser.name;
+//   // }
+//   const payload = {
+//   customer_id: zohoCustomerId,
+//   date: new Date().toISOString().split("T")[0],
+
+//   // 🔥 CUSTOMER TRACE
+//   reference_number: order.orderId,
+//   notes: `Customer: ${order.billing_name} | ${order.billing_email}`,
+
+//   line_items: products
+// };
+
+// // 🔥 Salesperson only if MANAGESALES
+// if (reqUser?.role === "MANAGESALES") {
+//   payload.salesperson_name = reqUser.name;
+// }
+
+
+//   console.log(
+//     "📦 FINAL ZOHO SALES ORDER PAYLOAD:",
+//     JSON.stringify(payload, null, 2)
+//   );
+
+//   /* ================= CREATE & CONFIRM ================= */
+//   const so = await createZohoSalesOrder(payload);
+//   await confirmZohoSalesOrder(so.salesorder_id);
+
+//   /* ================= SAVE TO DB ================= */
+//   order.zohoSalesOrderId = so.salesorder_id;
+//   order.order_status = "ordered";
+//   order.paymentDetails.payment_status = "success";
+//   await order.save();
+
+//   console.log("✅ Zoho Sales Order Created:", so.salesorder_id);
+// };
 module.exports = async function createSalesOrderAndReleaseStock(
   order,
-  customerUser,
+  customerUser, // ignore for MANAGESALES
   reqUser
 ) {
 
-  /* ================= ENSURE ZOHO CUSTOMER ================= */
-  const zohoCustomerId = await ensureZohoCustomerForOrder({
-    order,
-    customerUser,
-    reqUser
-  });
+  let zohoCustomerId;
+
+  /* ================= MANAGESALES → OLD FLOW ================= */
+  if (reqUser?.role === "MANAGESALES") {
+
+    console.log("🔥 MANAGESALES ORDER – CREATE CUSTOMER FROM BILLING");
+
+    // 🔥 ALWAYS create customer from billing details
+    const zohoCustomer = await createZohoCustomer({
+      name: order.billing_name,
+      email: order.billing_email,
+      mobile: order.billing_tel,
+      address: parseAddress(order.billing_address)
+    });
+
+    zohoCustomerId = zohoCustomer.contact_id;
+
+    console.log("🆕 Zoho customer created for order:", zohoCustomerId);
+  }
+
+  /* ================= NORMAL CUSTOMER FLOW (UNCHANGED) ================= */
+  else {
+    zohoCustomerId = await ensureZohoCustomerForOrder(order);
+  }
 
   /* ================= PREPARE LINE ITEMS ================= */
   const products = await Promise.all(
@@ -333,47 +429,27 @@ module.exports = async function createSalesOrderAndReleaseStock(
     })
   );
 
-  /* ================= CLEAN ZOHO PAYLOAD ================= */
-  // const payload = {
-  //   customer_id: zohoCustomerId,
-  //   date: new Date().toISOString().split("T")[0],
-  //   reference_number: order.orderId, // 🔥 website order reference
-  //    paymentId: order.paymentDetails.paymentId, // ✅ SAFE
-  //   notes: "Order created from Website",
-  //   line_items: products
-  // };
-
-  // // add salesperson ONLY if MANAGESALES
-  // if (reqUser?.role === "MANAGESALES" && reqUser?.name) {
-  //   payload.salesperson_name = reqUser.name;
-  // }
+  /* ================= ZOHO PAYLOAD (OLD STYLE) ================= */
   const payload = {
-  customer_id: zohoCustomerId,
-  date: new Date().toISOString().split("T")[0],
+    customer_id: zohoCustomerId,
+    date: new Date().toISOString().split("T")[0],
+    reference_number: order.orderId,
+    notes: "Order created from Website",
+    line_items: products
+  };
 
-  // 🔥 CUSTOMER TRACE
-  reference_number: order.orderId,
-  notes: `Customer: ${order.billing_name} | ${order.billing_email}`,
+  // 🔥 Sales person name ONLY for MANAGESALES
+  if (reqUser?.role === "MANAGESALES") {
+    payload.salesperson_name = reqUser.name;
+  }
 
-  line_items: products
-};
-
-// 🔥 Salesperson only if MANAGESALES
-if (reqUser?.role === "MANAGESALES") {
-  payload.salesperson_name = reqUser.name;
-}
-
-
-  console.log(
-    "📦 FINAL ZOHO SALES ORDER PAYLOAD:",
-    JSON.stringify(payload, null, 2)
-  );
+  console.log("📦 FINAL ZOHO SALES ORDER PAYLOAD:", payload);
 
   /* ================= CREATE & CONFIRM ================= */
   const so = await createZohoSalesOrder(payload);
   await confirmZohoSalesOrder(so.salesorder_id);
 
-  /* ================= SAVE TO DB ================= */
+  /* ================= SAVE ================= */
   order.zohoSalesOrderId = so.salesorder_id;
   order.order_status = "ordered";
   order.paymentDetails.payment_status = "success";
