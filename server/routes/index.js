@@ -197,8 +197,8 @@ router.post('/update-order-status', updateOrderStatus);
 // router.get('/search/:orderId', searchOrderById);
 // router.get('/order', searchOrderById)
 router.put('/cancel-order', authToken, CancelOrder);
-// router.post('/returnOrder', upload.fields([{ name: 'returnImage', maxCount: 1 }, { name: 'anotherField', maxCount: 1 }]), authToken, returnOrder);
-router.post('/return-order', authToken,returnOrder);
+// router.post('/returnOrder', upload.fields([{ name: 'returnImage', maxCount: 1 }, { name: 'anotherField', maxCount: 1 }]),  returnOrder);
+router.post('/return-order',  returnOrder);
 router.post("/ver-pay", authToken, verifyPayment)
 router.post('/webhook',webhooks)
 router.get("/order-list",authToken,orderController)

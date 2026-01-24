@@ -17,14 +17,11 @@ const CheckoutSession = require('../../models/checkoutSession');
 const Coupon = require('../../models/coupon');
 const CouponUsage = require('../../models/couponUsage');
 const createSalesOrderAndReleaseStock = require("../../helpers/createZohoSO.helper");
-const {
-  getZohoSalesOrder,
-  createZohoPackage,
-  createInvoiceFromSalesOrder,
-  createShipmentFromSalesOrder,
-  createInvoiceFromShipmentOrder
-} = require('../../services/zohoSalesOrder.service');
-// Razorpay configuration
+
+const { voidZohoSalesOrder } = require("../../services/zohoSalesOrder.service");
+const { createZohoSalesReturn } = require("../../services/zohoSalesReturn.service");
+const { getZohoSalesOrder } = require("../../services/zohoSalesOrder.service");
+const { getInvoiceDetails } = require("../../services/zohoInvoice.service");
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -521,7 +518,18 @@ exports.paymentController = async (req, res) => {
             });
             const user = await userModel.findById(req.userId);
 
-await createSalesOrderAndReleaseStock(order, user);
+// await createSalesOrderAndReleaseStock(order, user);
+const fullOrder = await orderModel.findOne(order.orderId);
+const customerUser = await userModel.findById(fullOrder.userId);
+const staffUser = req.user; // role = MANAGESALES
+
+await createSalesOrderAndReleaseStock(
+  fullOrder,
+  customerUser,
+  staffUser
+);
+
+
    // ✅ MARK COUPON USED (ONLY HERE)
       if (couponCode) {
         await markCouponAsUsed({
@@ -632,7 +640,7 @@ await createSalesOrderAndReleaseStock(order, user);
                     sellingPrice: item.productId.sellingPrice,
                     productImage: getProductImageUrl(item.productId.productImage),
                 })),
-                email: user.email,
+                email: customerInfo.email,
                 userId: req.userId,
                 subTotal: subTotal,
                 discountAmount: discountAmount || 0,
@@ -817,10 +825,21 @@ async function verifyPaymentStatus(paymentId) {
               { new: true }
             )
           );
-const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
-const user = await userModel.findById(fullOrder.userId);
+// const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+// const user = await userModel.findById(fullOrder.userId);
 
-await createSalesOrderAndReleaseStock(fullOrder, user);
+// await createSalesOrderAndReleaseStock(fullOrder, user);
+const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+const customerUser = await userModel.findById(fullOrder.userId);
+const staffUser = req.user; // role = MANAGESALES
+
+await createSalesOrderAndReleaseStock(
+  fullOrder,
+  customerUser,
+  staffUser
+);
+
+
           await Promise.all([...emailPromises, ...productUpdatePromises]);
         } catch (emailOrStockError) {
           console.error('? Error sending emails or updating product stock:', emailOrStockError);
@@ -1053,10 +1072,21 @@ exports.verifyPayment = async (req, res) => {
 
             
             // 🔥 FETCH UPDATED ORDER & USER
-           const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
-            const user = await userModel.findById(fullOrder.userId);
+          //  const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
+          //   const user = await userModel.findById(fullOrder.userId);
 
-            await createSalesOrderAndReleaseStock(fullOrder, user);
+          //   await createSalesOrderAndReleaseStock(fullOrder, user);
+         const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
+const customerUser = await userModel.findById(fullOrder.userId);
+const staffUser = req.user; // role = MANAGESALES
+
+await createSalesOrderAndReleaseStock(
+  fullOrder,
+  customerUser,
+  staffUser
+);
+
+
 
 
             // Handle potential errors in parallel promises
@@ -1371,6 +1401,165 @@ const sendEmail = async (email, subject, message) => {
 //     }
 // };
 
+// exports.updateOrderStatus = async (req, res) => {
+//   const { orderId, order_status } = req.body;
+
+//   try {
+//     /* -------------------- VALIDATION -------------------- */
+//     const validStatuses = [
+//       'pending',
+//       'ordered',
+//       'packaged',
+//       'shipped',
+//       'delivered',
+//       'failed',
+//       'returnRequested',
+//       'returnAccepted',
+//       'returned',
+//     ];
+
+//     const validTransitions = {
+//       ordered: ['packaged'],
+//       packaged: ['shipped'],
+//       shipped: ['delivered', 'returnRequested'],
+//       returnRequested: ['returnAccepted'],
+//       returnAccepted: ['returned'],
+//       returned: [],
+//       delivered: [],
+//       failed: [],
+//     };
+
+//     if (!validStatuses.includes(order_status)) {
+//       return res.status(400).json({
+//         status: 'failed',
+//         message: 'Invalid status provided.',
+//       });
+//     }
+
+//     const order = await orderModel.findOne({ orderId });
+//     if (!order) {
+//       return res.status(404).json({
+//         status: 'failed',
+//         message: 'Order not found.',
+//       });
+//     }
+
+//     const currentStatus = order.order_status;
+//     const allowedStatuses = validTransitions[currentStatus] || [];
+
+//     if (!allowedStatuses.includes(order_status)) {
+//       return res.status(400).json({
+//         status: 'failed',
+//         message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
+//       });
+//     }
+
+//     /* -------------------- 🔥 ZOHO LOGIC -------------------- */
+// if (order_status === 'packaged') {
+
+//   const salesOrder = await getZohoSalesOrder(order.zohoSalesOrderId);
+
+//   const pkg = await createZohoPackage(salesOrder);
+
+//   const shipment = await createShipmentFromPackage(pkg.package_id);
+
+//   const invoice = await createInvoiceFromShipmentOrder(
+//     shipment.shipmentorder_id
+//   );
+
+//   order.zohoPackageId = pkg.package_id;
+//   order.zohoShipmentOrderId = shipment.shipmentorder_id;
+//   order.zohoInvoiceId = invoice.invoice_id;
+// }
+
+
+
+
+//     /* -------------------- UPDATE ORDER -------------------- */
+//     order.order_status = order_status;
+
+//     const statusUpdatedAt = Date.now();
+//     order.statusUpdatedAt = statusUpdatedAt;
+
+//     order.statusUpdates.push({
+//       status: order_status,
+//       updatedAt: statusUpdatedAt,
+//     });
+
+//     await order.save();
+
+//     /* -------------------- EMAIL LOGIC -------------------- */
+//     const formattedTimestamp = moment(statusUpdatedAt).format('hh:mm A');
+
+//     let emailSubject = '';
+//     let emailMessage = '';
+
+//     switch (order_status) {
+//       case 'packaged':
+//         emailSubject = 'Your Order is Packed and Ready for Shipping';
+//         emailMessage = `
+//           <p>Dear <strong>${order.billing_name}</strong>,</p>
+//           <p>Your order has been packed and is ready for shipping.</p>
+//           <ul>
+//             <li><strong>Product</strong>: ${order.productDetails[0].productName}</li>
+//             <li><strong>Order No</strong>: ${order.orderId}</li>
+//           </ul>
+//           <p>Thank you for shopping with Elda Appliances.</p>
+//         `;
+//         break;
+
+//       case 'shipped':
+//         emailSubject = 'Your Product Has Been Shipped';
+//         emailMessage = `
+//           <p>Dear <strong>${order.billing_name}</strong>,</p>
+//           <p>Your product has been shipped.</p>
+//         `;
+//         break;
+
+//       case 'delivered':
+//         emailSubject = 'Order Delivered Successfully';
+//         emailMessage = `
+//           <p>Dear <strong>${order.billing_name}</strong>,</p>
+//           <p>Your order has been delivered successfully.</p>
+//         `;
+//         break;
+
+//       case 'returnAccepted':
+//         emailSubject = 'Return Request Accepted';
+//         emailMessage = `
+//           <p>Your return request for order ${order.orderId} has been accepted.</p>
+//         `;
+//         break;
+
+//       case 'returned':
+//         emailSubject = 'Order Returned';
+//         emailMessage = `
+//           <p>Your order ${order.orderId} has been returned successfully.</p>
+//         `;
+//         break;
+//     }
+
+//     if (order.billing_email) {
+//       await sendEmail(order.billing_email, emailSubject, emailMessage, 'html');
+//     }
+
+//     /* -------------------- RESPONSE -------------------- */
+//     return res.status(200).json({
+//       status: 'success',
+//       message: `Order #${orderId} updated to '${order_status}'.`,
+//       timestamp: formattedTimestamp,
+//       statusUpdates: order.statusUpdates,
+//     });
+
+//   } catch (error) {
+//     console.error('❌ Error in updating order status:', error);
+//     return res.status(500).json({
+//       status: 'failed',
+//       message: 'Internal server error',
+//     });
+//   }
+// };
+
 exports.updateOrderStatus = async (req, res) => {
   const { orderId, order_status } = req.body;
 
@@ -1424,30 +1613,43 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    /* -------------------- 🔥 ZOHO LOGIC -------------------- */
-if (order_status === 'packaged') {
+      /* -------- RETURN ACCEPTED → CREATE SALES RETURN -------- */
+/* -------- RETURN ACCEPTED → CREATE SALES RETURN -------- */
+if (order_status === "returnAccepted") {
 
-  const salesOrder = await getZohoSalesOrder(order.zohoSalesOrderId);
+  if (!order.zohoSalesOrderId) {
+    throw new Error("Zoho Sales Order ID missing");
+  }
 
-  const pkg = await createZohoPackage(salesOrder);
+  if (!order.zohoSalesReturnId) {
 
-  const shipment = await createShipmentFromPackage(pkg.package_id);
+    const so = await getZohoSalesOrder(order.zohoSalesOrderId);
 
-  const invoice = await createInvoiceFromShipmentOrder(
-    shipment.shipmentorder_id
-  );
+    if (!so?.salesorder_id) {
+      throw new Error("Zoho salesorder_id missing from Zoho response");
+    }
 
-  order.zohoPackageId = pkg.package_id;
-  order.zohoShipmentOrderId = shipment.shipmentorder_id;
-  order.zohoInvoiceId = invoice.invoice_id;
+    console.log("🧾 ZOHO SO DATA:", so);
+
+    const salesReturn = await createZohoSalesReturn({
+      salesorder_id: so.salesorder_id,
+      location_id: so.location_id,
+      line_items: so.line_items.map(li => ({
+        item_id: li.item_id,
+        salesorder_item_id: li.salesorder_item_id,
+        quantity: li.quantity
+      }))
+    });
+
+    order.zohoSalesReturnId = salesReturn.salesreturn_id;
+    await order.save();
+
+    console.log("✅ SALES RETURN CREATED:", salesReturn.salesreturn_id);
+  }
 }
-
-
-
 
     /* -------------------- UPDATE ORDER -------------------- */
     order.order_status = order_status;
-
     const statusUpdatedAt = Date.now();
     order.statusUpdatedAt = statusUpdatedAt;
 
@@ -1463,7 +1665,14 @@ if (order_status === 'packaged') {
 
     let emailSubject = '';
     let emailMessage = '';
-
+//  if (order_status === "returnAccepted") {
+//       subject = "Return Request Accepted";
+//       message = `
+//         <p>Dear <strong>${order.billing_name}</strong>,</p>
+//         <p>Your return request for order <b>${order.orderId}</b> has been accepted.</p>
+//         <p>Our team will contact you shortly.</p>
+//       `;
+//     }
     switch (order_status) {
       case 'packaged':
         emailSubject = 'Your Order is Packed and Ready for Shipping';
@@ -1471,10 +1680,11 @@ if (order_status === 'packaged') {
           <p>Dear <strong>${order.billing_name}</strong>,</p>
           <p>Your order has been packed and is ready for shipping.</p>
           <ul>
-            <li><strong>Product</strong>: ${order.productDetails[0].productName}</li>
+            <li><strong>Product</strong>: ${order.productDetails[0]?.productName || 'Your product'}</li>
             <li><strong>Order No</strong>: ${order.orderId}</li>
+            <li><strong>Status Updated</strong>: ${formattedTimestamp}</li>
           </ul>
-          <p>Thank you for shopping with Elda Appliances.</p>
+          <p>Thank you for shopping with Relda Appliances.</p>
         `;
         break;
 
@@ -1483,6 +1693,11 @@ if (order_status === 'packaged') {
         emailMessage = `
           <p>Dear <strong>${order.billing_name}</strong>,</p>
           <p>Your product has been shipped.</p>
+          <ul>
+            <li><strong>Order No</strong>: ${order.orderId}</li>
+            <li><strong>Status Updated</strong>: ${formattedTimestamp}</li>
+          </ul>
+          <p>You can track your shipment using the tracking information provided.</p>
         `;
         break;
 
@@ -1491,26 +1706,40 @@ if (order_status === 'packaged') {
         emailMessage = `
           <p>Dear <strong>${order.billing_name}</strong>,</p>
           <p>Your order has been delivered successfully.</p>
+          <ul>
+            <li><strong>Order No</strong>: ${order.orderId}</li>
+            <li><strong>Delivered At</strong>: ${formattedTimestamp}</li>
+          </ul>
+          <p>Thank you for your purchase!</p>
         `;
         break;
 
       case 'returnAccepted':
         emailSubject = 'Return Request Accepted';
         emailMessage = `
+          <p>Dear <strong>${order.billing_name}</strong>,</p>
           <p>Your return request for order ${order.orderId} has been accepted.</p>
+          <p>Our team will contact you shortly for the return process.</p>
         `;
         break;
 
       case 'returned':
         emailSubject = 'Order Returned';
         emailMessage = `
+          <p>Dear <strong>${order.billing_name}</strong>,</p>
           <p>Your order ${order.orderId} has been returned successfully.</p>
+          <p>The refund will be processed within 5-7 business days.</p>
         `;
         break;
     }
 
-    if (order.billing_email) {
-      await sendEmail(order.billing_email, emailSubject, emailMessage, 'html');
+    if (order.billing_email && emailSubject) {
+      try {
+        await sendEmail(order.billing_email, emailSubject, emailMessage, 'html');
+        console.log('✅ Notification email sent to:', order.billing_email);
+      } catch (emailErr) {
+        console.error('❌ Failed to send email:', emailErr.message);
+      }
     }
 
     /* -------------------- RESPONSE -------------------- */
@@ -1526,72 +1755,117 @@ if (order_status === 'packaged') {
     return res.status(500).json({
       status: 'failed',
       message: 'Internal server error',
+      error: error.message
     });
   }
 };
 
-exports.CancelOrder = async (req, res) => {
-    const { orderId, cancelReason, customComment, order_status } = req.body;
+// exports.CancelOrder = async (req, res) => {
+//     const { orderId, cancelReason, customComment, order_status } = req.body;
 
-    // Check if all necessary data is provided
-    if (!orderId || !cancelReason || !order_status) {
-        return res.status(400).json({ message: 'Missing required fields.' });
-    }
+//     // Check if all necessary data is provided
+//     if (!orderId || !cancelReason || !order_status) {
+//         return res.status(400).json({ message: 'Missing required fields.' });
+//     }
 
-    try {
-        // Find the order
-        const order = await orderModel.findOne({ orderId });
+//     try {
+//         // Find the order
+//         const order = await orderModel.findOne({ orderId });
 
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
+//         if (!order) {
+//             return res.status(404).json({ message: 'Order not found' });
+//         }
 
-        // Check if the order is already cancelled
-        if (order.order_status === 'cancelled') {
-            return res.status(400).json({ message: 'Order is already cancelled' });
-        }
+//         // Check if the order is already cancelled
+//         if (order.order_status === 'cancelled') {
+//             return res.status(400).json({ message: 'Order is already cancelled' });
+//         }
 
 
-        // Update order status and reason
-        order.order_status = 'cancelled';
-        order.cancellationReason = cancelReason; // Store the cancellation reason
-        order.customComment = customComment || ''; // Store custom comment if provided
-        order.statusUpdates.push({
-            status: 'cancelled',
-            timestamp: new Date(), // Set timestamp for the cancellation status update
-        });
+//         // Update order status and reason
+//         order.order_status = 'cancelled';
+//         order.cancellationReason = cancelReason; // Store the cancellation reason
+//         order.customComment = customComment || ''; // Store custom comment if provided
+//         order.statusUpdates.push({
+//             status: 'cancelled',
+//             timestamp: new Date(), // Set timestamp for the cancellation status update
+//         });
 
-        // Check if the order contains items
-        const cartItems = order.productDetails || []; // Use the correct field for items
+//         // Check if the order contains items
+//         const cartItems = order.productDetails || []; // Use the correct field for items
 
-        if (!Array.isArray(cartItems) || cartItems.length === 0) {
-            return res.status(400).json({ message: 'No items found in the order to cancel.' });
-        }
+//         if (!Array.isArray(cartItems) || cartItems.length === 0) {
+//             return res.status(400).json({ message: 'No items found in the order to cancel.' });
+//         }
 
-        // Increase product availability
-        await Promise.all(
-            cartItems.map(async (item) => {
-                await productModel.findByIdAndUpdate(
-                    item.productId, // Adjust field based on schema
-                    { $inc: { availability: item.quantity } },
-                    { new: true }
-                );
-            })
-        );
+//         // Increase product availability
+//         await Promise.all(
+//             cartItems.map(async (item) => {
+//                 await productModel.findByIdAndUpdate(
+//                     item.productId, // Adjust field based on schema
+//                     { $inc: { availability: item.quantity } },
+//                     { new: true }
+//                 );
+//             })
+//         );
 
-        // Save the updated order
-        await order.save();
+//         // Save the updated order
+//         await order.save();
 
-        // Send email notification
-        await sendCancellationEmail(order, cancelReason, customComment);
+//         // Send email notification
+//         await sendCancellationEmail(order, cancelReason, customComment);
 
-        return res.status(200).json({ message: 'Order cancelled successfully' });
-    } catch (err) {
-        console.error('Error canceling order:', err);
-        return res.status(500).json({ message: 'An error occurred while canceling the order' });
-    }
-};
+//         return res.status(200).json({ message: 'Order cancelled successfully' });
+//     } catch (err) {
+//         console.error('Error canceling order:', err);
+//         return res.status(500).json({ message: 'An error occurred while canceling the order' });
+//     }
+// };
   // Function to send email notification
+exports.CancelOrder = async (req, res) => {
+  const { orderId, cancelReason, customComment } = req.body;
+
+  try {
+    const order = await orderModel.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // 1️⃣ VOID ZOHO SALES ORDER (if exists)
+    if (order.zohoSalesOrderId) {
+      await voidZohoSalesOrder(order.zohoSalesOrderId);
+    }
+
+    // 2️⃣ UPDATE LOCAL ORDER
+    order.order_status = "cancelled";
+    order.cancellationReason = cancelReason || "";
+    order.customComment = customComment || "";
+
+    order.statusUpdates.push({
+      status: "cancelled",
+      updatedAt: new Date()
+    });
+
+    // 3️⃣ RESTORE STOCK
+    for (const item of order.productDetails) {
+      await productModel.findByIdAndUpdate(
+        item.productId,
+        { $inc: { availability: item.quantity } }
+      );
+    }
+
+    await order.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Order cancelled successfully"
+    });
+
+  } catch (err) {
+    console.error("❌ Cancel Order Error:", err.response?.data || err.message);
+    return res.status(500).json({ message: "Cancel failed" });
+  }
+};
   async function sendCancellationEmail(order, cancelReason, customComment) {
     // Prepare the email content for the customer
     const customerEmailContent = `

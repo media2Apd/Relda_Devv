@@ -74,13 +74,12 @@ const mongoose = require('mongoose');
 // Address subdocument schema
 const addressSchema = new mongoose.Schema({
   street: { type: String },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, required: true },
-  pinCode: { type: String, required: true, default: '000000' },
+  city: { type: String },
+  state: { type: String },
+  country: { type: String },
+  pinCode: { type: String, default: '000000' },
   default: { type: Boolean, default: false }
 });
-
 // User schema
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },

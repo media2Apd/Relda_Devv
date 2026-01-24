@@ -179,60 +179,205 @@
 //   }
 // };
 
-const productModel = require('../models/productModel');
+// const productModel = require('../models/productModel');
+// const {
+//   createZohoSalesOrder,
+//   confirmZohoSalesOrder,
+//   createInvoiceFromSalesOrder,
+//   recordZohoPayment,
+// } = require('../services/zohoSalesOrder.service');
+
+// /**
+//  * 1.  Create Sales-Order in Zoho
+//  * 2.  Confirm it
+//  * 3.  Create Invoice
+//  * 4.  Mark it paid
+//  * 5.  Persist Zoho IDs in our Order document
+//  * 6.  Release reserved stock
+//  */
+// module.exports = async function createSalesOrderAndReleaseStock(order, user) {
+//   /* ------------------------ Prepare line-items ------------------------ */
+//   const products = await Promise.all(
+//     order.productDetails.map(async p => {
+//       const prod = await productModel.findById(p.productId);
+//       return {
+//         zohoVariantId: prod.zohoVariantId,
+//         quantity     : p.quantity,
+//         sellingPrice : p.sellingPrice,
+//       };
+//     }),
+//   );
+
+//   /* -------------------------- Zoho calls ----------------------------- */
+//   const so      = await createZohoSalesOrder({ user, order, products });
+//   await confirmZohoSalesOrder(so.salesorder_id);
+//   // const invoice = await createInvoiceFromSalesOrder(so.salesorder_id);
+//   // const payment = await recordZohoPayment({
+//   //   invoiceId: invoice.invoice_id,
+//   //   amount   : invoice.total,
+//   //   paymentId: order.paymentDetails.trackingId,
+//   // });
+
+//   /* ------------------- Persist IDs & statuses ------------------------ */
+//   order.zohoSalesOrderId = so.salesorder_id;
+//   // order.zohoInvoiceId    = invoice.invoice_id;
+//   // order.zohoPaymentId    = payment.payment_id;
+//   order.paymentDetails.payment_status = 'paid';
+//   order.order_status = 'ordered';
+//   await order.save();
+
+//   /* ---------------------- Release reserved stock --------------------- */
+//   await productModel.bulkWrite(
+//     order.productDetails.map(p => ({
+//       updateOne: {
+//         filter: { _id: p.productId },
+//         update: { $inc: { reservedStock: -p.quantity } },
+//       },
+//     })),
+//   );
+// };
+
+const productModel = require("../models/productModel");
+const { ensureZohoCustomerForOrder } = require("../helpers/ensureZohoCustomer");
 const {
   createZohoSalesOrder,
-  confirmZohoSalesOrder,
-  createInvoiceFromSalesOrder,
-  recordZohoPayment,
-} = require('../services/zohoSalesOrder.service');
+  confirmZohoSalesOrder
+} = require("../services/zohoSalesOrder.service");
 
 /**
- * 1.  Create Sales-Order in Zoho
- * 2.  Confirm it
- * 3.  Create Invoice
- * 4.  Mark it paid
- * 5.  Persist Zoho IDs in our Order document
- * 6.  Release reserved stock
+ * Handles BOTH:
+ * - Admin MANAGESALES orders
+ * - Direct customer checkout
  */
-module.exports = async function createSalesOrderAndReleaseStock(order, user) {
-  /* ------------------------ Prepare line-items ------------------------ */
+// module.exports = async function createSalesOrderAndReleaseStock(
+//   order,
+//   customerUser,   // 🔥 actual customer (checkout user)
+//   reqUser         // 🔥 staff / admin user (optional)
+// ) {
+
+//   /* ================= ENSURE ZOHO CUSTOMER ================= */
+//   const zohoCustomerId = await ensureZohoCustomer(customerUser);
+
+//   /* ================= PREPARE LINE ITEMS ================= */
+//   const products = await Promise.all(
+//     order.productDetails.map(async p => {
+//       const prod = await productModel.findById(p.productId);
+
+//       return {
+//         item_id: prod.zohoVariantId,
+//         quantity: p.quantity,
+//         rate: p.sellingPrice
+//       };
+//     })
+//   );
+
+//   /* ================= CREATE SALES ORDER ================= */
+//   const so = await createZohoSalesOrder({
+//     order,
+//     customer_id: zohoCustomerId,
+//     products,
+//     sales_person: reqUser?.role === "MANAGESALES"
+//       ? reqUser.name
+//       : "Online Store"
+//   });
+
+//   await confirmZohoSalesOrder(so.salesorder_id);
+
+//   /* ================= SAVE ZOHO DATA ================= */
+//   order.zohoSalesOrderId = so.salesorder_id;
+//   order.order_status = "ordered";
+//   order.paymentDetails.payment_status = "paid";
+
+//   await order.save();
+
+//   /* ================= RELEASE RESERVED STOCK ================= */
+//   await productModel.bulkWrite(
+//     order.productDetails.map(p => ({
+//       updateOne: {
+//         filter: { _id: p.productId },
+//         update: { $inc: { reservedStock: -p.quantity } }
+//       }
+//     }))
+//   );
+
+//   console.log("✅ Sales Order flow completed for:", order.orderId);
+// };
+
+module.exports = async function createSalesOrderAndReleaseStock(
+  order,
+  customerUser,
+  reqUser
+) {
+
+  /* ================= ENSURE ZOHO CUSTOMER ================= */
+  const zohoCustomerId = await ensureZohoCustomerForOrder({
+    order,
+    customerUser,
+    reqUser
+  });
+
+  /* ================= PREPARE LINE ITEMS ================= */
   const products = await Promise.all(
     order.productDetails.map(async p => {
       const prod = await productModel.findById(p.productId);
+
+      if (!prod?.zohoVariantId) {
+        throw new Error(`Zoho item missing for product ${p.productId}`);
+      }
+
       return {
-        zohoVariantId: prod.zohoVariantId,
-        quantity     : p.quantity,
-        sellingPrice : p.sellingPrice,
+        item_id: prod.zohoVariantId,
+        quantity: p.quantity,
+        rate: p.sellingPrice
       };
-    }),
+    })
   );
 
-  /* -------------------------- Zoho calls ----------------------------- */
-  const so      = await createZohoSalesOrder({ user, order, products });
-  await confirmZohoSalesOrder(so.salesorder_id);
-  // const invoice = await createInvoiceFromSalesOrder(so.salesorder_id);
-  // const payment = await recordZohoPayment({
-  //   invoiceId: invoice.invoice_id,
-  //   amount   : invoice.total,
-  //   paymentId: order.paymentDetails.trackingId,
-  // });
+  /* ================= CLEAN ZOHO PAYLOAD ================= */
+  // const payload = {
+  //   customer_id: zohoCustomerId,
+  //   date: new Date().toISOString().split("T")[0],
+  //   reference_number: order.orderId, // 🔥 website order reference
+  //    paymentId: order.paymentDetails.paymentId, // ✅ SAFE
+  //   notes: "Order created from Website",
+  //   line_items: products
+  // };
 
-  /* ------------------- Persist IDs & statuses ------------------------ */
+  // // add salesperson ONLY if MANAGESALES
+  // if (reqUser?.role === "MANAGESALES" && reqUser?.name) {
+  //   payload.salesperson_name = reqUser.name;
+  // }
+  const payload = {
+  customer_id: zohoCustomerId,
+  date: new Date().toISOString().split("T")[0],
+
+  // 🔥 CUSTOMER TRACE
+  reference_number: order.orderId,
+  notes: `Customer: ${order.billing_name} | ${order.billing_email}`,
+
+  line_items: products
+};
+
+// 🔥 Salesperson only if MANAGESALES
+if (reqUser?.role === "MANAGESALES") {
+  payload.salesperson_name = reqUser.name;
+}
+
+
+  console.log(
+    "📦 FINAL ZOHO SALES ORDER PAYLOAD:",
+    JSON.stringify(payload, null, 2)
+  );
+
+  /* ================= CREATE & CONFIRM ================= */
+  const so = await createZohoSalesOrder(payload);
+  await confirmZohoSalesOrder(so.salesorder_id);
+
+  /* ================= SAVE TO DB ================= */
   order.zohoSalesOrderId = so.salesorder_id;
-  // order.zohoInvoiceId    = invoice.invoice_id;
-  // order.zohoPaymentId    = payment.payment_id;
-  order.paymentDetails.payment_status = 'paid';
-  order.order_status = 'ordered';
+  order.order_status = "ordered";
+  order.paymentDetails.payment_status = "success";
   await order.save();
 
-  /* ---------------------- Release reserved stock --------------------- */
-  await productModel.bulkWrite(
-    order.productDetails.map(p => ({
-      updateOne: {
-        filter: { _id: p.productId },
-        update: { $inc: { reservedStock: -p.quantity } },
-      },
-    })),
-  );
+  console.log("✅ Zoho Sales Order Created:", so.salesorder_id);
 };
