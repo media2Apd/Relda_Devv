@@ -26,8 +26,15 @@ exports.createZohoCustomer = async (user) => {
 
   const payload = {
     contact_name: user.name,
-    company_name: user.name,
+  company_name: user.isBusiness ? user.companyName : user.name,
     contact_type: "customer",
+
+    gst_treatment: user.isBusiness
+      ? "business_gst"
+      : "consumer",
+
+    gst_no: user.isBusiness ? user.gst?.gstin : undefined,
+
     phone: user.mobile,
 
     contact_persons: [
@@ -38,6 +45,7 @@ exports.createZohoCustomer = async (user) => {
         is_primary_contact: true
       }
     ],
+    
 
     billing_address: {
       address: user.address?.street || "",
@@ -79,6 +87,14 @@ exports.updateZohoCustomer = async (zohoContactId, user) => {
   const payload = {
     contact_name: user.name,
     phone: user.mobile,
+     company_name: user.isBusiness ? user.companyName : user.name,
+    contact_type: "customer",
+
+    gst_treatment: user.isBusiness
+      ? "business_gst"
+      : "consumer",
+
+    gst_no: user.isBusiness ? user.gst?.gstin : undefined,
 
     contact_persons: [
       {

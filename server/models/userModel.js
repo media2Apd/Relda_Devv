@@ -91,7 +91,28 @@ const userSchema = new mongoose.Schema({
   // Address fields
   addresses: [addressSchema],
   address: addressSchema,
+   /* ---------------- 🔥 GST / BUSINESS ---------------- */
+    isBusiness: {
+      type: Boolean,
+      default: false
+    },
 
+    companyName: {
+      type: String,
+      trim: true
+    },
+
+    gst: {
+      gstin: {
+        type: String,
+        uppercase: true,
+        trim: true
+      },
+      treatment: {
+        type: String,
+        default: "consumer"
+      }
+    },
   // ⭐ Wishlist field (Array of Product ObjectIds)
   wishlist: [
     {

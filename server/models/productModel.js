@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { base } = require('./userModel')
 
 const productSchema = mongoose.Schema({
      zohoItemId: { type: String, unique: true },
@@ -11,6 +12,7 @@ const productSchema = mongoose.Schema({
     description : String,
     price : Number,
     sellingPrice : Number,
+    basePrice : Number,
     availability: {type: Number},
     reservedStock: { type: Number, default: 0 }, // Locked stock
       attributes: {

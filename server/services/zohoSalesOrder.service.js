@@ -309,7 +309,8 @@ exports.createZohoSalesOrder = async ({
   order,
   paymentId,
   salesperson_name,
-  reference_number
+  reference_number,
+  location_id 
 }) => {
 
   const payload = {
@@ -319,7 +320,9 @@ exports.createZohoSalesOrder = async ({
     notes: paymentId
       ? `Payment via Razorpay | Payment ID: ${paymentId}`
       : "Order created from Website",
-    line_items
+    line_items,
+     // 🔥 THIS IS THE KEY LINE
+    location_id
   };
 
   if (salesperson_name) {

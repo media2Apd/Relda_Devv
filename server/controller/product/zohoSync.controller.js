@@ -36,61 +36,231 @@
 //   console.log("✅ Zoho variants synced as individual products")
 // }
 const productModel = require("../../models/productModel");
+// const { calculateInclusivePrice } = require("../../utils/gst.util");
 const { fetchZohoItems } = require("../../services/zohoInventory.service");
 const { uploadZohoImageToCloudinary } = require("../../services/zohoImageToCloudinary.service");
 
+// exports.syncZohoVariantsAsProducts = async () => {
+//   const items = await fetchZohoItems();
+
+//   console.log("Fetched ZOHO items:", items.length);
+
+//   for (const item of items) {
+
+//     // 🔹 Build attributes
+//     const attributes = {};
+//     if (item.attribute_name1)
+//       attributes[item.attribute_name1] = item.attribute_option_name1;
+//     if (item.attribute_name2)
+//       attributes[item.attribute_name2] = item.attribute_option_name2;
+//     if (item.attribute_name3)
+//       attributes[item.attribute_name3] = item.attribute_option_name3;
+
+//     // 🔥 IMAGE HANDLING
+//     let productImages = [];
+
+//     if (item.image_document_id) {
+//       const cloudinaryImage = await uploadZohoImageToCloudinary(item.item_id);
+
+//       if (cloudinaryImage) {
+//         productImages.push({
+//           url: cloudinaryImage.url,
+//           type: "image"
+//         });
+//       }
+//     }
+
+//     await productModel.findOneAndUpdate(
+//       { zohoVariantId: item.item_id },
+//       {
+//         zohoItemId: item.group_id || item.item_id,
+//         zohoVariantId: item.item_id,
+
+//         productName: item.name,
+//         parentName: item.group_name || "",
+//         brandName: item.brand || "",
+
+//         attributes,
+//         price: item.purchase_rate,
+//         sellingPrice: item.rate,
+//         availability: item.available_stock,
+
+//         productImage: productImages,
+//         isHidden: item.status !== "active"
+//       },
+//       { upsert: true, new: true }
+//     );
+//   }
+
+//   console.log("✅ Zoho variants + Cloudinary images synced");
+// };
+const GST_PERCENT = 18;
+// exports.syncZohoVariantsAsProducts = async () => {
+//   const items = await fetchZohoItems();
+
+//   console.log("Fetched ZOHO items:", items.length);
+
+//   for (const item of items) {
+
+//     // 🔥 FILTER: only Relda category
+//     if (item.cf_category !== "Relda") {
+//       continue; // skip others
+//     }
+
+//     // 🔹 Build attributes
+//     const attributes = {};
+//     if (item.attribute_name1)
+//       attributes[item.attribute_name1] = item.attribute_option_name1;
+//     if (item.attribute_name2)
+//       attributes[item.attribute_name2] = item.attribute_option_name2;
+//     if (item.attribute_name3)
+//       attributes[item.attribute_name3] = item.attribute_option_name3;
+
+//     // 🔥 IMAGE HANDLING
+//     let productImages = [];
+
+//     if (item.image_document_id) {
+//       const cloudinaryImage = await uploadZohoImageToCloudinary(item.item_id);
+
+//       if (cloudinaryImage) {
+//         productImages.push({
+//           url: cloudinaryImage.url,
+//           type: "image"
+//         });
+//       }
+//     }
+
+//     await productModel.findOneAndUpdate(
+//       { zohoVariantId: item.item_id },
+//       {
+//         zohoItemId: item.group_id || item.item_id,
+//         zohoVariantId: item.item_id,
+
+//         productName: item.name,
+//         parentName: item.group_name || "",
+//         brandName: item.brand || "",
+
+//         attributes,
+//         price: item.purchase_rate,
+//         sellingPrice: item.rate,
+//         availability: item.available_stock,
+
+//         productImage: productImages,
+//         isHidden: item.status !== "active"
+//       },
+//       { upsert: true, new: true }
+//     );
+//   }
+
+//   console.log("✅ Zoho variants (cf_category=Relda) synced");
+// };
+const {
+  resolveGSTFromItem,
+  calculateInclusivePrice
+} = require("../../services/zohoTaxResolver");
+
 exports.syncZohoVariantsAsProducts = async () => {
-  const items = await fetchZohoItems();
+  try {
+    const items = await fetchZohoItems();
+    console.log("📦 Fetched ZOHO items:", items.length);
 
-  console.log("Fetched ZOHO items:", items.length);
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
 
-  for (const item of items) {
+      /* ======================================================
+         🧪 FULL RAW ITEM DUMP – FIRST ITEM ONLY
+         ====================================================== */
+      if (i === 0) {
+        console.log("🧪🧪🧪 FIRST ZOHO ITEM – FULL RAW OBJECT 🧪🧪🧪");
+        console.log(JSON.stringify(item, null, 2));
+        console.log("🧪🧪🧪 END OF FIRST ITEM DUMP 🧪🧪🧪");
+      }
 
-    // 🔹 Build attributes
-    const attributes = {};
-    if (item.attribute_name1)
-      attributes[item.attribute_name1] = item.attribute_option_name1;
-    if (item.attribute_name2)
-      attributes[item.attribute_name2] = item.attribute_option_name2;
-    if (item.attribute_name3)
-      attributes[item.attribute_name3] = item.attribute_option_name3;
+      /* ================= FILTER ================= */
+      if (item.cf_category !== "Relda") continue;
 
-    // 🔥 IMAGE HANDLING
-    let productImages = [];
+      /* ================= ATTRIBUTES ================= */
+      const attributes = {};
+      if (item.attribute_name1)
+        attributes[item.attribute_name1] = item.attribute_option_name1;
+      if (item.attribute_name2)
+        attributes[item.attribute_name2] = item.attribute_option_name2;
+      if (item.attribute_name3)
+        attributes[item.attribute_name3] = item.attribute_option_name3;
 
-    if (item.image_document_id) {
-      const cloudinaryImage = await uploadZohoImageToCloudinary(item.item_id);
+      /* ================= GST & PRICE ================= */
+      const basePrice = Number(item.rate || 0); // GST exclusive
+      const gstPercent = resolveGSTFromItem(item);
 
-      if (cloudinaryImage) {
-        productImages.push({
-          url: cloudinaryImage.url,
-          type: "image"
+      if (i === 0) {
+        console.log("🧾 PRICE + GST DEBUG (FIRST ITEM)");
+        console.log({
+          itemName: item.name,
+          rateFromZoho: item.rate,
+          is_taxable: item.is_taxable,
+          tax_name: item.tax_name,
+          tax_percentage: item.tax_percentage,
+          resolvedGST: gstPercent
         });
       }
+
+      const sellingPrice =
+        gstPercent !== null && gstPercent > 0
+          ? calculateInclusivePrice(basePrice, gstPercent)
+          : Math.round(basePrice);
+
+      /* ================= IMAGE ================= */
+      let productImages = [];
+
+      if (item.image_document_id) {
+        const cloudinaryImage =
+          await uploadZohoImageToCloudinary(item.item_id);
+
+        if (cloudinaryImage?.url) {
+          productImages.push({
+            url: cloudinaryImage.url,
+            type: "image"
+          });
+        }
+      }
+
+      /* ================= DB UPSERT ================= */
+      await productModel.findOneAndUpdate(
+        { zohoVariantId: item.item_id },
+        {
+          zohoItemId: item.group_id || item.item_id,
+          zohoVariantId: item.item_id,
+
+          productName: item.name,
+          parentName: item.group_name || "",
+          brandName: item.brand || "",
+
+          attributes,
+
+          basePrice,
+          gstPercent,
+          sellingPrice,
+
+          availability: item.available_stock,
+          productImage: productImages,
+          isHidden: item.status !== "active"
+        },
+        { upsert: true, new: true }
+      );
+
+      console.log(
+        "✅ Synced:",
+        item.name,
+        "| GST:",
+        gstPercent,
+        "| Price:",
+        sellingPrice
+      );
     }
 
-    await productModel.findOneAndUpdate(
-      { zohoVariantId: item.item_id },
-      {
-        zohoItemId: item.group_id || item.item_id,
-        zohoVariantId: item.item_id,
-
-        productName: item.name,
-        parentName: item.group_name || "",
-        brandName: item.brand || "",
-
-        attributes,
-        price: item.purchase_rate,
-        sellingPrice: item.rate,
-        availability: item.available_stock,
-
-        productImage: productImages,
-        isHidden: item.status !== "active"
-      },
-      { upsert: true, new: true }
-    );
+    console.log("🎉 Zoho Relda products synced successfully");
+  } catch (err) {
+    console.error("❌ Zoho sync failed:", err.message);
+    throw err;
   }
-
-  console.log("✅ Zoho variants + Cloudinary images synced");
 };
-

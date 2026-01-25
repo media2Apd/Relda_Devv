@@ -66,12 +66,22 @@ async function zohoRequest(url, method = "GET", data = null) {
   }
 }
 
+// exports.fetchZohoItems = async () => {
+//   const res = await zohoRequest(
+//     "https://www.zohoapis.in/inventory/v1/items"
+//   )
+//   return res.data.items
+// }
 exports.fetchZohoItems = async () => {
-  const res = await zohoRequest(
-    "https://www.zohoapis.in/inventory/v1/items"
-  )
-  return res.data.items
-}
+  const res = await zohoRequest({
+    method: "GET",
+    url: "https://www.zohoapis.in/inventory/v1/items",
+    headers: getZohoHeaders()
+  });
+
+  return res.data.items;
+};
+
 
 // exports.fetchZohoItems = async () => {
 //   const res = await axios.get(

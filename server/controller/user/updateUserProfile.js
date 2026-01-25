@@ -85,41 +85,146 @@ const getUserController = async (req, res) => {
 //     res.status(500).json({ message: err.message || err, error: true, success: false });
 //   }
 // };
+// const updateUserController = async (req, res) => {
+//   try {
+//     const userId = req.params.userId;
+//     const { name, password, profilePic, mobile, address } = req.body;
+
+//     if (!userId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "User ID is required."
+//       });
+//     }
+
+//     /* -----------------------
+//        Build update object
+//     ------------------------*/
+//     const updateFields = {};
+
+//     if (name) updateFields.name = name;
+
+//     if (password) {
+//       const salt = bcrypt.genSaltSync(10);
+//       updateFields.password = bcrypt.hashSync(password, salt);
+//     }
+
+//     if (profilePic) updateFields.profilePic = profilePic;
+//     if (mobile) updateFields.mobile = mobile;
+
+//     // ⚠️ Prevent empty address object breaking validation
+//     if (address && Object.keys(address).length > 0) {
+//       updateFields.address = address;
+//     }
+
+//     /* -----------------------
+//        Update user in DB
+//     ------------------------*/
+//     const updatedUser = await userModel.findByIdAndUpdate(
+//       userId,
+//       updateFields,
+//       { new: true, runValidators: true }
+//     );
+
+//     if (!updatedUser) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found."
+//       });
+//     }
+
+//     /* -----------------------
+//        🔥 ZOHO SYNC LOGIC
+//     ------------------------*/
+//     try {
+//       if (!updatedUser.zohoCustomerId) {
+//         // 🆕 CREATE customer in Zoho
+//         const zohoCustomer = await createZohoCustomer(updatedUser);
+
+//         updatedUser.zohoCustomerId = zohoCustomer.contact_id;
+//         await updatedUser.save();
+
+//         console.log("Zoho customer CREATED:", zohoCustomer.contact_id);
+//       } else {
+//         // 🔄 UPDATE existing Zoho customer
+//         await updateZohoCustomer(
+//           updatedUser.zohoCustomerId,
+//           updatedUser
+//         );
+
+//         console.log("Zoho customer UPDATED:", updatedUser.zohoCustomerId);
+//       }
+//     } catch (zohoErr) {
+//       console.error(
+//         "Zoho sync failed:",
+//         zohoErr.response?.data || zohoErr.message
+//       );
+//       // ❗ Never block user update
+//     }
+
+//     /* -----------------------
+//        📧 Optional email
+//     ------------------------*/
+//     // await sendProfileUpdateMail(updatedUser);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "User updated successfully!",
+//       data: updatedUser
+//     });
+
+//   } catch (err) {
+//     console.error("Update user error:", err);
+//     return res.status(500).json({
+//       success: false,
+//       message: err.message || "Internal Server Error"
+//     });
+//   }
+// };
 const updateUserController = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { name, password, profilePic, mobile, address } = req.body;
+    const {
+      name,
+      password,
+      mobile,
+      address,
+      isBusiness,
+      companyName,
+      gst
+    } = req.body;
 
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID is required."
-      });
-    }
-
-    /* -----------------------
-       Build update object
-    ------------------------*/
     const updateFields = {};
 
     if (name) updateFields.name = name;
+    if (mobile) updateFields.mobile = mobile;
 
     if (password) {
       const salt = bcrypt.genSaltSync(10);
       updateFields.password = bcrypt.hashSync(password, salt);
     }
 
-    if (profilePic) updateFields.profilePic = profilePic;
-    if (mobile) updateFields.mobile = mobile;
-
-    // ⚠️ Prevent empty address object breaking validation
     if (address && Object.keys(address).length > 0) {
       updateFields.address = address;
     }
 
-    /* -----------------------
-       Update user in DB
-    ------------------------*/
+    /* ---------------- GST / BUSINESS ---------------- */
+    if (isBusiness) {
+      updateFields.isBusiness = true;
+      updateFields.companyName = companyName;
+
+      updateFields.gst = {
+        gstin: gst?.gstin,
+        treatment: "registered_business"
+      };
+    } else {
+      updateFields.isBusiness = false;
+      updateFields.companyName = null;
+      updateFields.gst = {
+        treatment: "consumer"
+      };
+    }
+
     const updatedUser = await userModel.findByIdAndUpdate(
       userId,
       updateFields,
@@ -129,55 +234,38 @@ const updateUserController = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found."
+        message: "User not found"
       });
     }
 
-    /* -----------------------
-       🔥 ZOHO SYNC LOGIC
-    ------------------------*/
+    /* ---------------- 🔥 ZOHO SYNC ---------------- */
     try {
       if (!updatedUser.zohoCustomerId) {
-        // 🆕 CREATE customer in Zoho
         const zohoCustomer = await createZohoCustomer(updatedUser);
-
         updatedUser.zohoCustomerId = zohoCustomer.contact_id;
         await updatedUser.save();
-
-        console.log("Zoho customer CREATED:", zohoCustomer.contact_id);
       } else {
-        // 🔄 UPDATE existing Zoho customer
         await updateZohoCustomer(
           updatedUser.zohoCustomerId,
           updatedUser
         );
-
-        console.log("Zoho customer UPDATED:", updatedUser.zohoCustomerId);
       }
     } catch (zohoErr) {
       console.error(
-        "Zoho sync failed:",
+        "Zoho sync error:",
         zohoErr.response?.data || zohoErr.message
       );
-      // ❗ Never block user update
     }
-
-    /* -----------------------
-       📧 Optional email
-    ------------------------*/
-    // await sendProfileUpdateMail(updatedUser);
 
     return res.status(200).json({
       success: true,
-      message: "User updated successfully!",
+      message: "User updated successfully",
       data: updatedUser
     });
-
   } catch (err) {
-    console.error("Update user error:", err);
     return res.status(500).json({
       success: false,
-      message: err.message || "Internal Server Error"
+      message: err.message
     });
   }
 };
