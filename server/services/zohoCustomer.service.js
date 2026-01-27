@@ -212,6 +212,48 @@ exports.searchZohoCustomerByEmail = async (email) => {
 
   return null;
 };
+// services/zohoCustomer.service.js
+exports.searchZohoCustomer = async ({ email, gstin }) => {
+
+  // Priority 1: GSTIN
+  if (gstin) {
+    const res = await zohoRequest({
+      method: "GET",
+      url: `${ZOHO_BASE}/contacts?gst_no=${gstin}`,
+      headers: getZohoHeaders()
+    });
+
+    if (res.data.contacts?.length) {
+      return res.data.contacts[0];
+    }
+  }
+
+  // Priority 2: Email
+  if (email) {
+    const res = await zohoRequest({
+      method: "GET",
+      url: `${ZOHO_BASE}/contacts?email=${email}`,
+      headers: getZohoHeaders()
+    });
+
+    if (res.data.contacts?.length) {
+      return res.data.contacts[0];
+    }
+  }
+
+  return null;
+};
+
+exports.updateZohoCustomers = async (contactId, payload) => {
+  const res = await zohoRequest({
+    method: "PUT",
+    url: `${ZOHO_BASE}/contacts/${contactId}`,
+    headers: getZohoHeaders(),
+    data: payload
+  });
+
+  return res.data.contact;
+};
 
 
 

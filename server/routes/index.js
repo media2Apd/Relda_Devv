@@ -73,7 +73,7 @@ const {
   deleteBanner,
   reorderBanners
 } = require("../controller/banner/bannerController");
-const { syncZohoVariantsAsProducts } = require('../controller/product/zohoSync.controller');
+const { manualZohoProductSync } = require('../controller/product/manualSync.controller');
 
 router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
 router.get('/get-blogs', getAllBlogPosts);
@@ -273,7 +273,7 @@ router.delete("/admin/banner/:id", authToken, deleteBanner);
 // FRONTEND – Get banners (top / bottom)
 router.get("/banners", getBanners);
 
-router.post('/sync-zoho-variants', syncZohoVariantsAsProducts);
+router.post('/sync-zoho-variants', manualZohoProductSync);
 
 
 module.exports = router;

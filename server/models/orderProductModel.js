@@ -100,6 +100,10 @@ const orderSchema = new mongoose.Schema({
   discountAmount: Number,
   minOrderAmount: Number
 },
+gstDetails: {
+   gstin: String,
+   companyName: String 
+},
     subTotal: Number,
     discountAmount: { type: Number, default: 0 },
     couponCode: { type: String, default: null },        

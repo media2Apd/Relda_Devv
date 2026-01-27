@@ -8,10 +8,10 @@ async function test() {
       {
         params: {
           grant_type: "authorization_code",
-          client_id: "1000.3PMKX4TN31V6GWAS0V1CNY00FBX8JM",
-          client_secret: "1764cc04d5ecf00e51dff93969fea738a833aa3240",
+          client_id: "1000.29H8S1FX4NGU97NXC07F0JBUWKJ9QD",
+          client_secret: "e260d652ad17b295a1f1e31272f4d8d3b585e6030e",
           redirect_uri: "http://localhost:8080/zoho/callback",
-          code: "1000.80168dca80ce8d2bcac6c7b42a888347.3d1676dde0a8ca91c341a9125ddf5b13"
+          code: "1000.4f797d149f00d9373a5b5f1538df7f01.f7bd8e900d3dc16f4094a91b61ffbd98"
         }
       }
     )

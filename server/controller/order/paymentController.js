@@ -409,7 +409,9 @@ const getProductImageUrl = (productImage) => {
 // };
 exports.paymentController = async (req, res) => {
     try {
-        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode, couponCode } = req.body;
+        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode, couponCode, gstDetails } = req.body;
+           /* ================= SAFETY ================= */
+    const safeGST = gstDetails || {};
         
         // Validate customer info first
         if (!customerInfo || typeof customerInfo !== 'object') {
@@ -511,8 +513,12 @@ exports.paymentController = async (req, res) => {
                 billing_tel: customerInfo.phone,
                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+                 gstDetails: {
+                  gstin: safeGST.gstin || null,
+                  companyName: safeGST.companyName || null
+                },
                 statusUpdates: [{
-                    status: "ORDER_CONFIRMED",
+                    status: "ordered",
                     updatedAt: new Date()
                 }],
                 createdAt: new Date()
@@ -520,15 +526,23 @@ exports.paymentController = async (req, res) => {
             const user = await userModel.findById(req.userId);
 
 // await createSalesOrderAndReleaseStock(order, user);
-const fullOrder = await orderModel.findOne(order.orderId);
+// AFTER order creation
+const fullOrder = await orderModel.findOne({
+  orderId: order.orderId
+});
+
 const customerUser = await userModel.findById(fullOrder.userId);
-const staffUser = req.user; // role = MANAGESALES
+const staffUser = req.user; // MANAGESALES
 
 await createSalesOrderAndReleaseStock(
   fullOrder,
   customerUser,
   staffUser
 );
+
+// 🛒 CLEAR CART
+await addToCartModel.deleteMany({ userId: req.userId });
+console.log("🛒 Cart cleared for CASH_ON_HAND order");
 
 
    // ✅ MARK COUPON USED (ONLY HERE)
@@ -580,7 +594,7 @@ await createSalesOrderAndReleaseStock(
                     email: true
                 },
                 reminder_enable: true,
-                callback_url: "http://yourwebsite.com/payment/verify",
+                callback_url: "https://www.reldaindia.com/success",
                 callback_method: "get"
             });
 
@@ -658,6 +672,10 @@ await createSalesOrderAndReleaseStock(
                 billing_tel: customerInfo.phone,
                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+              gstDetails: {
+                gstin: safeGST.gstin || null,
+                companyName: safeGST.companyName || null
+              },
                 statusUpdates: [{
                     status: statusId,
                     updatedAt: new Date()
@@ -749,8 +767,9 @@ async function verifyPaymentStatus(paymentId) {
 }
 
 
-// cron.schedule('* * * * *', async () => {
-  cron.schedule('0 */4 * * *', async () => {
+cron.schedule('*/3 * * * *', async () => {
+
+  // cron.schedule('0 */4 * * *', async () => {
   console.log('? Running scheduled Razorpay Payment Link verification...');
 
   try {
@@ -831,9 +850,23 @@ async function verifyPaymentStatus(paymentId) {
 // const user = await userModel.findById(fullOrder.userId);
 
 // await createSalesOrderAndReleaseStock(fullOrder, user);
+// const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+// const customerUser = await userModel.findById(fullOrder.userId);
+// const staffUser = req.user; // role = MANAGESALES
+
+// await createSalesOrderAndReleaseStock(
+//   fullOrder,
+//   customerUser,
+//   staffUser
+// );
 const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
 const customerUser = await userModel.findById(fullOrder.userId);
-const staffUser = req.user; // role = MANAGESALES
+
+/* ✅ CRON SAFE STAFF USER */
+const staffUser = {
+  role: "MANAGESALES",
+  name: "SYSTEM-CRON"
+};
 
 await createSalesOrderAndReleaseStock(
   fullOrder,
@@ -962,6 +995,7 @@ const sendOrderConfirmationEmailLink = async (customerInfo, razorpayPaymentId, o
 const verifyPayment = async (razorpayPaymentId) => {
     try {
         const response = await axios.get(`https://api.razorpay.com/v1/payments/${razorpayPaymentId}`, {
+            timeout: 8000, // ⛔ prevents infinite hang
             auth: {
                 username: process.env.RAZORPAY_KEY_ID,
                 password: process.env.RAZORPAY_KEY_SECRET

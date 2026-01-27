@@ -72,14 +72,54 @@ async function zohoRequest(url, method = "GET", data = null) {
 //   )
 //   return res.data.items
 // }
-exports.fetchZohoItems = async () => {
-  const res = await zohoRequest({
-    method: "GET",
-    url: "https://www.zohoapis.in/inventory/v1/items",
-    headers: getZohoHeaders()
-  });
+// exports.fetchZohoItems = async () => {
+//   const res = await zohoRequest({
+//     method: "GET",
+//     url: "https://www.zohoapis.in/inventory/v1/items",
+//     headers: getZohoHeaders()
+//   });
 
-  return res.data.items;
+//   return res.data.items;
+// };
+
+// services/zohoInventory.service.js
+
+exports.fetchZohoItems = async () => {
+  const allItems = [];
+  let page = 1;
+  const PER_PAGE = 200;
+
+  while (true) {
+    const res = await zohoRequest({
+      method: "GET",
+      url: "https://www.zohoapis.in/inventory/v1/items",
+      params: {
+        page,
+        per_page: PER_PAGE
+      }
+    });
+
+    const items = res.data?.items || [];
+
+    console.log(
+      `📄 Zoho Items Page ${page} → ${items.length} items fetched`
+    );
+
+    allItems.push(...items);
+
+    // 🔥 last page condition
+    if (items.length < PER_PAGE) {
+      break;
+    }
+
+    page++;
+  }
+
+  console.log(
+    `📦 TOTAL ITEMS FETCHED FROM ZOHO: ${allItems.length}`
+  );
+
+  return allItems;
 };
 
 

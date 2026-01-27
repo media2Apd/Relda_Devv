@@ -76,21 +76,48 @@
 //   // ❓ FALLBACK
 //   return "pending";
 // };
+// exports.mapZohoStatusToLocal = (zohoOrder, currentLocalStatus) => {
+//   const { status } = zohoOrder;
+
+//   // 1️⃣ DELIVERED (FINAL)
+//   if (status === "fulfilled") {
+//     return "delivered";
+//   }
+
+//   // 2️⃣ SHIPPED
+//   if (status === "shipped" || status === "partially_shipped") {
+//     return "shipped";
+//   }
+
+//   // 3️⃣ OTHERWISE — DO NOT TOUCH LOCAL FLOW
+//   // ordered stays ordered
+//   // packaged stays packaged
+//   return currentLocalStatus;
+// };
 exports.mapZohoStatusToLocal = (zohoOrder, currentLocalStatus) => {
   const { status } = zohoOrder;
 
-  // 1️⃣ DELIVERED (FINAL)
+  /* 🔒 RETURN FLOW LOCK */
+  const RETURN_LOCKED_STATUSES = [
+    "returnRequested",
+    "returnAccepted",
+    "returned"
+  ];
+
+  if (RETURN_LOCKED_STATUSES.includes(currentLocalStatus)) {
+    return currentLocalStatus; // ❌ DO NOT TOUCH
+  }
+
+  /* 1️⃣ DELIVERED (FINAL) */
   if (status === "fulfilled") {
     return "delivered";
   }
 
-  // 2️⃣ SHIPPED
+  /* 2️⃣ SHIPPED */
   if (status === "shipped" || status === "partially_shipped") {
     return "shipped";
   }
 
-  // 3️⃣ OTHERWISE — DO NOT TOUCH LOCAL FLOW
-  // ordered stays ordered
-  // packaged stays packaged
+  /* 3️⃣ OTHERWISE — KEEP LOCAL */
   return currentLocalStatus;
 };
