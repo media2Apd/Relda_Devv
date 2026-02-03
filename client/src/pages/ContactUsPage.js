@@ -100,6 +100,7 @@
 
 // export default ContactUsPage;
 
+
 import React, { useState } from "react";
 import { IoLogoFacebook } from "react-icons/io5";
 import { RiInstagramFill, RiLinkedinFill } from "react-icons/ri";
@@ -282,7 +283,7 @@ const ContactUsPage = () => {
                 <BsYoutube className="text-[40px]" />
               </a>
               <a
-                href="https://www.linkedin.com"
+                href="https://x.com/ReldaIndia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"

@@ -188,7 +188,7 @@ const Footer = () => {
                   <BsYoutube className="text-[40px]" />
                 </a>
                 <a
-                  href="https://www.linkedin.com"
+                  href="https://x.com/ReldaIndia"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
