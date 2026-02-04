@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import SummaryApi from '../common';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLayerGroup, faArrowDownWideShort, faCubes, faCalendarCheck, faHandshakeSimple, faSackXmark, faHeartCrack, faCubesStacked, faPeopleCarryBox, faDiagramSuccessor, faCommentDots, faUsers, faBan, faCartArrowDown, faClipboardCheck, faHourglassHalf, faUsersViewfinder, faArrowUpWideShort, faTruckFast, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
+import { ChevronDown } from "lucide-react";
 
 const Dashboard = () => {
     const navigate = useNavigate(); // Initialize navigate
@@ -16,6 +17,11 @@ const Dashboard = () => {
         totalProducts: 0,
         statuses: {},
     });
+    const [productId, setProductId] = useState("");
+    const [products, setProducts] = useState([]);
+    const [isProductOpen, setIsProductOpen] = useState(false);
+    const [selectedProducts, setSelectedProducts] = useState([]); // array of productIds
+
 
     const handleCategoryChange = (e) => {
         setCategory(e.target.value);
@@ -30,6 +36,18 @@ const Dashboard = () => {
 
         return formatter.format(num);
     };
+    const toggleProduct = (id) => {
+  setSelectedProducts(prev =>
+    prev.includes(id)
+      ? prev.filter(p => p !== id)
+      : [...prev, id]
+  );
+};
+useEffect(() => {
+  // If none selected → All Products
+  setProductId(selectedProducts.length ? selectedProducts : "");
+}, [selectedProducts]);
+
 
     const fetchCategories = async () => {
         try {
@@ -49,12 +67,27 @@ const Dashboard = () => {
     useEffect(() => {
         fetchCategories();
     }, []);
+useEffect(() => {
+  if (!category) {
+    setProducts([]);
+    setProductId("");
+    return;
+  }
+
+  fetch(
+    `${SummaryApi.getProductsByCategory.url}?category=${category}`
+  )
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) setProducts(data.products);
+    });
+}, [category]);
 
     // Fetch data from the backend
     const fetchData = useCallback(async () => {
         let url = SummaryApi.getDashboard.url;
         if (dateRange || category) {
-            url += `?startDate=${dateRange.start}&endDate=${dateRange.end || dateRange.start}&category=${category}`;
+            url += `?startDate=${dateRange.start}&endDate=${dateRange.end || dateRange.start}&category=${category}&productId=${productId}`;
         }
 
         try {
@@ -69,7 +102,7 @@ const Dashboard = () => {
         } catch (error) {
             console.error("Error fetching data:", error);
         }
-    }, [dateRange, category]);
+    }, [dateRange, category, productId]);
 
     // Fetch data on component mount and when the date range changes
     useEffect(() => {
@@ -266,6 +299,77 @@ const Dashboard = () => {
                         })}
                     </select>
 
+                    {/* <select
+                    value={productId}
+                    onChange={(e) => setProductId(e.target.value)}
+                    className="border p-2 rounded max-w-[200px]"
+                    >
+                    <option value="">All Products</option>
+                    {products.map((p) => (
+                        <option key={p._id} value={p._id}>
+                        {p.productName}
+                        </option>
+                    ))}
+                    </select> */}
+                    <div className="relative w-[260px] sm:w-[280px] md:w-[320px]">
+                        {/* Dropdown Header */}
+                        <div
+                            onClick={() => setIsProductOpen(prev => !prev)}
+                            className="  bg-white border border-gray-300 rounded-md
+                            px-3 py-2.5
+                            cursor-pointer
+                            flex justify-between items-center
+                            text-sm font-medium"
+                        >
+                            <span className="text-sm truncate">
+                            {selectedProducts.length === 0
+                                ? "All Products"
+                                : `${selectedProducts.length} Product(s) Selected`}
+                            </span>
+                            <ChevronDown
+    size={16}
+    className="text-gray-500 ml-2 pointer-events-none"
+  />
+                        </div>
+
+                        {/* Dropdown Body */}
+                        {isProductOpen && (
+                            <div className="absolute z-50 mt-1 w-full bg-white border rounded-md shadow max-h-60 overflow-y-auto">
+                            
+                            {/* All Products */}
+                            <label className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100">
+                                <input
+                                type="checkbox"
+                                checked={selectedProducts.length === 0}
+                                onChange={() => setSelectedProducts([])}
+                                />
+                                <span className="text-sm font-medium">All Products</span>
+                            </label>
+
+                            <hr />
+
+                            {/* Product List */}
+                            {products.map((p) => (
+                                <label
+                                key={p._id}
+                                className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-100"
+                                >
+                                <input
+                                    type="checkbox"
+                                    checked={selectedProducts.includes(p._id)}
+                                    onChange={() => toggleProduct(p._id)}
+                                />
+                                <span className="text-sm truncate">
+                                    {p.productName}
+                                </span>
+                                </label>
+                            ))}
+                            </div>
+                        )}
+                        </div>
+
+
+
                     {/* Date Range Filter */}
                     <div className="flex items-center gap-2 flex-wrap">
                         <input
@@ -320,3 +424,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

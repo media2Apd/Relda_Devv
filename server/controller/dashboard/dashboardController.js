@@ -112,7 +112,7 @@ function getYTDFilter(startDate, endDate) {
 }
 
 exports.getDashboardCounts = async (req, res) => {
-  const { startDate, endDate, category } = req.query;
+  const { startDate, endDate, category, productId  } = req.query;
 
   try {
     
@@ -132,11 +132,25 @@ exports.getDashboardCounts = async (req, res) => {
 
     const categoryCountFilter = category ? { value: category } : {};
 
+    // const categoryFilterOrders = category
+    //   ? {
+    //     productDetails: { $elemMatch: { category } },
+    //   }
+    //   : {};
     const categoryFilterOrders = category
-      ? {
-        productDetails: { $elemMatch: { category } },
+  ? {
+      productDetails: {
+        $elemMatch: { category: { $in: Array.isArray(category) ? category : [category] } }
       }
-      : {};
+    }
+  : {};
+
+
+      const productFilter =
+  productId
+    ? { productDetails: { $elemMatch: { productId } } }
+    : {};
+
 
     const mtdFilter = getMTDFilter(startDate, endDate);
     const ytdFilter = getYTDFilter(startDate, endDate);
@@ -149,11 +163,12 @@ exports.getDashboardCounts = async (req, res) => {
     const orderCount = await orderModel.countDocuments({
       ...dateFilter,
       ...categoryFilterOrders,
+      ...productFilter,
       order_status: { $ne: "Pending" }
     });
 
     // Calculate product stock for the specified category
-    const products = await productModel.find({ ...categoryFilter }, 'availability').lean();
+    const products = await productModel.find({ ...categoryFilter, ...productFilter }, 'availability').lean();
     const productStock = products.reduce(
       (total, product) => total + (product.availability || 0),
       0
@@ -177,7 +192,7 @@ exports.getDashboardCounts = async (req, res) => {
 
     // month wise counts
     const mtdUsers = await userModel.countDocuments(mtdFilter);
-    const mtdOrders = await orderModel.countDocuments({ ...mtdFilter, ...categoryFilterOrders ,order_status: { $ne: "Pending" } });
+    const mtdOrders = await orderModel.countDocuments({ ...mtdFilter, ...categoryFilterOrders, ...productFilter, order_status: { $ne: "Pending" } });
     const mtdVisitors = visitors.reduce((count, doc) => {
       const startOfMonth = mtdFilter.createdAt.$gte;
       return count + doc.acceptanceTimestamps.filter((timestamp) => {
@@ -188,7 +203,7 @@ exports.getDashboardCounts = async (req, res) => {
 
     // Year wise Counts
     const ytdUsers = await userModel.countDocuments(ytdFilter);
-    const ytdOrders = await orderModel.countDocuments({ ...ytdFilter, ...categoryFilterOrders, order_status: { $ne: "Pending" } });
+    const ytdOrders = await orderModel.countDocuments({ ...ytdFilter, ...categoryFilterOrders, ...productFilter, order_status: { $ne: "Pending" } });
 
     const ytdVisitors = visitors.reduce((count, doc) => {
       const ytdStart = ytdFilter.createdAt.$gte;
@@ -226,7 +241,7 @@ exports.getDashboardCounts = async (req, res) => {
     const mtdStatusCounts = { ...statusCounts, };
 
     // Fetch orders and calculate statuses
-    const orders = await orderModel.find({ ...dateFilter, ...categoryFilterOrders, }).lean();
+    const orders = await orderModel.find({ ...dateFilter, ...categoryFilterOrders,  ...productFilter }).lean();
 
     orders.forEach((order) => {
       const { statusUpdates, productDetails, order_status } = order;
@@ -239,10 +254,15 @@ exports.getDashboardCounts = async (req, res) => {
       const latestStatus = statusUpdates?.at(-1)?.status || 'pending';
 
       // If a category is selected, filter the products based on that category
-      const categoryProducts = productDetails.filter(
-        (product) => !category || product.category === category
-      );
+      // const categoryProducts = productDetails.filter(
+      //   (product) => !category || product.category === category
+      // );
+ const categoryProducts = productDetails.filter(
+        (product) => !category || Array.isArray(product.category)
+  ? product.category.includes(category)
+  : product.category === category
 
+      );
       // Skip this order if no products match the selected category
       if (!categoryProducts.length) return;
 
@@ -304,10 +324,10 @@ exports.getDashboardCounts = async (req, res) => {
 
     // Total Sales Amount percentage, trends, statics
     const [todayOrders, prevDayOrders, prevMonthOrders, prevYearOrders] = await Promise.all([
-      orderModel.find({ ...currentDayFilter, ...categoryFilterOrders, "paymentDetails.payment_status": "success" }),
-      orderModel.find({ ...previousDayFilter, ...categoryFilterOrders, "paymentDetails.payment_status": "success" }),
-      orderModel.find({ ...previousMonthFilter, ...categoryFilterOrders, "paymentDetails.payment_status": "success" }),
-      orderModel.find({ ...previousYearFilter, ...categoryFilterOrders, "paymentDetails.payment_status": "success" }),
+      orderModel.find({ ...currentDayFilter, ...categoryFilterOrders, ...productFilter, "paymentDetails.payment_status": "success" }),
+      orderModel.find({ ...previousDayFilter, ...categoryFilterOrders, ...productFilter, "paymentDetails.payment_status": "success" }),
+      orderModel.find({ ...previousMonthFilter, ...categoryFilterOrders, ...productFilter, "paymentDetails.payment_status": "success" }),
+      orderModel.find({ ...previousYearFilter, ...categoryFilterOrders, ...productFilter, "paymentDetails.payment_status": "success" }),
     ]);
 
 
@@ -457,5 +477,27 @@ exports.getDashboardCounts = async (req, res) => {
       message: "Error fetching counts",
       error: error.message,
     });
+  }
+};
+
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const { category } = req.query;
+
+    if (!category) {
+      return res.json({ success: true, products: [] });
+    }
+
+    const products = await productModel.find(
+      { category },
+      "_id productName"
+    );
+
+    res.json({
+      success: true,
+      products,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false });
   }
 };

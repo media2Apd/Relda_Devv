@@ -8,8 +8,8 @@ const router = require('./routes');
 const path = require('path');
 require('source-map-support').install();
 require('./controller/scheduler/dailyReportScheduler')
-require("./cron");
-require("./jobs/zohoProductSync.cron");
+// require("./cron");
+// require("./jobs/zohoProductSync.cron");
 
 
 const getClientIp = require('./middleware/getClientIp'); // Define this in a middleware file if not done already
@@ -31,6 +31,16 @@ app.use(guestSession);
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //app.use("/api", router);
+app.use(express.static(path.join(__dirname, '../client/build'), {
+  maxAge: '1y',
+  etag: false
+}));
+
+// Serve uploads folder
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '30d',
+  etag: false
+}));
 
 app.use("/api", router);
 
@@ -38,6 +48,16 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
+});
+
+// Add cache middleware for client build files
+app.use((req, res, next) => {
+  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/i)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  } else if (req.path === '/' || req.path.match(/\.html$/i)) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  }
+  next();
 });
 
 app.use(express.json({ limit: '10mb' }));

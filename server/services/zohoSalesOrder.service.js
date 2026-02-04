@@ -675,7 +675,7 @@ exports.getZohoSalesOrder = async (salesOrderId) => {
   const headers = await getZohoHeaders();
 
   const res = await axios.get(
-    `https://www.zohoapis.in/inventory/v1/salesorders/${salesOrderId}?organization_id=60064111889`,
+    `https://www.zohoapis.in/inventory/v1/salesorders/${salesOrderId}?organization_id=60013451386`,
     { headers }
   );
 

@@ -5214,6 +5214,12 @@ const handlePaymentLink = async () => {
       const paymentResponseData = await paymentResponse.json();
 
       if (paymentResponseData.success) {
+           // 2️⃣ 🔥 LOAD RAZORPAY SDK HERE
+    const loaded = await window.loadRazorpay();
+    if (!loaded) {
+      toast.error("Razorpay SDK failed to load");
+      return;
+    }
         // Razorpay options for initiating the payment
         const options = {
           // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key

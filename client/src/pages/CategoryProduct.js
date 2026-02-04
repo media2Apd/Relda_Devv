@@ -4501,7 +4501,7 @@ const CategoryProduct = () => {
         const dataJson = await response.json();
 
         if (dataJson.success) {
-          const filteredCategories = dataJson.categories.filter(category => category.productCount > 0);
+          const filteredCategories = dataJson.categories.filter(category => category.productCount > 0 && category.zohoProductCount > 0);
 
           if (validParentCategory) {
             const normalizedParentCategory = validParentCategory.toLowerCase().trim();
