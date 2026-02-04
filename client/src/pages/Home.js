@@ -53,7 +53,13 @@ const Home = () => {
     fetchCategories(); // Call the fetch function on component mount
   }, []);
 
-  const insertIndex = Math.floor(categories.length / 2);
+  // const insertIndex = Math.floor(categories.length / 2);
+
+  const visibleCategories = categories.filter(
+  (cat) => cat.zohoProductCount && cat.zohoProductCount > 0
+);
+
+const insertIndex = Math.floor(visibleCategories.length / 2);
 
   return (
     <div className='overflow-hidden'>
@@ -90,22 +96,36 @@ const Home = () => {
       <CategoryList />
       <BannerProduct type="home-top" />
       <RecentlyViewProducts />
-      {categories.map((category, index) => {
-        if (category.productCount === 0) return null;
+      {visibleCategories.map((category, index) => {
+        //if (category.productCount === 0) return null;
+        if (category.zohoProductCount === 0) return null;
+
 
         return (
           <React.Fragment key={category._id}>
-            {/* CATEGORY SECTION */}
             <VerticalCardProduct
               category={category.value}
               heading={category.label}
             />
-
-            {/* 👇 INSERT TOP SELLING IN BETWEEN */}
             {index === insertIndex && <TopSellingProducts />}
           </React.Fragment>
         );
       })}
+      {/* {categories.map((category, index) => {
+  if (!category.zohoProductCount || category.zohoProductCount === 0) {
+    return null;
+  }
+  return (
+    <React.Fragment key={category._id}>
+      <VerticalCardProduct
+        category={category.value}
+        heading={category.label}
+      />
+      {index === insertIndex && <TopSellingProducts />}
+    </React.Fragment>
+  );
+})} */}
+
       {/* <BannerProduct type="bottom" /> */}
 <div className="mb-10">
       <BannerProduct type="home-bottom" />

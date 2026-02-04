@@ -461,6 +461,10 @@ const SummaryApi = {
         url: `${backendDomain}/api/get-active-categories-tree`,
         method: "get",
     },
+    getProductsByCategory: {
+        url: `${backendDomain}/api/view-all-products-by-category`,
+        method: "get",
+    },
 }
 
 export default SummaryApi;

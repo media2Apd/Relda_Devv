@@ -243,7 +243,7 @@ const {
   createZohoSalesOrder,
   confirmZohoSalesOrder
 } = require("../services/zohoSalesOrder.service");
-const { createZohoCustomer, searchZohoCustomer, updateZohoCustomers } = require("../services/zohoCustomer.service");
+const { createZohoCustomer, searchZohoCustomer, updateZohoCustomer } = require("../services/zohoCustomer.service");
 const {
   getLocationIdByName
 } = require("../services/zohoLocationService");
@@ -597,6 +597,18 @@ const {
 
 //   console.log("✅ Zoho Sales Order Created:", so.salesorder_id);
 // };
+// function parseAddress(addressString = "") {
+//   const parts = addressString.split(",").map(p => p.trim());
+
+//   return {
+//     address: parts.slice(0, 2).join(", "),
+//     city: parts[2] || "",
+//     state: parts[3] || "",
+//     zip: parts[4] || "",
+//     country: parts[5] || "India"
+//   };
+// }
+
 function parseAddress(addressString = "") {
   const parts = addressString.split(",").map(p => p.trim());
 
@@ -715,6 +727,214 @@ function parseAddress(addressString = "") {
 //   console.log("✅ Zoho Sales Order Created:", so.salesorder_id);
 // };
 
+// module.exports = async function createSalesOrderAndReleaseStock(
+//   order,
+//   customerUser,
+//   reqUser
+// ) {
+//   try {
+//     let zohoCustomerId;
+
+//     /* ======================================================
+//        DETERMINE WHO IS ACTING
+//     ====================================================== */
+
+//     const effectiveUser =
+//       customerUser?.role === "MANAGESALES"
+//         ? customerUser
+//         : reqUser;
+
+//     /* ======================================================
+//        GENERAL CUSTOMER (WEBSITE USER)
+//     ====================================================== */
+
+//     if (customerUser?.role === "GENERAL") {
+
+//       if (customerUser.zohoCustomerId) {
+//         zohoCustomerId = customerUser.zohoCustomerId;
+//       } else {
+//         const zohoCustomer = await createZohoCustomer({
+//           contact_name: order.billing_name,
+//           email: order.billing_email,
+//           phone: order.billing_tel,
+//           billing_address: parseAddress(order.billing_address),
+//           shipping_address: parseAddress(order.billing_address),
+//           gst_treatment: "consumer"
+//         });
+
+//         zohoCustomerId = zohoCustomer.contact_id;
+//         customerUser.zohoCustomerId = zohoCustomerId;
+//         await customerUser.save();
+//       }
+//     }
+
+//     /* ======================================================
+//        MANAGESALES (ADMIN / STAFF ORDER)
+//     ====================================================== */
+
+//     else if (effectiveUser?.role === "MANAGESALES") {
+
+//       const customerPayload = {
+//         contact_name: order.billing_name,
+//         company_name: order.gstDetails?.companyName || order.billing_name,
+//         email: order.billing_email,
+//         phone: order.billing_tel,
+//         billing_address: parseAddress(order.billing_address),
+//         shipping_address: parseAddress(order.billing_address)
+//       };
+//  console.log(customerPayload);
+ 
+//       if (order.gstDetails?.gstin) {
+//         customerPayload.gst_no = order.gstDetails.gstin;
+//         customerPayload.gst_treatment = "business_gst";
+//       } else {
+//         customerPayload.gst_treatment = "consumer";
+//       }
+
+//       const existingCustomer = await searchZohoCustomer({
+//         email: order.billing_email,
+//         gstin: order.gstDetails?.gstin
+//       });
+
+//       if (existingCustomer) {
+//         await updateZohoCustomers(
+//           existingCustomer.contact_id,
+//           customerPayload
+//         );
+//         zohoCustomerId = existingCustomer.contact_id;
+//       } else {
+//         const created = await createZohoCustomer(customerPayload);
+//         zohoCustomerId = created.contact_id;
+//       }
+//     }
+
+//     /* ======================================================
+//        FINAL SAFETY (NO MORE FALSE FAILURES)
+//     ====================================================== */
+
+//     if (!zohoCustomerId) {
+//       console.error("❌ Zoho customer not resolved", {
+//         effectiveUserRole: effectiveUser?.role,
+//         customerUserRole: customerUser?.role,
+//         reqUserRole: reqUser?.role,
+//         billingEmail: order.billing_email
+//       });
+//       throw new Error("Zoho customer ID not resolved");
+//     }
+
+//     /* ======================================================
+//        LINE ITEMS
+//     ====================================================== */
+
+//     const line_items = await Promise.all(
+//       order.productDetails.map(async (p) => {
+//         const prod = await productModel.findById(p.productId);
+
+//         if (!prod?.zohoVariantId) {
+//           throw new Error(`Zoho item missing for product ${p.productId}`);
+//         }
+
+//         return {
+//           item_id: prod.zohoVariantId,
+//           quantity: p.quantity,
+//           // rate: p.basePrice // GST exclusive
+//         };
+//       })
+//     );
+
+//     /* ======================================================
+//        LOCATION
+//     ====================================================== */
+
+//     const relDaLocationId = await getLocationIdByName("RELDA");
+//     if (!relDaLocationId) {
+//       throw new Error("RELDA location_id not found in Zoho");
+//     }
+
+//     /* ======================================================
+//        SALES ORDER
+//     ====================================================== */
+
+//     const payload = {
+//       customer_id: zohoCustomerId,
+//       date: new Date().toISOString().split("T")[0],
+//       reference_number: order.orderId,
+//       notes: "Order created from Website",
+//       line_items,
+//       location_id: relDaLocationId
+//     };
+
+//     if (effectiveUser?.role === "MANAGESALES") {
+//       payload.salesperson_name = effectiveUser.name;
+//     }
+
+//     console.log("📦 ZOHO SALES ORDER PAYLOAD:", payload);
+
+//     const so = await createZohoSalesOrder(payload);
+//     await confirmZohoSalesOrder(so.salesorder_id);
+
+//     /* ======================================================
+//        SAVE ORDER
+//     ====================================================== */
+
+//     order.zohoSalesOrderId = so.salesorder_id;
+//     order.order_status = "ordered";
+//     order.paymentDetails.payment_status = "success";
+
+//     await order.save();
+
+//     console.log("✅ Zoho Sales Order Created:", so.salesorder_id);
+//     return so;
+
+//   } catch (err) {
+//     console.error("❌ createSalesOrderAndReleaseStock FAILED:", err.message);
+//     throw err;
+//   }
+// };
+
+async function createZohoCustomerRaw(payload) {
+  const res = await zohoRequest({
+    method: "POST",
+    url: `${ZOHO_BASE}/contacts`,
+    headers: getZohoHeaders(),
+    data: payload
+  });
+
+  return res.data.contact;
+}
+async function updateZohoCustomerRaw(contactId, payload) {
+  const res = await zohoRequest({
+    method: "PUT",
+    url: `${ZOHO_BASE}/contacts/${contactId}`,
+    headers: getZohoHeaders(),
+    data: payload
+  });
+
+  return res.data.contact;
+}
+
+function normalizeCustomerName(name, email) {
+  if (name && name.trim().length >= 3) {
+    return name
+      .replace(/[^a-zA-Z\s]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  if (email) {
+    return (
+      email
+        .split("@")[0]
+        .replace(/[^a-zA-Z]/g, "")
+        .replace(/\b\w/g, c => c.toUpperCase()) + " Customer"
+    );
+  }
+
+  return "Relda Customer";
+}
+
+
 module.exports = async function createSalesOrderAndReleaseStock(
   order,
   customerUser,
@@ -723,124 +943,61 @@ module.exports = async function createSalesOrderAndReleaseStock(
   try {
     let zohoCustomerId;
 
-    /* ======================================================
-       DETERMINE WHO IS ACTING
-    ====================================================== */
-
     const effectiveUser =
       customerUser?.role === "MANAGESALES"
         ? customerUser
         : reqUser;
 
-    /* ======================================================
-       GENERAL CUSTOMER (WEBSITE USER)
-    ====================================================== */
+    const customerName = normalizeCustomerName(
+      order.billing_name,
+      order.billing_email
+    );
 
-    if (customerUser?.role === "GENERAL") {
+    const customerData = {
+      name: customerName,
+      email: order.billing_email,
+      mobile: order.billing_tel,
+      address: parseAddress(order.billing_address),
+      isBusiness: !!order.gstDetails?.gstin,
+      gstin: order.gstDetails?.gstin,
+      companyName: order.gstDetails?.companyName
+    };
 
-      if (customerUser.zohoCustomerId) {
-        zohoCustomerId = customerUser.zohoCustomerId;
-      } else {
-        const zohoCustomer = await createZohoCustomer({
-          contact_name: order.billing_name,
-          email: order.billing_email,
-          phone: order.billing_tel,
-          billing_address: parseAddress(order.billing_address),
-          shipping_address: parseAddress(order.billing_address),
-          gst_treatment: "consumer"
-        });
+    /* ========= FIND / CREATE CUSTOMER ========= */
 
-        zohoCustomerId = zohoCustomer.contact_id;
-        customerUser.zohoCustomerId = zohoCustomerId;
-        await customerUser.save();
-      }
+    const existingCustomer = await searchZohoCustomer({
+      email: customerData.email,
+      gstin: customerData.gstin
+    });
+
+    if (existingCustomer) {
+      zohoCustomerId = existingCustomer.contact_id;
+      await updateZohoCustomer(zohoCustomerId, customerData);
+    } else {
+      const created = await createZohoCustomer(customerData);
+      zohoCustomerId = created.contact_id;
     }
-
-    /* ======================================================
-       MANAGESALES (ADMIN / STAFF ORDER)
-    ====================================================== */
-
-    else if (effectiveUser?.role === "MANAGESALES") {
-
-      const customerPayload = {
-        contact_name: order.billing_name,
-        company_name: order.gstDetails?.companyName || order.billing_name,
-        email: order.billing_email,
-        phone: order.billing_tel,
-        billing_address: parseAddress(order.billing_address),
-        shipping_address: parseAddress(order.billing_address)
-      };
-
-      if (order.gstDetails?.gstin) {
-        customerPayload.gst_no = order.gstDetails.gstin;
-        customerPayload.gst_treatment = "business_gst";
-      } else {
-        customerPayload.gst_treatment = "consumer";
-      }
-
-      const existingCustomer = await searchZohoCustomer({
-        email: order.billing_email,
-        gstin: order.gstDetails?.gstin
-      });
-
-      if (existingCustomer) {
-        await updateZohoCustomers(
-          existingCustomer.contact_id,
-          customerPayload
-        );
-        zohoCustomerId = existingCustomer.contact_id;
-      } else {
-        const created = await createZohoCustomer(customerPayload);
-        zohoCustomerId = created.contact_id;
-      }
-    }
-
-    /* ======================================================
-       FINAL SAFETY (NO MORE FALSE FAILURES)
-    ====================================================== */
 
     if (!zohoCustomerId) {
-      console.error("❌ Zoho customer not resolved", {
-        effectiveUserRole: effectiveUser?.role,
-        customerUserRole: customerUser?.role,
-        reqUserRole: reqUser?.role,
-        billingEmail: order.billing_email
-      });
       throw new Error("Zoho customer ID not resolved");
     }
 
-    /* ======================================================
-       LINE ITEMS
-    ====================================================== */
+    /* ========= LINE ITEMS ========= */
 
     const line_items = await Promise.all(
-      order.productDetails.map(async (p) => {
+      order.productDetails.map(async p => {
         const prod = await productModel.findById(p.productId);
-
         if (!prod?.zohoVariantId) {
-          throw new Error(`Zoho item missing for product ${p.productId}`);
+          throw new Error(`Zoho item missing for ${p.productId}`);
         }
-
         return {
           item_id: prod.zohoVariantId,
-          quantity: p.quantity,
-          rate: p.basePrice // GST exclusive
+          quantity: p.quantity
         };
       })
     );
 
-    /* ======================================================
-       LOCATION
-    ====================================================== */
-
-    const relDaLocationId = await getLocationIdByName("RELDA");
-    if (!relDaLocationId) {
-      throw new Error("RELDA location_id not found in Zoho");
-    }
-
-    /* ======================================================
-       SALES ORDER
-    ====================================================== */
+    const location_id = await getLocationIdByName("RELDA");
 
     const payload = {
       customer_id: zohoCustomerId,
@@ -848,33 +1005,28 @@ module.exports = async function createSalesOrderAndReleaseStock(
       reference_number: order.orderId,
       notes: "Order created from Website",
       line_items,
-      location_id: relDaLocationId
+      location_id
     };
 
     if (effectiveUser?.role === "MANAGESALES") {
-      payload.salesperson_name = effectiveUser.name;
+      payload.salesperson_name = effectiveUser.name || "SYSTEM";
     }
-
-    console.log("📦 ZOHO SALES ORDER PAYLOAD:", payload);
 
     const so = await createZohoSalesOrder(payload);
     await confirmZohoSalesOrder(so.salesorder_id);
 
-    /* ======================================================
-       SAVE ORDER
-    ====================================================== */
-
     order.zohoSalesOrderId = so.salesorder_id;
     order.order_status = "ordered";
     order.paymentDetails.payment_status = "success";
-
     await order.save();
 
     console.log("✅ Zoho Sales Order Created:", so.salesorder_id);
     return so;
 
   } catch (err) {
-    console.error("❌ createSalesOrderAndReleaseStock FAILED:", err.message);
+    console.error("❌ createSalesOrderAndReleaseStock FAILED:",
+      err.response?.data || err.message);
     throw err;
   }
 };
+

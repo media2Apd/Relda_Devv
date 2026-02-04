@@ -46,7 +46,7 @@ const { acceptCookies, getAllCookieAcceptanceData } = require('../controller/coo
 
 // const { getSales } = require('../controller/dashboard/salesDataController')
 
-const { getDashboardCounts } = require('../controller/dashboard/dashboardController');
+const { getDashboardCounts, getProductsByCategory } = require('../controller/dashboard/dashboardController');
 const {getViewedProducts} = require('../controller/product/relatedProducts')
 const { getActiveCategoriesTree } = require('../controller/product/getCategoryTree')
 const addressController = require("../controller/user/addaddressController");
@@ -210,6 +210,7 @@ router.get("/get-active-product-categories", getActiveCategories);
 router.put("/edit-product-categories/:id", editCategory); 
 router.delete("/delete-product-categories/:id", deleteCategory); 
 router.get("/dashboard", getDashboardCounts)
+router.get("/view-all-products-by-category", getProductsByCategory)
 router.delete("/delete-order", authToken, deletePendingOrderById)
 router.post("/create-coupon", couponController.createCoupon);
 router.get("/all-coupons", couponController.getAllCoupons);

@@ -17,7 +17,8 @@ const UploadProduct = ({
     const [data, setData] = useState({
         productName: "",
         brandName: "",
-        category: "",
+        // category: "",
+        category: [],
         productImage: [], // now stores { url, type }
 
         description: "",
@@ -51,6 +52,9 @@ const UploadProduct = ({
 
     const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
     const [fullScreenImage, setFullScreenImage] = useState("");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+const [selectedCategories, setSelectedCategories] = useState([]);
+
 
     const handleOnChange = (e) => {
         const { name, value } = e.target;
@@ -60,6 +64,21 @@ const UploadProduct = ({
             [name]: value
         }));
     };
+const handleCategoryToggle = (value) => {
+  setSelectedCategories(prev =>
+    prev.includes(value)
+      ? prev.filter(v => v !== value)
+      : [...prev, value]
+  );
+};
+
+useEffect(() => {
+  setData(prev => ({
+    ...prev,
+    category: selectedCategories   // 🔥 ARRAY
+  }));
+}, [selectedCategories]);
+
 
     // const handleUploadProduct = async (e) => {
     //     const file = e.target.files[0];
@@ -189,7 +208,7 @@ const UploadProduct = ({
                     />
 
                     <label htmlFor='category' className='mt-3'>Category :</label>
-                    <select
+                    {/* <select
                         required
                         value={data.category}
                         name='category'
@@ -203,7 +222,42 @@ const UploadProduct = ({
                                 );
                             })
                         }
-                    </select>
+                    </select> */}
+            <div className="relative w-full">
+            {/* Dropdown header */}
+            <div
+                className="p-2 bg-slate-100 border rounded cursor-pointer flex justify-between items-center"
+                onClick={() => setIsDropdownOpen(prev => !prev)}
+            >
+                <span className="text-sm text-gray-700">
+                {selectedCategories.length > 0
+                    ? selectedCategories.join(", ")
+                    : "Select Categories"}
+                </span>
+                <span className="text-xs">▼</span>
+            </div>
+
+            {/* Dropdown list */}
+            {isDropdownOpen && (
+                <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-52 overflow-y-auto">
+                {categories.map((el, index) => (
+                    <label
+                    key={el.value + index}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 cursor-pointer"
+                    >
+                    <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(el.value)}
+                        onChange={() => handleCategoryToggle(el.value)}
+                    />
+                    <span className="text-sm">{el.label}</span>
+                    </label>
+                ))}
+                </div>
+            )}
+            </div>
+
+
 
                     <label htmlFor='productImage' className='mt-3'>Product Image :</label>
                     <label htmlFor='uploadImageInput'>

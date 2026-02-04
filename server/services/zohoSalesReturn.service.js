@@ -60,7 +60,7 @@ exports.createZohoSalesReturn = async ({
   console.log("📦 SALES RETURN PAYLOAD:", payload);
 
   const res = await axios.post(
-    `https://www.zohoapis.in/inventory/v1/salesreturns?organization_id=60064111889&salesorder_id=${salesorder_id}`,
+    `https://www.zohoapis.in/inventory/v1/salesreturns?organization_id=60013451386&salesorder_id=${salesorder_id}`,
     payload,
     { headers }
   );

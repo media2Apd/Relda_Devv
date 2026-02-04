@@ -18,121 +18,169 @@ async function zohoRequest(config) {
   }
 }
 
-exports.createZohoCustomer = async (user) => {
+// exports.createZohoCustomer = async (user) => {
 
-  if (!user.email) {
-    throw new Error("Email required to create Zoho customer");
-  }
+//   if (!user.email) {
+//     throw new Error("Email required to create Zoho customer");
+//   }
 
-  const payload = {
-    contact_name: user.name,
-  company_name: user.isBusiness ? user.companyName : user.name,
-    contact_type: "customer",
+//   const payload = {
+//     contact_name: user.name,
+//   company_name: user.isBusiness ? user.companyName : user.name,
+//     contact_type: "customer",
 
-    gst_treatment: user.isBusiness
-      ? "business_gst"
-      : "consumer",
+//     gst_treatment: user.isBusiness
+//       ? "business_gst"
+//       : "consumer",
 
-    gst_no: user.isBusiness ? user.gst?.gstin : undefined,
+//     gst_no: user.isBusiness ? user.gst?.gstin : undefined,
 
-    phone: user.mobile,
+//     phone: user.mobile,
 
-    contact_persons: [
-      {
-        first_name: user.name,
-        email: user.email,
-        phone: user.mobile,
-        is_primary_contact: true
-      }
-    ],
+//     contact_persons: [
+//       {
+//         first_name: user.name,
+//         email: user.email,
+//         phone: user.mobile,
+//         is_primary_contact: true
+//       }
+//     ],
     
 
+//     billing_address: {
+//       address: user.address?.street || "",
+//       city: user.address?.city || "",
+//       state: user.address?.state || "",
+//       zip: user.address?.pinCode || "",
+//       country: user.address?.country || "India"
+//     },
+
+//     shipping_address: {
+//       address: user.address?.street || "",
+//       city: user.address?.city || "",
+//       state: user.address?.state || "",
+//       zip: user.address?.pinCode || "",
+//       country: user.address?.country || "India"
+//     }
+//   };
+
+//   const response = await zohoRequest({
+//     method: "POST",
+//     url: `${ZOHO_BASE}/contacts`,
+//     headers: {
+//       ...getZohoHeaders(),
+//       "X-com-zoho-inventory-organizationid": process.env.ZOHO_ORG_ID
+//     },
+//     data: payload
+//   });
+
+//   return response.data.contact;
+// };
+exports.createZohoCustomer = async ({
+  name,
+  email,
+  mobile,
+  address,
+  isBusiness = false,
+  gstin,
+  companyName
+}) => {
+  const payload = {
+    contact_name: name,
+    contact_type: "customer",
+    phone: mobile,
+    email,
+
+    gst_treatment: isBusiness ? "business_gst" : "consumer",
+
     billing_address: {
-      address: user.address?.street || "",
-      city: user.address?.city || "",
-      state: user.address?.state || "",
-      zip: user.address?.pinCode || "",
-      country: user.address?.country || "India"
+      address: address.street || "",
+      city: address.city || "",
+      state: address.state || "",
+      zip: address.pinCode || "",
+      country: "India"
     },
 
     shipping_address: {
-      address: user.address?.street || "",
-      city: user.address?.city || "",
-      state: user.address?.state || "",
-      zip: user.address?.pinCode || "",
-      country: user.address?.country || "India"
+      address: address.street || "",
+      city: address.city || "",
+      state: address.state || "",
+      zip: address.pinCode || "",
+      country: "India"
     }
   };
 
-  const response = await zohoRequest({
-    method: "POST",
-    url: `${ZOHO_BASE}/contacts`,
-    headers: {
-      ...getZohoHeaders(),
-      "X-com-zoho-inventory-organizationid": process.env.ZOHO_ORG_ID
-    },
-    data: payload
-  });
-
-  return response.data.contact;
-};
-
-
-exports.updateZohoCustomer = async (zohoContactId, user) => {
-
-  if (!user.email) {
-    console.log("⚠️ Email missing, skipping Zoho email update");
+  if (isBusiness && gstin) {
+    payload.gst_no = gstin;
+    payload.company_name = companyName || name;
   }
 
-  const payload = {
-    contact_name: user.name,
-    phone: user.mobile,
-     company_name: user.isBusiness ? user.companyName : user.name,
-    contact_type: "customer",
-
-    gst_treatment: user.isBusiness
-      ? "business_gst"
-      : "consumer",
-
-    gst_no: user.isBusiness ? user.gst?.gstin : undefined,
-
-    contact_persons: [
-      {
-        email: user.email,
-        phone: user.mobile,
-        is_primary_contact: true
-      }
-    ],
-
-    billing_address: {
-      address: user.address?.street || "",
-      city: user.address?.city || "",
-      state: user.address?.state || "",
-      zip: user.address?.pinCode || "",
-      country: user.address?.country || "India"
-    },
-
-    shipping_address: {
-      address: user.address?.street || "",
-      city: user.address?.city || "",
-      state: user.address?.state || "",
-      zip: user.address?.pinCode || "",
-      country: user.address?.country || "India"
-    }
-  };
-
-  const response = await zohoRequest({
-    method: "PUT",
-    url: `${ZOHO_BASE}/contacts/${zohoContactId}`,
-    headers: {
-      ...getZohoHeaders(),
-      "X-com-zoho-inventory-organizationid": process.env.ZOHO_ORG_ID
-    },
-    data: payload
+  const res = await zohoRequest({
+    method: "POST",
+    url: `${ZOHO_BASE}/contacts`,
+    data: payload,
+    headers: getZohoHeaders()
   });
 
-  return response.data.contact;
+  return res.data.contact;
 };
+
+
+// exports.updateZohoCustomer = async (zohoContactId, user) => {
+
+//   if (!user.email) {
+//     console.log("⚠️ Email missing, skipping Zoho email update");
+//   }
+
+//   const payload = {
+//     contact_name: user.name,
+//     phone: user.mobile,
+//      company_name: user.isBusiness ? user.companyName : user.name,
+//     contact_type: "customer",
+
+//     gst_treatment: user.isBusiness
+//       ? "business_gst"
+//       : "consumer",
+
+//     gst_no: user.isBusiness ? user.gst?.gstin : undefined,
+
+//     contact_persons: [
+//       {
+//         email: user.email,
+//         phone: user.mobile,
+//         is_primary_contact: true
+//       }
+//     ],
+
+//     billing_address: {
+//       address: user.address?.street || "",
+//       city: user.address?.city || "",
+//       state: user.address?.state || "",
+//       zip: user.address?.pinCode || "",
+//       country: user.address?.country || "India"
+//     },
+
+//     shipping_address: {
+//       address: user.address?.street || "",
+//       city: user.address?.city || "",
+//       state: user.address?.state || "",
+//       zip: user.address?.pinCode || "",
+//       country: user.address?.country || "India"
+//     }
+//   };
+
+//   const response = await zohoRequest({
+//     method: "PUT",
+//     url: `${ZOHO_BASE}/contacts/${zohoContactId}`,
+//     headers: {
+//       ...getZohoHeaders(),
+//       "X-com-zoho-inventory-organizationid": process.env.ZOHO_ORG_ID
+//     },
+//     data: payload
+//   });
+
+//   return response.data.contact;
+// };
 
 // exports.searchZohoCustomerByEmail = async (email) => {
 //   const res = await zohoRequest({
@@ -173,6 +221,39 @@ exports.updateZohoCustomer = async (zohoContactId, user) => {
 
 //   return res.data.contact;
 // };
+exports.updateZohoCustomer = async (contactId, data) => {
+  const payload = {
+    contact_name: data.name,
+    phone: data.mobile,
+    email: data.email,
+
+    gst_treatment: data.isBusiness ? "business_gst" : "consumer"
+  };
+
+  if (data.isBusiness && data.gstin) {
+    payload.gst_no = data.gstin;
+    payload.company_name = data.companyName || data.name;
+  }
+
+  payload.billing_address = {
+    address: data.address.street || "",
+    city: data.address.city || "",
+    state: data.address.state || "",
+    zip: data.address.pinCode || "",
+    country: "India"
+  };
+
+  payload.shipping_address = payload.billing_address;
+
+  const res = await zohoRequest({
+    method: "PUT",
+    url: `${ZOHO_BASE}/contacts/${contactId}`,
+    data: payload,
+    headers: getZohoHeaders()
+  });
+
+  return res.data.contact;
+};
 
 
 /* 🔍 search by email */
@@ -222,6 +303,7 @@ exports.searchZohoCustomer = async ({ email, gstin }) => {
       url: `${ZOHO_BASE}/contacts?gst_no=${gstin}`,
       headers: getZohoHeaders()
     });
+console.log(res);
 
     if (res.data.contacts?.length) {
       return res.data.contacts[0];

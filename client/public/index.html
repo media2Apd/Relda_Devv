@@ -34,7 +34,7 @@
     <!-- =======================
          Facebook Pixel
     ======================== -->
-    <script>
+    <!-- <script>
       !(function (f, b, e, v, n, t, s) {
         if (f.fbq) return;
         n = f.fbq = function () {
@@ -54,7 +54,32 @@
 
       fbq("init", "966101688948333");
       fbq("track", "PageView");
-    </script>
+    </script> -->
+ <script>
+  let fbLoaded = false;
+  const loadFB = () => {
+    if (fbLoaded) return;
+    fbLoaded = true;
+
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = true;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+
+    fbq("init", "966101688948333");
+    fbq("track", "PageView");
+  };
+
+  window.addEventListener("scroll", loadFB, { once: true });
+</script>
 
     <!-- =======================
          Basic Meta
@@ -134,7 +159,7 @@
     <!-- =======================
          Razorpay
     ======================== -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script> -->
   </head>
 
   <body>
@@ -171,6 +196,21 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+
+    <script>
+      window.loadRazorpay = function () {
+        return new Promise((resolve) => {
+          if (window.Razorpay) return resolve(true);
+
+          const script = document.createElement("script");
+          script.src = "https://checkout.razorpay.com/v1/checkout.js";
+          script.async = true;
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+      };
+    </script>
     </body>
   </body>
 </html>

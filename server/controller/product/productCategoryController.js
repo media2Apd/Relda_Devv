@@ -124,7 +124,10 @@ const getActiveCategories = async (req, res) => {
         const productCount = await productModel.countDocuments({
           category: category.value,
         });
-
+const zohoProductCount = await productModel.countDocuments({
+          category: category.value,
+          zohoVariantId: { $exists: true, $ne: "" }
+        });
         const offerPoster = offerPosters.find(
           (poster) =>
             poster.parentCategory === category.parentCategory?.value ||
@@ -134,6 +137,7 @@ const getActiveCategories = async (req, res) => {
         return {
           ...category.toObject(),
           productCount,
+          zohoProductCount,
           offerPoster: offerPoster
             ? {
                 image: offerPoster.image,
@@ -158,6 +162,70 @@ const getActiveCategories = async (req, res) => {
   }
 };
 
+// const getActiveCategories = async (req, res) => {
+//   try {
+//     const { parentCategory } = req.query;
+
+//     let filter = { isHide: false };
+//     if (parentCategory) {
+//       filter.parentCategory = parentCategory;
+//     }
+
+//     // 1️⃣ Fetch active categories
+//     const categories = await ProductCategory.find(filter)
+//       .populate("parentCategory", "name value");
+
+//     // 2️⃣ Fetch all offer posters
+//     const offerPosters = await OfferPoster.find();
+
+//     // 3️⃣ Attach product counts (Zoho-only)
+//     const categoriesWithDetails = await Promise.all(
+//       categories.map(async (category) => {
+
+//         // 🔥 ONLY ZOHO-SYNCED PRODUCTS
+//         const zohoProductCount = await productModel.countDocuments({
+//           category: category.value,
+//           zohoVariantId: { $exists: true, $ne: "" }
+//         });
+
+//         const offerPoster = offerPosters.find(
+//           (poster) =>
+//             poster.parentCategory === category.parentCategory?.value ||
+//             poster.childCategory === category.value
+//         );
+
+//         return {
+//           ...category.toObject(),
+
+//           // ❌ remove normal productCount if not needed
+//           // productCount,
+
+//           // ✅ THIS IS WHAT FRONTEND SHOULD USE
+//           zohoProductCount,
+
+//           offerPoster: offerPoster
+//             ? {
+//                 image: offerPoster.image,
+//                 _id: offerPoster._id,
+//                 createdAt: offerPoster.createdAt,
+//               }
+//             : null,
+//         };
+//       })
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       categories: categoriesWithDetails,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching active categories:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error.",
+//     });
+//   }
+// };
 
 const addCategory = async (req, res) => {
   upload.single("categoryImage")(req, res, async (err) => {
