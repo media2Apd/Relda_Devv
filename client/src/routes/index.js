@@ -49,7 +49,6 @@ import PricingPolicy from '../pages/PricingPolicy'
 import NotFound from '../pages/NotFound'
 import AllCartSummary from '../pages/allCartSummary'
 import CookiePage from '../pages/cookiepage'
-import AddParentCategory from '../pages/addParentCategory'
 import AllBlogs from '../pages/allBlogs'
 import AllOfferPosters from '../pages/allOfferPosters'
 import RecentlyViewProductPage from '../pages/RecentlyViewProductPage'
@@ -173,10 +172,6 @@ const router = createBrowserRouter([
                     {
                         path: "all-cookies-page",
                         element: <CookiePage />
-                    },
-                    {
-                        path: "add-parent-category",
-                        element: <AddParentCategory />
                     },
                     {
                         path: "upload-blogs",

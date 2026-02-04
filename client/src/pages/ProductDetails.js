@@ -1460,7 +1460,7 @@ const ProductDetails = () => {
       );
 
       setActiveMedia(dataReponse?.data?.productImage[0]);
-      saveViewedProduct(dataReponse?.data._id);
+      saveViewedProduct(dataReponse?.data?._id);
     } catch (error) {
       console.error("Failed to fetch product details:", error);
     } finally {
@@ -1876,17 +1876,17 @@ const ProductDetails = () => {
 
             <div className="flex items-center gap-2 my-1">
               <p className="font-semibold text-lg lg:text-2xl">
-                {displayINRCurrency(data.sellingPrice)}
+                {displayINRCurrency(data?.sellingPrice)}
               </p>
               <p className="text-brand-textMuted text-base lg:text-xl line-through">
-                {displayINRCurrency(data.price)}
+                {displayINRCurrency(data?.price)}
               </p>
               <span
                 className="px-2 py-1 text-xs font-medium rounded-md bg-brand-offer text-white"
                 
               >
                 {`${Math.ceil(
-                  ((data.price - data.sellingPrice) / data.price) * 100
+                  ((data?.price - data?.sellingPrice) / data?.price) * 100
                 )}% OFF`}
               </span>
             </div>
@@ -2435,7 +2435,7 @@ const ProductDetails = () => {
         )}
       </div>
 
-      {data.category && (
+      {data?.category && (
         <CategoryWiseProductDisplay
           category={data?.category}
           heading={"Related Product"}

@@ -66,8 +66,8 @@ console.log(data);
     setto(newfrom); // Set 'to' to the same value as 'from'
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className='flex justify-center mt-64'>Loading...</div>;
+  if (error) return <div className='flex justify-center mt-5'>{error}</div>;
 
   return (
     <div className="p-6">

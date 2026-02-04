@@ -29,7 +29,7 @@ import SummaryApi from '../common';
 import RecentlyViewProducts from './RecentlyViewProducts';
 import { Helmet } from 'react-helmet';
 import TopSellingProducts from '../components/TopSellingProducts';
-import HowToShopBanner from '../components/HowToShopBanner';
+// import HowToShopBanner from '../components/HowToShopBanner';
 
 const Home = () => {
   const [categories, setCategories] = useState([]); // Updated state variable

@@ -219,9 +219,9 @@ const AllOfferPosters = () => {
             )}
 
             {/* Display OfferPosters */}
+            {loading && <p className="text-lg font-semibold text-brand-textMuted text-center mt-10">Loading...</p>}
+            {error && <p className="text-brand-primary font-semibold mt-10">{error}</p>}
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {loading && <p className="text-lg font-semibold text-brand-textMuted">Loading...</p>}
-                {error && <p className="text-brand-primary font-semibold">{error}</p>}
                 {offerPosters.map((offerPoster, index) => (
                     <div key={offerPoster._id} className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center">
                         <div className="w-full h-32 flex justify-center items-center">
