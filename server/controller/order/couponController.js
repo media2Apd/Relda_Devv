@@ -106,6 +106,8 @@
 const Coupon = require("../../models/coupon");
 const Product = require("../../models/productModel");
 const ProductCategory = require("../../models/productCategory");
+const CouponUsage = require("../../models/couponUsage");
+const Order = require("../../models/orderProductModel");
 /* -----------------------------------
    CREATE COUPON
 ----------------------------------- */
@@ -534,8 +536,8 @@ exports.verifyCoupon = async (req, res) => {
 exports.getApplicableCoupons = async (req, res) => {
   try {
     const { productIds } = req.body;
+    const userId = req.userId;
 
-    // 🔒 Basic validation
     if (!Array.isArray(productIds) || productIds.length === 0) {
       return res.status(400).json({
         success: false,
@@ -545,90 +547,66 @@ exports.getApplicableCoupons = async (req, res) => {
 
     const now = new Date();
 
-    /* --------------------------------------------------
-       1️⃣ FETCH PRODUCTS
-    -------------------------------------------------- */
+    // 1️⃣ PRODUCTS
     const products = await Product.find(
       { _id: { $in: productIds } },
       "_id category"
     ).lean();
 
     if (!products.length) {
-      return res.json({
-        success: true,
-        count: 0,
-        data: []
-      });
+      return res.json({ success: true, count: 0, data: [] });
     }
 
     const productIdList = products.map(p => p._id);
-    const productCategoryValues = products
-      .map(p => p.category)
-      .filter(Boolean);
+    const categoryValues = [...new Set(products.map(p => p.category))];
 
-    /* --------------------------------------------------
-       2️⃣ FETCH PRODUCT CATEGORIES (ObjectIds)
-    -------------------------------------------------- */
+    // 2️⃣ PRODUCT CATEGORY + PARENT
     const productCategories = await ProductCategory.find(
-      { value: { $in: productCategoryValues } },
+      { value: { $in: categoryValues } },
       "_id parentCategory"
     ).lean();
 
     const productCategoryIds = productCategories.map(c => c._id);
+    const parentCategoryIds = productCategories.map(c => c.parentCategory).filter(Boolean);
 
-    const parentCategoryIds = productCategories
-      .map(c => c.parentCategory)
-      .filter(Boolean);
+    // 3️⃣ USED COUPONS (SUCCESS ONLY)
+    const successOrders = await Order.find(
+      { userId, "paymentDetails.payment_status": "success" },
+      "orderId"
+    ).lean();
+console.log(successOrders);
 
-    /* --------------------------------------------------
-       3️⃣ FETCH APPLICABLE COUPONS
-    -------------------------------------------------- */
+    const successOrderIds = successOrders.map(o => o.orderId);
+console.log(successOrderIds);
+    const usedCoupons = await CouponUsage.find(
+      { userId, orderId: { $in: successOrderIds } },
+      "couponId"
+    ).lean();
+
+    const usedCouponIds = usedCoupons.map(c => c.couponId);
+
+    // 4️⃣ APPLICABLE COUPONS
     const coupons = await Coupon.find({
+      _id: { $nin: usedCouponIds },
       isActive: true,
-
-      // ⏱ date validation
       $and: [
-        {
-          $or: [
-            { startDate: null },
-            { startDate: { $lte: now } }
-          ]
-        },
-        {
-          $or: [
-            { expiryDate: null },
-            { expiryDate: { $gte: now } }
-          ]
-        }
+        { $or: [{ startDate: null }, { startDate: { $lte: now } }] },
+        { $or: [{ expiryDate: null }, { expiryDate: { $gte: now } }] }
       ],
-
-      // 🎯 applicability
       $or: [
-        // 🥇 Product specific
         { products: { $in: productIdList } },
-
-        // 🥈 Product category specific
-        { productCategory: { $in: productCategoryIds } },
-
-        // 🥉 Parent category specific
-        { parentCategory: { $in: parentCategoryIds } },
-
-        // 🌍 Global coupons
+        { products: { $size: 0 }, productCategory: { $in: productCategoryIds } },
         {
           products: { $size: 0 },
-          productCategory: null,
-          parentCategory: null
-        }
+          parentCategory: { $in: parentCategoryIds },
+          productCategory: { $in: productCategoryIds }
+        },
+        { products: { $size: 0 }, productCategory: null, parentCategory: null }
       ]
     })
-      .sort({ createdAt: -1 })
       .populate("parentCategory", "name")
-      .populate("productCategory", "value")
-      .populate("products", "productName");
+      .populate("productCategory", "value");
 
-    /* --------------------------------------------------
-       4️⃣ RESPONSE
-    -------------------------------------------------- */
     return res.json({
       success: true,
       count: coupons.length,
@@ -636,10 +614,11 @@ exports.getApplicableCoupons = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("getApplicableCoupons error:", err);
+    console.error(err);
     return res.status(500).json({
       success: false,
-      message: err.message || "Internal server error"
+      message: "Internal server error"
     });
   }
 };
+

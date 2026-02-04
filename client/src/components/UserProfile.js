@@ -5,6 +5,75 @@ import SummaryApi from '../common';
 const UserProfile = () => {
   const dispatch = useDispatch();
   const user = useSelector(state => state?.user?.user);
+  /* ---------------- GST TREATMENTS (ZOHO MATCH) ---------------- */
+const GST_TREATMENTS = [
+  {
+    value: "consumer",
+    label: "Consumer",
+    description: "A customer who is a regular consumer"
+  },
+  {
+    value: "unregistered_business",
+    label: "Unregistered Business",
+    description: "Business that has not been registered under GST"
+  },
+  {
+    value: "registered_business",
+    label: "Registered Business",
+    description: "Business registered under GST"
+  },
+  {
+    value: "composition_scheme",
+    label: "Registered Business - Composition",
+    description: "Business registered under the Composition Scheme in GST"
+  },
+  {
+    value: "sez_developer",
+    label: "SEZ Developer",
+    description:
+      "A person/organisation who owns at least 25% of equity in SEZ units"
+  },
+  {
+    value: "sez_unit",
+    label: "SEZ Unit",
+    description:
+      "Supply of goods or services to a unit in a Special Economic Zone"
+  },
+  {
+    value: "deemed_export",
+    label: "Deemed Export",
+    description:
+      "Supply of goods to Export Oriented Unit or against EPCG / AA"
+  },
+  {
+    value: "input_service_distributor",
+    label: "Input Service Distributor",
+    description:
+      "Office receiving invoices for services used by branches with same PAN"
+  },
+  {
+    value: "tax_deductor",
+    label: "Tax Deductor",
+    description:
+      "Departments of State/Central government or local authorities"
+  },
+  {
+    value: "overseas",
+    label: "Overseas",
+    description:
+      "Persons with whom you import or export supplies outside India"
+  }
+];
+
+const GSTIN_REQUIRED = [
+  "registered_business",
+  "composition_scheme",
+  "sez_developer",
+  "sez_unit",
+  "deemed_export",
+  "input_service_distributor"
+];
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,6 +101,18 @@ const UserProfile = () => {
     street: "",
     default: false,
   });
+  /* ---------------- GST FORM ---------------- */
+const [gstForm, setGstForm] = useState({
+  treatment: "consumer",   // default
+  companyName: "",
+  gstin: ""
+});
+// setGstForm({
+//   treatment: user?.gst?.treatment || "consumer",
+//   companyName: user?.companyName || "",
+//   gstin: user?.gst?.gstin || ""
+// });
+
 
 
   // Fetch all addresses on component mount
@@ -239,6 +320,11 @@ const UserProfile = () => {
               postalCode: result.data.address?.postalCode || ''
             }
           });
+           setGstForm({
+        treatment: result.data?.gst?.treatment || "consumer",
+        companyName: result.data?.companyName || "",
+        gstin: result.data?.gst?.gstin || ""
+      });
         } else {
           console.error(result.message);
         }
@@ -281,6 +367,23 @@ const UserProfile = () => {
   const handleSave = async () => {
     try {
       const token = getCookie('token');
+      const payload = {
+        ...formData,
+
+        isBusiness: gstForm.treatment !== "consumer",
+
+        companyName:
+          gstForm.treatment !== "consumer"
+            ? gstForm.companyName
+            : null,
+
+        gst: {
+          treatment: gstForm.treatment,
+          gstin: GSTIN_REQUIRED.includes(gstForm.treatment)
+            ? gstForm.gstin
+            : null
+        }
+      };
 
       const response = await fetch(SummaryApi.UserUpdate.url(user._id), {
         method: SummaryApi.UserUpdate.method,
@@ -288,7 +391,7 @@ const UserProfile = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -627,6 +730,81 @@ const UserProfile = () => {
                 className='w-full p-2 border border-gray-300 rounded-lg'
               />
             </div> */}
+            {/* ---------------- GST TREATMENT ---------------- */}
+          <div className="mt-4">
+            <label className="block font-bold mb-1">
+              GST Treatment
+            </label>
+
+            <select
+              className="w-full p-2 border border-gray-300 rounded-lg"
+              value={gstForm.treatment}
+              onChange={(e) =>
+                setGstForm({
+                  ...gstForm,
+                  treatment: e.target.value
+                })
+              }
+            >
+              {GST_TREATMENTS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+
+            <p className="text-sm text-gray-500 mt-1">
+              {
+                GST_TREATMENTS.find(
+                  (t) => t.value === gstForm.treatment
+                )?.description
+              }
+            </p>
+          </div>
+
+          {/* ---------------- COMPANY NAME ---------------- */}
+          {gstForm.treatment !== "consumer" && (
+            <div className="mt-3">
+              <label className="block font-bold mb-1">
+                Company Name
+              </label>
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                value={gstForm.companyName}
+                onChange={(e) =>
+                  setGstForm({
+                    ...gstForm,
+                    companyName: e.target.value
+                  })
+                }
+                required
+              />
+            </div>
+          )}
+
+          {/* ---------------- GSTIN ---------------- */}
+          {GSTIN_REQUIRED.includes(gstForm.treatment) && (
+            <div className="mt-3">
+              <label className="block font-bold mb-1">
+                GST Number
+              </label>
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-lg uppercase"
+                placeholder="22AAAAA0000A1Z5"
+                value={gstForm.gstin}
+                onChange={(e) =>
+                  setGstForm({
+                    ...gstForm,
+                    gstin: e.target.value.toUpperCase()
+                  })
+                }
+                required
+              />
+            </div>
+          )}
+
 
             <div className='flex justify-end'>
               <button

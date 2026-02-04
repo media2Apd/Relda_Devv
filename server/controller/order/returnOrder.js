@@ -2,70 +2,70 @@ const Order = require('../../models/orderProductModel');
 const transporter = require('../../config/nodemailerConfig');
 const upload = require('../../config/multerConfig'); // Import multer config
 
-exports.returnOrder = async (req, res) => {
-  upload(req, res, async (err) => {
-      if (err) {
-          return res.status(400).json({ message: err.message });
-      }
+// exports.returnOrder = async (req, res) => {
+//   upload(req, res, async (err) => {
+//       if (err) {
+//           return res.status(400).json({ message: err.message });
+//       }
 
-      try {
-          const { orderId, returnReason, productIds, order_status } = req.body;
-          const returnImages = req.files; // Array of uploaded files
+//       try {
+//           const { orderId, returnReason, productIds, order_status } = req.body;
+//           const returnImages = req.files; // Array of uploaded files
 
-          // Validate inputs
-          if (!orderId || !returnReason || !order_status || !productIds || returnImages.length === 0) {
-              return res.status(400).json({
-                  message: 'Order ID, return reason, at least one product ID, and return images are required.',
-              });
-          }
+//           // Validate inputs
+//           if (!orderId || !returnReason || !order_status || !productIds || returnImages.length === 0) {
+//               return res.status(400).json({
+//                   message: 'Order ID, return reason, at least one product ID, and return images are required.',
+//               });
+//           }
 
-          // Find the order by orderId
-          const order = await Order.findOne({ orderId });
-          if (!order) {
-              return res.status(404).json({ success: false, message: 'Order not found.' });
-          }
+//           // Find the order by orderId
+//           const order = await Order.findOne({ orderId });
+//           if (!order) {
+//               return res.status(404).json({ success: false, message: 'Order not found.' });
+//           }
 
-          // Check if the order is already returnRequested
-          if (order.order_status === 'returnRequested') {
-              return res.status(400).json({ message: 'Order is already returnRequested.' });
-          }
+//           // Check if the order is already returnRequested
+//           if (order.order_status === 'returnRequested') {
+//               return res.status(400).json({ message: 'Order is already returnRequested.' });
+//           }
 
-          // Update `isReturn` field in productDetails for the specified product IDs
-          order.productDetails.forEach((product) => {
-              if (productIds.includes(product.productId.toString())) {
-                  product.isReturn = true; // Set isReturn to true for the returned product
-              }
-          });
+//           // Update `isReturn` field in productDetails for the specified product IDs
+//           order.productDetails.forEach((product) => {
+//               if (productIds.includes(product.productId.toString())) {
+//                   product.isReturn = true; // Set isReturn to true for the returned product
+//               }
+//           });
 
-          // Convert uploaded files to binary data and add to order
-          const binaryImages = returnImages.map((file) => ({
-              data: file.buffer, // Binary data from multer
-              contentType: file.mimetype, // MIME type
-          }));
+//           // Convert uploaded files to binary data and add to order
+//           const binaryImages = returnImages.map((file) => ({
+//               data: file.buffer, // Binary data from multer
+//               contentType: file.mimetype, // MIME type
+//           }));
 
-          // Update order details
-          order.order_status = 'returnRequested';
-          order.returnReason = returnReason;
-          order.returnProducts = productIds; // Add the product IDs to the returnProducts array
-          order.returnImages = binaryImages; // Store binary images
-          order.statusUpdates.push({
-              status: 'returnRequested',
-              timestamp: new Date(),
-          });
+//           // Update order details
+//           order.order_status = 'returnRequested';
+//           order.returnReason = returnReason;
+//           order.returnProducts = productIds; // Add the product IDs to the returnProducts array
+//           order.returnImages = binaryImages; // Store binary images
+//           order.statusUpdates.push({
+//               status: 'returnRequested',
+//               timestamp: new Date(),
+//           });
 
-          // Save the updated order
-          await order.save();
+//           // Save the updated order
+//           await order.save();
 
-          // Send return product email (you can modify this function to include binary data if needed)
-          await sendReturnProductEmail(order, returnReason, binaryImages);
+//           // Send return product email (you can modify this function to include binary data if needed)
+//           await sendReturnProductEmail(order, returnReason, binaryImages);
 
-          return res.status(200).json({ message: 'Order returnRequested successfully.' });
-      } catch (error) {
-          console.error('Error returning order:', error);
-          return res.status(500).json({ message: 'An error occurred while returning the order.' });
-      }
-  });
-};
+//           return res.status(200).json({ message: 'Order returnRequested successfully.' });
+//       } catch (error) {
+//           console.error('Error returning order:', error);
+//           return res.status(500).json({ message: 'An error occurred while returning the order.' });
+//       }
+//   });
+// };
   
   
   exports.returnOrder = async (req, res) => {

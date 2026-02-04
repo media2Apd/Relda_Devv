@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const Joi = require('joi'); // Import Joi
 const transporter = require('../../config/nodemailerConfig')
+const { createZohoCustomer } = require("../../services/zohoCustomer.service");
+
 // Setup Nodemailer transport
 // const transporter = nodemailer.createTransport({
 //     service: 'gmail',
@@ -107,6 +109,21 @@ const userSignUpController = async (req, res) => {
 
         const userData = new userModel(payload);
         const saveUser = await userData.save();
+// 🔥 CREATE ZOHO INVENTORY CUSTOMER
+try {
+  const zohoCustomer = await createZohoCustomer(saveUser);
+
+  await userModel.findByIdAndUpdate(
+    saveUser._id,
+    { zohoCustomerId: zohoCustomer.contact_id }
+  );
+
+  console.log("✅ Zoho customer created:", zohoCustomer.contact_id);
+
+} catch (zohoErr) {
+  console.error("❌ Zoho customer creation failed:", zohoErr.message);
+  // IMPORTANT: signup fail panna vendam
+}
 
         // Sending confirmation email
         const mailOptions = {
@@ -115,10 +132,10 @@ const userSignUpController = async (req, res) => {
             subject: 'Welcome to RELDA India!',
             text: `Dear ${name},\n\nThank you for signing up with RELDA India! We are here to make your life easier and smarter
 with our innovative products.\nIf you have any questions, feel free to email us at [support@reldaindia.com] or call us at [9884890934].
-We’re always happy to help!\nWelcome to the RELDA family!\n\nBest Regards,\nThe Relda India Team.`,
+We're always happy to help!\nWelcome to the RELDA family!\n\nBest Regards,\nThe Relda India Team.`,
             html: `<p>Dear ${name},</p><p>Thank you for signing up with RELDA India! We are here to make your life easier and smarter
 with our innovative products. </p><p>If you have any questions, feel free to email us at [support@reldaindia.com] or call us at [9884890934].
-We’re always happy to help!</p><p>Welcome to the RELDA family!</p><p>Best Regards,<br>The Relda India Team.</p>`
+We're always happy to help!</p><p>Welcome to the RELDA family!</p><p>Best Regards,<br>The Relda India Team.</p>`
         };
 
         await transporter.sendMail(mailOptions);

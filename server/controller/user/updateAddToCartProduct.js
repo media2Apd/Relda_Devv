@@ -1,38 +1,70 @@
-// const addToCartModel = require("../../models/cartProduct")
 
-// // const updateAddToCartProduct = async(req,res)=>{
-// //     try{
-// //         const currentUserId = req.userId 
-// //         const addToCartProductId = req?.body?._id
 
-// //         const qty = req.body.quantity
+// const addToCartModel = require("../../models/cartProduct");
 
-// //         const updateProduct = await addToCartModel.updateOne({_id : addToCartProductId},{
-// //             ...(qty && {quantity : qty})
-// //         })
+// const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
-// //         res.json({
-// //             message : "Product Updated",
-// //             data : updateProduct,
-// //             error : false,
-// //             success : true
-// //         })
-
-// //     }catch(err){
-// //         res.json({
-// //             message : err?.message || err,
-// //             error : true,
-// //             success : false
-// //         })
-// //     }
-// // }
 // const updateAddToCartProduct = async (req, res) => {
 //   try {
-//     // 🔒 HARD BLOCK: quantity update NOT allowed
-//     return res.status(400).json({
-//       success: false,
-//       error: true,
-//       message: "Quantity update not allowed. Only 1 product per day is allowed."
+//     const userId = req.userId || null;
+//     const sessionId = req.sessionId || null;
+//     const { _id, quantity } = req.body;
+
+//     if (!_id || quantity === undefined) {
+//       return res.status(400).json({
+//         success: false,
+//         error: true,
+//         message: "Cart item id and quantity are required"
+//       });
+//     }
+
+//     // 🔹 Find cart item
+//     const cartItem = await addToCartModel.findOne({
+//       _id,
+//       ...(userId ? { userId } : { sessionId })
+//     });
+
+//     if (!cartItem) {
+//       return res.status(404).json({
+//         success: false,
+//         error: true,
+//         message: "Cart item not found"
+//       });
+//     }
+
+//     // 🔒 Minimum quantity
+//     if (quantity < 1) {
+//       return res.status(400).json({
+//         success: false,
+//         error: true,
+//         message: "Minimum quantity is 1"
+//       });
+//     }
+
+//     const now = Date.now();
+//     const lastUpdated = new Date(cartItem.updatedAt).getTime();
+//     const isNextDay = now - lastUpdated >= TWENTY_FOUR_HOURS;
+
+//     // 🔥 BLOCK SAME-DAY INCREASE
+//     if (quantity > cartItem.quantity && !isNextDay) {
+//       return res.status(400).json({
+//         success: false,
+//         error: true,
+//         message:
+//           "Quantity increase is allowed only after 24 hours for this product"
+//       });
+//     }
+
+//     // ✅ ALLOW DECREASE (ANYTIME)
+//     // ✅ ALLOW INCREASE (AFTER 24 HOURS)
+//     cartItem.quantity = quantity;
+//     await cartItem.save();
+
+//     return res.json({
+//       success: true,
+//       error: false,
+//       message: "Quantity updated successfully",
+//       data: cartItem
 //     });
 
 //   } catch (err) {
@@ -44,85 +76,68 @@
 //   }
 // };
 
-// // module.exports = updateAddToCartProduct;
-
-// module.exports = updateAddToCartProduct
+// module.exports = updateAddToCartProduct;
 
 const addToCartModel = require("../../models/cartProduct");
-
-const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+const productModel = require("../../models/productModel");
 
 const updateAddToCartProduct = async (req, res) => {
   try {
+    const { _id, quantity } = req.body;
     const userId = req.userId || null;
     const sessionId = req.sessionId || null;
-    const { _id, quantity } = req.body;
 
-    if (!_id || quantity === undefined) {
-      return res.status(400).json({
-        success: false,
-        error: true,
-        message: "Cart item id and quantity are required"
-      });
-    }
-
-    // 🔹 Find cart item
     const cartItem = await addToCartModel.findOne({
       _id,
       ...(userId ? { userId } : { sessionId })
     });
 
     if (!cartItem) {
-      return res.status(404).json({
-        success: false,
-        error: true,
-        message: "Cart item not found"
-      });
+      return res.status(404).json({ success: false, message: "Cart item not found" });
     }
 
-    // 🔒 Minimum quantity
-    if (quantity < 1) {
-      return res.status(400).json({
-        success: false,
-        error: true,
-        message: "Minimum quantity is 1"
-      });
+    const diff = quantity - cartItem.quantity;
+
+    if (diff === 0) {
+      return res.json({ success: true, message: "No change" });
     }
 
-    const now = Date.now();
-    const lastUpdated = new Date(cartItem.updatedAt).getTime();
-    const isNextDay = now - lastUpdated >= TWENTY_FOUR_HOURS;
+    const product = await productModel.findById(cartItem.productId);
 
-    // 🔥 BLOCK SAME-DAY INCREASE
-    if (quantity > cartItem.quantity && !isNextDay) {
-      return res.status(400).json({
-        success: false,
-        error: true,
-        message:
-          "Quantity increase is allowed only after 24 hours for this product"
-      });
+    // 🔥 Increase quantity
+    if (diff > 0) {
+      if (product.availability - product.reservedStock < diff) {
+        return res.status(400).json({
+          success: false,
+          message: "Not enough stock available"
+        });
+      }
+      await productModel.findByIdAndUpdate(
+        product._id,
+        { $inc: { reservedStock: diff } }
+      );
     }
 
-    // ✅ ALLOW DECREASE (ANYTIME)
-    // ✅ ALLOW INCREASE (AFTER 24 HOURS)
+    // 🔥 Decrease quantity
+    if (diff < 0) {
+      await productModel.findByIdAndUpdate(
+        product._id,
+        { $inc: { reservedStock: diff } } // diff negative
+      );
+    }
+
     cartItem.quantity = quantity;
     await cartItem.save();
 
-    return res.json({
+    res.json({
       success: true,
-      error: false,
-      message: "Quantity updated successfully",
+      message: "Cart updated",
       data: cartItem
     });
 
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: true,
-      message: err?.message || "Internal server error"
-    });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
 module.exports = updateAddToCartProduct;
-

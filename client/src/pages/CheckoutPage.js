@@ -4773,6 +4773,16 @@ function CheckoutPage() {
   const [applicableCoupons, setApplicableCoupons] = useState([]);
   const [isCouponLoading, setIsCouponLoading] = useState(false);
   const [showCouponsModal, setShowCouponsModal] = useState(false); // To toggle Coupon Modal
+  const [gstDetails, setGstDetails] = useState({
+    gstin: "",
+    companyName: ""
+  });
+
+  const handleGstChange = (e) => {
+  const { name, value } = e.target;
+  setGstDetails(prev => ({ ...prev, [name]: value.toUpperCase() }));
+};
+
 
   const handleAddressClick = (address) => {
     setCustomerInfo((prevState) => ({
@@ -5186,6 +5196,7 @@ const handlePaymentLink = async () => {
         },
         billingSameAsShipping,
         shippingOption, // Add the shipping option
+        gstDetails: user?.role === ROLE.MANAGESALES ? gstDetails : null,
         couponCode: appliedCoupon?.coupon || null,
         couponDiscount: couponDiscount
       };
@@ -5205,8 +5216,8 @@ const handlePaymentLink = async () => {
       if (paymentResponseData.success) {
         // Razorpay options for initiating the payment
         const options = {
-          key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
-          // key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
+          // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
+          key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
           amount: (totalPrice - couponDiscount) * 100, // 🔥 Updated to final amount
           currency: "INR",
           name: "Relda India",
@@ -5472,6 +5483,32 @@ const handlePaymentLink = async () => {
                 </div>
               </>
             )}
+
+            {user?.role === ROLE.MANAGESALES && (
+  <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+    <h3 className="font-bold mb-2">Business / GST Details (Optional)</h3>
+
+    <input
+      type="text"
+      name="companyName"
+      placeholder="Company / Business Name"
+      value={gstDetails.companyName}
+      onChange={handleGstChange}
+      className="border p-2 rounded w-full mb-2"
+    />
+
+    <input
+      type="text"
+      name="gstin"
+      placeholder="GSTIN (15 characters)"
+      value={gstDetails.gstin}
+      onChange={handleGstChange}
+      className="border p-2 rounded w-full"
+      maxLength={15}
+    />
+  </div>
+)}
+
           </div>
         </div>
 

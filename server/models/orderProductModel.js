@@ -77,6 +77,7 @@ const orderSchema = new mongoose.Schema({
             quantity: Number,
             price: Number,
             sellingPrice: Number,
+            basePrice: Number,
             availability: { type: Number },
             productImage: String,
             brandName: String,
@@ -99,6 +100,10 @@ const orderSchema = new mongoose.Schema({
   discountAmount: Number,
   minOrderAmount: Number
 },
+gstDetails: {
+   gstin: String,
+   companyName: String 
+},
     subTotal: Number,
     discountAmount: { type: Number, default: 0 },
     couponCode: { type: String, default: null },        
@@ -109,6 +114,12 @@ const orderSchema = new mongoose.Schema({
     billing_address: Object,
     shipping_address: Object,
     shippingOption: { type: String, enum: ['Free', 'Paid'], default: 'Free' },
+      // 🔥 ZOHO REFERENCES
+    zohoSalesOrderId: { type: String },
+    zohoInvoiceId: { type: String },
+    zohoPackageId: { type: String },
+    zohoPaymentId: { type: String },
+    zohoShipmentOrderId: { type: String },  
     order_status: { type: String, default: 'Pending' },
     statusUpdatedAt: { type: Date, default: Date.now },
     statusUpdates: [{

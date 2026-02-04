@@ -16,12 +16,53 @@ const cheerio = require('cheerio');
 const CheckoutSession = require('../../models/checkoutSession');
 const Coupon = require('../../models/coupon');
 const CouponUsage = require('../../models/couponUsage');
+const createSalesOrderAndReleaseStock = require("../../helpers/createZohoSO.helper");
 
-// Razorpay configuration
+const { voidZohoSalesOrder } = require("../../services/zohoSalesOrder.service");
+const { createZohoSalesReturn } = require("../../services/zohoSalesReturn.service");
+const { getZohoSalesOrder } = require("../../services/zohoSalesOrder.service");
+const { getInvoiceDetails } = require("../../services/zohoInvoice.service");
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
+async function markCouponAsUsed({ couponId, userId, orderId }) {
+  if (!couponId || !userId || !orderId) return;
+
+  // 🔒 per-user limit
+  const userUsageCount = await CouponUsage.countDocuments({
+    couponId,
+    userId
+  });
+
+  const coupon = await Coupon.findById(couponId);
+  if (!coupon) throw new Error("Coupon not found");
+
+  if (coupon.perUserLimit && userUsageCount >= coupon.perUserLimit) {
+    throw new Error("Coupon usage limit reached for this user");
+  }
+
+  // 🔒 global usage limit
+  if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+    throw new Error("Coupon total usage limit reached");
+  }
+
+  // ✅ store usage
+  await CouponUsage.create({
+    couponId,
+    userId,
+    orderId
+  });
+
+  // ✅ atomic increment
+  await Coupon.updateOne(
+    { _id: couponId },
+    { $inc: { usedCount: 1 } }
+  );
+}
+
+
 
 exports.createCheckout = async (req, res) => {
   try {
@@ -368,7 +409,9 @@ const getProductImageUrl = (productImage) => {
 // };
 exports.paymentController = async (req, res) => {
     try {
-        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode, couponCode } = req.body;
+        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode, couponCode, gstDetails } = req.body;
+           /* ================= SAFETY ================= */
+    const safeGST = gstDetails || {};
         
         // Validate customer info first
         if (!customerInfo || typeof customerInfo !== 'object') {
@@ -418,7 +461,6 @@ exports.paymentController = async (req, res) => {
                 discountAmount: discountAmount
             };
         }
-        
         // Calculate final amount after discount
         const finalAmount = Math.max(subTotal - discountAmount, 0);
 
@@ -453,6 +495,7 @@ exports.paymentController = async (req, res) => {
                     quantity: item.quantity,
                     price: item.productId.price,
                     sellingPrice: item.productId.sellingPrice,
+                    basePrice: item.productId.basePrice,
                     productImage: getProductImageUrl(item.productId.productImage),
                 })),
                 email: customerInfo.email,
@@ -470,13 +513,46 @@ exports.paymentController = async (req, res) => {
                 billing_tel: customerInfo.phone,
                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+                 gstDetails: {
+                  gstin: safeGST.gstin || null,
+                  companyName: safeGST.companyName || null
+                },
                 statusUpdates: [{
-                    status: "ORDER_CONFIRMED",
+                    status: "ordered",
                     updatedAt: new Date()
                 }],
                 createdAt: new Date()
             });
+            const user = await userModel.findById(req.userId);
 
+// await createSalesOrderAndReleaseStock(order, user);
+// AFTER order creation
+const fullOrder = await orderModel.findOne({
+  orderId: order.orderId
+});
+
+const customerUser = await userModel.findById(fullOrder.userId);
+const staffUser = req.user; // MANAGESALES
+
+await createSalesOrderAndReleaseStock(
+  fullOrder,
+  customerUser,
+  staffUser
+);
+
+// 🛒 CLEAR CART
+await addToCartModel.deleteMany({ userId: req.userId });
+console.log("🛒 Cart cleared for CASH_ON_HAND order");
+
+
+   // ✅ MARK COUPON USED (ONLY HERE)
+      if (couponCode) {
+        await markCouponAsUsed({
+          coupon: couponCode,
+          userId: req.userId,
+          orderId: order.orderId
+        });
+      }
             return res.json({
                 success: true,
                 message: "Order confirmed with Cash on Hand",
@@ -518,7 +594,7 @@ exports.paymentController = async (req, res) => {
                     email: true
                 },
                 reminder_enable: true,
-                callback_url: "http://yourwebsite.com/payment/verify",
+                callback_url: "https://www.reldaindia.com/success",
                 callback_method: "get"
             });
 
@@ -577,9 +653,10 @@ exports.paymentController = async (req, res) => {
                     price: item.productId.price,
                     availability: item.productId.availability,
                     sellingPrice: item.productId.sellingPrice,
+                    basePrice: item.productId.basePrice,
                     productImage: getProductImageUrl(item.productId.productImage),
                 })),
-                email: user.email,
+                email: customerInfo.email,
                 userId: req.userId,
                 subTotal: subTotal,
                 discountAmount: discountAmount || 0,
@@ -595,6 +672,10 @@ exports.paymentController = async (req, res) => {
                 billing_tel: customerInfo.phone,
                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+              gstDetails: {
+                gstin: safeGST.gstin || null,
+                companyName: safeGST.companyName || null
+              },
                 statusUpdates: [{
                     status: statusId,
                     updatedAt: new Date()
@@ -602,7 +683,14 @@ exports.paymentController = async (req, res) => {
                 createdAt: new Date(),
             });
         }
-
+         // ✅ MARK COUPON USED (ONLY HERE)
+      if (couponCode) {
+        await markCouponAsUsed({
+          coupon: couponCode,
+          userId: req.userId,
+          orderId: orderIdOrLink
+        });
+      }
         // Return response with all payment details
         res.json({
             success: true,
@@ -679,8 +767,9 @@ async function verifyPaymentStatus(paymentId) {
 }
 
 
-// cron.schedule('* * * * *', async () => {
-  cron.schedule('0 */4 * * *', async () => {
+cron.schedule('*/3 * * * *', async () => {
+
+  // cron.schedule('0 */4 * * *', async () => {
   console.log('? Running scheduled Razorpay Payment Link verification...');
 
   try {
@@ -732,143 +821,6 @@ async function verifyPaymentStatus(paymentId) {
         );
         console.log(`? Order ${paymentLinkId} updated to ordered status.`);
 
-    //     let zohoSalesOrderId = null;
-
-    //     try {
-    //       // Fetch user and validate Zoho Account ID
-    //       const user = await userModel.findById(order.userId);
-    //       if (!user || !user.zohoAccountId) throw new Error("? Cannot find user's Zoho Account ID");
-
-    //       // Parse addresses robustly with defaults
-    //       const parseAddress = (addressString = '') => {
-    //         const parts = addressString.split(',').map(p => p.trim());
-    //         return {
-    //           street: parts.slice(0, 2).join(', ') || '',
-    //           city: parts[2] || '',
-    //           state: parts[3] || '',
-    //           postalCode: parts[4] || '',
-    //           country: parts[5] || 'India',
-    //         };
-    //       };
-
-    //       const billing = parseAddress(order.billing_address);
-    //       const shipping = parseAddress(order.shipping_address);
-
-    //       // Get cart items for user
-    //       const cartItems = await addToCartModel.find({ userId: order.userId });
-
-    //       // Prepare Zoho sales order payload
-    //       const salesOrderPayload = {
-    //         Subject: `Order from ${user.name}`,
-    //         Due_Date: moment().add(4, 'days').format('YYYY-MM-DD'),
-    //         Status: 'Created',
-    //         Grand_Total: order.totalAmount,
-    //         Sub_Total: order.totalAmount,
-
-    //         Billing_Street: billing.street,
-    //         Billing_City: billing.city,
-    //         Billing_State: billing.state,
-    //         Billing_Code: billing.postalCode,
-    //         Billing_Country: billing.country,
-
-    //         Shipping_Street: shipping.street,
-    //         Shipping_City: shipping.city,
-    //         Shipping_State: shipping.state,
-    //         Shipping_Code: shipping.postalCode,
-    //         Shipping_Country: shipping.country,
-
-    //         Description: `Razorpay Payment ID: ${razorpayPaymentId}`,
-    //         Account_Name: { id: user.zohoAccountId },
-
-    //         Product_Details: cartItems.map(item => ({
-    //           product: item.zohoProductId,
-    //           quantity: item.quantity,
-    //           list_price: item.productId?.sellingPrice || item.sellingPrice || 0,
-    //         })),
-    //       };
-
-    //       const zohoResponse = await sendToZoho('Sales_Orders', salesOrderPayload);
-
-    //       zohoSalesOrderId = zohoResponse?.data?.[0]?.details?.id;
-
-    //       if (zohoSalesOrderId) {
-    //         await orderModel.findOneAndUpdate({ orderId: paymentLinkId }, { $set: { zohoSalesOrderId } });
-    //         console.log('? Zoho Sales Order Created:', zohoSalesOrderId);
-    //       } else {
-    //         console.log('?? Zoho Sales Order ID not found in response');
-    //       }
-    //     } catch (zohoError) {
-    //       console.error('? Zoho Sales Order Failed:', zohoError.response?.data || zohoError.message);
-    //     }
-
-    //     try {
-    //       // Handle Lead conversion & Deal creation in Zoho
-    //       const user = await userModel.findById(order.userId);
-    //       const cartEntry = await addToCartModel.findOne({ userId: order.userId }).sort({ createdAt: -1 });
-    //       const zohoLeadId = cartEntry?.zohoLeadId;
-
-    //       if (!zohoLeadId) throw new Error('No Zoho Lead ID found in cart entry');
-
-    //       const leadInfo = await getLeadById(zohoLeadId);
-    //       const email = leadInfo?.Email;
-    //       const phone = leadInfo?.Phone;
-    //       const ownerId = leadInfo?.Owner?.id;
-
-    //       let zohoContactId = null;
-    //       let zohoAccountId = null;
-    //       let zohoDealId = null;
-
-    //       const conversionPayload = {
-    //         Deal_Name: `Purchase - ${order.orderId}`,
-    //         Stage: 'Closed Won',
-    //         Amount: order.totalAmount,
-    //         Closing_Date: moment().format('YYYY-MM-DD'),
-    //       };
-
-    //      let conversionResult = await convertLead(zohoLeadId, conversionPayload);
-
-    // if (conversionResult.success) {
-    //   const converted = conversionResult.data;
-    //   zohoContactId = converted?.Contacts?.[0]?.id;
-    //   zohoAccountId = converted?.Accounts?.[0]?.id;
-    //   zohoDealId = converted?.Deals?.[0]?.id;
-    //   console.log("? Lead converted successfully.");
-    // } else if (
-    //   conversionResult.message === "DUPLICATE_LEAD_CONVERSION" ||
-    //   conversionResult.message === "Duplicate contacts found"
-    // ) {
-    //   console.log("?? Duplicate contact found, deleting and retrying conversion...");
-
-    //   // Step 2: Delete all duplicate contacts
-    //   await deleteDuplicateContacts({ email, phone });
-
-    //   // Step 3: Retry lead conversion
-    //   conversionResult = await convertLead(zohoLeadId, conversionPayload);
-
-    //   if (conversionResult.success) {
-    //     const converted = conversionResult.data;
-    //     zohoContactId = converted?.Contacts?.[0]?.id;
-    //     zohoAccountId = converted?.Accounts?.[0]?.id;
-    //     zohoDealId = converted?.Deals?.[0]?.id;
-    //     console.log("? Lead converted successfully after duplicate deletion.");
-    //   } else {
-    //     console.error("? Lead still not converted after deleting duplicates:", conversionResult.message);
-    //     // Optionally: Notify admin or log for manual intervention
-    //   }
-    // } else {
-    //   console.error("? Lead conversion failed for other reason:", conversionResult.message);
-    // }
-          // Update order with Zoho references
-        //   await orderModel.findOneAndUpdate(
-        //     { orderId: paymentLinkId },
-        //     { $set: { zohoAccountId, zohoContactId, zohoDealId } }
-        //   );
-
-        //   console.log('?? Order updated with Zoho references.');
-        // } catch (err) {
-        //   console.error('? Final Zoho Error:', err.response?.data || err.message);
-        // }
-
         // Clear user's cart after order
         await addToCartModel.deleteMany({ userId: order.userId });
         console.log('?? Cart has been cleared.');
@@ -894,6 +846,34 @@ async function verifyPaymentStatus(paymentId) {
               { new: true }
             )
           );
+// const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+// const user = await userModel.findById(fullOrder.userId);
+
+// await createSalesOrderAndReleaseStock(fullOrder, user);
+// const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+// const customerUser = await userModel.findById(fullOrder.userId);
+// const staffUser = req.user; // role = MANAGESALES
+
+// await createSalesOrderAndReleaseStock(
+//   fullOrder,
+//   customerUser,
+//   staffUser
+// );
+const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+const customerUser = await userModel.findById(fullOrder.userId);
+
+/* ✅ CRON SAFE STAFF USER */
+const staffUser = {
+  role: "MANAGESALES",
+  name: "SYSTEM-CRON"
+};
+
+await createSalesOrderAndReleaseStock(
+  fullOrder,
+  customerUser,
+  staffUser
+);
+
 
           await Promise.all([...emailPromises, ...productUpdatePromises]);
         } catch (emailOrStockError) {
@@ -968,364 +948,6 @@ const sendOrderConfirmationEmailLink = async (customerInfo, razorpayPaymentId, o
   }
 };
 
-// exports.paymentController = async (req, res) => {
-//     try {
-//         const { cartItems, customerInfo, billingSameAsShipping } = req.body;
-
-//         // Validate customer info
-//         if (!customerInfo || typeof customerInfo !== 'object') {
-//             return res.status(400).json({ message: "Invalid customer information", success: false });
-//         }
-
-//         // Extract shipping and billing address
-//         const shippingAddress = {
-//             street: customerInfo.street || '',
-//             city: customerInfo.city || '',
-//             state: customerInfo.state || '',
-//             postalCode: customerInfo.postalCode || '',
-//             country: customerInfo.country || '',
-//         };
-
-//         const billingAddress = billingSameAsShipping
-//             ? shippingAddress
-//             : {
-//                 street: customerInfo.billingAddress?.street || '',
-//                 city: customerInfo.billingAddress?.city || '',
-//                 state: customerInfo.billingAddress?.state || '',
-//                 postalCode: customerInfo.billingAddress?.postalCode || '',
-//                 country: customerInfo.billingAddress?.country || '',
-//             };
-
-//         // Fetch the user from the database using the userId from the request
-//         const user = await userModel.findById(req.userId);
-//         if (!user) {
-//             return res.status(404).json({
-//                 message: "User not found",
-//                 success: false,
-//             });
-//         }
-
-//         // Find the existing pending order
-//         const existingOrder = await orderModel.findOne({
-//             userId: req.userId,
-//             'paymentDetails.payment_status': 'pending',  // Only look for pending orders
-//         });
-
-//         if (existingOrder) {
-//             // Find which products remain in the cart after removal
-//             const remainingProducts = existingOrder.productDetails.filter(existingProduct =>
-//                 cartItems.some(item => item.productId._id.toString() === existingProduct.productId.toString())
-//             );
-
-//             if (remainingProducts.length === 0) {
-//                 return res.status(400).json({
-//                     message: "No valid products in the cart to checkout.",
-//                     success: false,
-//                 });
-//             }
-
-//             // Calculate the total amount for the remaining products
-//             const totalAmount = remainingProducts.reduce((total, item) => {
-//                 const cartItem = cartItems.find(cartItem => cartItem.productId._id.toString() === item.productId.toString());
-//                 return total + cartItem.quantity * cartItem.productId.sellingPrice;
-//             }, 0) * 100;  // Convert to paise (smallest currency unit)
-
-//             // Create a new Razorpay order for the remaining products
-//             const options = {
-//                 amount: totalAmount,
-//                 currency: "INR",
-//                 receipt: existingOrder.orderId, // Use the existing order ID as receipt
-//                 payment_capture: 1, // Auto-captures payment
-//             };
-
-//             // Create a new Razorpay order with updated total amount
-//             const updatedOrder = await razorpay.orders.create(options);
-//             if (!updatedOrder || !updatedOrder.id) {
-//                 throw new Error("Failed to create Razorpay order.");
-//             }
-
-//             // Update the order in the database
-//             existingOrder.productDetails = remainingProducts.map(product => ({
-//                 productId: product.productId._id,
-//                 brandName: product.productId.brandName,
-//                 productName: product.productId.productName,
-//                 quantity: product.quantity,
-//                 price: product.productId.price,
-//                 sellingPrice: product.productId.sellingPrice,
-//                 productImage: product.productImage[0],
-//             }));
-//             existingOrder.totalAmount = totalAmount / 100;  // Convert back to INR
-//             existingOrder.statusUpdates.push({
-//                 status: `updated-${req.userId}-${new Date().getTime()}`, // Add update status
-//                 updatedAt: new Date()
-//             });
-
-//             // Save the updated order in the database
-//             await existingOrder.save();
-
-//             // Return the updated Razorpay order information to frontend
-//             return res.json({
-//                 success: true,
-//                 message: "Your order has been updated with the remaining product.",
-//                 orderId: updatedOrder.id,
-//                 totalAmount: totalAmount,
-//                 currency: "INR",
-//                 customerInfo,
-//             });
-//         } else {
-//             // If no pending order exists, create a new order as usual
-
-//             // Calculate the total amount in currency's subunit (INR to paise)
-//             const totalAmount = cartItems.reduce((total, item) => {
-//                 return total + item.quantity * item.productId.sellingPrice;
-//             }, 0) * 100; // Razorpay uses smallest currency unit (paise)
-
-//             const options = {
-//                 amount: totalAmount,
-//                 currency: "INR",
-//                 receipt: "order_rcptid_11", // Receipt ID, can be anything unique
-//                 payment_capture: 1, // Auto-captures payment
-//             };
-
-//             // Attempt to create Razorpay order
-//             const order = await razorpay.orders.create(options);
-//             if (!order || !order.id) {
-//                 throw new Error("Failed to create Razorpay order.");
-//             }
-
-//             // Initialize statusUpdates with a valid status
-//             const statusUpdates = [{
-//                 status: "pending",  // Set initial status to 'pending'
-//                 updatedAt: new Date()
-//             }];
-
-//             // Create a new order in the database
-//             const newOrder = await orderModel.create({
-//                 orderId: order.id,
-//                 productDetails: cartItems.map((item) => ({
-//                     productId: item.productId._id,
-//                     brandName: item.productId.brandName,
-//                     productName: item.productId.productName,
-//                     category: item.productId.category,
-//                     quantity: item.quantity,
-//                     price: item.productId.price,
-//                     availability: item.productId.availability,
-//                     sellingPrice: item.productId.sellingPrice,
-//                     productImage: item.productImage[0],
-//                 })),
-//                 email: user.email,
-//                 userId: req.userId,
-//                 totalAmount: totalAmount / 100,  // Convert to main currency unit (INR)
-//                 paymentDetails: {
-//                     paymentId: "",
-//                     payment_method_type: "",
-//                     payment_status: "pending",  // Payment status is initially pending
-//                 },
-//                 billing_name: customerInfo.firstName,
-//                 billing_email: customerInfo.email,
-//                 billing_tel: customerInfo.phone,
-//                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
-//                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
-//                 statusUpdates: [{
-//                     status: `pending-${req.userId}-${new Date().getTime()}`,  // Ensure unique status per user and time
-//                     updatedAt: new Date()
-//                 }],
-//                 createdAt: new Date(),
-//             });
-
-//             // Send Razorpay order_id and other info to frontend
-//             res.json({
-//                 success: true,
-//                 orderId: order.id,
-//                 amount: totalAmount,
-//                 currency: "INR",
-//                 customerInfo,
-//             });
-//         }
-//     } catch (error) {
-//         console.error("Error initiating payment:", error);
-//         res.status(500).json({
-//             message: error.message || "Internal Server Error",
-//             success: false,
-//         });
-//     }
-// };
-
-
-
-
-
-
-// exports.paymentController = async (req, res) => {
-//     try {
-//         const { cartItems, customerInfo, billingSameAsShipping } = req.body;
-
-//         // Check if required data exists
-//         if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
-//             return res.status(400).json({ message: "Cart items are missing or invalid", success: false });
-//         }
-
-//         if (!customerInfo || typeof customerInfo !== 'object') {
-//             return res.status(400).json({ message: "Invalid customer information", success: false });
-//         }
-
-//         if (billingSameAsShipping === undefined) {
-//             return res.status(400).json({ message: "billingSameAsShipping is required", success: false });
-//         }
-
-//         // Log input data for debugging
-//         console.log("Request Body:", req.body);
-
-//         // Extract shipping and billing address
-//         const shippingAddress = {
-//             street: customerInfo.street || '',
-//             city: customerInfo.city || '',
-//             state: customerInfo.state || '',
-//             postalCode: customerInfo.postalCode || '',
-//             country: customerInfo.country || '',
-//         };
-
-//         const billingAddress = billingSameAsShipping
-//             ? shippingAddress
-//             : {
-//                 street: customerInfo.billingAddress?.street || '',
-//                 city: customerInfo.billingAddress?.city || '',
-//                 state: customerInfo.billingAddress?.state || '',
-//                 postalCode: customerInfo.billingAddress?.postalCode || '',
-//                 country: customerInfo.billingAddress?.country || '',
-//             };
-
-//         // Fetch the user from the database using the userId from the request
-//         const user = await userModel.findById(req.userId);
-//         if (!user) {
-//             return res.status(400).json({
-//                 message: "User not found or invalid userId",
-//                 success: false,
-//             });
-//         }
-
-//         // Calculate total amount in currency's subunit (INR to paise)
-//         const totalAmount = cartItems.reduce((total, item) => {
-//             if (!item.productId || !item.quantity) {
-//                 throw new Error("Product or quantity is missing");
-//             }
-//             return total + item.quantity * item.productId.sellingPrice;
-//         }, 0) * 100;  // Razorpay uses smallest currency unit (paise)
-
-//         console.log("Total Amount (in paise):", totalAmount); // Debugging the amount
-
-//         // Check if the user has an existing order with pending status
-//         const existingOrder = await orderModel.findOne({
-//             userId: req.userId,
-//             'paymentDetails.payment_status': 'pending',
-//         });
-
-//         let order, newOrder;
-
-//         if (existingOrder) {
-//             // If an order with pending status exists, update it with the selected cart items only
-//             newOrder = existingOrder;
-//             newOrder.productDetails = cartItems.map((item) => ({
-//                 productId: item.productId._id,
-//                 brandName: item.productId.brandName,
-//                 productName: item.productId.productName,
-//                 category: item.productId.category,
-//                 quantity: item.quantity,
-//                 price: item.productId.price,
-//                 availability: item.productId.availability,
-//                 sellingPrice: item.productId.sellingPrice,
-//                 productImage: item.productId.productImage[0],
-//             }));
-
-//             newOrder.totalAmount = totalAmount / 100;  // Update with the new total amount
-//             newOrder.statusUpdates.push({
-//                 status: `pending-${req.userId}-${new Date().getTime()}`,
-//                 updatedAt: new Date(),
-//             });
-
-//             await newOrder.save(); // Save updated order
-//         } else {
-//             // If no pending order exists, create a new Razorpay order
-//             const options = {
-//                 amount: totalAmount,
-//                 currency: "INR",
-//                 receipt: "order_rcptid_11",  // Static receipt ID for testing; make sure it's unique
-//                 orderId:order.id,
-//                 payment_capture: 1,  // Auto-captures payment
-//             };
-
-//             console.log("Creating Razorpay order with options:", options); // Debugging Razorpay order options
-
-//             // Call Razorpay API to create an order
-//             order = await razorpay.orders.create(options);
-
-//             // Log Razorpay API response for debugging
-//             console.log("Razorpay Order Response:", order);
-
-//             if (!order || !order.id) {
-//                 throw new Error("Failed to create Razorpay order.");
-//             }
-
-//             // Initialize statusUpdates with a valid status
-//             const statusUpdates = [{
-//                 status: "pending",  // Set initial status to 'pending'
-//                 updatedAt: new Date()
-//             }];
-
-//             // Create a new order in the database
-//             newOrder = await orderModel.create({
-//                 orderId: order.id,
-//                 productDetails: cartItems.map((item) => ({
-//                     productId: item.productId._id,
-//                     brandName: item.productId.brandName,
-//                     productName: item.productId.productName,
-//                     category: item.productId.category,
-//                     quantity: item.quantity,
-//                     price: item.productId.price,
-//                     availability: item.productId.availability,
-//                     sellingPrice: item.productId.sellingPrice,
-//                     productImage: item.productId.productImage[0],
-//                 })),
-//                 email: user.email,
-//                 userId: req.userId,
-//                 totalAmount: totalAmount / 100,  // Convert to main currency unit (INR)
-//                 paymentDetails: {
-//                     paymentId: "",
-//                     payment_method_type: "",
-//                     payment_status: "pending",  // Payment status is initially pending
-//                 },
-//                 billing_name: customerInfo.firstName,
-//                 billing_email: customerInfo.email,
-//                 billing_tel: customerInfo.phone,
-//                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
-//                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
-//                 statusUpdates: [{
-//                     status: `pending-${req.userId}-${new Date().getTime()}`,  // Ensure unique status per user and time
-//                     updatedAt: new Date()
-//                 }],
-//                 createdAt: new Date(),
-//             });
-//         }
-
-//         // Send Razorpay order_id and other info to frontend
-//         res.json({
-//             success: true,
-//             orderId: newOrder.orderId || order.id,
-//             amount: totalAmount,
-//             currency: "INR",
-//             customerInfo,
-//         });
-//     } catch (error) {
-//         console.error("Error initiating payment:", error);
-//         res.status(500).json({
-//             message: error.message || "Internal Server Error",
-//             success: false,
-//         });
-//     }
-// };
-
-
-
 
  // Define the function to check for pending payments
  cron.schedule('*/10 * * * *', async () => {
@@ -1373,6 +995,7 @@ const sendOrderConfirmationEmailLink = async (customerInfo, razorpayPaymentId, o
 const verifyPayment = async (razorpayPaymentId) => {
     try {
         const response = await axios.get(`https://api.razorpay.com/v1/payments/${razorpayPaymentId}`, {
+            timeout: 8000, // ⛔ prevents infinite hang
             auth: {
                 username: process.env.RAZORPAY_KEY_ID,
                 password: process.env.RAZORPAY_KEY_SECRET
@@ -1393,201 +1016,6 @@ const verifyPayment = async (razorpayPaymentId) => {
         throw new Error("Error verifying payment");
     }
 };
-// exports.verifyPayment = async (req, res) => {
-//     const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
-
-//     if (!razorpayPaymentId || !razorpayOrderId) {
-//         return res.status(400).json({
-//             success: false,
-//             message: 'Payment ID and Order ID are required'
-//         });
-//     }
-
-//     try {
-//         // Verify the payment status and get the payment method
-//         const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
-//  console.log(paymentDetails);
- 
-//         if (isPaymentCaptured) {
-//             // Batch database operations in parallel
-//             const [updatedOrder, clearedCart] = await Promise.all([
-//                 orderModel.findOneAndUpdate(
-//                     { orderId: razorpayOrderId },
-//                     {
-//                         $set: {
-//                             'paymentDetails.paymentId': razorpayPaymentId,
-//                             'paymentDetails.payment_status': 'success',
-//                             'paymentDetails.payment_method_type': paymentMethod, // Save payment method
-//                             'paymentDetails.fullDetails': paymentDetails, // Save full payment details
-//                             'order_status': 'ordered',
-//                             updatedAt: new Date(),
-//                         },
-//                         $push: {
-//                             statusUpdates: {
-//                                 status: 'ordered',
-//                                 timestamp: new Date(),
-//                             },
-//                         },
-//                     },
-//                     // { new: true }
-//                 ),
-//                 addToCartModel.deleteMany({ userId: req.userId }), // Clear cart in parallel
-//             ]);
-//             // Check if the order was updated
-//             if (!updatedOrder) {
-//                 return res.status(404).json({
-//                     success: false,
-//                     message: 'Order not found.',
-//                 });
-//             }
-//             // Calculate delivery date (4 days from now)
-//             const deliveryDate = moment().add(4, 'days').toDate(); // Use moment.js to add 4 days
-
-//             // Update the order with the delivery date
-//             await orderModel.updateOne(
-//                 { orderId: updatedOrder.orderId },
-//                 { $set: { delivered_at: deliveryDate } }
-//             );
-
-//             // Parallelize product availability update and email sending
-//             await Promise.all([
-//                 // Update product availability in parallel
-//                 ...cartItems.map((item) =>
-//                     productModel.findByIdAndUpdate(
-//                         item.productId._id,
-//                         { $inc: { availability: -1 } }, // Decrease the available quantity by 1
-//                         { new: true }
-//                     )
-//                 ),
-//                 // Send emails in parallel
-//                 sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, updatedOrder),
-//                 sendAdminNotificationEmail(updatedOrder),
-//             ]);
-
-//             res.json({
-//                 success: true,
-//                 message: 'Payment successful and order confirmed.',
-//                 paymentMethod, // Optionally return the payment method in the response
-//             });
-//         } else {
-//             // Payment failed, send cart reminder
-//             await sendCartReminder(customerInfo, cartItems);
-
-//             res.status(400).json({
-//                 success: false,
-//                 message: 'Payment failed. Reminder sent to complete the purchase.',
-//             });
-//         }
-//     } catch (error) {
-//         console.error("Error in verifyPayment:", error.message || error); // Log the specific error message
-//         res.status(500).json({
-//             success: false,
-//             message: error.message || "Internal Server Error",
-//         });
-//     }
-// };
-
-// exports.verifyPayment = async (req, res) => {
-//     const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
-
-//     if (!razorpayPaymentId || !razorpayOrderId) {
-//         return res.status(400).json({
-//             success: false,
-//             message: 'Payment ID and Order ID are required'
-//         });
-//     }
-
-//     try {
-//         // Verify the payment status and get the payment method
-//         const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
-//         console.log(paymentDetails);
-
-//         if (isPaymentCaptured) {
-//             // Batch database operations in parallel
-//             const [updatedOrder, clearedCart] = await Promise.all([
-//                 orderModel.findOneAndUpdate(
-//                     { orderId: razorpayOrderId },
-//                     {
-//                         $set: {
-//                             'paymentDetails.paymentId': razorpayPaymentId,
-//                             'paymentDetails.payment_status': 'success',
-//                             'paymentDetails.payment_method_type': paymentMethod, // Save payment method
-//                             'paymentDetails.fullDetails': paymentDetails, // Save full payment details
-//                             'order_status': 'ordered',
-//                             updatedAt: new Date(),
-//                         },
-//                         $push: {
-//                             statusUpdates: {
-//                                 $each: [{
-//                                     status: 'ordered',
-//                                     timestamp: new Date(),
-//                                 }],
-//                                 $position: 0, // Optionally add at the beginning of the array
-//                                 $slice: -1 // Optionally limit to 1 element in the statusUpdates array if required
-//                             },
-//                         },
-//                     },
-//                     { new: true }
-//                 ),
-//                 addToCartModel.deleteMany({ userId: req.userId }), // Clear cart in parallel
-//             ]);
-
-//             // Check if the order was updated
-//             if (!updatedOrder) {
-//                 return res.status(404).json({
-//                     success: false,
-//                     message: 'Order not found.',
-//                 });
-//             }
-
-//             // Calculate delivery date (4 days from now)
-//             const deliveryDate = moment().add(4, 'days').toDate(); // Use moment.js to add 4 days
-
-//             // Update the order with the delivery date
-//             await orderModel.updateOne(
-//                 { orderId: updatedOrder.orderId },
-//                 { $set: { delivered_at: deliveryDate } }
-//             );
-
-//             // Parallelize product availability update and email sending
-//             await Promise.all([
-//                 // Update product availability in parallel
-//                 ...cartItems.map((item) =>
-//                     productModel.findByIdAndUpdate(
-//                         item.productId._id,
-//                         { $inc: { availability: -1 } }, // Decrease the available quantity by 1
-//                         { new: true }
-//                     )
-//                 ),
-//                 // Send emails in parallel
-//                 sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, updatedOrder),
-//                 sendAdminNotificationEmail(updatedOrder),
-//             ]);
-
-//             res.json({
-//                 success: true,
-//                 message: 'Payment successful and order confirmed.',
-//                 paymentMethod, // Optionally return the payment method in the response
-//             });
-//         } else {
-//             // Payment failed, send cart reminder
-//             await sendCartReminder(customerInfo, cartItems);
-
-//             res.status(400).json({
-//                 success: false,
-//                 message: 'Payment failed. Reminder sent to complete the purchase.',
-//             });
-//         }
-//     } catch (error) {
-//         console.error("Error in verifyPayment:", error.message || error); // Log the specific error message
-//         res.status(500).json({
-//             success: false,
-//             message: error.message || "Internal Server Error",
-//         });
-//     }
-// };
-// const moment = require('moment');
-// const { sendOrderConfirmationEmail, sendAdminNotificationEmail, sendCartReminder } = require('./emailService'); // Adjust imports as necessary
 
 exports.verifyPayment = async (req, res) => {
     const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
@@ -1670,17 +1098,36 @@ exports.verifyPayment = async (req, res) => {
                 sendAdminNotificationEmail(order)
             ];
 
-            const productUpdatePromises = cartItems.map((item) =>
-                productModel.findByIdAndUpdate(
-                    item.productId._id,
-                    { $inc: { availability: -1 } },
-                    { new: true }
-                )
-            );
+            // const productUpdatePromises = cartItems.map((item) =>
+            //     productModel.findByIdAndUpdate(
+            //         item.productId._id,
+            //         { $inc: { availability: -1 } },
+            //         { new: true }
+            //     )
+            // );
+
+            
+            // 🔥 FETCH UPDATED ORDER & USER
+          //  const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
+          //   const user = await userModel.findById(fullOrder.userId);
+
+          //   await createSalesOrderAndReleaseStock(fullOrder, user);
+         const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
+const customerUser = await userModel.findById(fullOrder.userId);
+const staffUser = req.user; // role = MANAGESALES
+
+await createSalesOrderAndReleaseStock(
+  fullOrder,
+  customerUser,
+  staffUser
+);
+
+
+
 
             // Handle potential errors in parallel promises
             try {
-                await Promise.all([...emailPromises, ...productUpdatePromises]);
+                await Promise.all([...emailPromises]);
             } catch (err) {
                 console.error('Error processing parallel tasks:', err);
                 return res.status(500).json({
@@ -1840,132 +1287,13 @@ const sendEmail = async (email, subject, message) => {
       console.error('Error sending email:', error);
     }
   };
-// const sendEmail = async (order, subject, message) => {
-//     console.log('Order:', order);
-// console.log('Recipient Email:', order.billing_email);
-
-//     // if (!order || !order.billing_email) {
-//     //   console.error('Error: No recipient email provided');
-//     //   return; // Exit early if order or billing_email is missing
-//     // }
-    
-//     try {
-//       await transporter.sendMail({
-//         from: 'support@reldaindia.com', // Sender's email
-//         to: order.billing_email, // Receiver's email
-//         subject: subject,
-//         text: message,
-//       });
-//       console.log('Email sent successfully');
-//     } catch (error) {
-//       console.error('Error sending email:', error);
-//     } 
-//   };
-  
-//   exports.updateOrderStatus = async (req, res) => {
-//     const { orderId, order_status } = req.body;
-
-//     try {
-//         // Validate the new status
-//         const validStatuses = ['ordered', 'packaged', 'shipped', 'delivered', 'failed', 'returnAccepted', 'returned'];
-//         if (!validStatuses.includes(order_status)) {
-//             return res.status(400).json({ status: 'failed', message: 'Invalid status provided.' });
-//         }
-//         // const validTransitions = {
-//         //     ordered: ['packaged'],           
-//         //     packaged: ['shipped'],
-//         //     shipped: ['delivered', 'returnAccepted'],
-//         //     delivered: [], // No further transitions
-//         //     returnAccepted: ['returned'],
-//         //     returned: [], // No further transitions
-//         //     failed: [], // No further transitions
-//         // };
-//         const validTransitions = {
-//             ordered: ['packaged'],
-//             packaged: ['shipped'],
-//             shipped: ['delivered', 'returnRequested'],
-//             returnRequested: ['returnAccepted'], // Add this transition
-//             returnAccepted: ['returned'],
-//             returned: [], // No further transitions
-//             delivered: [], // No further transitions
-//             failed: [], // No further transitions
-//         };
-        
-        
-//         // Find the order by ID
-//         const order = await orderModel.findOne({ orderId: orderId });
-//         if (!order) {
-//             return res.status(404).json({ status: 'failed', message: 'Order not found.' });
-//         }
-
-//          // Check if the new status is valid
-//          const currentStatus = order.order_status;
-//          const allowedStatuses = validTransitions[currentStatus] || [];
-//          if (!allowedStatuses.includes(order_status)) {
-//              return res.status(400).json({
-//                  status: 'failed',
-//                  message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
-//              });
-//          }
-      
-//         // Update order status and timestamp
-//         order.order_status = order_status;
-//         order.statusUpdatedAt = Date.now();  // Save the current timestamp
-
-//         // Push the new status update to the statusUpdates array
-//         order.statusUpdates.push({
-//             status: order_status,
-//             timestamp: order.statusUpdatedAt
-//         });
-
-//         await order.save();
-
-//         // Format the timestamp into 12-hour format
-//         const formattedTimestamp = moment(order.statusUpdatedAt).format('hh:mm A'); // 12-hour format (e.g., 2:30 PM)
-
-
-//         // Send follow-up email based on the status update
-//         let emailMessage = '';
-//         let emailSubject = `Your Order #${orderId} Status Update`;
-
-//         // Define the email content based on status change
-//         if (order_status === 'packaged') {
-//             emailMessage = `Dear #${order.billing_name},\n\nYour order #${orderId} has been packed and is ready for shipping! ?? You ll receive an update once it is shipped.`;
-//         } else if (order_status === 'shipped') {
-//             emailMessage = `Dear #${order.billing_name},\n\nYour order #${orderId} has been shipped and should arrive soon.`;
-//         } else if (order_status === 'delivered') {
-//             emailMessage = `Dear #${order.billing_name},\n\nWe re happy to confirm that your order #${orderId} has been delivered! ?? We hope everything is perfect. Thank you for being a valued customer! If you have any queries, feel free to contact us.`;
-//         }else if (order_status === 'returnAccepted') {
-//             emailMessage = `Dear #${order.billing_name},\n\nWe regret to inform you that your order #${orderId} has been return request accepted. If you have any questions, please don't hesitate to reach out.`;
-//         }else if (order_status === 'returned') {
-//             emailMessage = `Dear #${order.billing_name},\n\nWe regret to inform you that your order #${orderId} has been product returned . If you have any questions, please don't hesitate to reach out.`;
-//          }
-
-//         // Ensure email is defined before sending
-//         if (order.billing_email) {
-//             await sendEmail(order.billing_email, emailSubject, emailMessage); // Send the email
-//         } else {
-//             console.error(`No customer email for order #${orderId}`);
-//         }
-
-//         return res.status(200).json({
-//             status: 'success',
-//             message: `Order ${orderId} updated to '${order_status}'.`,
-//             timestamp: formattedTimestamp, // Include the formatted timestamp in the response
-//             statusUpdates: order.statusUpdates, // Return all status updates with timestamps
-//         });
-//     } catch (error) {
-//         console.error('Error in updating order status:', error);
-//         return res.status(500).json({ status: 'failed', message: 'Internal server error' });
-//     }
-// };
 
 // exports.updateOrderStatus = async (req, res) => {
 //     const { orderId, order_status } = req.body;
 
 //     try {
 //         // Validate the new status
-//         const validStatuses = ['pending','ordered', 'packaged', 'shipped', 'delivered', 'failed', 'returnAccepted', 'returned'];
+//         const validStatuses = ['pending', 'ordered', 'packaged', 'shipped', 'delivered', 'failed', 'returnAccepted', 'returned'];
 //         const validTransitions = {
 //             ordered: ['packaged'],
 //             packaged: ['shipped'],
@@ -1998,101 +1326,100 @@ const sendEmail = async (email, subject, message) => {
 
 //         // Update order status and timestamp
 //         order.order_status = order_status;
-//         order.statusUpdatedAt = Date.now();
+//         const statusUpdatedAt = Date.now();
+//         order.statusUpdatedAt = statusUpdatedAt;
 
-//         // Push the new status update to the statusUpdates array
+//         // Push the new status update to the statusUpdates array with timestamp
 //         order.statusUpdates.push({
 //             status: order_status,
-//             timestamp: order.statusUpdatedAt,
+//             updatedAt: statusUpdatedAt,
 //         });
 
 //         await order.save();
 
 //         // Format the timestamp into 12-hour format
-//         const formattedTimestamp = moment(order.statusUpdatedAt).format('hh:mm A');
+//         const formattedTimestamp = moment(statusUpdatedAt).format('hh:mm A');
 
-//         // Prepare email content
+//         // Prepare email content for each case
 //         let emailMessage = '';
-//         // const emailSubject =' `Your Order #${orderId} Status Update`';
-//         const emailSubject ='';
-
+//         let emailSubject = ''; // Change const to let so that it can be reassigned
 
 //         switch (order_status) {
 //             case 'packaged':
-//                 emailSubject = `Your Order is Packed and Ready for Shipping`
-//                emailMessage = `
-//     Dear ${order.billing_name},
-
-//     We're excited to let you know that your order is packed and ready for shipping!
-
-//     <strong>Here are your order details:</strong>
-//     <ul>
-//         <li><strong>Product Name:</strong> ${product.productName}</li>
-//         <li><strong>Order Number:</strong> ${order.orderId}</li>
-//         <li><strong>Estimated Delivery:</strong> ${order.estimatedDeliveryDate}</li>
-//     </ul>
-
-//     If you have any questions, feel free to contact us at [support@reldaindia.com/9884890934]. We're always happy to help!
-
-//     Thank you for shopping with Elda Appliances.
-
-//     Best Regards,<br>
-//     The Elda Appliances Team
-// `;
-
-//                 break;
-//             case 'shipped':
-//                 emailSubject = `Your Product Has Been Shipped`
-//                 emailMessage = `Dear ${order.billing_name},
-
-//     Great news! Your product has been shipped and is on its way to you.
-
-//     <strong>Here are the shipping details:</strong>
-//     <ul>
-//         <li><strong>Product Name:</strong> ${product.productName}</li>
-//         <li><strong>Order Number:</strong> ${order.orderId}</li>
-//         <li><strong>Estimated Delivery:</strong> Within 24 Hrs</li>
-//     </ul>
-
-//     If you have any questions, feel free to reach out to us at [support@reldaindia.com/9884890934]. We're always happy to help!
-
-//     Best Regards,<br>
-//     The Elda Appliances Team
-// `;
-
-//                 break;
-//             case 'delivered':
-//                 emailSubject = `Thank You for Your Order!`
+//                 emailSubject = 'Your Order is Packed and Ready for Shipping';
 //                 emailMessage = `
-//                 Dear ${order.billing_name},
-            
-//                 We're happy to let you know that your ${product.productName} has been successfully delivered! We hope it brings you joy and meets your expectations.
-            
-//                 <strong>Order Details:</strong>
-//                 <ul>
-//                     <li><strong>Product:</strong> ${product.productName}</li>
-//                     <li><strong>Delivery Date:</strong> ${new Date().toLocaleDateString()}</li>
-//                 </ul>
-            
-//                 If you have any questions or need help with your purchase, our customer service team is here for you. Feel free to contact us at [support@eldappliances.com/9884890934]. We're always happy to help!
-            
-//                 Thank you for choosing Elda Appliances. We look forward to serving you again!
-            
-//                 Best Regards,<br>
-//                 The Elda Appliances Team
-//             `;
+//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
+//                     <p>We're excited to let you know that your order is packed and ready for shipping!</p>
+//                     <p>Here are your order details:</p>
+//                     <ul>
+//                         <li><strong>Product Name</strong>: ${order.productDetails[0].productName}</li>
+//                         <li><strong>Order Number</strong>: ${order.orderId}</li>
+//                         <li><strong>Estimated Delivery</strong>: ${order.estimatedDeliveryDate || 'Within 4-5 days'}</li>
+//                     </ul>
+//                     <p>If you have any questions, feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
+//                     <p>Thank you for shopping with Elda Appliances.</p>
+//                     <p>Best Regards, <br>The Elda Appliances Team</p>
+//                 `;
 //                 break;
+
+//             case 'shipped':
+//                 emailSubject = 'Your Product Has Been Shipped';
+//                 emailMessage = `
+//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
+//                     <p>Great news! Your product has been shipped and is on its way to you.</p>
+//                     <p>Here are the shipping details:</p>
+//                     <ul>
+//                         <li><strong>Product Name</strong>: ${order.productDetails[0].productName}</li>
+//                         <li><strong>Order Number</strong>: ${order.orderId}</li>
+//                         <li><strong>Estimated Delivery</strong>: Within 4-5 days</li>
+//                     </ul>
+//                     <p>If you have any questions, feel free to reach out to us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
+//                     <p>Best Regards, <br>The Elda Appliances Team</p>
+//                 `;
+//                 break;
+
+//             case 'delivered':
+//                 emailSubject = 'Thank You for Your Order!';
+//                 emailMessage = `
+//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
+//                     <p>We're happy to let you know that your ${order.productDetails[0].productName} has been successfully delivered! We hope it brings you joy and meets your expectations.</p>
+//                     <p>Order Details:</p>
+//                     <ul>
+//                         <li><strong>Product</strong>: ${order.productDetails[0].productName}</li>
+//                         <li><strong>Delivery Date</strong>: ${new Date().toLocaleDateString()}</li>
+//                     </ul>
+//                     <p>If you have any questions or need help with your purchase, our customer service team is here for you. Feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
+//                     <p>Thank you for choosing Elda Appliances. We look forward to serving you again!</p>
+//                     <p>Best Regards, <br>The Elda Appliances Team</p>
+//                 `;
+//                 break;
+
 //             case 'returnAccepted':
-//                 emailMessage = `Dear ${order.billing_name},\n\nYour return request for order #${orderId} has been accepted.`;
+//                 emailSubject = 'Your Return Request Has Been Accepted';
+//                 emailMessage = `
+//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
+//                     <p>Your return request for order #${order.orderId} has been accepted. We are processing the return and will update you shortly.</p>
+//                     <p>If you have any questions or need further assistance, feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>.</p>
+//                     <p>Best Regards, <br>The Elda Appliances Team</p>
+//                 `;
 //                 break;
+
 //             case 'returned':
-//                 emailMessage = `Dear ${order.billing_name},\n\nYour order #${orderId} has been returned.`;
+//                 emailSubject = 'Your Order Has Been Returned';
+//                 emailMessage = `
+//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
+//                     <p>Your order #${order.orderId} has been successfully returned. Thank you for your cooperation.</p>
+//                     <p>If you have any further questions, feel free to reach out to us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>.</p>
+//                     <p>Best Regards, <br>The Elda Appliances Team</p>
+//                 `;
 //                 break;
 //         }
 
+//         console.log(`Sending email to: ${order.billing_email}`);
+
 //         // Send email if email exists
 //         if (order.billing_email) {
-//             await sendEmail(order.billing_email, emailSubject, emailMessage);
+//             await sendEmail(order.billing_email, emailSubject, emailMessage, 'html'); // 'text' indicates plain text email
 //         } else {
 //             console.error(`No email found for order #${orderId}`);
 //         }
@@ -2103,225 +1430,478 @@ const sendEmail = async (email, subject, message) => {
 //             timestamp: formattedTimestamp,
 //             statusUpdates: order.statusUpdates,
 //         });
+
 //     } catch (error) {
 //         console.error('Error in updating order status:', error);
 //         return res.status(500).json({ status: 'failed', message: 'Internal server error' });
 //     }
 // };
 
+// exports.updateOrderStatus = async (req, res) => {
+//   const { orderId, order_status } = req.body;
+
+//   try {
+//     /* -------------------- VALIDATION -------------------- */
+//     const validStatuses = [
+//       'pending',
+//       'ordered',
+//       'packaged',
+//       'shipped',
+//       'delivered',
+//       'failed',
+//       'returnRequested',
+//       'returnAccepted',
+//       'returned',
+//     ];
+
+//     const validTransitions = {
+//       ordered: ['packaged'],
+//       packaged: ['shipped'],
+//       shipped: ['delivered', 'returnRequested'],
+//       returnRequested: ['returnAccepted'],
+//       returnAccepted: ['returned'],
+//       returned: [],
+//       delivered: [],
+//       failed: [],
+//     };
+
+//     if (!validStatuses.includes(order_status)) {
+//       return res.status(400).json({
+//         status: 'failed',
+//         message: 'Invalid status provided.',
+//       });
+//     }
+
+//     const order = await orderModel.findOne({ orderId });
+//     if (!order) {
+//       return res.status(404).json({
+//         status: 'failed',
+//         message: 'Order not found.',
+//       });
+//     }
+
+//     const currentStatus = order.order_status;
+//     const allowedStatuses = validTransitions[currentStatus] || [];
+
+//     if (!allowedStatuses.includes(order_status)) {
+//       return res.status(400).json({
+//         status: 'failed',
+//         message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
+//       });
+//     }
+
+//     /* -------------------- 🔥 ZOHO LOGIC -------------------- */
+// if (order_status === 'packaged') {
+
+//   const salesOrder = await getZohoSalesOrder(order.zohoSalesOrderId);
+
+//   const pkg = await createZohoPackage(salesOrder);
+
+//   const shipment = await createShipmentFromPackage(pkg.package_id);
+
+//   const invoice = await createInvoiceFromShipmentOrder(
+//     shipment.shipmentorder_id
+//   );
+
+//   order.zohoPackageId = pkg.package_id;
+//   order.zohoShipmentOrderId = shipment.shipmentorder_id;
+//   order.zohoInvoiceId = invoice.invoice_id;
+// }
+
+
+
+
+//     /* -------------------- UPDATE ORDER -------------------- */
+//     order.order_status = order_status;
+
+//     const statusUpdatedAt = Date.now();
+//     order.statusUpdatedAt = statusUpdatedAt;
+
+//     order.statusUpdates.push({
+//       status: order_status,
+//       updatedAt: statusUpdatedAt,
+//     });
+
+//     await order.save();
+
+//     /* -------------------- EMAIL LOGIC -------------------- */
+//     const formattedTimestamp = moment(statusUpdatedAt).format('hh:mm A');
+
+//     let emailSubject = '';
+//     let emailMessage = '';
+
+//     switch (order_status) {
+//       case 'packaged':
+//         emailSubject = 'Your Order is Packed and Ready for Shipping';
+//         emailMessage = `
+//           <p>Dear <strong>${order.billing_name}</strong>,</p>
+//           <p>Your order has been packed and is ready for shipping.</p>
+//           <ul>
+//             <li><strong>Product</strong>: ${order.productDetails[0].productName}</li>
+//             <li><strong>Order No</strong>: ${order.orderId}</li>
+//           </ul>
+//           <p>Thank you for shopping with Elda Appliances.</p>
+//         `;
+//         break;
+
+//       case 'shipped':
+//         emailSubject = 'Your Product Has Been Shipped';
+//         emailMessage = `
+//           <p>Dear <strong>${order.billing_name}</strong>,</p>
+//           <p>Your product has been shipped.</p>
+//         `;
+//         break;
+
+//       case 'delivered':
+//         emailSubject = 'Order Delivered Successfully';
+//         emailMessage = `
+//           <p>Dear <strong>${order.billing_name}</strong>,</p>
+//           <p>Your order has been delivered successfully.</p>
+//         `;
+//         break;
+
+//       case 'returnAccepted':
+//         emailSubject = 'Return Request Accepted';
+//         emailMessage = `
+//           <p>Your return request for order ${order.orderId} has been accepted.</p>
+//         `;
+//         break;
+
+//       case 'returned':
+//         emailSubject = 'Order Returned';
+//         emailMessage = `
+//           <p>Your order ${order.orderId} has been returned successfully.</p>
+//         `;
+//         break;
+//     }
+
+//     if (order.billing_email) {
+//       await sendEmail(order.billing_email, emailSubject, emailMessage, 'html');
+//     }
+
+//     /* -------------------- RESPONSE -------------------- */
+//     return res.status(200).json({
+//       status: 'success',
+//       message: `Order #${orderId} updated to '${order_status}'.`,
+//       timestamp: formattedTimestamp,
+//       statusUpdates: order.statusUpdates,
+//     });
+
+//   } catch (error) {
+//     console.error('❌ Error in updating order status:', error);
+//     return res.status(500).json({
+//       status: 'failed',
+//       message: 'Internal server error',
+//     });
+//   }
+// };
+
 exports.updateOrderStatus = async (req, res) => {
-    const { orderId, order_status } = req.body;
+  const { orderId, order_status } = req.body;
 
-    try {
-        // Validate the new status
-        const validStatuses = ['pending', 'ordered', 'packaged', 'shipped', 'delivered', 'failed', 'returnAccepted', 'returned'];
-        const validTransitions = {
-            ordered: ['packaged'],
-            packaged: ['shipped'],
-            shipped: ['delivered', 'returnRequested'],
-            returnRequested: ['returnAccepted'], // Add this transition
-            returnAccepted: ['returned'],
-            returned: [], // No further transitions
-            delivered: [], // No further transitions
-            failed: [], // No further transitions
-        };
+  try {
+    /* -------------------- VALIDATION -------------------- */
+    const validStatuses = [
+      'pending',
+      'ordered',
+      'packaged',
+      'shipped',
+      'delivered',
+      'failed',
+      'returnRequested',
+      'returnAccepted',
+      'returned',
+    ];
 
-        if (!validStatuses.includes(order_status)) {
-            return res.status(400).json({ status: 'failed', message: 'Invalid status provided.' });
-        }
+    const validTransitions = {
+      ordered: ['packaged'],
+      packaged: ['shipped'],
+      shipped: ['delivered', 'returnRequested'],
+      returnRequested: ['returnAccepted'],
+      returnAccepted: ['returned'],
+      returned: [],
+      delivered: [],
+      failed: [],
+    };
 
-        // Find the order by ID
-        const order = await orderModel.findOne({ orderId });
-        if (!order) {
-            return res.status(404).json({ status: 'failed', message: 'Order not found.' });
-        }
-
-        const currentStatus = order.order_status;
-        const allowedStatuses = validTransitions[currentStatus] || [];
-        if (!allowedStatuses.includes(order_status)) {
-            return res.status(400).json({
-                status: 'failed',
-                message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
-            });
-        }
-
-        // Update order status and timestamp
-        order.order_status = order_status;
-        const statusUpdatedAt = Date.now();
-        order.statusUpdatedAt = statusUpdatedAt;
-
-        // Push the new status update to the statusUpdates array with timestamp
-        order.statusUpdates.push({
-            status: order_status,
-            updatedAt: statusUpdatedAt,
-        });
-
-        await order.save();
-
-        // Format the timestamp into 12-hour format
-        const formattedTimestamp = moment(statusUpdatedAt).format('hh:mm A');
-
-        // Prepare email content for each case
-        let emailMessage = '';
-        let emailSubject = ''; // Change const to let so that it can be reassigned
-
-        switch (order_status) {
-            case 'packaged':
-                emailSubject = 'Your Order is Packed and Ready for Shipping';
-                emailMessage = `
-                    <p>Dear <strong>${order.billing_name}</strong>,</p>
-                    <p>We're excited to let you know that your order is packed and ready for shipping!</p>
-                    <p>Here are your order details:</p>
-                    <ul>
-                        <li><strong>Product Name</strong>: ${order.productDetails[0].productName}</li>
-                        <li><strong>Order Number</strong>: ${order.orderId}</li>
-                        <li><strong>Estimated Delivery</strong>: ${order.estimatedDeliveryDate || 'Within 4-5 days'}</li>
-                    </ul>
-                    <p>If you have any questions, feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
-                    <p>Thank you for shopping with Elda Appliances.</p>
-                    <p>Best Regards, <br>The Elda Appliances Team</p>
-                `;
-                break;
-
-            case 'shipped':
-                emailSubject = 'Your Product Has Been Shipped';
-                emailMessage = `
-                    <p>Dear <strong>${order.billing_name}</strong>,</p>
-                    <p>Great news! Your product has been shipped and is on its way to you.</p>
-                    <p>Here are the shipping details:</p>
-                    <ul>
-                        <li><strong>Product Name</strong>: ${order.productDetails[0].productName}</li>
-                        <li><strong>Order Number</strong>: ${order.orderId}</li>
-                        <li><strong>Estimated Delivery</strong>: Within 4-5 days</li>
-                    </ul>
-                    <p>If you have any questions, feel free to reach out to us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
-                    <p>Best Regards, <br>The Elda Appliances Team</p>
-                `;
-                break;
-
-            case 'delivered':
-                emailSubject = 'Thank You for Your Order!';
-                emailMessage = `
-                    <p>Dear <strong>${order.billing_name}</strong>,</p>
-                    <p>We're happy to let you know that your ${order.productDetails[0].productName} has been successfully delivered! We hope it brings you joy and meets your expectations.</p>
-                    <p>Order Details:</p>
-                    <ul>
-                        <li><strong>Product</strong>: ${order.productDetails[0].productName}</li>
-                        <li><strong>Delivery Date</strong>: ${new Date().toLocaleDateString()}</li>
-                    </ul>
-                    <p>If you have any questions or need help with your purchase, our customer service team is here for you. Feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
-                    <p>Thank you for choosing Elda Appliances. We look forward to serving you again!</p>
-                    <p>Best Regards, <br>The Elda Appliances Team</p>
-                `;
-                break;
-
-            case 'returnAccepted':
-                emailSubject = 'Your Return Request Has Been Accepted';
-                emailMessage = `
-                    <p>Dear <strong>${order.billing_name}</strong>,</p>
-                    <p>Your return request for order #${order.orderId} has been accepted. We are processing the return and will update you shortly.</p>
-                    <p>If you have any questions or need further assistance, feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>.</p>
-                    <p>Best Regards, <br>The Elda Appliances Team</p>
-                `;
-                break;
-
-            case 'returned':
-                emailSubject = 'Your Order Has Been Returned';
-                emailMessage = `
-                    <p>Dear <strong>${order.billing_name}</strong>,</p>
-                    <p>Your order #${order.orderId} has been successfully returned. Thank you for your cooperation.</p>
-                    <p>If you have any further questions, feel free to reach out to us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>.</p>
-                    <p>Best Regards, <br>The Elda Appliances Team</p>
-                `;
-                break;
-        }
-
-        console.log(`Sending email to: ${order.billing_email}`);
-
-        // Send email if email exists
-        if (order.billing_email) {
-            await sendEmail(order.billing_email, emailSubject, emailMessage, 'html'); // 'text' indicates plain text email
-        } else {
-            console.error(`No email found for order #${orderId}`);
-        }
-
-        return res.status(200).json({
-            status: 'success',
-            message: `Order #${orderId} updated to '${order_status}'.`,
-            timestamp: formattedTimestamp,
-            statusUpdates: order.statusUpdates,
-        });
-
-    } catch (error) {
-        console.error('Error in updating order status:', error);
-        return res.status(500).json({ status: 'failed', message: 'Internal server error' });
+    if (!validStatuses.includes(order_status)) {
+      return res.status(400).json({
+        status: 'failed',
+        message: 'Invalid status provided.',
+      });
     }
+
+    const order = await orderModel.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({
+        status: 'failed',
+        message: 'Order not found.',
+      });
+    }
+
+    const currentStatus = order.order_status;
+    const allowedStatuses = validTransitions[currentStatus] || [];
+
+    if (!allowedStatuses.includes(order_status)) {
+      return res.status(400).json({
+        status: 'failed',
+        message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
+      });
+    }
+
+      /* -------- RETURN ACCEPTED → CREATE SALES RETURN -------- */
+/* -------- RETURN ACCEPTED → CREATE SALES RETURN -------- */
+if (order_status === "returnAccepted") {
+
+  if (!order.zohoSalesOrderId) {
+    throw new Error("Zoho Sales Order ID missing");
+  }
+
+  if (!order.zohoSalesReturnId) {
+
+    const so = await getZohoSalesOrder(order.zohoSalesOrderId);
+
+    if (!so?.salesorder_id) {
+      throw new Error("Zoho salesorder_id missing from Zoho response");
+    }
+
+    console.log("🧾 ZOHO SO DATA:", so);
+
+    const salesReturn = await createZohoSalesReturn({
+      salesorder_id: so.salesorder_id,
+      location_id: so.location_id,
+      line_items: so.line_items.map(li => ({
+        item_id: li.item_id,
+        salesorder_item_id: li.salesorder_item_id,
+        quantity: li.quantity
+      }))
+    });
+
+    order.zohoSalesReturnId = salesReturn.salesreturn_id;
+    await order.save();
+
+    console.log("✅ SALES RETURN CREATED:", salesReturn.salesreturn_id);
+  }
+}
+
+    /* -------------------- UPDATE ORDER -------------------- */
+    order.order_status = order_status;
+    const statusUpdatedAt = Date.now();
+    order.statusUpdatedAt = statusUpdatedAt;
+
+    order.statusUpdates.push({
+      status: order_status,
+      updatedAt: statusUpdatedAt,
+    });
+
+    await order.save();
+
+    /* -------------------- EMAIL LOGIC -------------------- */
+    const formattedTimestamp = moment(statusUpdatedAt).format('hh:mm A');
+
+    let emailSubject = '';
+    let emailMessage = '';
+//  if (order_status === "returnAccepted") {
+//       subject = "Return Request Accepted";
+//       message = `
+//         <p>Dear <strong>${order.billing_name}</strong>,</p>
+//         <p>Your return request for order <b>${order.orderId}</b> has been accepted.</p>
+//         <p>Our team will contact you shortly.</p>
+//       `;
+//     }
+    switch (order_status) {
+      case 'packaged':
+        emailSubject = 'Your Order is Packed and Ready for Shipping';
+        emailMessage = `
+          <p>Dear <strong>${order.billing_name}</strong>,</p>
+          <p>Your order has been packed and is ready for shipping.</p>
+          <ul>
+            <li><strong>Product</strong>: ${order.productDetails[0]?.productName || 'Your product'}</li>
+            <li><strong>Order No</strong>: ${order.orderId}</li>
+            <li><strong>Status Updated</strong>: ${formattedTimestamp}</li>
+          </ul>
+          <p>Thank you for shopping with Relda Appliances.</p>
+        `;
+        break;
+
+      case 'shipped':
+        emailSubject = 'Your Product Has Been Shipped';
+        emailMessage = `
+          <p>Dear <strong>${order.billing_name}</strong>,</p>
+          <p>Your product has been shipped.</p>
+          <ul>
+            <li><strong>Order No</strong>: ${order.orderId}</li>
+            <li><strong>Status Updated</strong>: ${formattedTimestamp}</li>
+          </ul>
+          <p>You can track your shipment using the tracking information provided.</p>
+        `;
+        break;
+
+      case 'delivered':
+        emailSubject = 'Order Delivered Successfully';
+        emailMessage = `
+          <p>Dear <strong>${order.billing_name}</strong>,</p>
+          <p>Your order has been delivered successfully.</p>
+          <ul>
+            <li><strong>Order No</strong>: ${order.orderId}</li>
+            <li><strong>Delivered At</strong>: ${formattedTimestamp}</li>
+          </ul>
+          <p>Thank you for your purchase!</p>
+        `;
+        break;
+
+      case 'returnAccepted':
+        emailSubject = 'Return Request Accepted';
+        emailMessage = `
+          <p>Dear <strong>${order.billing_name}</strong>,</p>
+          <p>Your return request for order ${order.orderId} has been accepted.</p>
+          <p>Our team will contact you shortly for the return process.</p>
+        `;
+        break;
+
+      case 'returned':
+        emailSubject = 'Order Returned';
+        emailMessage = `
+          <p>Dear <strong>${order.billing_name}</strong>,</p>
+          <p>Your order ${order.orderId} has been returned successfully.</p>
+          <p>The refund will be processed within 5-7 business days.</p>
+        `;
+        break;
+    }
+
+    if (order.billing_email && emailSubject) {
+      try {
+        await sendEmail(order.billing_email, emailSubject, emailMessage, 'html');
+        console.log('✅ Notification email sent to:', order.billing_email);
+      } catch (emailErr) {
+        console.error('❌ Failed to send email:', emailErr.message);
+      }
+    }
+
+    /* -------------------- RESPONSE -------------------- */
+    return res.status(200).json({
+      status: 'success',
+      message: `Order #${orderId} updated to '${order_status}'.`,
+      timestamp: formattedTimestamp,
+      statusUpdates: order.statusUpdates,
+    });
+
+  } catch (error) {
+    console.error('❌ Error in updating order status:', error);
+    return res.status(500).json({
+      status: 'failed',
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
 };
 
+// exports.CancelOrder = async (req, res) => {
+//     const { orderId, cancelReason, customComment, order_status } = req.body;
+
+//     // Check if all necessary data is provided
+//     if (!orderId || !cancelReason || !order_status) {
+//         return res.status(400).json({ message: 'Missing required fields.' });
+//     }
+
+//     try {
+//         // Find the order
+//         const order = await orderModel.findOne({ orderId });
+
+//         if (!order) {
+//             return res.status(404).json({ message: 'Order not found' });
+//         }
+
+//         // Check if the order is already cancelled
+//         if (order.order_status === 'cancelled') {
+//             return res.status(400).json({ message: 'Order is already cancelled' });
+//         }
 
 
-exports.CancelOrder = async (req, res) => {
-    const { orderId, cancelReason, customComment, order_status } = req.body;
+//         // Update order status and reason
+//         order.order_status = 'cancelled';
+//         order.cancellationReason = cancelReason; // Store the cancellation reason
+//         order.customComment = customComment || ''; // Store custom comment if provided
+//         order.statusUpdates.push({
+//             status: 'cancelled',
+//             timestamp: new Date(), // Set timestamp for the cancellation status update
+//         });
 
-    // Check if all necessary data is provided
-    if (!orderId || !cancelReason || !order_status) {
-        return res.status(400).json({ message: 'Missing required fields.' });
-    }
+//         // Check if the order contains items
+//         const cartItems = order.productDetails || []; // Use the correct field for items
 
-    try {
-        // Find the order
-        const order = await orderModel.findOne({ orderId });
+//         if (!Array.isArray(cartItems) || cartItems.length === 0) {
+//             return res.status(400).json({ message: 'No items found in the order to cancel.' });
+//         }
 
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
+//         // Increase product availability
+//         await Promise.all(
+//             cartItems.map(async (item) => {
+//                 await productModel.findByIdAndUpdate(
+//                     item.productId, // Adjust field based on schema
+//                     { $inc: { availability: item.quantity } },
+//                     { new: true }
+//                 );
+//             })
+//         );
 
-        // Check if the order is already cancelled
-        if (order.order_status === 'cancelled') {
-            return res.status(400).json({ message: 'Order is already cancelled' });
-        }
+//         // Save the updated order
+//         await order.save();
 
+//         // Send email notification
+//         await sendCancellationEmail(order, cancelReason, customComment);
 
-        // Update order status and reason
-        order.order_status = 'cancelled';
-        order.cancellationReason = cancelReason; // Store the cancellation reason
-        order.customComment = customComment || ''; // Store custom comment if provided
-        order.statusUpdates.push({
-            status: 'cancelled',
-            timestamp: new Date(), // Set timestamp for the cancellation status update
-        });
-
-        // Check if the order contains items
-        const cartItems = order.productDetails || []; // Use the correct field for items
-
-        if (!Array.isArray(cartItems) || cartItems.length === 0) {
-            return res.status(400).json({ message: 'No items found in the order to cancel.' });
-        }
-
-        // Increase product availability
-        await Promise.all(
-            cartItems.map(async (item) => {
-                await productModel.findByIdAndUpdate(
-                    item.productId, // Adjust field based on schema
-                    { $inc: { availability: item.quantity } },
-                    { new: true }
-                );
-            })
-        );
-
-        // Save the updated order
-        await order.save();
-
-        // Send email notification
-        await sendCancellationEmail(order, cancelReason, customComment);
-
-        return res.status(200).json({ message: 'Order cancelled successfully' });
-    } catch (err) {
-        console.error('Error canceling order:', err);
-        return res.status(500).json({ message: 'An error occurred while canceling the order' });
-    }
-};
+//         return res.status(200).json({ message: 'Order cancelled successfully' });
+//     } catch (err) {
+//         console.error('Error canceling order:', err);
+//         return res.status(500).json({ message: 'An error occurred while canceling the order' });
+//     }
+// };
   // Function to send email notification
+exports.CancelOrder = async (req, res) => {
+  const { orderId, cancelReason, customComment } = req.body;
+
+  try {
+    const order = await orderModel.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // 1️⃣ VOID ZOHO SALES ORDER (if exists)
+    if (order.zohoSalesOrderId) {
+      await voidZohoSalesOrder(order.zohoSalesOrderId);
+    }
+
+    // 2️⃣ UPDATE LOCAL ORDER
+    order.order_status = "cancelled";
+    order.cancellationReason = cancelReason || "";
+    order.customComment = customComment || "";
+
+    order.statusUpdates.push({
+      status: "cancelled",
+      updatedAt: new Date()
+    });
+
+    // 3️⃣ RESTORE STOCK
+    for (const item of order.productDetails) {
+      await productModel.findByIdAndUpdate(
+        item.productId,
+        { $inc: { availability: item.quantity } }
+      );
+    }
+
+    await order.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Order cancelled successfully"
+    });
+
+  } catch (err) {
+    console.error("❌ Cancel Order Error:", err.response?.data || err.message);
+    return res.status(500).json({ message: "Cancel failed" });
+  }
+};
   async function sendCancellationEmail(order, cancelReason, customComment) {
     // Prepare the email content for the customer
     const customerEmailContent = `
