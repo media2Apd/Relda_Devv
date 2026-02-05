@@ -1,14 +1,38 @@
 import React, { useState, useEffect, useCallback } from "react";
-import BlogUpload from "./BlogUpload";
 import { MdModeEditOutline, MdDeleteOutline } from "react-icons/md";
 import { toast } from "react-toastify";
 import SummaryApi from "../common";
+import BlogCard from "../components/blogComponents/BlogCard";
+import { useNavigate } from "react-router-dom";
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+const getBlogExcerpt = (blocks = []) => {
+  const firstTextBlock = blocks.find(
+    (b) => b.type === "text" && b.text
+  );
+
+  if (!firstTextBlock) return "";
+
+  // Remove HTML tags & limit length
+  const plainText = firstTextBlock.text.replace(/<[^>]*>?/gm, "");
+
+  return plainText.length > 120
+    ? plainText.slice(0, 120) + "..."
+    : plainText;
+};
 
 const AllBlogs = () => {
-  const [openUploadBlog, setOpenUploadBlog] = useState(false);
   const [blogs, setBlogs] = useState([]);
   const [error, setError] = useState("");
-  const [editingBlog, setEditingBlog] = useState(null);
+  const navigate = useNavigate();
 
   const fetchBlogs = useCallback(async () => {
     try {
@@ -27,11 +51,6 @@ const AllBlogs = () => {
     fetchBlogs();
   }, [fetchBlogs]);
 
-  const handleEditBlog = (blog) => {
-    setEditingBlog(blog);
-    setOpenUploadBlog(true);
-  };
-
   const handleDeleteBlog = async (id) => {
     try {
       const response = await fetch(SummaryApi.deleteBlog(id).url, {
@@ -48,10 +67,6 @@ const AllBlogs = () => {
     }
   };
 
-  const handleSuccess = async () => {
-    setOpenUploadBlog(false);
-    fetchBlogs();
-  };
 
   return (
     <div className="min-h-screen p-1 md:p-4">
@@ -59,75 +74,52 @@ const AllBlogs = () => {
         <h2 className="font-bold text-xl text-gray-900">All Blogs</h2>
         <button
           className="border-2 border-brand-primary text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all py-2 px-4 rounded-full"
-          onClick={() => {
-            setEditingBlog(null);
-            setOpenUploadBlog(true);
-          }}
+          onClick={() => navigate("/admin-panel/upload-blogs/create")}
+
         >
           Upload Blogs
         </button>
       </div>
 
-      {openUploadBlog && (
-        <BlogUpload
-          onClose={() => setOpenUploadBlog(false)}
-          blog={editingBlog}
-          onSuccess={handleSuccess}
-        />
-      )}
-
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
         {error && <p className="text-brand-primary">{error}</p>}
         {blogs.map((blog) => (
-          <div
-            key={blog._id}
-            className="bg-white p-4 rounded-lg shadow-md flex flex-col space-y-3 h-[500px] overflow-x-auto"
-          >
-            <div className="w-full h-50">
-              <img
-                src={blog.imageUrl}
-                alt={blog.title}
-                className="max-h-full max-w-full object-contain"
-              />
-            </div>
+          <div key={blog._id} className="relative">
+            
+            <BlogCard
+                key={blog._id}
+                image={blog.heroImage}
+                category={blog.category}
+                title={blog.title}
+                description={getBlogExcerpt(blog.blocks)}
+                author={blog.author}
+                date={formatDate(blog.createdAt)}
+                blogSlug={blog.slug}
+              onClick={() => navigate(`/admin-panel/upload-blogs/edit?id=${blog._id}`)}
 
-            <h1 className="text-lg font-semibold text-center">{blog.title}</h1>
-            <div className="text-sm text-brand-textMuted space-y-2">
-              {blog.content.map((section, idx) => (
-                <div key={idx}>
-                  <h4 className="font-semibold text-gray-900">
-                    {section.subtitle}
-                  </h4>
-                  {/* Render content safely */}
-                  <p className="text-justify">
-                    {typeof section.content === "string"
-                      ? section.content
-                      : JSON.stringify(section.content)}
-                  </p>
-                </div>
-              ))}
-            </div>
+            />
 
-            {/* <p className="text-center text-xs text-gray-500 mt-2">
-              Category: {blog.category}
-            </p> */}
-
-            <div className="flex justify-between mt-4">
+            {/* ADMIN ACTION BUTTONS (Overlay) */}
+            <div className="absolute top-3 right-3 flex gap-2">
               <button
-                className="p-2 bg-green-100 hover:bg-brand-buttonAccentHover rounded-full hover:text-white cursor-pointer"
-                onClick={() => handleEditBlog(blog)}
+                className="p-2 bg-white/90 hover:bg-green-500 rounded-full hover:text-white shadow"
+                onClick={() => navigate(`/admin-panel/upload-blogs/edit?id=${blog._id}`||'')}
+
               >
-                <MdModeEditOutline size={20} />
+                <MdModeEditOutline size={18} />
               </button>
+
               <button
-                className="p-2 bg-red-100 hover:bg-brand-primaryHover rounded-full hover:text-white cursor-pointer"
+                className="p-2 bg-white/90 hover:bg-red-500 rounded-full hover:text-white shadow"
                 onClick={() => handleDeleteBlog(blog._id)}
               >
-                <MdDeleteOutline size={20} />
+                <MdDeleteOutline size={18} />
               </button>
             </div>
+
           </div>
         ))}
+
       </div>
     </div>
   );

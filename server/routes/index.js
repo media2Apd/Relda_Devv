@@ -54,13 +54,14 @@ const { addOfferPoster, getAllOfferPosters, editOfferPoster, deleteOfferPoster, 
 const couponController = require("../controller/order/couponController");
 // const bannerController = require("../controller/bannerPosts/bannerController");
 const sitemapGenerator = require('../utils/sitemapGenerator');
-const { createBlogPost, getAllBlogPosts, editBlogPost, deleteBlogPost, getBlogPostById } = require('../controller/blog/blogsController');
+const { createBlog, updateBlog, deleteBlog, getAllBlogs, getBlogBySlug, getBlogById } = require('../controller/blog/blogsController');
 const { addDeveloperIP, removeDeveloperIP } = require('../controller/DeveloperIp');
 const { addToWishlist, removeFromWishlist, getWishlist } = require('../controller/user/wishlistController');
 const { storage } = require('../config/blogCloudinary');
 const multer = require('multer');
 const uploads = multer({ storage });
 const blogImageUpload = require('../config/blogCloudinary')
+const  uploadBlogMedia  = require('../middleware/multer');
 
 const bannerUpload = require("../middleware/bannerUpload");
 const {
@@ -75,11 +76,22 @@ const {
 } = require("../controller/banner/bannerController");
 const { manualZohoProductSync } = require('../controller/product/manualSync.controller');
 
-router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
-router.get('/get-blogs', getAllBlogPosts);
-router.put('/update-blog/:id', blogImageUpload.single('image'), editBlogPost);
-router.delete('/delete-blog/:id', deleteBlogPost);
-router.get('/get-blog/:id', getBlogPostById);
+// router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
+// router.get('/get-blogs', getAllBlogPosts);
+// router.put('/update-blog/:id', blogImageUpload.single('image'), editBlogPost);
+// router.delete('/delete-blog/:id', deleteBlogPost);
+// router.get('/get-blog/:id', getBlogPostById);
+
+router.post("/blogs/create", uploadBlogMedia, createBlog);
+router.put("/blogs/update/:id", uploadBlogMedia, updateBlog);
+
+router.delete("/blogs/delete/:id", deleteBlog);
+router.get("/blogs/view-all", getAllBlogs);
+router.get("/blogs/slug/:slug", getBlogBySlug);
+router.get("/blogs/view-one/:id", getBlogById);
+
+
+
 router.get('/products/related', getViewedProducts)
 router.post('/add-developerIp', addDeveloperIP);
 router.delete('/delete-developerIp', removeDeveloperIP)

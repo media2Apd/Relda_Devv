@@ -313,28 +313,34 @@ const SummaryApi = {
         method: 'get'
     },
     UploadBlog: {
-        url: `${backendDomain}/api/add-blog`,
+        url: `${backendDomain}/api/blogs/create`,
         method: 'post'
     },
     getBlogs: {
-        url: `${backendDomain}/api/get-blogs`,
+        url: `${backendDomain}/api/blogs/view-all`,
         method: 'get'
     },
     getOneBlog: (id) => {
         return {
-            url: `${backendDomain}/api/get-blog/${id}`,
+            url: `${backendDomain}/api/blogs/view-one/${id}`,
+            method: 'get'
+        }
+    },
+    getOneBlogBySlug: (slug) => {
+        return {
+            url: `${backendDomain}/api/blogs/slug/${slug}`,
             method: 'get'
         }
     },
     updateBlog: (id) => {
         return {
-            url: `${backendDomain}/api/update-blog/${id}`,
+            url: `${backendDomain}/api/blogs/update/${id}`,
             method: 'PUT'
         }
     },
     deleteBlog: (id) => {
         return {
-            url: `${backendDomain}/api/delete-blog/${id}`,
+            url: `${backendDomain}/api/blogs/delete/${id}`,
             method: 'delete'
         }
     },

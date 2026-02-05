@@ -246,144 +246,423 @@
 // };
 
 // export default BlogPost;
+// import React, { useEffect, useState } from "react";
+// import { useParams, Link } from "react-router-dom";
+// import SummaryApi from "../common";
+
+// const BlogPost = () => {
+//     const { id } = useParams();
+//     const [blog, setBlog] = useState(null);
+//     const [loading, setLoading] = useState(true);
+//     const [recentPosts, setRecentPosts] = useState([]);
+//     const [error, setError] = useState(null);
+//     const [expanded, setExpanded] = useState(false);
+
+//     useEffect(() => {
+//         if (!id) return;
+//         setLoading(true);
+//         setError(null); // Reset error state
+
+//         // Fetch the blog post
+//         fetch(SummaryApi.getOneBlog(id).url)
+//             .then((response) => {
+//                 if (!response.ok) {
+//                     throw new Error(`HTTP error! Status: ${response.status}`);
+//                 }
+//                 return response.json();
+//             })
+//             .then((data) => {
+//                 if (!data || !data._id) {
+//                     throw new Error("Blog content is missing");
+//                 }
+//                 setBlog(data); // Directly using the data object
+//                 setLoading(false);
+//             })
+//             .catch((error) => {
+//                 console.error("Error fetching blog:", error);
+//                 setLoading(false);
+//                 setError("Error fetching blog data.");
+//             });
+
+//         // Fetch recent posts
+//         fetch(SummaryApi.getBlogs.url)
+//             .then((response) => response.json())
+//             .then((data) => {
+//                 if (Array.isArray(data)) {
+//                     const filteredPosts = data.filter(p => String(p._id) !== String(id));
+//                     setRecentPosts(filteredPosts);
+//                 } else {
+//                     setError("Error fetching recent posts.");
+//                 }
+//             })
+//             .catch((error) => {
+//                 console.error("Error fetching recent posts:", error);
+//                 setError("Error fetching recent posts.");
+//             });
+//     }, [id]);
+
+//     const renderContent = (contentArray) => {
+//         return contentArray.map((item, index) => (
+//             <div key={index} className="mb-4">
+//                 {item.subtitle && <h3 className="font-semibold text-xl mb-2">{item.subtitle}</h3>}
+//                 <p>{item.content}</p>
+//             </div>
+//         ));
+//     };
+
+//     if (loading) return <p className="text-center text-gray-400">Loading...</p>;
+//     if (error) return <p className="text-center text-brand-primary">{error}</p>;
+//     if (!blog) return <p className="text-center text-brand-primary">Blog not found!</p>;
+
+//     return (
+//         <div className="bg-black text-white py-10 px-6">
+//             <div className="max-w-7xl mx-auto">
+//                 <Link to="/blog-page" className="text-gray-400 font-semibold hover:underline mb-6 block">&larr; Back to All Posts</Link>
+
+//                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+//                     {/* Blog Content */}
+//                     <div className="lg:col-span-2">
+//                     <img
+//                         src={blog.imageUrl}
+//                         alt={blog.title}
+//                         className="w-full max-h-[650px] object-contain mb-6 rounded-lg"
+//                         />
+
+//                         <h1 className="text-3xl font-extrabold leading-tight mb-4">{blog.title}</h1>
+//                         <p className="text-md text-gray-400 mb-4">Category: {blog.category}</p>
+
+//                         {/* Blog Content Section */}
+//                         <div className="text-lg text-justify leading-relaxed">
+//                             {Array.isArray(blog.content) ? (
+//                                 renderContent(blog.content)
+//                             ) : (
+//                                 <p>{blog.content}</p>
+//                             )}
+//                         </div>
+
+//                         {/* Responsive Read More for small screens */}
+//                         {Array.isArray(blog.content) && blog.content.length > 0 && (
+//                             <div className="lg:hidden mt-6">
+//                                 <p className={`transition-all duration-300 overflow-hidden ${expanded ? "max-h-fit" : "max-h-[120px]"}`}>
+//                                     {expanded
+//                                         ? blog.content.map((item) => item.content).join(" ")
+//                                         : `${blog.content[0].content.slice(0, 200)}...`}
+//                                 </p>
+//                                 <button
+//                                     onClick={() => setExpanded(!expanded)}
+//                                     className="text-brand-buttonSecondary mt-2 font-semibold hover:underline"
+//                                 >
+//                                     {expanded ? "Read Less" : "Read More"}
+//                                 </button>
+//                             </div>
+//                         )}
+//                     </div>
+
+//                     {/* Recent Posts */}
+//                     <aside className="lg:col-span-1 bg-gray-900 p-5 rounded-lg">
+//                         <h2 className="text-2xl font-bold mb-4 text-gray-200">Recent Posts</h2>
+//                         {recentPosts.length > 0 ? (
+//                             <ul className="space-y-4">
+//                                 {recentPosts.map((recent) => (
+//                                     <li key={recent._id} className="bg-gray-700 p-3 rounded-lg hover:bg-gray-600 transition">
+//                                         <Link to={`/blog-post/${recent._id}`} className="flex items-center space-x-4">
+//                                             <img
+//                                                 src={recent.imageUrl}
+//                                                 alt={recent.title}
+//                                                 className="w-18 h-16 object-contain rounded-md"
+//                                             />
+//                                             <span className="text-gray-300 hover:text-white">{recent.title}</span>
+//                                         </Link>
+//                                     </li>
+//                                 ))}
+//                             </ul>
+//                         ) : (
+//                             <p className="text-gray-400">No recent posts available.</p>
+//                         )}
+//                     </aside>
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default BlogPost;
+
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import SummaryApi from "../common";
+import NewsletterCTA from "../components/blogComponents/NewsletterCTA"; // your CTA component
+import BlogCard from "../components/blogComponents/BlogCard";
+import { useNavigate } from "react-router-dom";
+
+
+const BlockRenderer = ({ block }) => {
+  switch (block.type) {
+
+    /* ================= HEADINGS ================= */
+    case "heading":
+      if (block.level === "h2") {
+        return (
+          <h2 className="text-xl md:text-2xl font-bold text-[#1F1F1F] mt-10 mb-4 leading-snug">
+            {block.text}
+          </h2>
+        );
+      }
+      if (block.level === "h3") {
+        return (
+          <h3 className="text-lg md:text-xl font-semibold text-[#1F1F1F] mt-8 mb-3">
+            {block.text}
+          </h3>
+        );
+      }
+      return (
+        <h4 className="text-base md:text-lg font-semibold text-[#1F1F1F] mt-6 mb-2">
+          {block.text}
+        </h4>
+      );
+
+    /* ================= PARAGRAPH ================= */
+    case "text":
+      return (
+        <div
+          className="text-[#4A4A4A] text-base md:text-lg leading-relaxed mb-5"
+          dangerouslySetInnerHTML={{ __html: block.text }}
+        />
+      );
+
+    /* ================= LIST ================= */
+    case "list":
+      return block.style === "number" ? (
+        <ol className="list-decimal pl-6 space-y-2 mb-6 text-[#4A4A4A]">
+          {block.items?.map((item, i) => (
+            <li
+              key={i}
+              className="leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: item }}
+            />
+          ))}
+        </ol>
+      ) : (
+        <ul className="list-disc pl-6 space-y-2 mb-6 text-[#4A4A4A]">
+          {block.items?.map((item, i) => (
+            <li
+              key={i}
+              className="leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: item }}
+            />
+          ))}
+        </ul>
+      );
+
+    /* ================= IMAGE ================= */
+    case "image":
+      return (
+        <figure className="my-10">
+          <img
+            src={block.imageUrl}
+            alt={block.alt || ""}
+            className="w-full rounded-xl"
+          />
+          {block.caption && (
+            <figcaption className="text-sm text-gray-500 mt-3 text-center">
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+
+    /* ================= QUOTE ================= */
+    case "quote":
+      return (
+        <blockquote className="border-l-4 border-[#D80A07] pl-6 my-10 max-w-5xl mx-auto">
+          <p className="italic text-lg text-[#666666] leading-relaxed">
+            “{block.text}”
+          </p>
+          {block.author && (
+            <p className="mt-4 text-sm font-medium text-[#333333]">
+              – {block.author}
+            </p>
+          )}
+        </blockquote>
+      );
+
+    /* ================= PRO TIP ================= */
+    case "proTip":
+      return (
+        <div className="bg-[#FDECEC] border-l-4 border-[#D80A07] p-6 rounded-xl my-10 max-w-5xl mx-auto">
+          {/* <p className="font-semibold text-[#1F1F1F] mb-2">Pro Tip</p> */}
+          <div
+            className="text-[#4A4A4A] leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: block.text }}
+          />
+        </div>
+      );
+
+    /* ================= FAQ ================= */
+    case "faq":
+      return (
+        <div className="my-8">
+          <h3 className="font-semibold text-lg text-[#1F1F1F]">
+            {block.question}
+          </h3>
+          <div
+            className="text-[#4A4A4A] leading-relaxed mt-2"
+            dangerouslySetInnerHTML={{ __html: block.answer }}
+          />
+        </div>
+      );
+
+    default:
+      return null;
+  }
+};
+const getBlogExcerpt = (blocks = []) => {
+  const firstTextBlock = blocks.find(
+    (b) => b.type === "text" && b.text
+  );
+
+  if (!firstTextBlock) return "";
+
+  // Remove HTML tags & limit length
+  const plainText = firstTextBlock.text.replace(/<[^>]*>?/gm, "");
+
+  return plainText.length > 120
+    ? plainText.slice(0, 120) + "..."
+    : plainText;
+};
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
 const BlogPost = () => {
-    const { id } = useParams();
-    const [blog, setBlog] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [recentPosts, setRecentPosts] = useState([]);
-    const [error, setError] = useState(null);
-    const [expanded, setExpanded] = useState(false);
+  const { id } = useParams();
+  const [blog, setBlog] = useState(null);
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!id) return;
-        setLoading(true);
-        setError(null); // Reset error state
+useEffect(() => {
+  if (!id) return;
 
-        // Fetch the blog post
-        fetch(SummaryApi.getOneBlog(id).url)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                if (!data || !data._id) {
-                    throw new Error("Blog content is missing");
-                }
-                setBlog(data); // Directly using the data object
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error("Error fetching blog:", error);
-                setLoading(false);
-                setError("Error fetching blog data.");
-            });
+  setLoading(true);
+  setError(null);
 
-        // Fetch recent posts
-        fetch(SummaryApi.getBlogs.url)
-            .then((response) => response.json())
-            .then((data) => {
-                if (Array.isArray(data)) {
-                    const filteredPosts = data.filter(p => String(p._id) !== String(id));
-                    setRecentPosts(filteredPosts);
-                } else {
-                    setError("Error fetching recent posts.");
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching recent posts:", error);
-                setError("Error fetching recent posts.");
-            });
-    }, [id]);
+  // Fetch single blog
+  fetch(SummaryApi.getOneBlogBySlug(id).url)
+    .then((res) => res.json())
+    .then((data) => {
+      setBlog(data);
+      setLoading(false);
+    })
+    .catch(() => {
+      setError("Failed to load blog");
+      setLoading(false);
+    });
 
-    const renderContent = (contentArray) => {
-        return contentArray.map((item, index) => (
-            <div key={index} className="mb-4">
-                {item.subtitle && <h3 className="font-semibold text-xl mb-2">{item.subtitle}</h3>}
-                <p>{item.content}</p>
-            </div>
-        ));
-    };
+  // Fetch recent blogs
+  fetch(SummaryApi.getBlogs.url)
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data)) {
+        setRecentPosts(
+          data
+            .filter((b) => b.slug !== id)  // ✅ FIX HERE
+            .slice(0, 4)
+        );
+      }
+    });
+}, [id]);
 
-    if (loading) return <p className="text-center text-gray-400">Loading...</p>;
-    if (error) return <p className="text-center text-brand-primary">{error}</p>;
-    if (!blog) return <p className="text-center text-brand-primary">Blog not found!</p>;
 
-    return (
-        <div className="bg-black text-white py-10 px-6">
-            <div className="max-w-7xl mx-auto">
-                <Link to="/blog-page" className="text-gray-400 font-semibold hover:underline mb-6 block">&larr; Back to All Posts</Link>
+  if (loading) return <p className="text-center py-20">Loading...</p>;
+  if (error) return <p className="text-center py-20 text-red-500">{error}</p>;
+  if (!blog) return <p className="text-center py-20">Blog not found</p>;
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    {/* Blog Content */}
-                    <div className="lg:col-span-2">
-                    <img
-                        src={blog.imageUrl}
-                        alt={blog.title}
-                        className="w-full max-h-[650px] object-contain mb-6 rounded-lg"
-                        />
+  return (
+    <div className="bg-white">
+      <div className="container mx-auto px-4 py-10">
 
-                        <h1 className="text-3xl font-extrabold leading-tight mb-4">{blog.title}</h1>
-                        <p className="text-md text-gray-400 mb-4">Category: {blog.category}</p>
+        {/* Breadcrumb */}
+        <p className="text-sm text-[#999999] mb-4">
+          <span className="font-semibold text-[#333333] mr-3">
+            {blog.category}
+          </span>
+          {formatDate(blog.publishDate)}
+        </p>
 
-                        {/* Blog Content Section */}
-                        <div className="text-lg text-justify leading-relaxed">
-                            {Array.isArray(blog.content) ? (
-                                renderContent(blog.content)
-                            ) : (
-                                <p>{blog.content}</p>
-                            )}
-                        </div>
 
-                        {/* Responsive Read More for small screens */}
-                        {Array.isArray(blog.content) && blog.content.length > 0 && (
-                            <div className="lg:hidden mt-6">
-                                <p className={`transition-all duration-300 overflow-hidden ${expanded ? "max-h-fit" : "max-h-[120px]"}`}>
-                                    {expanded
-                                        ? blog.content.map((item) => item.content).join(" ")
-                                        : `${blog.content[0].content.slice(0, 200)}...`}
-                                </p>
-                                <button
-                                    onClick={() => setExpanded(!expanded)}
-                                    className="text-brand-buttonSecondary mt-2 font-semibold hover:underline"
-                                >
-                                    {expanded ? "Read Less" : "Read More"}
-                                </button>
-                            </div>
-                        )}
-                    </div>
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+          {blog.title}
+        </h1>
 
-                    {/* Recent Posts */}
-                    <aside className="lg:col-span-1 bg-gray-900 p-5 rounded-lg">
-                        <h2 className="text-2xl font-bold mb-4 text-gray-200">Recent Posts</h2>
-                        {recentPosts.length > 0 ? (
-                            <ul className="space-y-4">
-                                {recentPosts.map((recent) => (
-                                    <li key={recent._id} className="bg-gray-700 p-3 rounded-lg hover:bg-gray-600 transition">
-                                        <Link to={`/blog-post/${recent._id}`} className="flex items-center space-x-4">
-                                            <img
-                                                src={recent.imageUrl}
-                                                alt={recent.title}
-                                                className="w-18 h-16 object-contain rounded-md"
-                                            />
-                                            <span className="text-gray-300 hover:text-white">{recent.title}</span>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-400">No recent posts available.</p>
-                        )}
-                    </aside>
-                </div>
-            </div>
+        {/* Hero Image */}
+        {blog.heroImage && (
+          <img
+            src={blog.heroImage}
+            alt={blog.title}
+            className="w-full rounded-xl mb-8 object-cover"
+          />
+        )}
+
+        {/* Author Meta */}
+        {/* <p className="text-sm text-gray-500 mb-8">
+          By {blog.author} • {blog.readingTime} min read
+        </p> */}
+
+        {/* Blog Blocks */}
+        <article className="max-w-none">
+          {blog.blocks?.map((block, index) => (
+            <BlockRenderer key={index} block={block} />
+          ))}
+        </article>
+
+        {/* Popular Posts */}
+{recentPosts.length > 0 && (
+  <section className="mt-20">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold">Popular Post</h2>
+
+      {recentPosts.length >= 4 && (
+        <Link
+          to="/blog-page"
+          className="text-sm bg-[#E60000] text-white py-2 px-4 rounded-md font-semibold"
+        >
+          View All
+        </Link>
+      )}
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+      {recentPosts.map((post) => (
+        <BlogCard
+          key={post._id}
+          image={post.heroImage}
+          category={post.category}
+          title={post.title}
+          description={getBlogExcerpt(post.blocks)}
+          author={post.author}
+          date={formatDate(post.createdAt)}
+          blogSlug={post.slug}
+          onClick={() => navigate(`/blog-details/${post.slug || post._id}`)}
+        />
+      ))}
+    </div>
+  </section>
+)}
+
+
+        {/* Bottom CTA */}
+        <div className="mt-24">
+          <NewsletterCTA />
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default BlogPost;
