@@ -33,7 +33,7 @@ const SelectDropdown = ({
     bottom: 'auto',
     left: 'auto',
     right: 'auto',
-    maxHeight: '240px',
+    maxHeight: '260px',
     transformOrigin: 'top'
   });
 

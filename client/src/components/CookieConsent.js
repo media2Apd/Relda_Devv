@@ -4,7 +4,7 @@ import SummaryApi from '../common';
 
 const CookieConsent = () => {
   const [accepted, setAccepted] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  // const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     // Check localStorage to see if cookies were already accepted and if 12 hours have passed
@@ -53,7 +53,8 @@ const CookieConsent = () => {
   //   setDismissed(true);
   // };
 
-  if (accepted || dismissed) return null;
+  if (accepted) return null;
+  // if (accepted || dismissed) return null;
 
   return (
     <div
@@ -76,12 +77,12 @@ const CookieConsent = () => {
       </h1>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
       <button
-  onClick={handleAcceptCookies}
-  className="px-4 py-2 bg-blue-600 text-xs md:text-sm text-white font-medium rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white transition-all duration-150"
-  aria-label="Accept Cookies"
->
-  Accept Cookies
-</button>
+        onClick={handleAcceptCookies}
+        className="px-4 py-2 bg-blue-600 text-xs md:text-sm text-white font-medium rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white transition-all duration-150"
+        aria-label="Accept Cookies"
+      >
+        Accept Cookies
+      </button>
 
         {/* <button
           onClick={handleCancel}

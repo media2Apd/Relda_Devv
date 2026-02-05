@@ -1,3 +1,4 @@
+//Not in Use
 import React, { useEffect } from 'react';
 import { IoLogoFacebook, IoLogoInstagram } from "react-icons/io5";
 import { BsTwitterX } from "react-icons/bs";
@@ -9,16 +10,16 @@ const ServiceRequest = () => {
     document.getElementById(days[today]).classList.add('text-white');
   }, []);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const name = event.target.name.value;
-    const email = event.target.email.value;
-    const message = event.target.message.value;
-    const emailList = event.target.emailList.checked;
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const name = event.target.name.value;
+  //   const email = event.target.email.value;
+  //   const message = event.target.message.value;
+  //   const emailList = event.target.emailList.checked;
 
-    const mailtoLink = `mailto:support@eldaelectronics.com?subject=Message from ${name}&body=${message}%0D%0A%0D%0AFrom,%0D%0A${name}%0D%0A${email}%0D%0ASubscribe to email list: ${emailList}`;
-    window.location.href = mailtoLink;
-  };
+  //   const mailtoLink = `mailto:support@eldaelectronics.com?subject=Message from ${name}&body=${message}%0D%0A%0D%0AFrom,%0D%0A${name}%0D%0A${email}%0D%0ASubscribe to email list: ${emailList}`;
+  //   window.location.href = mailtoLink;
+  // };
 
   return (
     <div className="p-6 max-w-3xl mx-auto bg-gray-900 text-gray-400">
@@ -45,7 +46,7 @@ const ServiceRequest = () => {
             <p>Ring Road Housing Sector,</p>
             <p>Madhavaram, Chennai, Tamil Nadu, India</p>
             <br />
-            <p>09848490934</p>
+            <p>9848490934</p>
             <p><a href="mailto:support@eldaelectronics.com" className="hover:text-white">support@eldaelectronics.com</a></p>
           </div>
           <div className="w-2/5 my-2 text-left">
