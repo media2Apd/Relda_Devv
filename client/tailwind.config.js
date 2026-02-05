@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sf: ['SF Pro'],
+      },
       colors: {
         brand: {
           primary: "#e60000",      // main brand color

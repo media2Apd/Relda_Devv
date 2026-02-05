@@ -69,3 +69,10 @@ body, html, #root {
   display: none !important;
 } */
 
+.input {
+  @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-red-500 focus:outline-none;
+}
+
+.label {
+  @apply block text-xs font-medium text-gray-600 mb-1;
+}

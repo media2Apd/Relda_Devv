@@ -60,6 +60,7 @@ import CustomerComplaint from '../pages/CustomerComplaint'
 import AllCoupons from '../panelPages/AllCoupons'
 import BannerList from '../components/bannerComponents/BannerList'
 import FAQPage from '../pages/FAQPage'
+import BlogUpload from '../pages/BlogUpload'
 
 
 
@@ -183,6 +184,14 @@ const router = createBrowserRouter([
                         element: <AllBlogs />
                     },
                     {
+                        path: "upload-blogs/create",
+                        element: <BlogUpload />
+                    },
+                    {
+                        path: "upload-blogs/edit",
+                        element: <BlogUpload />
+                    },
+                    {
                         path: "all-offerposter",
                         element: <AllOfferPosters />
                     },
@@ -229,7 +238,7 @@ const router = createBrowserRouter([
                 element: <FAQPage />
             },
             {
-                path: "blog-post/:id",
+                path: "blog-details/:id",
                 element: <BlogPost />
             },
             {

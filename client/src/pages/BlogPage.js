@@ -77,79 +77,175 @@
 // };
 
 // export default BlogPage;
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import SummaryApi from '../common';  // Make sure this contains the correct URL for your API
+// import React, { useEffect, useState } from 'react';
+// import { Link } from 'react-router-dom';
+// import SummaryApi from '../common';  // Make sure this contains the correct URL for your API
 
-const BlogPage = () => {
-    const [posts, setPosts] = useState([]);  // State to store blog posts
-    const [loading, setLoading] = useState(true);  // State to handle loading state
-    const [error, setError] = useState(null);  // State to handle errors
+// const BlogPage = () => {
+//     const [posts, setPosts] = useState([]);  // State to store blog posts
+//     const [loading, setLoading] = useState(true);  // State to handle loading state
+//     const [error, setError] = useState(null);  // State to handle errors
 
-    // Fetch blog posts from API
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await fetch(SummaryApi.getBlogs.url);  // Replace with your API URL
+//     // Fetch blog posts from API
+//     useEffect(() => {
+//         const fetchPosts = async () => {
+//             try {
+//                 const response = await fetch(SummaryApi.getBlogs.url);  // Replace with your API URL
 
-                // Check if the response is successful (status 200-299)
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch data. Status code: ${response.status}`);
-                }
+//                 // Check if the response is successful (status 200-299)
+//                 if (!response.ok) {
+//                     throw new Error(`Failed to fetch data. Status code: ${response.status}`);
+//                 }
 
-                const data = await response.json();
-                console.log("API Response:", data);  // Log the API response for debugging
+//                 const data = await response.json();
+//                 console.log("API Response:", data);  // Log the API response for debugging
 
-                // Check if the API returned an array of blog posts
-                if (Array.isArray(data) && data.length > 0) {
-                    setPosts(data);  // Set fetched blog posts in state
-                } else {
-                    throw new Error("No blog posts found");
-                }
-            } catch (err) {
-                // Log actual error to console and set error state
-                console.error("Error fetching blog posts:", err);
-                setError(err.message || "An error occurred while fetching blog posts.");
-            } finally {
-                setLoading(false);  // Stop loading after fetching
-            }
-        };
+//                 // Check if the API returned an array of blog posts
+//                 if (Array.isArray(data) && data.length > 0) {
+//                     setPosts(data);  // Set fetched blog posts in state
+//                 } else {
+//                     throw new Error("No blog posts found");
+//                 }
+//             } catch (err) {
+//                 // Log actual error to console and set error state
+//                 console.error("Error fetching blog posts:", err);
+//                 setError(err.message || "An error occurred while fetching blog posts.");
+//             } finally {
+//                 setLoading(false);  // Stop loading after fetching
+//             }
+//         };
 
-        fetchPosts();
-    }, []);  // Empty dependency array means this effect runs only once on component mount
+//         fetchPosts();
+//     }, []);  // Empty dependency array means this effect runs only once on component mount
 
-    // Display loading message or error if any
-    if (loading) {
-        return <div className="text-center pb-64">Loading...</div>;
-    }
+//     // Display loading message or error if any
+//     if (loading) {
+//         return <div className="text-center pb-64">Loading...</div>;
+//     }
 
-    if (error) {
-        return <div className="text-center py-64">{error}</div>;
-    }
+//     if (error) {
+//         return <div className="text-center py-64">{error}</div>;
+//     }
 
-    return (
-        <div className="min-h-screen bg-black text-white py-10 px-4">
-            <div className="max-w-7xl mx-auto">
-                <h1 className="text-4xl font-bold mb-6">BLOGS</h1>
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {posts.map((post) => (
-                        <div key={post._id} className="border-b pb-4 mb-6">
-                          <Link to={`/blog-post/${post._id}`} className="text-white mt-2 block">
-                            <img src={post.imageUrl} alt={post.title} className="w-full h-48 object-cover mb-4" />
-                            <h2 className="text-2xl font-bold">{post.title}</h2>
-                            <p className="text-sm text-brand-textMuted"> | {post.category}</p>
-                            <p className="mt-4">
-                              {post.content[0].content.substring(0, 100)}... 
-                              <span className='text-white font-semibold italic'>Continue Reading</span>
-                            </p>
-                          </Link>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
+//     return (
+//         <div className="min-h-screen bg-black text-white py-10 px-4">
+//             <div className="max-w-7xl mx-auto">
+//                 <h1 className="text-4xl font-bold mb-6">BLOGS</h1>
+//                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+//                     {posts.map((post) => (
+//                         <div key={post._id} className="border-b pb-4 mb-6">
+//                           <Link to={`/blog-post/${post._id}`} className="text-white mt-2 block">
+//                             <img src={post.imageUrl} alt={post.title} className="w-full h-48 object-cover mb-4" />
+//                             <h2 className="text-2xl font-bold">{post.title}</h2>
+//                             <p className="text-sm text-brand-textMuted"> | {post.category}</p>
+//                             <p className="mt-4">
+//                               {post.content[0].content.substring(0, 100)}... 
+//                               <span className='text-white font-semibold italic'>Continue Reading</span>
+//                             </p>
+//                           </Link>
+//                         </div>
+//                     ))}
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default BlogPage;
+
+import React, { useEffect, useState } from "react";
+import SummaryApi from "../common";
+import BlogCard from "../components/blogComponents/BlogCard";
+import { useNavigate } from "react-router-dom";
+import NewsletterCTA from "../components/blogComponents/NewsletterCTA";
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+const getBlogExcerpt = (blocks = []) => {
+  const firstTextBlock = blocks.find(
+    (b) => b.type === "text" && b.text
+  );
+
+  if (!firstTextBlock) return "";
+
+  // Remove HTML tags & limit length
+  const plainText = firstTextBlock.text.replace(/<[^>]*>?/gm, "");
+
+  return plainText.length > 120
+    ? plainText.slice(0, 120) + "..."
+    : plainText;
 };
 
-export default BlogPage;
+const BlogsPage = () => {
+  const [blogs, setBlogs] = useState([]);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await fetch(SummaryApi.getBlogs.url);
+        if (!res.ok) throw new Error("Failed to fetch blogs");
+        const data = await res.json();
+        // setBlogs(data);
+        setBlogs([...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data]);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
+
+  return (
+    <section className="w-full bg-white py-14">
+      <div className="container mx-auto px-4 md:px-8">
+
+        {/* HEADER */}
+        <div className="text-center mb-12">
+          <p className="text-[#E60000] text-[16px] tracking-widest uppercase mb-2 font-sf">
+            Our Blogs
+          </p>
+          <h2 className="text-2xl md:text-3xl font-bold text-[#333333] mb-3 font-sf">
+            Find our all blogs from here
+          </h2>
+          <p className="max-w-2xl mx-auto text-[20px] text-[#666666] font-sf">
+            Our blogs are written from very research and well known writers so that
+            we can provide you the best blogs and articles articles for you to read them along.
+          </p>
+        </div>
+
+        {error && (
+          <p className="text-center text-red-500 mb-6">{error}</p>
+        )}
+
+        {/* GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+          {blogs.map((blog) => (
+            <BlogCard
+                key={blog._id}
+                image={blog.heroImage}
+                category={blog.category}
+                title={blog.title}
+                description={getBlogExcerpt(blog.blocks)}
+                author={blog.author}
+                date={formatDate(blog.createdAt)}
+                blogSlug={blog.slug}
+              onClick={() => navigate(`/blog-details/${blog.slug || blog._id}`)}
+            />
+          ))}
+        </div>
+      </div>
+      <NewsletterCTA/>
+    </section>
+  );
+};
+
+export default BlogsPage;
