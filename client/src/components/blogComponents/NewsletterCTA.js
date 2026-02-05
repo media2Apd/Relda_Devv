@@ -198,7 +198,7 @@ const NewsletterCTA = () => {
         <WaveSVG
           className="
             absolute 
-            -top-32 -left-48 
+            -top-20 -left-48 
             w-[700px] 
             opacity-30
             pointer-events-none
@@ -209,7 +209,7 @@ const NewsletterCTA = () => {
         <WaveSVG
           className="
             absolute 
-            -bottom-40 -right-56 
+            -bottom-20 -right-56 
             w-[700px]
             opacity-30
             rotate-180

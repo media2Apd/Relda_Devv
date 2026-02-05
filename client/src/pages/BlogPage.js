@@ -194,8 +194,7 @@ const BlogsPage = () => {
         const res = await fetch(SummaryApi.getBlogs.url);
         if (!res.ok) throw new Error("Failed to fetch blogs");
         const data = await res.json();
-        // setBlogs(data);
-        setBlogs([...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data]);
+        setBlogs(data);
       } catch (err) {
         setError(err.message);
       }
