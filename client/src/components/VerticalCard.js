@@ -68,7 +68,7 @@ const VerticalCard = ({ product, onClick, actionSlot, loading }) => {
         <OptimizedImage
           src={getProductImage()}
           alt={product?.altTitle || product?.productName || "Product"}
-          title={product?.title || product?.productName || "Product"}
+          title={product?.altTitle || product?.productName || "Product"}
           className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-200 mix-blend-multiply"
         />
 

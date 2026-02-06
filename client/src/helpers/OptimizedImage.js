@@ -8,7 +8,10 @@ const OptimizedImage = ({
   height,
   className = "",
   fallback = "/no-image.png",
+  onClick,
 }) => {
+  const isClickable = typeof onClick === "function";
+
   return (
     <img
       src={src}
@@ -20,7 +23,19 @@ const OptimizedImage = ({
       height={height}
       loading="lazy"
       decoding="async"
-      className={className}
+      className={`${className} ${isClickable ? "cursor-pointer" : ""}`}
+      onClick={onClick}
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onKeyDown={
+        isClickable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                onClick(e);
+              }
+            }
+          : undefined
+      }
       onError={(e) => {
         e.currentTarget.src = fallback;
       }}
