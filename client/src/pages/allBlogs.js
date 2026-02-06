@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import SummaryApi from "../common";
 import BlogCard from "../components/blogComponents/BlogCard";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
@@ -30,6 +32,13 @@ const getBlogExcerpt = (blocks = []) => {
 };
 
 const AllBlogs = () => {
+  const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith("/admin-panel");
+  const basePath = isAdminRoute
+    ? "/admin-panel/upload-blogs"
+    : "/adminBlog/upload-blogs";
+
   const [blogs, setBlogs] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -69,12 +78,12 @@ const AllBlogs = () => {
 
 
   return (
-    <div className="min-h-screen p-1 md:p-4">
+    <div className="min-h-screen p-1 md:p-4 bg-white">
       <div className="bg-white py-3 px-6 shadow-md flex justify-between items-center mb-2 rounded-lg">
         <h2 className="font-bold text-xl text-gray-900">All Blogs</h2>
         <button
           className="border-2 border-brand-primary text-brand-primary hover:bg-brand-primaryHover hover:text-white transition-all py-2 px-4 rounded-full"
-          onClick={() => navigate("/admin-panel/upload-blogs/create")}
+          onClick={() => navigate(`${basePath}/create`)}
 
         >
           Upload Blogs
@@ -95,7 +104,8 @@ const AllBlogs = () => {
                 author={blog.author}
                 date={formatDate(blog.createdAt)}
                 blogSlug={blog.slug}
-              onClick={() => navigate(`/admin-panel/upload-blogs/edit?id=${blog._id}`)}
+                onClick={() => navigate(`${basePath}/edit?id=${blog._id}`)}
+
 
             />
 
@@ -103,7 +113,8 @@ const AllBlogs = () => {
             <div className="absolute top-3 right-3 flex gap-2">
               <button
                 className="p-2 bg-white/90 hover:bg-green-500 rounded-full hover:text-white shadow"
-                onClick={() => navigate(`/admin-panel/upload-blogs/edit?id=${blog._id}`||'')}
+               onClick={() => navigate(`${basePath}/edit?id=${blog._id}`)}
+
 
               >
                 <MdModeEditOutline size={18} />

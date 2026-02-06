@@ -60,6 +60,8 @@ import AllCoupons from '../panelPages/AllCoupons'
 import BannerList from '../components/bannerComponents/BannerList'
 import FAQPage from '../pages/FAQPage'
 import BlogUpload from '../pages/BlogUpload'
+import RequireRole from '../helpers/RequireRole'
+import ROLE from '../common/role'
 
 
 
@@ -102,7 +104,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "admin-panel",
-                element: <AdminPanel />,
+                  element: (
+                    <RequireRole role={ROLE.ADMIN}>
+                    <AdminPanel />
+                    </RequireRole>
+                ),
                 children: [
                     {
                         path: "dashboard",
@@ -200,11 +206,23 @@ const router = createBrowserRouter([
             },
             {
                 path: 'adminBlog',
-                element: <AdminBlog />,
+                  element: (
+                    <RequireRole role={ROLE.MANAGEBLOG}>
+                    <AdminBlog />
+                    </RequireRole>
+                ),
                 children: [
                     {
                         path: "upload-blogs",
                         element: <AllBlogs />
+                    },
+                                        {
+                        path: "upload-blogs/create",
+                        element: <BlogUpload />
+                    },
+                    {
+                        path: "upload-blogs/edit",
+                        element: <BlogUpload />
                     },
                 ]
             },

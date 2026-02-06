@@ -320,7 +320,7 @@ import {
 } from "@dnd-kit/core";
 import { MdOutlineDragIndicator } from "react-icons/md";
 import BlogPreview from "../components/blogComponents/BlogPreview";
-
+import { useLocation } from "react-router-dom";
 import {
   SortableContext,
   useSortable,
@@ -529,6 +529,11 @@ const RichTextInput = ({ value, onChange, placeholder }) => {
 
 
 const BlogUpload = () => {
+  const location = useLocation();
+
+  const basePath = location.pathname.startsWith("/admin-panel")
+    ? "/admin-panel/upload-blogs"
+    : "/adminBlog/upload-blogs";
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const blogId = searchParams.get("id");
@@ -722,7 +727,8 @@ const BlogUpload = () => {
     }
 
     toast.success("Blog saved successfully");
-    navigate("/admin-panel/upload-blogs");
+    navigate(basePath);
+
 
   } catch (err) {
     console.error(err);
