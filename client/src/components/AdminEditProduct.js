@@ -393,6 +393,7 @@ import DisplayImage from './DisplayImage';
 import { MdDelete } from "react-icons/md";
 import SummaryApi from '../common';
 import { toast } from 'react-toastify';
+import OptimizedImage from '../helpers/OptimizedImage';
 
 const AdminEditProduct = ({
     onClose,
@@ -594,9 +595,21 @@ const AdminEditProduct = ({
                                                     }}
                                                 />
                                             ) : (
-                                                <img
+                                                // <img
+                                                //     src={mediaUrl}
+                                                //     alt={`media-${index}`}
+                                                //     width={80}
+                                                //     height={80}
+                                                //     className='bg-slate-100 border cursor-pointer object-scale-down'
+                                                //     onClick={() => {
+                                                //         setOpenFullScreenImage(true);
+                                                //         setFullScreenImage(mediaUrl);
+                                                //     }}
+                                                // />
+                                                <OptimizedImage
                                                     src={mediaUrl}
-                                                    alt={`media-${index}`}
+                                                    alt={data?.altTitle || data?.productName || "Product"}
+                                                    title={data?.altTitle || data?.productName || "Product"}
                                                     width={80}
                                                     height={80}
                                                     className='bg-slate-100 border cursor-pointer object-scale-down'
@@ -605,7 +618,7 @@ const AdminEditProduct = ({
                                                         setFullScreenImage(mediaUrl);
                                                     }}
                                                 />
-                                            )}
+                                                                                        )}
                                             <div
                                                 className='absolute bottom-0 right-0 p-1 text-white bg-red-600 rounded-full hidden group-hover:block cursor-pointer'
                                                 onClick={() => handleDeleteProductImage(index)}

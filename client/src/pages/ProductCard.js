@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import displayINRCurrency from "../helpers/displayCurrency";
+import OptimizedImage from "../helpers/OptimizedImage";
 
 const ProductCard = ({ product, onClick, actionSlot, loading }) => {
   const navigate = useNavigate();
@@ -63,13 +64,19 @@ const ProductCard = ({ product, onClick, actionSlot, loading }) => {
     >
       {/* IMAGE (FIXED HEIGHT) */}
       <div className="bg-brand-productCardImageBg h-[200px] flex items-center justify-center p-4">
-        <img
+        {/* <img
           src={getProductImage()}
           alt={product.productName}
           className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-200"
           onError={(e) => {
             e.target.src = "/no-image.png";
           }}
+        /> */}
+        <OptimizedImage
+          src={getProductImage()}
+          alt={product?.altTitle || product?.productName || "Product"}
+          title={product?.altTitle || product?.productName || "Product"}
+          className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-200 mix-blend-multiply"
         />
       </div>
 
