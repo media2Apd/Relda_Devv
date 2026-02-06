@@ -1,12 +1,149 @@
-import { useCallback } from 'react';
-import './App.css';
+// import { useCallback } from 'react';
+// import './App.css';
 
+// import { Outlet } from 'react-router-dom';
+// import Header from './components/Header';
+// import Footer from './components/Footer';
+// import { ToastContainer } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+// import { useEffect, useState } from 'react';
+// import SummaryApi from './common';
+// import Context from './context';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { setUserDetails } from './store/userSlice';
+// import ScrollToTop from './helpers/ScrollToTop';
+
+// function App() {
+//   const dispatch = useDispatch()
+//   const [cartProductCount,setCartProductCount] = useState(0)
+//   const [wishlistCount, setWishlistCount] = useState(0); // Add this line
+//   const user = useSelector((state) => state?.user?.user); // Get logged-in user
+
+
+// const fetchUserDetails = useCallback(async () => {
+//   try {
+//       const dataResponse = await fetch(SummaryApi.current_user.url, {
+//           method: SummaryApi.current_user.method,
+//           credentials: 'include',
+//       });
+      
+//       const dataApi = await dataResponse.json();
+
+//       if (dataApi.success) {
+//           // Save token to localStorage
+//           localStorage.setItem('token', dataApi.data);
+
+//           // Dispatch user details to Redux store
+//           dispatch(setUserDetails(dataApi.data));
+//       }
+//   } catch (error) {
+//       console.error(error);
+//   }
+// }, [dispatch]);
+
+
+//   const fetchUserAddToCart = async()=>{
+//    try {
+//     const dataResponse = await fetch(SummaryApi.addToCartProductCount.url,{
+//       method : SummaryApi.addToCartProductCount.method,
+//       credentials : 'include'
+//     })
+//     const dataApi = await dataResponse.json()
+
+//     setCartProductCount(dataApi?.data?.count)
+//    } catch (error) {
+//     console.error(error)
+//    }
+//   }
+// // Fetch wishlist count
+// const fetchWishlistCount = useCallback(async (user) => {
+//   try {
+//     let combinedWishlist = new Set();
+
+//     if (user?._id) {
+//       const response = await fetch(
+//         SummaryApi.getWishlist(user._id).url,
+//         {
+//           method: "GET",
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         }
+//       );
+
+//       if (response.ok) {
+//         const data = await response.json();
+//         const apiWishlist = data.wishlist.map((item) => item._id);
+//         combinedWishlist = new Set([...combinedWishlist, ...apiWishlist]);
+//       }
+//     }
+
+//     const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+//     combinedWishlist = new Set([...combinedWishlist, ...storedWishlist]);
+
+//     setWishlistCount(combinedWishlist.size);
+//   } catch (error) {
+//     console.error("Error fetching wishlist count:", error);
+//   }
+// }, []);
+
+
+// // Fetch user and cart on mount
+// useEffect(() => {
+//   const init = async () => {
+//     await fetchUserDetails();
+//     await fetchUserAddToCart();
+//   };
+
+//   init();
+// }, [fetchUserDetails]);
+
+// useEffect(() => {
+//   if (user !== null) {
+//     fetchWishlistCount(user);
+//   } else {
+//     const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+//     setWishlistCount(storedWishlist.length); // local only
+//   }
+// }, [user, fetchWishlistCount]);
+
+//   return (
+//     <>
+//       <ScrollToTop />
+//       <Context.Provider value={{
+//           fetchUserDetails, // user detail fetch 
+//           cartProductCount, // current user add to cart product count,
+//           fetchUserAddToCart,
+//           fetchWishlistCount,
+//           wishlistCount,   // ? expose to context
+//           setWishlistCount,  // ? expose setter too
+//       }}>
+             
+//         <Header />
+//         <main className='bg-white min-h-[calc(100vh-120px)] overflow-hidden'>
+//           <Outlet/>
+//         </main>
+//         <Footer/>
+        
+//         <ToastContainer
+//           position="top-center"
+//           // className="z-[99999]"
+//         />
+//       </Context.Provider>
+//     </>
+//   );
+// }
+
+// export default App;
+
+import { useCallback, useEffect, useState } from 'react';
+import './App.css';
 import { Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect, useState } from 'react';
 import SummaryApi from './common';
 import Context from './context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,122 +151,150 @@ import { setUserDetails } from './store/userSlice';
 import ScrollToTop from './helpers/ScrollToTop';
 
 function App() {
-  const dispatch = useDispatch()
-  const [cartProductCount,setCartProductCount] = useState(0)
-  const [wishlistCount, setWishlistCount] = useState(0); // Add this line
-  const user = useSelector((state) => state?.user?.user); // Get logged-in user
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state?.user?.user);
+  
+  const [cartProductCount, setCartProductCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  
+  // State to track if we are currently checking user authentication
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
-
-const fetchUserDetails = useCallback(async () => {
-  try {
+  // Function to fetch User Details
+  const fetchUserDetails = useCallback(async () => {
+    try {
       const dataResponse = await fetch(SummaryApi.current_user.url, {
-          method: SummaryApi.current_user.method,
-          credentials: 'include',
+        method: SummaryApi.current_user.method,
+        credentials: 'include',
       });
-      
+
       const dataApi = await dataResponse.json();
 
       if (dataApi.success) {
-          // Save token to localStorage
-          localStorage.setItem('token', dataApi.data);
+        // Save token to localStorage
+        localStorage.setItem('token', dataApi.data);
 
-          // Dispatch user details to Redux store
-          dispatch(setUserDetails(dataApi.data));
+        // Dispatch user details to Redux store
+        dispatch(setUserDetails(dataApi.data));
       }
-  } catch (error) {
-      console.error(error);
-  }
-}, [dispatch]);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+    // We do NOT set setIsAuthChecking(false) here because we might want to wait
+    // inside the useEffect to ensure strict ordering.
+  }, [dispatch]);
 
+  // Function to fetch Cart Count
+  const fetchUserAddToCart = useCallback(async () => {
+    try {
+      const dataResponse = await fetch(SummaryApi.addToCartProductCount.url, {
+        method: SummaryApi.addToCartProductCount.method,
+        credentials: 'include',
+      });
+      const dataApi = await dataResponse.json();
 
-  const fetchUserAddToCart = async()=>{
-   try {
-    const dataResponse = await fetch(SummaryApi.addToCartProductCount.url,{
-      method : SummaryApi.addToCartProductCount.method,
-      credentials : 'include'
-    })
-    const dataApi = await dataResponse.json()
+      setCartProductCount(dataApi?.data?.count);
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  }, []);
 
-    setCartProductCount(dataApi?.data?.count)
-   } catch (error) {
-    console.error(error)
-   }
-  }
-// Fetch wishlist count
-const fetchWishlistCount = useCallback(async (user) => {
-  try {
-    let combinedWishlist = new Set();
+  // Function to fetch Wishlist Count
+  const fetchWishlistCount = useCallback(async (currentUser) => {
+    try {
+      let combinedWishlist = new Set();
 
-    if (user?._id) {
-      const response = await fetch(
-        SummaryApi.getWishlist(user._id).url,
-        {
+      // If user exists, fetch from API
+      if (currentUser?._id) {
+        const response = await fetch(SummaryApi.getWishlist(currentUser._id).url, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
-      );
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        const apiWishlist = data.wishlist.map((item) => item._id);
-        combinedWishlist = new Set([...combinedWishlist, ...apiWishlist]);
+        if (response.ok) {
+          const data = await response.json();
+          const apiWishlist = data.wishlist.map((item) => item._id);
+          combinedWishlist = new Set([...combinedWishlist, ...apiWishlist]);
+        }
+      }
+
+      // Merge with local storage
+      const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      combinedWishlist = new Set([...combinedWishlist, ...storedWishlist]);
+
+      setWishlistCount(combinedWishlist.size);
+    } catch (error) {
+      console.error("Error fetching wishlist count:", error);
+    }
+  }, []);
+
+  // 1. INITIAL LOAD: Fetch User Details First
+  useEffect(() => {
+    const initAuth = async () => {
+      // Wait for user details to be fetched completely
+      await fetchUserDetails();
+      // Once finished (success or fail), stop loading
+      setIsAuthChecking(false);
+    };
+
+    initAuth();
+  }, [fetchUserDetails]);
+
+  // 2. DEPENDENT FETCHES: Fetch Cart and Wishlist ONLY after Auth Check is done
+  useEffect(() => {
+    if (!isAuthChecking) {
+      // Logic runs only after the initial loading screen is removed
+      
+      // Fetch Cart
+      fetchUserAddToCart();
+
+      // Fetch Wishlist
+      if (user !== null) {
+        fetchWishlistCount(user);
+      } else {
+        const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+        setWishlistCount(storedWishlist.length);
       }
     }
+  }, [isAuthChecking, user, fetchUserAddToCart, fetchWishlistCount]);
 
-    const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-    combinedWishlist = new Set([...combinedWishlist, ...storedWishlist]);
-
-    setWishlistCount(combinedWishlist.size);
-  } catch (error) {
-    console.error("Error fetching wishlist count:", error);
+  // If we are still checking authentication, show a Loader/Spinner
+  if (isAuthChecking) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-[99999]">
+        <div className="flex flex-col items-center gap-2">
+          {/* Simple Tailwind Spinner */}
+          <div className="w-12 h-12 border-4 border-slate-200 border-t-red-600 rounded-full animate-spin"></div>
+          <p className="text-slate-500 font-medium">Loading Application...</p>
+        </div>
+      </div>
+    );
   }
-}, []);
 
-
-// Fetch user and cart on mount
-useEffect(() => {
-  const init = async () => {
-    await fetchUserDetails();
-    await fetchUserAddToCart();
-  };
-
-  init();
-}, [fetchUserDetails]);
-
-useEffect(() => {
-  if (user !== null) {
-    fetchWishlistCount(user);
-  } else {
-    const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-    setWishlistCount(storedWishlist.length); // local only
-  }
-}, [user, fetchWishlistCount]);
-
+  // Once Loading is done, render the App
   return (
     <>
       <ScrollToTop />
-      <Context.Provider value={{
-          fetchUserDetails, // user detail fetch 
-          cartProductCount, // current user add to cart product count,
+      <Context.Provider
+        value={{
+          fetchUserDetails,
+          cartProductCount,
           fetchUserAddToCart,
           fetchWishlistCount,
-          wishlistCount,   // ? expose to context
-          setWishlistCount,  // ? expose setter too
-      }}>
-             
+          wishlistCount,
+          setWishlistCount,
+        }}
+      >
         <Header />
-        <main className='bg-white min-h-[calc(100vh-120px)] overflow-hidden'>
-          <Outlet/>
+        <main className="bg-white min-h-[calc(100vh-120px)] overflow-hidden">
+          <Outlet />
         </main>
-        <Footer/>
-        
-        <ToastContainer
-          position="top-center"
-          // className="z-[99999]"
-        />
+        <Footer />
+
+        <ToastContainer position="top-center" />
       </Context.Provider>
     </>
   );
