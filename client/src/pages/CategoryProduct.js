@@ -6,12 +6,12 @@ import Context from '../context';
 import addToCart from '../helpers/addToCart';
 import { SlidersHorizontal } from 'lucide-react';
 import SelectDropdown from '../customStyles/SelectDropdown';
-import offer1 from '../assest/offer/Offer1.png';
-import offer2 from '../assest/offer/Offer2.png';
-import offer3 from '../assest/offer/Offer3.png';
-import offerMobile1 from '../assest/offer/OfferMobile1.png';
-import offerMobile2 from '../assest/offer/OfferMobile2.png';
-import offerMobile3 from '../assest/offer/OfferMobile3.png';
+import offer1 from '../assest/offer/Offer1.webp';
+import offer2 from '../assest/offer/Offer2.webp';
+import offer3 from '../assest/offer/Offer3.webp';
+import offerMobile1 from '../assest/offer/OfferMobile1.webp';
+import offerMobile2 from '../assest/offer/OfferMobile2.webp';
+import offerMobile3 from '../assest/offer/OfferMobile3.webp';
 const CategoryProduct = () => {
   const [data, setData] = useState([]);
   const [allProducts, setAllProducts] = useState([]); // Store all products for frontend filtering

@@ -1,7 +1,7 @@
-import mixer1 from "../assest/topSell/Mixer1.png";
-import iron from "../assest/topSell/IronBox1.png";
-import hob from "../assest/topSell/Hob1.png";
-import mixer2 from "../assest/topSell/Mixer2.png";
+import mixer1 from "../assest/topSell/Mixer1.webp";
+import iron from "../assest/topSell/IronBox1.webp";
+import hob from "../assest/topSell/Hob1.webp";
+import mixer2 from "../assest/topSell/Mixer2.webp";
 
 const topSellingProducts = [
   {
