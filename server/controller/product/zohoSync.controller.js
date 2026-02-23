@@ -266,122 +266,122 @@ const {
 // };
 // services/zohoProductSync.service.js
 
-// exports.syncZohoVariantsAsProducts = async () => {
-//   try {
-//     const items = await fetchZohoItems();
-//     console.log("📦 Fetched ZOHO items:", items.length);
-    
-//     console.log("🧪🧪🧪 FIRST ZOHO ITEM – FULL RAW OBJECT 🧪🧪🧪");
-//     console.log(JSON.stringify(items[0], null, 2));
-//     console.log("🧪🧪🧪 END OF FIRST ITEM DUMP 🧪🧪🧪");
-
-//     for (let i = 0; i < items.length; i++) {
-//       const item = items[i];
-
-//       if (item.category_name !== "Relda") continue;
-
-//       const attributes = {};
-//       if (item.attribute_name1)
-//         attributes[item.attribute_name1] = item.attribute_option_name1;
-//       if (item.attribute_name2)
-//         attributes[item.attribute_name2] = item.attribute_option_name2;
-//       if (item.attribute_name3)
-//         attributes[item.attribute_name3] = item.attribute_option_name3;
-
-//       const basePrice = Number(item.rate || 0);
-//       const gstPercent = resolveGSTFromItem(item);
-
-//       const sellingPrice =
-//         gstPercent && gstPercent > 0
-//           ? calculateInclusivePrice(basePrice, gstPercent)
-//           : Math.round(basePrice);
-
-//       let productImages = [];
-//       if (item.image_document_id) {
-//         const cloudinaryImage =
-//           await uploadZohoImageToCloudinary(item.item_id);
-
-//         if (cloudinaryImage?.url) {
-//           productImages.push({ url: cloudinaryImage.url, type: "image" });
-//         }
-//       }
-
-//       await productModel.findOneAndUpdate(
-//         { zohoVariantId: item.item_id },
-//         {
-//           zohoItemId: item.group_id || item.item_id,
-//           zohoVariantId: item.item_id,
-//           productName: item.name,
-//           parentName: item.group_name || "",
-//           brandName: item.brand || "",
-//           attributes,
-//           basePrice,
-//           gstPercent,
-//           sellingPrice,
-//           availability: item.available_stock,
-//           productImage: productImages,
-//           isHidden: item.status !== "active"
-//         },
-//         { upsert: true, new: true }
-//       );
-//     }
-
-//     console.log("🎉 Zoho Relda products synced successfully");
-//   } catch (err) {
-//     console.error("❌ Zoho product sync failed:", err.message);
-//     throw err;
-//   }
-// };
 exports.syncZohoVariantsAsProducts = async () => {
   try {
     const items = await fetchZohoItems();
+    console.log("📦 Fetched ZOHO items:", items.length);
+    
+    console.log("🧪🧪🧪 FIRST ZOHO ITEM – FULL RAW OBJECT 🧪🧪🧪");
+    console.log(JSON.stringify(items[0], null, 2));
+    console.log("🧪🧪🧪 END OF FIRST ITEM DUMP 🧪🧪🧪");
 
-    let reldaCount = 0;
-
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
 
       if (item.category_name !== "Relda") continue;
 
-      reldaCount++;
-
-      console.log(
-        `🟢 RELDA ITEM → ${item.name} | Category: ${item.category_name}`
-      );
+      const attributes = {};
+      if (item.attribute_name1)
+        attributes[item.attribute_name1] = item.attribute_option_name1;
+      if (item.attribute_name2)
+        attributes[item.attribute_name2] = item.attribute_option_name2;
+      if (item.attribute_name3)
+        attributes[item.attribute_name3] = item.attribute_option_name3;
 
       const basePrice = Number(item.rate || 0);
       const gstPercent = resolveGSTFromItem(item);
+
       const sellingPrice =
-        gstPercent > 0
+        gstPercent && gstPercent > 0
           ? calculateInclusivePrice(basePrice, gstPercent)
           : Math.round(basePrice);
+
+      let productImages = [];
+      if (item.image_document_id) {
+        const cloudinaryImage =
+          await uploadZohoImageToCloudinary(item.item_id);
+
+        if (cloudinaryImage?.url) {
+          productImages.push({ url: cloudinaryImage.url, type: "image" });
+        }
+      }
 
       await productModel.findOneAndUpdate(
         { zohoVariantId: item.item_id },
         {
+          zohoItemId: item.group_id || item.item_id,
           zohoVariantId: item.item_id,
           productName: item.name,
+          parentName: item.group_name || "",
+          brandName: item.brand || "",
+          attributes,
           basePrice,
           gstPercent,
           sellingPrice,
           availability: item.available_stock,
+          productImage: productImages,
           isHidden: item.status !== "active"
         },
         { upsert: true, new: true }
       );
-
-      console.log(
-        `✅ Synced: ${item.name} | GST: ${gstPercent} | Price: ${sellingPrice}`
-      );
     }
 
-    console.log(
-      `🎉 Zoho Relda products synced successfully | TOTAL RELDA: ${reldaCount}`
-    );
+    console.log("🎉 Zoho Relda products synced successfully");
   } catch (err) {
     console.error("❌ Zoho product sync failed:", err.message);
     throw err;
   }
 };
+// exports.syncZohoVariantsAsProducts = async () => {
+//   try {
+//     const items = await fetchZohoItems();
+
+//     let reldaCount = 0;
+
+//     for (const item of items) {
+
+//       if (item.category_name !== "Relda") continue;
+
+//       reldaCount++;
+
+//       console.log(
+//         `🟢 RELDA ITEM → ${item.name} | Category: ${item.category_name}`
+//       );
+
+//       const basePrice = Number(item.rate || 0);
+//       const gstPercent = resolveGSTFromItem(item);
+//       const sellingPrice =
+//         gstPercent > 0
+//           ? calculateInclusivePrice(basePrice, gstPercent)
+//           : Math.round(basePrice);
+
+//       await productModel.findOneAndUpdate(
+//         { zohoVariantId: item.item_id },
+//         {
+//           zohoVariantId: item.item_id,
+//           productName: item.name,
+//           basePrice,
+//           gstPercent,
+//           sellingPrice,
+//           availability: item.available_stock,
+//           isHidden: item.status !== "active"
+//         },
+//         { upsert: true, new: true }
+//       );
+
+//       console.log(
+//         `✅ Synced: ${item.name} | GST: ${gstPercent} | Price: ${sellingPrice}`
+//       );
+//     }
+
+//     console.log(
+//       `🎉 Zoho Relda products synced successfully | TOTAL RELDA: ${reldaCount}`
+//     );
+//   } catch (err) {
+//     console.error("❌ Zoho product sync failed:", err.message);
+//     throw err;
+//   }
+// };
 
 
 exports.manualZohoProductSync = async (req, res) => {
