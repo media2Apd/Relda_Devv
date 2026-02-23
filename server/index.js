@@ -8,8 +8,8 @@ const router = require('./routes');
 const path = require('path');
 require('source-map-support').install();
 require('./controller/scheduler/dailyReportScheduler')
-// require("./cron");
-// require("./jobs/zohoProductSync.cron");
+require("./cron");
+require("./jobs/zohoProductSync.cron");
 
 
 const getClientIp = require('./middleware/getClientIp'); // Define this in a middleware file if not done already
@@ -18,7 +18,7 @@ const guestSession = require("./middleware/guestSession");
 
 const app = express();
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:3001","http://192.168.31.36:3000"],
+    origin: ["http://localhost:3000", "http://localhost:3001","http://192.168.0.6:3000"],
     credentials: true,
 }));
 
