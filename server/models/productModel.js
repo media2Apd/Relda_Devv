@@ -6,11 +6,11 @@ const productSchema = mongoose.Schema({
       zohoVariantId: { type: String, unique: true },       // variant item id'
     productName : String,
     brandName : String,
-    // category : String,
-    category: [{
-  type: String,
-  index: true
-}],
+    category : String,
+//     category: [{
+//   type: String,
+//   index: true
+// }],
 
     productImage : [],
     altTitle : String,
