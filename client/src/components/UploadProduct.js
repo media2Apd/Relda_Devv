@@ -18,7 +18,8 @@ const UploadProduct = ({
         productName: "",
         brandName: "",
         // category: "",
-        category: [],
+        category: "",
+        visibleCategories: [],
         productImage: [], // now stores { url, type }
 
         description: "",
@@ -53,7 +54,7 @@ const UploadProduct = ({
     const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
     const [fullScreenImage, setFullScreenImage] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-const [selectedCategories, setSelectedCategories] = useState([]);
+// const [selectedCategories, setSelectedCategories] = useState([]);
 
 
     const handleOnChange = (e) => {
@@ -64,20 +65,20 @@ const [selectedCategories, setSelectedCategories] = useState([]);
             [name]: value
         }));
     };
-const handleCategoryToggle = (value) => {
-  setSelectedCategories(prev =>
-    prev.includes(value)
-      ? prev.filter(v => v !== value)
-      : [...prev, value]
-  );
-};
+// const handleCategoryToggle = (value) => {
+//   setSelectedCategories(prev =>
+//     prev.includes(value)
+//       ? prev.filter(v => v !== value)
+//       : [...prev, value]
+//   );
+// };
 
-useEffect(() => {
-  setData(prev => ({
-    ...prev,
-    category: selectedCategories   // 🔥 ARRAY
-  }));
-}, [selectedCategories]);
+// useEffect(() => {
+//   setData(prev => ({
+//     ...prev,
+//     category: selectedCategories   // 🔥 ARRAY
+//   }));
+// }, [selectedCategories]);
 
 
     // const handleUploadProduct = async (e) => {
@@ -207,24 +208,10 @@ useEffect(() => {
                         required
                     />
 
-                    <label htmlFor='category' className='mt-3'>Category :</label>
-                    {/* <select
-                        required
-                        value={data.category}
-                        name='category'
-                        onChange={handleOnChange}
-                        className='p-2 bg-slate-100 border rounded'>
-                        <option value={""}>Select Category</option>
-                        {
-                            categories.map((el, index) => {
-                                return (
-                                    <option value={el.value} key={el.value + index}>{el.label}</option>
-                                );
-                            })
-                        }
-                    </select> */}
+                    {/* <label htmlFor='category' className='mt-3'>Category :</label>
+
             <div className="relative w-full">
-            {/* Dropdown header */}
+        
             <div
                 className="p-2 bg-slate-100 border rounded cursor-pointer flex justify-between items-center"
                 onClick={() => setIsDropdownOpen(prev => !prev)}
@@ -237,7 +224,7 @@ useEffect(() => {
                 <span className="text-xs">▼</span>
             </div>
 
-            {/* Dropdown list */}
+          
             {isDropdownOpen && (
                 <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-52 overflow-y-auto">
                 {categories.map((el, index) => (
@@ -255,9 +242,90 @@ useEffect(() => {
                 ))}
                 </div>
             )}
-            </div>
+            </div> */}
+<label className='mt-3'>Main Category :</label>
 
+<select
+  name="category"
+  value={data.category}
+  onChange={(e) => {
+    const selected = e.target.value;
 
+    setData(prev => {
+      let updatedVisible = [...prev.visibleCategories];
+
+      // Auto add main category to visibleCategories
+      if (selected && !updatedVisible.includes(selected)) {
+        updatedVisible.push(selected);
+      }
+
+      return {
+        ...prev,
+        category: selected,
+        visibleCategories: updatedVisible
+      };
+    });
+  }}
+  className="p-2 bg-slate-100 border rounded"
+  required
+>
+  <option value="">Select Category</option>
+  {categories.map((el, index) => (
+    <option key={index} value={el.value}>
+      {el.label}
+    </option>
+  ))}
+</select>
+<label className='mt-3'>Visible Categories :</label>
+
+<div className="relative w-full">
+  <div
+    className="p-2 bg-slate-100 border rounded cursor-pointer flex justify-between items-center"
+    onClick={() => setIsDropdownOpen(prev => !prev)}
+  >
+    <span className="text-sm text-gray-700">
+      {data.visibleCategories.length > 0
+        ? data.visibleCategories.join(", ")
+        : "Select Visible Categories"}
+    </span>
+    <span className="text-xs">▼</span>
+  </div>
+
+  {isDropdownOpen && (
+    <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-52 overflow-y-auto">
+      {categories.map((el, index) => {
+        const isSelected = data.visibleCategories.includes(el.value);
+
+        return (
+          <label
+            key={index}
+            className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 cursor-pointer"
+          >
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => {
+                let updated;
+
+                if (isSelected) {
+                  updated = data.visibleCategories.filter(cat => cat !== el.value);
+                } else {
+                  updated = [...data.visibleCategories, el.value];
+                }
+
+                setData(prev => ({
+                  ...prev,
+                  visibleCategories: updated
+                }));
+              }}
+            />
+            <span className="text-sm">{el.label}</span>
+          </label>
+        );
+      })}
+    </div>
+  )}
+</div>
 
                     <label htmlFor='productImage' className='mt-3'>Product Image :</label>
                     <label htmlFor='uploadImageInput'>

@@ -6,12 +6,22 @@ const productSchema = mongoose.Schema({
       zohoVariantId: { type: String, unique: true },       // variant item id'
     productName : String,
     brandName : String,
-    category : String,
+    // category : String,
 //     category: [{
 //   type: String,
 //   index: true
 // }],
+    // ✅ MAIN CATEGORY (Single)
+    category: { 
+      type: String, 
+      index: true 
+    },
 
+    // ✅ VISIBLE CATEGORIES (Multiple)
+    visibleCategories: {
+      type: [String],
+      index: true
+    },
     productImage : [],
     altTitle : String,
     description : String,

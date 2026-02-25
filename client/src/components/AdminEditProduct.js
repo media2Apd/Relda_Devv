@@ -405,7 +405,8 @@ const AdminEditProduct = ({
         ...productData,
         productName: productData?.productName,
         brandName: productData?.brandName,
-        category: productData?.category,
+        category: productData?.category || "",
+        visibleCategories: productData?.visibleCategories || [],
         productImage: productData?.productImage || [],
         description: productData?.description,
         price: productData?.price,
@@ -418,7 +419,7 @@ const AdminEditProduct = ({
 
     const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
     const [fullScreenImage, setFullScreenImage] = useState("");
-
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const handleOnChange = (e) => {
         const { name, value, type, checked } = e.target;
         setData(prev => ({
@@ -426,7 +427,11 @@ const AdminEditProduct = ({
             [name]: type === 'checkbox' ? checked : value
         }));
     };
-
+        useEffect(() => {
+        const handleClickOutside = () => setIsDropdownOpen(false);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+        }, []);
     // FIXED: Now using uploadMedia to get {url, type} format
     const handleUploadProduct = async (e) => {
         const file = e.target.files[0];
@@ -553,14 +558,71 @@ const AdminEditProduct = ({
                         className='p-2 bg-slate-100 border rounded' required
                     />
 
-                    <label htmlFor='category' className='mt-3'>Category :</label>
-                    <select required value={data.category} name='category' onChange={handleOnChange} className='p-2 bg-slate-100 border rounded'>
-                        <option value={""}>Select Category</option>
-                        {categories.map((el, index) => (
-                            <option value={el.value} key={el.value + index}>{el.label}</option>
-                        ))}
-                    </select>
+<label className='mt-3'>Main Category :</label>
 
+<select
+  name="category"
+  value={data.category}
+  onChange={handleOnChange}
+  className="p-2 bg-slate-100 border rounded"
+  required
+>
+  <option value="">Select Category</option>
+  {categories.map((el, index) => (
+    <option key={index} value={el.value}>
+      {el.label}
+    </option>
+  ))}
+</select>
+<label className='mt-3'>Visible Categories :</label>
+
+<div 
+  className="relative w-full"
+  onClick={(e) => e.stopPropagation()}
+>
+  <div
+    className="p-2 bg-slate-100 border rounded cursor-pointer flex justify-between items-center"
+    onClick={() => setIsDropdownOpen(prev => !prev)}
+  >
+    <span className="text-sm text-gray-700">
+      {data.visibleCategories.length > 0
+        ? data.visibleCategories.join(", ")
+        : "Select Visible Categories"}
+    </span>
+    <span className="text-xs">▼</span>
+  </div>
+
+  {isDropdownOpen && (
+    <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-52 overflow-y-auto">
+      {categories.map((el, index) => {
+        const isSelected = data.visibleCategories.includes(el.value);
+
+        return (
+          <label
+            key={el.value + index}
+            className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 cursor-pointer"
+          >
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => {
+                const updated = isSelected
+                  ? data.visibleCategories.filter(cat => cat !== el.value)
+                  : [...data.visibleCategories, el.value];
+
+                setData(prev => ({
+                  ...prev,
+                  visibleCategories: updated
+                }));
+              }}
+            />
+            <span className="text-sm">{el.label}</span>
+          </label>
+        );
+      })}
+    </div>
+  )}
+</div>
                     <label htmlFor='productImage' className='mt-3'>Product Image :</label>
                     <label htmlFor='uploadImageInput'>
                         <div className='p-2 bg-slate-100 border rounded h-32 w-full flex justify-center items-center cursor-pointer'>

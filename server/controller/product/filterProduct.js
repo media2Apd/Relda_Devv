@@ -40,9 +40,13 @@ const filterProductController = async (req, res) => {
     if (categoryList.length > 0) {
       product = await productModel.find({
         ...baseFilter,
-        category: {
-          $in: categoryList
-        }
+        // category: {
+        //   $in: categoryList
+        // }
+        $or: [
+          { category: { $in: categoryList } },
+          { visibleCategories: { $in: categoryList } }
+        ]
       });
     } else {
       product = await productModel.find(baseFilter);

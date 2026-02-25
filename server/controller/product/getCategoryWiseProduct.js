@@ -171,8 +171,18 @@ const getCategoryWiseProduct = async (req, res) => {
 
     // 🔹 5. Fetch products
     // product.category = [String] → Mongo auto matches array
+    // const products = await productModel.find({
+    //   category: category.value,
+    //   zohoVariantId: {
+    //     $exists: true,
+    //     $ne: "",
+    //   },
+    // }).lean();
     const products = await productModel.find({
-      category: category.value,
+      $or: [
+        { category: category.value },
+        { visibleCategories: category.value }
+      ],
       zohoVariantId: {
         $exists: true,
         $ne: "",
