@@ -20,6 +20,7 @@
     "dnd-kit": "^0.0.2",
     "docx": "^9.1.0",
     "file-saver": "^2.0.5",
+    "framer-motion": "^12.38.0",
     "frontend": "file:",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
