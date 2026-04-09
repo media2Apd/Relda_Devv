@@ -831,10 +831,8 @@ const Cart = () => {
 
           </div>
             <button
-              className="w-full mt-6 py-2 bg-brand-primary text-white font-medium rounded-md hover:bg-brand-primaryHover transition cursor-not-allowed"
+              className="w-full mt-6 py-2 bg-brand-primary text-white font-medium rounded-md hover:bg-brand-primaryHover transition"
               onClick={handleCheckout}
-              disabled={true}
-              title="Under Maintenance"
             >
               Proceed to Checkout
             </button>

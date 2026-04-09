@@ -19,48 +19,45 @@
 
 // export default Home;
 
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
-// import CategoryList from '../components/CategoryList';
-// import BannerProduct from '../components/BannerProduct';
-// import VerticalCardProduct from '../components/VerticalCardProduct';
+import CategoryList from '../components/CategoryList';
+import BannerProduct from '../components/BannerProduct';
+import VerticalCardProduct from '../components/VerticalCardProduct';
 import CookieConsent from '../components/CookieConsent'; // Import the CookieConsent component
-// import SummaryApi from '../common';
-// import RecentlyViewProducts from './RecentlyViewProducts';
+import SummaryApi from '../common';
+import RecentlyViewProducts from './RecentlyViewProducts';
 import { Helmet } from 'react-helmet';
-// import TopSellingProducts from '../components/TopSellingProducts';
-import UnderMaintenance from '../helpers/UnderMaintenance';
-// import HowToShopBanner from '../components/HowToShopBanner';
+import TopSellingProducts from '../components/TopSellingProducts';
+import HowToShopBanner from '../components/HowToShopBanner';
 
 const Home = () => {
-  // const [categories, setCategories] = useState([]); // Updated state variable
-  // const fetchCategories = async () => {
-  //   try {
-  //     const response = await fetch(SummaryApi.getActiveProductCategory.url);
-  //     const data = await response.json();
+  const [categories, setCategories] = useState([]); // Updated state variable
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(SummaryApi.getActiveProductCategory.url);
+      const data = await response.json();
 
-  //     if (data.success) {
-  //       setCategories(data.categories); // Save fetched categories
-  //     } else {
-  //       console.error("Error fetching categories");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching categories:", error);
-  //   } finally {
-  //   }
-  // };
+      if (data.success) {
+        setCategories(data.categories); // Save fetched categories
+      } else {
+        console.error("Error fetching categories");
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+    }
+  };
 
-  // useEffect(() => {
-  //   fetchCategories(); // Call the fetch function on component mount
-  // }, []);
+  useEffect(() => {
+    fetchCategories(); // Call the fetch function on component mount
+  }, []);
 
-  // const insertIndex = Math.floor(categories.length / 2);
+  const visibleCategories = categories.filter(
+    (cat) => cat.zohoProductCount && cat.zohoProductCount > 0
+  );
 
-  // const visibleCategories = categories.filter(
-  //   (cat) => cat.zohoProductCount && cat.zohoProductCount > 0
-  // );
-
-  // const insertIndex = Math.floor(visibleCategories.length / 2);
+  const insertIndex = Math.floor(visibleCategories.length / 2);
 
   return (
     <div className='overflow-hidden'>
@@ -94,10 +91,10 @@ const Home = () => {
         </script>
       </Helmet>
       <CookieConsent /> {/* Include the CookieConsent component */}
-      {/* <CategoryList />
+      <CategoryList />
       <BannerProduct type="home-top" />
-      <RecentlyViewProducts /> */}
-      {/* {visibleCategories.map((category, index) => {
+      <RecentlyViewProducts />
+      {visibleCategories.map((category, index) => {
         //if (category.productCount === 0) return null;
         if (category.zohoProductCount === 0) return null;
 
@@ -111,29 +108,28 @@ const Home = () => {
             {index === insertIndex && <TopSellingProducts />}
           </React.Fragment>
         );
-      })} */}
+      })}
       {/* {categories.map((category, index) => {
-  if (!category.zohoProductCount || category.zohoProductCount === 0) {
-    return null;
-  }
-  return (
-    <React.Fragment key={category._id}>
-      <VerticalCardProduct
-        category={category.value}
-        heading={category.label}
-      />
-      {index === insertIndex && <TopSellingProducts />}
-    </React.Fragment>
-  );
-})} */}
+        if (!category.zohoProductCount || category.zohoProductCount === 0) {
+          return null;
+        }
+        return (
+          <React.Fragment key={category._id}>
+            <VerticalCardProduct
+              category={category.value}
+              heading={category.label}
+            />
+            {index === insertIndex && <TopSellingProducts />}
+          </React.Fragment>
+        );
+      })} */}
 
       {/* <BannerProduct type="bottom" /> */}
-      {/* <div className="mb-10">
+      <div className="mb-10">
         <BannerProduct type="home-bottom" />
-      </div> */}
-      {/* <HowToShopBanner /> */}
+      </div>
+      <HowToShopBanner />
 
-      <UnderMaintenance />
 
     </div>
   );
