@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
       <p className="mb-4">
         The option not to provide information by choosing not to use a particular service or feature
         on the Website. We may automatically track certain information about you based upon your
-        behaviour on our Website. We use this information to do internal research on our users’
+        behaviour on our Website. We use this information to do internal research on our users'
         demographics, interests, and behaviour to better understand, protect, and serve our users.
         This information is compiled and analysed on an aggregated basis.
       </p>

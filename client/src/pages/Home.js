@@ -129,8 +129,6 @@ const Home = () => {
         <BannerProduct type="home-bottom" />
       </div>
       <HowToShopBanner />
-
-
     </div>
   );
 }
