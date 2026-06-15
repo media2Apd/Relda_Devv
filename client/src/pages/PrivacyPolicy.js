@@ -1,9 +1,11 @@
 import React from 'react';
 
 const PrivacyPolicy = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <div className="bg-white p-6 md:p-12 lg:p-16 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Privacy Policy</h1>
+    <div className="bg-white p-6 md:p-12 lg:p-16 max-w-7xl mx-auto text-gray-800">
+      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">Privacy Policy</h1>
       <p className="mb-4">
         The option not to provide information by choosing not to use a particular service or feature
         on the Website. We may automatically track certain information about you based upon your
@@ -68,23 +70,20 @@ const PrivacyPolicy = () => {
       <p className="mb-4">
         We and our affiliates will share some or all of your personal information with another business entity should we (or our assets) plan to merge with, or be acquired by that business entity, or re-organization, amalgamation, or restructuring of business. Should such a transaction occur, that other business entity (or the new combined entity) will be required to follow this privacy policy with respect to your personal information.
       </p>
-      <h2 className="text-xl font-semibold mb-2">Copyrights 2024 RELDA India - All Rights Reserved.</h2>
+      <h2 className="text-xl font-semibold mb-2">Copyrights {currentYear} RELDA India - All Rights Reserved.</h2>
       {/* <p className="mb-4">
-        If you would like to review or change the details you have entered while visiting our Website
-        or if you have any questions about our privacy policy, please contact us at:
+        If you have any questions about our privacy policy, please contact us at:
       </p> */}
       <p className="mb-4">
         Marketed by RELDA<br />
-        Registered Office: Plot No 17A, Majestic Avenue, Krishna Nagar,<br />
-        Madhavaram Milk Colony, Chennai, Tamilnadu 600051.<br />
+        Corporate Office: No: 2, 2nd Floor, Ganga Ishana Apartment,<br />
+        200 Feet Ring Rd, Kolathur, Chennai - 600099.<br />
         RELDA India logo and its design are trademarks owned by <strong>RELDA</strong>.
       </p>
-      {/* <p className="mb-4">
+      <p className="mb-4">
         E-mail: <a href="mailto:support@reldaindia.com" className="text-blue-600">support@reldaindia.com</a><br />
-        Telephone: +91 9884890934<br />
-        Contact Days: Monday to Saturday (Excluding Public Holidays)<br />
-        Timing: 10.00 am to 6.00 pm
-      </p> */}
+        Phone: +91 9884890934<br />
+      </p>
     </div>
   );
 };

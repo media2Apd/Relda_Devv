@@ -8,7 +8,7 @@ const RefundPolicy = () => {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Cancellation and Return</h2>
         <p className="mb-4">
-          <strong>reldaindia.com</strong>, a unit of LaMart Group, is committed to making your shopping experience with us as seamless and delightful as possible. We assure you that all products we sell are brand new and 100% genuine.
+          <strong>reldaindia.com</strong>, a unit of RELDA, is committed to making your shopping experience with us as seamless and delightful as possible. We assure you that all products we sell are brand new and 100% genuine.
         </p>
       </section>
 

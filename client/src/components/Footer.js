@@ -1,55 +1,3 @@
-// import React from 'react';
-// import { IoLogoFacebook, IoLogoInstagram } from "react-icons/io5";
-// import { BsTwitterX, BsYoutube } from "react-icons/bs";
-// import { FaRegCopyright } from 'react-icons/fa';
-
-// const Footer = () => {
-//   return (
-//     <footer className="bg-slate-200">
-//       <div className="container mx-auto p-4">
-//         <p className="text-center font-bold" title="Relda-India">
-//           Copyrights    <FaRegCopyright className="inline mb-1" /> 2024 RELDA India{' '}
-//           <span className="block sm:inline">- All Rights Reserved.</span>
-//           <br />
-//           Marketed by RELDA
-//           <br />
-//           Registered Office: Plot No 17A, Majestic Avenue, Krishna Nagar, Madhavaram Milk Colony, Chennai, Tamilnadu
-//           600051.
-//           <br />
-//           RELDA India logo and its design are trademarks owned by LaMART Group.
-//         </p>
-//         <div className="mt-4 text-center">
-//           <a href="/PrivacyPolicy"  target="_blank" rel="noopener noreferrer"  className="text-black-600 font-semibold hover:underline mx-2">
-//             Privacy Policy
-//           </a>
-//           <a href="/TermsAndConditions" target="_blank" rel="noopener noreferrer"   className="text-black-600 font-semibold hover:underline mx-2">
-//             Terms and Conditions
-//           </a>
-//           <a href="/RefundPolicy" target="_blank" rel="noopener noreferrer"   className="text-black-600 font-semibold hover:underline mx-2">
-//             Return & Refund Policy
-//           </a>
-//           <a href="/ShippingPolicy" target="_blank" rel="noopener noreferrer"   className="text-black-600 font-semibold hover:underline mx-2">
-//             Shipping Policy
-//           </a>
-//          <a href="/PricingPolicy" target="_blank" rel="noopener noreferrer"   className="text-black-600 font-semibold hover:underline mx-2">
-//             Pricing Policy
-//           </a>	
-
-//         </div>
-//         <div className="mt-4 text-center flex justify-center space-x-4">
-//         <a href="https://www.facebook.com/reldaindia" target="_blank" rel="noopener noreferrer"  className="text-2xl text-g-400 hover:text-blue-600"><IoLogoFacebook /></a>
-//           <a href="https://www.instagram.com/reldaindia/?hl=en" target="_blank" rel="noopener noreferrer" className="text-2xl text-black-400 hover:text-pink-500"><IoLogoInstagram /></a>
-//           <a href="https://x.com/ReldaIndia" target="_blank" rel="noopener noreferrer" className="text-2xl text-black-400 hover:text-white"><BsTwitterX /></a>
-//           <a href="https://www.youtube.com/channel/UClkiHCA4tVLtbtIc2fjhCgQ" target="_blank" rel="noopener noreferrer" className="text-2xl text-black-400 hover:text-red-500"><BsYoutube /> </a>
-//         </div>
-//       </div>
-//     </footer>
-//   );
-// };
-
-// export default Footer;
-
-
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   IoLogoFacebook,
@@ -245,18 +193,32 @@ const Footer = () => {
               <span className="block w-1 h-5 bg-brand-primary mr-2 rounded-md"></span>
               CONTACT
             </h3>
+
             <div className="flex flex-col gap-5 text-sm">
+              {/* Corporate Office */}
               <div className="flex items-start gap-3">
                 <FiMapPin className="text-white mt-1 shrink-0" size={18} />
-                <p>Plot No 17A, Majestic Avenue,<br /> Krishna Nagar, Madhavaram Milk Colony,<br /> Chennai, Tamil Nadu 600051.</p>
+                <p>
+                  <strong className="text-white">Corporate Office:</strong><br />
+                  No: 2, 2nd Floor, Ganga Ishana Apartment, Jawaharlal Nehru, 200 Feet Ring Rd, Kolathur, Chennai - 600099.
+                </p>
               </div>
+              {/* Brand Shop */}
+              <div className="flex items-start gap-3">
+                <FiMapPin className="text-white mt-1 shrink-0" size={18} />
+                <p>
+                  <strong className="text-white">Brand Shop:</strong><br />
+                  No: 931/1, Ground Floor, Ring Road Housing Sector, Madhavaram, Chennai - 600060.
+                </p>
+              </div>
+              
               <div className="flex items-center gap-3">
                 <Phone className="text-white shrink-0" size={18} />
                 <a href="tel:+919884890934" className="hover:text-white transition-colors">+91 98848 90934</a>
               </div>
               <div className="flex items-center gap-3">
                 <FiMail className="text-white shrink-0" size={18} />
-                <a href="mailto:support@relda.india.com" className="hover:text-white transition-colors">support@reldaindia.com</a>
+                <a href="mailto:support@reldaindia.com" className="hover:text-white transition-colors">support@reldaindia.com</a>
               </div>
               <div className="flex items-start gap-3">
                 <FiClock className="text-white mt-1 shrink-0" size={18} />
