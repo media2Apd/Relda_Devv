@@ -76,8 +76,8 @@ const PrivacyPolicy = () => {
       </p> */}
       <p className="mb-4">
         Marketed by RELDA<br />
-        Corporate Office: No: 2, 2nd Floor, Ganga Ishana Apartment,<br />
-        200 Feet Ring Rd, Kolathur, Chennai - 600099.<br />
+        Registered Office: No: 931/1, Ground Floor,<br />
+        Ring Road Housing Sector, Madhavaram, Chennai - 600060.<br />
         RELDA India logo and its design are trademarks owned by <strong>RELDA</strong>.
       </p>
       <p className="mb-4">

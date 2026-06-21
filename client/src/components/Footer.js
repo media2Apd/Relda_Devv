@@ -203,11 +203,11 @@ const Footer = () => {
                   No: 2, 2nd Floor, Ganga Ishana Apartment, Jawaharlal Nehru, 200 Feet Ring Rd, Kolathur, Chennai - 600099.
                 </p>
               </div>
-              {/* Brand Shop */}
+              {/* Registered Office */}
               <div className="flex items-start gap-3">
                 <FiMapPin className="text-white mt-1 shrink-0" size={18} />
                 <p>
-                  <strong className="text-white">Brand Shop:</strong><br />
+                  <strong className="text-white">Registered Office:</strong><br />
                   No: 931/1, Ground Floor, Ring Road Housing Sector, Madhavaram, Chennai - 600060.
                 </p>
               </div>

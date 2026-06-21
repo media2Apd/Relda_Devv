@@ -147,11 +147,11 @@ const CustomerEnquiry = () => {
                   No: 2, 2nd Floor, Ganga Ishana Apartment, Jawaharlal Nehru, 200 Feet Ring Rd, Kolathur, Chennai - 600099.
                 </p>
               </div>
-              {/* Brand Shop */}
+              {/* Registered Office */}
               <div className="flex items-start gap-4">
                 <FiMapPin className="w-5 h-5 mt-1 flex-shrink-0" />
                 <p className="text-[#99A1AF] leading-relaxed">
-                  <strong>Brand Shop:</strong><br />
+                  <strong>Registered Office:</strong><br />
                   No: 931/1, Ground Floor, Ring Road Housing Sector, Madhavaram, Chennai - 600060.
                 </p>
               </div>

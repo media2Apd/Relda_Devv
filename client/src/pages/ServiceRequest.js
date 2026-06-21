@@ -41,10 +41,10 @@ const ServiceRequest = () => {
         </a>
         <div className="flex flex-wrap justify-around mt-8">
           <div className="w-2/5 my-2 text-left">
-            <h4 className="text-f9f9f9">ELDA ELECTRONICS</h4><br />
-            <p>Registered Office: Plot No 85 A</p>
-            <p>Ring Road Housing Sector,</p>
-            <p>Madhavaram, Chennai, Tamil Nadu, India</p>
+            <h4 className="text-f9f9f9">RELDA INDIA</h4><br />
+            <p>Registered Office: No. 931/1, Ground Floor,</p>
+            <p>Ring Road Housing Sector, Madhavaram Redhills High Road,</p>
+            <p>Madhavaram, Chennai - 600060</p>
             <br />
             <p>9848490934</p>
             <p><a href="mailto:support@eldaelectronics.com" className="hover:text-white">support@eldaelectronics.com</a></p>
@@ -66,9 +66,9 @@ const ServiceRequest = () => {
         <h2 className="text-white">CONNECT WITH US</h2>
         <hr className="my-4 border-white" />
         <div className="flex justify-center gap-4">
-          <a href="https://www.facebook.com/eldaelectronics" className="text-2xl text-gray-400 hover:text-white"><IoLogoFacebook /></a>
-          <a href="https://www.instagram.com/eldaelectronics" className="text-2xl text-gray-400 hover:text-white"><IoLogoInstagram /></a>
-          <a href="https://www.twitter.com/ElectronicsElda" className="text-2xl text-gray-400 hover:text-white"><BsTwitterX /></a>
+          <a href="https://www.facebook.com/reldaindia" className="text-2xl text-gray-400 hover:text-white"><IoLogoFacebook /></a>
+          <a href="https://www.instagram.com/reldaindia/?hl=en" className="text-2xl text-gray-400 hover:text-white"><IoLogoInstagram /></a>
+          <a href="https://x.com/ReldaIndia" className="text-2xl text-gray-400 hover:text-white"><BsTwitterX /></a>
         </div>
       </section>
     </div>
