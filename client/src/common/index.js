@@ -122,7 +122,7 @@ const SummaryApi = {
         method: 'get'
     },
     authorisedDealer: {
-        url: `${backendDomain}/api/submit-app`,
+        url: `${backendDomain}/api/dealer/create`,
         method: 'post'
     },
     getDealer: {
@@ -470,7 +470,11 @@ const SummaryApi = {
     getProductsByCategory: {
         url: `${backendDomain}/api/view-all-products-by-category`,
         method: "get",
-    },
+    },  
+    distributor:{
+        url:`${backendDomain}/api/distributor/create`,
+        method:"post"
+    }
 }
 
 export default SummaryApi;
