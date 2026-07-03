@@ -75,7 +75,14 @@ const {
   reorderBanners
 } = require("../controller/banner/bannerController");
 const { manualZohoProductSync } = require('../controller/product/manualSync.controller');
-
+const  deleteProductController  = require('../controller/product/deleteproduct');
+const validateErpApiKey = require("../middleware/validateErpApiKey");
+const {
+  syncParentCategoryController,
+} = require("../controller/erpSyncParentCategoryController");
+const {
+  syncCategoryController,
+} = require("../controller/erpSyncCategoryController");
 // router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
 // router.get('/get-blogs', getAllBlogPosts);
 // router.put('/update-blog/:id', blogImageUpload.single('image'), editBlogPost);
@@ -84,7 +91,6 @@ const { manualZohoProductSync } = require('../controller/product/manualSync.cont
 
 router.post("/blogs/create", uploadBlogMedia, createBlog);
 router.put("/blogs/update/:id", uploadBlogMedia, updateBlog);
-
 router.delete("/blogs/delete/:id", deleteBlog);
 router.get("/blogs/view-all", getAllBlogs);
 router.get("/blogs/slug/:slug", getBlogBySlug);
@@ -123,7 +129,6 @@ router.put("/setDefault/:addressId", authToken, addressController.setDefaultAddr
 router.post('/career/apply', upload.single('resume'), applyForJob);
 router.get('/career/allapplies',  allCareers)
 router.get('/career/file/:id', getCareerFile)
-
 router.put('/user/:userId', updateUserController);
 router.get('/user/:userId', getUserController);
 
@@ -288,7 +293,11 @@ router.get("/banners", getBanners);
 
 router.post('/sync-zoho-variants', manualZohoProductSync);
 
+router.delete("/delete-product/:id", deleteProductController);
 
+router.post("/sync-parent-category", validateErpApiKey, syncParentCategoryController);
+
+router.post("/sync-category", validateErpApiKey, syncCategoryController);
 module.exports = router;
 
 

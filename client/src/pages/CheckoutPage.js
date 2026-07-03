@@ -4777,6 +4777,7 @@ function CheckoutPage() {
     gstin: "",
     companyName: ""
   });
+  const [saleInHand, setSaleInHand] = useState(false);
 
   const handleGstChange = (e) => {
   const { name, value } = e.target;
@@ -4800,7 +4801,15 @@ function CheckoutPage() {
     }));
     setShowModal(false); // Close the modal
   };
-
+const updateSerial = (productId, serial) => {
+  setCartItems(prev =>
+    prev.map(item =>
+      item.productId._id === productId
+        ? { ...item, serialNumber: serial }
+        : item
+    )
+  );
+};
 
   useEffect(() => {
     if (user) {
@@ -4954,7 +4963,7 @@ function CheckoutPage() {
     // Return false for any pin code outside Tamil Nadu's range
     return false;
   };
-
+    
   // Check if the postal code is valid for Kerala (starts with '6' but in range 680001 - 689999)
   const isKeralaPostalCode = (postalCode) => {
     const pin = parseInt(postalCode);
@@ -5141,12 +5150,28 @@ const handlePaymentLink = async () => {
     }
 // CASH ON HAND FLOW
   if (cashOnHand && user?.role === ROLE.MANAGESALES) {
+     if (saleInHand) {
+    for (const item of cartItems) {
+      if (!item.serialNumber || item.serialNumber.trim() === "") {
+        toast.error(`Serial number required for ${item.productId.productName}`);
+        return;
+      }
+
+      if (item.quantity > 1) {
+        toast.error("Sale In Hand supports only 1 quantity per serial product");
+        return;
+      }
+    }
+  }
+
     try {
       const payload = {
         cartItems,
         customerInfo,
         billingSameAsShipping,
         paymentMode: "CASH_ON_HAND",
+        saleInHand, // 👈 important
+        serialNumber: saleInHand ? cartItems[0].serialNumber : null, // 👈 important
         couponCode: appliedCoupon?.coupon || null,
         couponDiscount: couponDiscount
       };
@@ -5549,6 +5574,19 @@ const handlePaymentLink = async () => {
                             />
                           </div>
                           <p className="font-bold text-sm mt-1">Qty: {item.quantity}</p>
+                          {cashOnHand && saleInHand && (
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              placeholder="Enter Serial Number"
+                              value={item.serialNumber || ""}
+                              onChange={(e) =>
+                                updateSerial(item.productId._id, e.target.value.toUpperCase())
+                              }
+                              className="border p-2 rounded w-full text-sm"
+                            />
+                          </div>
+                        )}
                         </div>
                         <p className="font-bold flex items-center">
                           <FaRupeeSign className="text-xs" />
@@ -5684,6 +5722,20 @@ const handlePaymentLink = async () => {
                     </label>
                   </div>
                 )}
+
+                {user?.role === ROLE.MANAGESALES && cashOnHand && (
+              <div className="flex items-center mt-2 p-2 bg-green-50 rounded border">
+                <input
+                  type="checkbox"
+                  id="saleInHand"
+                  checked={saleInHand}
+                  onChange={(e) => setSaleInHand(e.target.checked)}
+                />
+                <label htmlFor="saleInHand" className="font-bold text-green-700">
+                  Sale In Hand (Deliver Now)
+                </label>
+              </div>
+            )}
 
 
                 {paymentLoading && (
