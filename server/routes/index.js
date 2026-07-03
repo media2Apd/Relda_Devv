@@ -76,6 +76,12 @@ const {
 } = require("../controller/banner/bannerController");
 const { manualZohoProductSync } = require('../controller/product/manualSync.controller');
 
+// AUTHORIZED CENTER ROUTES
+const controller = require("../controller/authorizecenter/authorizeDistributorController");
+
+// DEALER ROUTES
+const authorizeDealerController = require("../controller/authorizecenter/authorizeDealerController");
+
 // router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
 // router.get('/get-blogs', getAllBlogPosts);
 // router.put('/update-blog/:id', blogImageUpload.single('image'), editBlogPost);
@@ -288,6 +294,24 @@ router.get("/banners", getBanners);
 
 router.post('/sync-zoho-variants', manualZohoProductSync);
 
+
+
+// AUTHORIZED CENTER ROUTES
+
+router.post('/distributor/create', controller.uploadCenterFields, controller.create);
+router.get('/distributor/getall', controller.getAll);
+router.get('/distributor/getbyid/:id', controller.getById);
+router.put('/distributor/update/:id', controller.uploadCenterFields, controller.update);
+router.delete('/distributor/delete/:id', controller.deleteCenter);
+
+
+
+// DEALER ROUTES
+router.post("/dealer/create", authorizeDealerController.uploadDealerFields, authorizeDealerController.create);
+router.get("/dealer/getall", authorizeDealerController.getAll);
+router.get("/dealer/getbyid/:id", authorizeDealerController.getById);
+router.put("/dealer/update/:id", authorizeDealerController.uploadDealerFields, authorizeDealerController.update);
+router.delete("/dealer/delete/:id", authorizeDealerController.deleteDealer);
 
 module.exports = router;
 
