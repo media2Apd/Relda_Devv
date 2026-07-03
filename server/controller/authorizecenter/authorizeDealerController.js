@@ -13,7 +13,8 @@ const uploadDealerFields = upload.fields([
 const create = async (req, res) => {
   try {
     const data = req.body;
-    
+    console.log(data)
+    console.log(req.files)
     // Handle file uploads
     if (req.files) {
       const documentSnapshot = {};

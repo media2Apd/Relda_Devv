@@ -359,6 +359,8 @@
 
 
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import SummaryApi from "../../src/common/index"; // TODO: adjust path to match where your SummaryApi.js file actually lives
 
 const initialState = {
   shopName: "",
@@ -529,8 +531,11 @@ function MultiSelectDropdown({ placeholder = "Select categories", options, value
 // by a list of the selected file names, each with its own "Cancel" button to
 // remove that file. The picker reappears once all files are removed (or can
 // be used again to add more files).
-function FileInput({ onAdd, onRemoveOne, onRemoveAll, error, fileNames, inputKey, multiple }) {
-  const hasFiles = fileNames && fileNames.length > 0;
+// NOTE: `files` now holds real File objects (not just names) so they can be
+// uploaded. `fileNames` is derived from them for display.
+function FileInput({ onAdd, onRemoveOne, onRemoveAll, error, files, inputKey, multiple }) {
+  const fileNames = files.map((f) => f.name);
+  const hasFiles = fileNames.length > 0;
 
   return (
     <div>
@@ -591,6 +596,8 @@ export default function AuthorizedDealer() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   // Bumping the key for a given file field remounts its <input type="file">
   // so the browser's file picker is cleared / can re-pick a removed file.
   const [fileInputKeys, setFileInputKeys] = useState(
@@ -604,11 +611,12 @@ export default function AuthorizedDealer() {
     setFileInputKeys((prev) => ({ ...prev, [field]: prev[field] + 1 }));
 
   // Newly chosen files are appended to whatever was already selected.
+  // Stores real File objects (needed to upload them), not just names.
   const addFiles = (field) => (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    const names = Array.from(files).map((f) => f.name);
-    setForm((f) => ({ ...f, [field]: [...f[field], ...names] }));
+    const fileArr = Array.from(files);
+    setForm((f) => ({ ...f, [field]: [...f[field], ...fileArr] }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     bumpFileInputKey(field);
   };
@@ -680,16 +688,101 @@ export default function AuthorizedDealer() {
     return e;
   };
 
-  const handleSubmit = () => {
+  // Maps the form's field names/values onto the backend's expected field
+  // names/enum values and packs everything (including files) into a
+  // multipart FormData payload.
+  //
+  // KNOWN GAPS (see chat notes):
+  // - expectedPurchase ranges don't line up with the schema enum at all.
+  // - areas / deliveryVehicles / warehouse / warehouseSize / dealersSupplied /
+  //   investment have no matching schema field yet - sent anyway so nothing
+  //   is silently lost client-side, but Mongoose will drop them unless the
+  //   schema is extended to include them.
+  // - Only the first file per upload slot is sent, since documentSnapshot
+  //   stores a single photo per slot rather than an array.
+  const buildFormData = () => {
+    const fd = new FormData();
+
+    fd.append("businessName", form.shopName);
+    fd.append("proprietorName", form.ownerName);
+    fd.append("contactPerson", form.contactName);
+    fd.append("mobile", form.mobile);
+    fd.append("whatsapp", form.whatsapp);
+    fd.append("email", form.email);
+    fd.append("address", form.address);
+    fd.append("city", form.city);
+    fd.append("district", form.district);
+    fd.append("state", form.state);
+    fd.append("pinCode", form.pincode);
+    fd.append("businessType", form.businessType);
+    fd.append("establishmentYear", form.yearEstablished);
+    fd.append("gstNumber", form.gst);
+    fd.append("panNumber", form.pan);
+
+    // "Others (Please Specify)" -> "Others" to match the schema enum.
+    form.categories.forEach((cat) => {
+      fd.append("productCategories", cat === "Others (Please Specify)" ? "Others" : cat);
+    });
+
+    fd.append("brandsSold", form.brands);
+    fd.append("experience", form.experience.replace(/–/g, "-"));
+    fd.append("monthlyTurnover", form.turnover.replace(/₹/g, "").replace(/–/g, "-"));
+    fd.append("salesStaff", form.salesExecutives);
+
+    // See KNOWN GAPS above - this range doesn't match the schema enum yet.
+    fd.append("expectedPurchase", form.purchaseValue.replace(/₹/g, "").replace(/–/g, "-"));
+
+    // Fields with no matching backend schema field yet.
+    fd.append("areasCovered", form.areas);
+    fd.append("deliveryVehicles", form.deliveryVehicles);
+    fd.append("hasWarehouse", form.warehouse);
+    fd.append("warehouseSize", form.warehouseSize);
+    fd.append("dealersSupplied", form.dealersSupplied);
+    fd.append("investmentCapacity", form.investment);
+
+    fd.append("reason", form.reason);
+    fd.append("additionalInfo", form.comments);
+
+    if (form.gstFile[0]) fd.append("gstCertificate", form.gstFile[0]);
+    if (form.shopPhoto[0]) fd.append("shopFrontPhoto", form.shopPhoto[0]);
+    if (form.warehousePhoto[0]) fd.append("shopInteriorPhoto", form.warehousePhoto[0]);
+    if (form.visitingCard[0]) fd.append("visitingCard", form.visitingCard[0]);
+
+    return fd;
+  };
+
+  const handleSubmit = async () => {
     const foundErrors = validate();
     setErrors(foundErrors);
-    if (Object.keys(foundErrors).length === 0) {
-      setSubmitted(true);
-    } else {
+    if (Object.keys(foundErrors).length > 0) {
       setSubmitted(false);
       const firstKey = Object.keys(foundErrors)[0];
       const el = document.getElementById(`field-${firstKey}`);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    setSubmitError("");
+    setIsSubmitting(true);
+    try {
+      const formData = buildFormData();
+      await axios({
+        url: SummaryApi.authorisedDealer.url,
+        method: SummaryApi.authorisedDealer.method,
+        data: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setSubmitted(true);
+      setForm(initialState);
+      setFileInputKeys(Object.fromEntries(FILE_FIELDS.map((f) => [f, 0])));
+    } catch (err) {
+      setSubmitted(false);
+      setSubmitError(
+        err?.response?.data?.message ||
+          "Something went wrong while submitting your application. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -706,6 +799,12 @@ export default function AuthorizedDealer() {
         {submitted && (
           <div className="mb-6 bg-green-50 border border-green-200 text-green-800 text-sm rounded-md px-4 py-3">
             Your application has been submitted successfully.
+          </div>
+        )}
+
+        {submitError && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-[#E60000] text-sm rounded-md px-4 py-3">
+            {submitError}
           </div>
         )}
 
@@ -913,7 +1012,7 @@ export default function AuthorizedDealer() {
                   onAdd={addFiles("gstFile")}
                   onRemoveOne={removeOneFile("gstFile")}
                   onRemoveAll={removeAllFiles("gstFile")}
-                  fileNames={form.gstFile}
+                  files={form.gstFile}
                   error={errors.gstFile}
                 />
               </Field>
@@ -925,7 +1024,7 @@ export default function AuthorizedDealer() {
                   onAdd={addFiles("shopPhoto")}
                   onRemoveOne={removeOneFile("shopPhoto")}
                   onRemoveAll={removeAllFiles("shopPhoto")}
-                  fileNames={form.shopPhoto}
+                  files={form.shopPhoto}
                   error={errors.shopPhoto}
                 />
               </Field>
@@ -937,7 +1036,7 @@ export default function AuthorizedDealer() {
                   onAdd={addFiles("warehousePhoto")}
                   onRemoveOne={removeOneFile("warehousePhoto")}
                   onRemoveAll={removeAllFiles("warehousePhoto")}
-                  fileNames={form.warehousePhoto}
+                  files={form.warehousePhoto}
                   error={errors.warehousePhoto}
                 />
               </Field>
@@ -949,7 +1048,7 @@ export default function AuthorizedDealer() {
                   onAdd={addFiles("visitingCard")}
                   onRemoveOne={removeOneFile("visitingCard")}
                   onRemoveAll={removeAllFiles("visitingCard")}
-                  fileNames={form.visitingCard}
+                  files={form.visitingCard}
                 />
               </Field>
             </div>
@@ -972,9 +1071,10 @@ export default function AuthorizedDealer() {
             <button
               type="button"
               onClick={handleSubmit}
-              className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+              disabled={isSubmitting}
+              className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Submit Application
+              {isSubmitting ? "Submitting..." : "Submit Application"}
             </button>
           </div>
         </div>
