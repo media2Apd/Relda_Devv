@@ -1,363 +1,3 @@
-// import React from 'react';
-// import SummaryApi from '../common';
-
-// const AuthorizedDealer = () => {
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-//     const formData = new FormData(event.target);
-
-//     try {
-//       const response = await fetch(SummaryApi.authorisedDealer.url, {
-//         method: SummaryApi.authorisedDealer.method,
-//         credentials: "include",
-//         body: formData,
-//       });
-
-//       const data = await response.json();
-
-//       console.log('Success:', data);
-//       alert(data.message);
-//       event.target.reset(); 
-//     } catch (error) {
-//       console.error('Error:', error);
-//       alert('Error submitting application');
-//     }
-
-//     console.log(Object.fromEntries(formData.entries())); // For debugging
-//   };
-
-//   return (
-//     <div className="p-10 max-w-4xl mx-auto bg-gray-900 text-brand-textMuted text-center">
-//       <h1 className="text-center text-2xl font-semibold mb-4 text-white">APPLY FOR AUTHORIZED DEALER</h1>
-//       <hr className="border-gray-200 mb-4" />
-//       <p>Give me your details below we will connect shortly</p>
-//       <br />
-//       <h2 className="text-white">Apply Now</h2>
-//       <form id="registration-form" onSubmit={handleSubmit} className="flex flex-col items-center mt-8">
-//         <input
-//           type="text"
-//           name="name"
-//           placeholder="Name"
-//           required
-//           className="w-full my-2 p-2 border-none rounded text-gray-900"
-//         />
-//         <input
-//           type="tel"
-//           name="phone"
-//           placeholder="Phone*"
-//           required
-//           className="w-full my-2 p-2 border-none rounded text-gray-900"
-//         />
-//         <input
-//           type="email"
-//           name="email"
-//           placeholder="Email*"
-//           required
-//           className="w-full my-2 p-2 border-none rounded text-gray-900"
-//         />
-//         <input
-//           type="text"
-//           name="aadharNumber"
-//           placeholder="Aadhar Number*"
-//           required
-//           className="w-full my-2 p-2 border-none rounded text-gray-900"
-//         />
-//         <input
-//           type="text"
-//           name="GSTNumber"
-//           placeholder="GST Number*"
-//           required
-//           className="w-full my-2 p-2 border-none rounded text-gray-900"
-//         />
-//         <input
-//           type="text"
-//           name="PanNumber"
-//           placeholder="PAN Number*"
-//           required
-//           className="w-full my-2 p-2 border-none rounded text-gray-900"
-//         />
-//         <label htmlFor="fileUpload" className="flex items-center justify-center p-2 mt-2 border-none rounded cursor-pointer">
-//           ATTACH YOUR PROFILE GST DOCUMENTATION IN SINGLE FILE
-//         </label>
-//         <input
-//         type="file"
-//         id="fileUpload"
-//         name="fileUpload"
-//         accept=".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation"
-//         required
-//         className="w-full my-2 p-2 border border-brand-textMuted rounded text-brand-textMuted"
-//         />
-
-//         <button type="submit" className="bg-brand-primary text-white py-2 px-4 mt-8 rounded cursor-pointer hover:bg-brand-textMuted">
-//           Submit Application
-//         </button>     
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default AuthorizedDealer;
-
-
-
-
-
-
-
-
-
-// import React, { useState } from "react";
-// import SummaryApi from "../common";
-// import { toast } from "react-toastify";
-
-// const AuthorizedDealer = () => {
-//   const [errors, setErrors] = useState({});
-//   const [loading, setLoading] = useState(false);
-
-//   const validate = (data) => {
-//     const e = {};
-
-//     if (!data.firstName?.trim()) e.firstName = "First name is required";
-//     if (!data.lastName?.trim()) e.lastName = "Last name is required";
-
-//     if (!data.email) {
-//       e.email = "Email is required";
-//     } else if (!/^\S+@\S+\.\S+$/.test(data.email)) {
-//       e.email = "Enter valid email";
-//     }
-
-//     if (!data.phone) {
-//       e.phone = "Phone is required";
-//     } else if (!/^\d{10}$/.test(data.phone.replace(/\D/g, ""))) {
-//       e.phone = "Enter valid 10 digit phone";
-//     }
-
-//     if (!data.aadharNumber) {
-//       e.aadharNumber = "Aadhaar is required";
-//     } else if (!/^\d{12}$/.test(data.aadharNumber)) {
-//       e.aadharNumber = "Aadhaar must be 12 digits";
-//     }
-
-//     if (!data.GSTNumber) e.GSTNumber = "GST number is required";
-
-//     if (!data.PanNumber) {
-//       e.PanNumber = "PAN number is required";
-//     } else if (!/^[A-Z]{5}\d{4}[A-Z]$/.test(data.PanNumber)) {
-//       e.PanNumber = "Invalid PAN number";
-//     }
-
-//     if (!data.fileUpload) e.fileUpload = "Document is required";
-
-//     return e;
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     const form = e.target;
-//     const formData = new FormData(form);
-//     const values = Object.fromEntries(formData.entries());
-
-//     const validationErrors = validate(values);
-//     setErrors(validationErrors);
-
-//     if (Object.keys(validationErrors).length > 0) return;
-
-//     try {
-//       setLoading(true);
-
-//       const response = await fetch(SummaryApi.authorisedDealer.url, {
-//         method: SummaryApi.authorisedDealer.method,
-//         credentials: "include",
-//         body: formData,
-//       });
-
-//       const data = await response.json();
-//       toast.success(data.message);
-//       form.reset();
-//       setErrors({});
-//     } catch (err) {
-//       toast.error("Error submitting application");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-// const inputClass =
-//   "w-full px-2 py-2 border-b border-brand-productCardBorder outline-none bg-transparent text-sm placeholder-[#666666] transition-colors duration-200";
-
-//   return (
-//     <div className="min-h-screen bg-white py-10 px-4">
-//       <div className="max-w-5xl mx-auto">
-//         {/* HEADER */}
-//         <div className="text-center mb-6">
-//           <h1 className="text-3xl font-semibold mb-2">
-//             Apply for Authorized Dealer
-//           </h1>
-//           <p className="text-sm text-[#99A1AF]">
-//             Give me your details below, we will connect shortly
-//           </p>
-//         </div>
-
-//         {/* CARD */}
-//         <form
-//           onSubmit={handleSubmit}
-//           className="bg-white rounded-xl shadow-md px-6 md:px-16 py-4"
-//         >
-//           {/* First + Last */}
-//           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-//             <div>
-//               <label className="text-sm font-medium">First Name</label>
-//               <input
-//                 name="firstName"
-//                 placeholder="John"
-//                  className={`${inputClass} ${errors.firstName ? "border-brand-primary" : ""}`}
-//               />
-//               {errors.firstName && (
-//                 <p className="text-xs text-brand-primary mt-1">
-//                   {errors.firstName}
-//                 </p>
-//               )}
-//             </div>
-
-//             <div>
-//               <label className="text-sm font-medium">Last Name</label>
-//               <input
-//                 name="lastName"
-//                 placeholder="Doe"
-//                 className={`${inputClass} ${errors.lastName ? "border-brand-primary" : ""}`}
-//               />
-//               {errors.lastName && (
-//                 <p className="text-xs text-brand-primary mt-1">
-//                   {errors.lastName}
-//                 </p>
-//               )}
-//             </div>
-//           </div>
-
-//           {/* Email + Phone */}
-//           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-//             <div>
-//               <label className="text-sm font-medium">Mail Id</label>
-//               <input
-//                 name="email"
-//                 placeholder="johndoe123@gmail.com"
-//                  className={`${inputClass} ${errors.email ? "border-brand-primary" : ""}`}
-//               />
-//               {errors.email && (
-//                 <p className="text-xs text-brand-primary mt-1">{errors.email}</p>
-//               )}
-//             </div>
-
-//             <div>
-//               <label className="text-sm font-medium">Phone</label>
-//               <input
-//                 name="phone"
-//                 placeholder="+91 2345678901"
-//                  className={`${inputClass} ${errors.phone ? "border-brand-primary" : ""}`}
-//               />
-//               {errors.phone && (
-//                 <p className="text-xs text-brand-primary mt-1">{errors.phone}</p>
-//               )}
-//             </div>
-//           </div>
-
-//           {/* Aadhaar */}
-//           <div className="mb-10">
-//             <label className="text-sm font-medium">Aadhar Number</label>
-//             <input
-//               name="aadharNumber"
-//               placeholder="Enter Aadhar Number"
-//                className={`${inputClass} ${errors.aadharNumber ? "border-brand-primary" : ""}`}
-//             />
-//             {errors.aadharNumber && (
-//               <p className="text-xs text-brand-primary mt-1">
-//                 {errors.aadharNumber}
-//               </p>
-//             )}
-//           </div>
-
-//           {/* GST */}
-//           <div className="mb-10">
-//             <label className="text-sm font-medium">GST Number</label>
-//             <input
-//               name="GSTNumber"
-//               placeholder="Enter GST Number"
-//                className={`${inputClass} ${errors.GSTNumber ? "border-brand-primary" : ""}`}
-//             />
-//             {errors.GSTNumber && (
-//               <p className="text-xs text-brand-primary mt-1">{errors.GSTNumber}</p>
-//             )}
-//           </div>
-
-//           {/* PAN */}
-//           <div className="mb-10">
-//             <label className="text-sm font-medium">Pan Number</label>
-//             <input
-//               name="PanNumber"
-//               placeholder="Enter PAN Number"
-//                className={`${inputClass} ${errors.PanNumber ? "border-brand-primary" : ""}`}
-//             />
-//             {errors.PanNumber && (
-//               <p className="text-xs text-brand-primary mt-1">{errors.PanNumber}</p>
-//             )}
-//           </div>
-
-//           {/* File */}
-//           <div className="mb-12">
-//             <p className="text-sm font-medium text-[#99A1AF] mb-2">
-//               Attach all GST profile documents in one file.
-//             </p>
-//             <input
-//               type="file"
-//               name="fileUpload"
-//               className={`w-full border border-brand-productCardBorder rounded-md text-sm px-1 py-1 outline-none bg-transparent
-//                 ${errors.fileUpload ? "border-brand-primary" : "border-brand-productCardBorder"}
-//                 file:border-0
-//                 file:bg-[#E5E5E5]
-//                 file:text-[#040404]
-//                 file:px-4
-//                 file:py-1.5
-//                 file:rounded-md
-//                 file:cursor-pointer
-//               `}
-//             />
-
-//             {errors.fileUpload && (
-//               <p className="text-xs text-brand-primary mt-1">
-//                 {errors.fileUpload}
-//               </p>
-//             )}
-//           </div>
-
-//           {/* BUTTON */}
-//           <div className="flex justify-center md:justify-end">
-//             <button
-//               type="submit"
-//               disabled={loading}
-//               className={`w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium
-//                 ${loading ? "bg-brand-primaryHover" : "bg-brand-primary hover:bg-brand-primaryHover"}
-//               `}
-//             >
-//               {loading ? "Submitting..." : "Submit Application"}
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AuthorizedDealer;
-
-
-
-
-
-
-
-
 import React, { useState, useRef, useEffect } from "react";
 
 const initialState = {
@@ -388,12 +28,21 @@ const initialState = {
   dealersSupplied: "",
   purchaseValue: "",
   investment: "",
-  gstFile: [],
-  shopPhoto: [],
-  warehousePhoto: [],
-  visitingCard: [],
+  gstFile: null,
+  shopPhoto: null,
+  warehousePhoto: null,
+  visitingCard: null,
   reason: "",
   comments: "",
+};
+
+// Used to force file <input> elements to remount when a file is removed,
+// since file inputs are uncontrolled and can't be cleared by value alone.
+const initialFileKeys = {
+  gstFile: 0,
+  shopPhoto: 0,
+  warehousePhoto: 0,
+  visitingCard: 0,
 };
 
 const inputClass =
@@ -465,7 +114,7 @@ function SelectInput({ placeholder, value, onChange, options, error }) {
 // Closing dropdown for multi-select: click to open a checkbox popup, click
 // outside (or select) to close it — behaves like the single SelectInput
 // above instead of an always-open checkbox list.
-function MultiSelectDropdown({ placeholder = "Select categories", options, value, onChange, error }) {
+function MultiSelectDropdown({ placeholder = "Select options", options, value, onChange, error }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -525,54 +174,35 @@ function MultiSelectDropdown({ placeholder = "Select categories", options, value
   );
 }
 
-// Supports one or many files. Once files are chosen, the picker is replaced
-// by a list of the selected file names, each with its own "Cancel" button to
-// remove that file. The picker reappears once all files are removed (or can
-// be used again to add more files).
-function FileInput({ onAdd, onRemoveOne, onRemoveAll, error, fileNames, inputKey, multiple }) {
-  const hasFiles = fileNames && fileNames.length > 0;
+// FileInput shows the selected file name with a "Cancel" button once a file
+// has been chosen, instead of always showing the raw file picker.
+function FileInput({ onChange, onRemove, error, fileName, inputKey }) {
+  if (fileName) {
+    return (
+      <div className={`w-full flex items-center justify-between gap-3 border rounded-md p-3 bg-gray-50 ${
+        error ? "border-[#E60000]" : "border-gray-300"
+      }`}>
+        <span className="text-sm text-gray-700 truncate">{fileName}</span>
+        <button
+          type="button"
+          onClick={onRemove}
+          className="shrink-0 text-xs font-semibold text-[#E60000] hover:opacity-80 border border-[#E60000]/30 rounded px-2.5 py-1 transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      {hasFiles && (
-        <div className="flex flex-col gap-2 mb-3">
-          {fileNames.map((fname, i) => (
-            <div
-              key={`${fname}-${i}`}
-              className={`w-full flex items-center justify-between gap-3 border rounded-md p-3 bg-gray-50 ${
-                error ? "border-[#E60000]" : "border-gray-300"
-              }`}
-            >
-              <span className="text-sm text-gray-700 truncate">{fname}</span>
-              <button
-                type="button"
-                onClick={() => onRemoveOne(i)}
-                className="shrink-0 text-xs font-semibold text-[#E60000] hover:opacity-80 border border-[#E60000]/30 rounded px-2.5 py-1 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={onRemoveAll}
-            className="self-start text-xs font-semibold text-gray-500 hover:text-gray-700 underline"
-          >
-            Remove all
-          </button>
-        </div>
-      )}
-
-      <input
-        key={inputKey}
-        type="file"
-        multiple={multiple}
-        onChange={onAdd}
-        className={`w-full border rounded-md text-sm px-1 py-1 outline-none bg-transparent file:border-0 file:bg-[#E5E5E5] file:text-[#040404] file:px-4 file:py-1.5 file:rounded-md file:cursor-pointer ${
-          error ? "border-[#E60000]" : "border-gray-300"
-        }`}
-      />
-    </div>
+    <input
+      key={inputKey}
+      type="file"
+      onChange={onChange}
+      className={`w-full border rounded-md text-sm px-1 py-1 outline-none bg-transparent file:border-0 file:bg-[#E5E5E5] file:text-[#040404] file:px-4 file:py-1.5 file:rounded-md file:cursor-pointer ${
+        error ? "border-[#E60000]" : "border-gray-300"
+      }`}
+    />
   );
 }
 
@@ -585,42 +215,21 @@ function Section({ title, children }) {
   );
 }
 
-const FILE_FIELDS = ["gstFile", "shopPhoto", "warehousePhoto", "visitingCard"];
-
-export default function AuthorizedDealer() {
+export default function DistributorForm() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  // Bumping the key for a given file field remounts its <input type="file">
-  // so the browser's file picker is cleared / can re-pick a removed file.
-  const [fileInputKeys, setFileInputKeys] = useState(
-    Object.fromEntries(FILE_FIELDS.map((f) => [f, 0]))
-  );
+  const [fileKeys, setFileKeys] = useState(initialFileKeys);
 
   const set = (field) => (val) => setForm((f) => ({ ...f, [field]: val }));
   const setFromEvent = (field) => (e) => set(field)(e.target.value);
+  const setFile = (field) => (e) => set(field)(e.target.files?.[0]?.name || null);
 
-  const bumpFileInputKey = (field) =>
-    setFileInputKeys((prev) => ({ ...prev, [field]: prev[field] + 1 }));
-
-  // Newly chosen files are appended to whatever was already selected.
-  const addFiles = (field) => (e) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    const names = Array.from(files).map((f) => f.name);
-    setForm((f) => ({ ...f, [field]: [...f[field], ...names] }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
-    bumpFileInputKey(field);
-  };
-
-  const removeOneFile = (field) => (index) => {
-    setForm((f) => ({ ...f, [field]: f[field].filter((_, i) => i !== index) }));
-    bumpFileInputKey(field);
-  };
-
-  const removeAllFiles = (field) => () => {
-    setForm((f) => ({ ...f, [field]: [] }));
-    bumpFileInputKey(field);
+  // Clears the selected file and remounts the <input type="file"> so the
+  // same (or a different) file can be chosen again afterwards.
+  const removeFile = (field) => () => {
+    set(field)(null);
+    setFileKeys((k) => ({ ...k, [field]: k[field] + 1 }));
   };
 
   const validate = () => {
@@ -673,9 +282,9 @@ export default function AuthorizedDealer() {
       e.warehouseSize = "Please enter the warehouse size";
     }
 
-    if (form.gstFile.length === 0) e.gstFile = "Please upload your GST certificate";
-    if (form.shopPhoto.length === 0) e.shopPhoto = "Please upload a shop photo";
-    if (form.warehousePhoto.length === 0) e.warehousePhoto = "Please upload a warehouse photo";
+    if (!form.gstFile) e.gstFile = "Please upload your GST certificate";
+    if (!form.shopPhoto) e.shopPhoto = "Please upload a shop photo";
+    if (!form.warehousePhoto) e.warehousePhoto = "Please upload a warehouse photo";
 
     return e;
   };
@@ -697,9 +306,9 @@ export default function AuthorizedDealer() {
     <div className="min-h-screen bg-white py-10 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold mb-2">RELDA Authorized Dealer Application</h1>
+          <h1 className="text-3xl font-semibold mb-2">RELDA Authorized Distributor Application</h1>
           <p className="text-sm text-[#99A1AF]">
-            Please fill in all the details below to apply as a RELDA Authorized Dealer.
+            Please fill in all the details below to apply as a RELDA Authorized Distributor.
           </p>
         </div>
 
@@ -813,7 +422,7 @@ export default function AuthorizedDealer() {
               </Field>
             </div>
             <div id="field-experience">
-              <Field label="Years of Experience in Retail Business" required error={errors.experience}>
+              <Field label="Years of Experience in Distribution Business" required error={errors.experience}>
                 <SelectInput
                   placeholder="Select experience"
                   options={["Less than 1 Year", "1–3 Years", "3–5 Years", "5–10 Years", "More than 10 Years"]}
@@ -909,47 +518,43 @@ export default function AuthorizedDealer() {
             <div id="field-gstFile">
               <Field label="Upload GST Certificate" required variant="file" error={errors.gstFile}>
                 <FileInput
-                  inputKey={fileInputKeys.gstFile}
-                  onAdd={addFiles("gstFile")}
-                  onRemoveOne={removeOneFile("gstFile")}
-                  onRemoveAll={removeAllFiles("gstFile")}
-                  fileNames={form.gstFile}
+                  inputKey={fileKeys.gstFile}
+                  onChange={setFile("gstFile")}
+                  onRemove={removeFile("gstFile")}
                   error={errors.gstFile}
+                  fileName={form.gstFile}
                 />
               </Field>
             </div>
             <div id="field-shopPhoto">
               <Field label="Upload Shop Photo" required variant="file" error={errors.shopPhoto}>
                 <FileInput
-                  inputKey={fileInputKeys.shopPhoto}
-                  onAdd={addFiles("shopPhoto")}
-                  onRemoveOne={removeOneFile("shopPhoto")}
-                  onRemoveAll={removeAllFiles("shopPhoto")}
-                  fileNames={form.shopPhoto}
+                  inputKey={fileKeys.shopPhoto}
+                  onChange={setFile("shopPhoto")}
+                  onRemove={removeFile("shopPhoto")}
                   error={errors.shopPhoto}
+                  fileName={form.shopPhoto}
                 />
               </Field>
             </div>
             <div id="field-warehousePhoto">
               <Field label="Upload Warehouse Photo" required variant="file" error={errors.warehousePhoto}>
                 <FileInput
-                  inputKey={fileInputKeys.warehousePhoto}
-                  onAdd={addFiles("warehousePhoto")}
-                  onRemoveOne={removeOneFile("warehousePhoto")}
-                  onRemoveAll={removeAllFiles("warehousePhoto")}
-                  fileNames={form.warehousePhoto}
+                  inputKey={fileKeys.warehousePhoto}
+                  onChange={setFile("warehousePhoto")}
+                  onRemove={removeFile("warehousePhoto")}
                   error={errors.warehousePhoto}
+                  fileName={form.warehousePhoto}
                 />
               </Field>
             </div>
             <div id="field-visitingCard">
               <Field label="Upload Business Visiting Card (Optional)" variant="file">
                 <FileInput
-                  inputKey={fileInputKeys.visitingCard}
-                  onAdd={addFiles("visitingCard")}
-                  onRemoveOne={removeOneFile("visitingCard")}
-                  onRemoveAll={removeAllFiles("visitingCard")}
-                  fileNames={form.visitingCard}
+                  inputKey={fileKeys.visitingCard}
+                  onChange={setFile("visitingCard")}
+                  onRemove={removeFile("visitingCard")}
+                  fileName={form.visitingCard}
                 />
               </Field>
             </div>
@@ -957,7 +562,7 @@ export default function AuthorizedDealer() {
 
           <Section title="Section 7 – Additional Information">
             <div id="field-reason" className="col-span-1 md:col-span-2">
-              <Field label="Why would you like to become a RELDA Authorized Dealer?" full>
+              <Field label="Why would you like to become a RELDA Authorized Distributor?" full>
                 <TextArea placeholder="Tell us your reason" value={form.reason} onChange={setFromEvent("reason")} />
               </Field>
             </div>
