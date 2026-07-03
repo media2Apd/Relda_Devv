@@ -1,4 +1,4 @@
-const authorizeDistributor = require("../../models/authorizeDistributor");
+const authorizedDistributor = require("../../models/authorizeDistributor");
 const {upload, deleteMultipleFromCloudinary } = require("../../config/cloudinaryUpload");
 
 // Multer middleware for authorized center fields
