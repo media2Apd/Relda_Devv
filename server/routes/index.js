@@ -76,11 +76,17 @@ const {
 } = require("../controller/banner/bannerController");
 const { manualZohoProductSync } = require('../controller/product/manualSync.controller');
 
-// AUTHORIZED CENTER ROUTES
+// AUTHORIZED CENTER ROUTES //
 const controller = require("../controller/authorizecenter/authorizeDistributorController");
 
-// DEALER ROUTES
+// DEALER ROUTES //
 const authorizeDealerController = require("../controller/authorizecenter/authorizeDealerController");
+
+// BRAND SHOP ROUTES //
+const brandShopController = require("../controller/authorizecenter/authorizeBrandshopController");
+
+// SERVICE CENTER ROUTES //
+const serviceCenterController = require("../controller/authorizecenter/authorizeServiceCenterController");
 
 // router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
 // router.get('/get-blogs', getAllBlogPosts);
@@ -299,7 +305,7 @@ router.post('/sync-zoho-variants', manualZohoProductSync);
 // AUTHORIZED CENTER ROUTES
 
 router.post('/distributor/create', controller.uploadCenterFields, controller.create);
-router.get('/distributor/getall', controller.getAll);
+router.get('/distributor/getall',authToken,isAdmin, controller.getAll);
 router.get('/distributor/getbyid/:id', controller.getById);
 router.put('/distributor/update/:id', controller.uploadCenterFields, controller.update);
 router.delete('/distributor/delete/:id', controller.deleteCenter);
@@ -308,10 +314,28 @@ router.delete('/distributor/delete/:id', controller.deleteCenter);
 
 // DEALER ROUTES
 router.post("/dealer/create", authorizeDealerController.uploadDealerFields, authorizeDealerController.create);
-router.get("/dealer/getall", authorizeDealerController.getAll);
+router.get("/dealer/getall",authToken,isAdmin, authorizeDealerController.getAll);
 router.get("/dealer/getbyid/:id", authorizeDealerController.getById);
 router.put("/dealer/update/:id", authorizeDealerController.uploadDealerFields, authorizeDealerController.update);
 router.delete("/dealer/delete/:id", authorizeDealerController.deleteDealer);
+
+
+// BRAND SHOP ROUTES //
+
+router.post("/brandshop/create", brandShopController.uploadBrandShopFields, brandShopController.create);
+router.get("/brandshop/getall",authToken,isAdmin, brandShopController.getAll);
+router.get("/brandshop/getbyid/:id", brandShopController.getById);
+router.put("/brandshop/update/:id", brandShopController.uploadBrandShopFields, brandShopController.update);
+router.delete("/brandshop/delete/:id", brandShopController.deleteBrandShop);
+
+
+// SERVICE CENTER ROUTES //
+
+router.post("/servicecenter/create", serviceCenterController.uploadServiceCenterFields, serviceCenterController.create);  
+router.get("/servicecenter/getall",authToken,isAdmin, serviceCenterController.getAll);
+router.get("/servicecenter/getbyid/:id", serviceCenterController.getById);
+router.put("/servicecenter/update/:id", serviceCenterController.uploadServiceCenterFields, serviceCenterController.update);
+router.delete("/servicecenter/delete/:id", serviceCenterController.deleteServiceCenter);
 
 module.exports = router;
 
