@@ -12,6 +12,9 @@ const transporter = require("../../config/nodemailerConfig"); // Ensure this is 
     const response = await axios.get("https://www.reldaindia.com/api/dashboard");
     const dashboardData = response.data.data;
 
+    // Generate current year for copyright
+    const currentYear = new Date().getFullYear();
+
     // Generate the email content
     const cards = [];
 
@@ -190,12 +193,12 @@ const transporter = require("../../config/nodemailerConfig"); // Ensure this is 
         <h2 style="text-align:center;margin-bottom:30px;">📊 Daily Dashboard Summary</h2>
         ${groupedCards.join("")}
         <p style="text-align:center;margin-top:40px;font-size:12px;color:#666;">
-  Regards,<br><strong>Automated Mail from Relda India</strong><br><br>
-  &copy; 2024 RELDA India - All Rights Reserved.<br>
-  Marketed by LaMart Group<br>
-  Registered Office: Plot No 17A, Majestic Avenue, Krishna Nagar, Madhavaram Milk Colony, Chennai, Tamilnadu 600051.<br>
-  <em>RELDA India logo and its design are trademarks owned by LaMART Group.</em>
-</p>
+          Regards,<br><strong>Automated Mail from Relda India</strong><br><br>
+          &copy; ${currentYear} RELDA India - All Rights Reserved.<br>
+          Marketed by RELDA<br>
+          Corporate Office: No: 2, 2nd Floor, Ganga Ishana Apartment, 200 Feet Ring Rd, Kolathur, Chennai - 600099.<br>
+          <em>RELDA India logo and its design are trademarks owned by RELDA.</em>
+        </p>
 
       </div>
     `;

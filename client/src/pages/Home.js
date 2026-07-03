@@ -79,7 +79,7 @@ const Home = () => {
           ],
           "address": {
             "@type": "PostalAddress",
-            "streetAddress": "Plot No 17A, Majestic Avenue, Krishna Nagar, Madhavaram Milk Colony, Chennai, Tamilnadu 600051",
+            "streetAddress": "No: 2, 2nd Floor, Ganga Ishana Apartment, Jawaharlal Nehru, 200 Feet Ring Rd, Kolathur, Chennai - 600099",
             "addressLocality": "Chennai",
             "addressRegion": "TN",
             "postalCode": "600051",
@@ -129,8 +129,6 @@ const Home = () => {
         <BannerProduct type="home-bottom" />
       </div>
       <HowToShopBanner />
-
-
     </div>
   );
 }

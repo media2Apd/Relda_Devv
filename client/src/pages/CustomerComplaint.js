@@ -1,103 +1,8 @@
-// import React, { useState } from "react";
-// import SummaryApi from "../common";
-// import { toast } from "react-toastify";
-
-// const CustomerComplaint = () => {
-//   const [loading, setLoading] = useState(false);
-//   const [errors, setErrors] = useState({});
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     const form = e.target;
-//     const formData = new FormData(form);
-
-//     if (!formData.get("customerName")) {
-//       setErrors({ customerName: "Customer name required" });
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-//       const res = await fetch(SummaryApi.complaintSupport.url, {
-//         method: SummaryApi.complaintSupport.method,
-//         credentials: "include",
-//         body: formData,
-//       });
-
-//       const data = await res.json();
-//       toast.success(data.message);
-//       form.reset();
-//       setErrors({});
-//     } catch {
-//       toast.error("Complaint submission failed");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-white py-10 px-4">
-//       <div className="max-w-5xl mx-auto bg-white shadow-md rounded-xl px-6 md:px-16 py-8">
-//         <h1 className="text-2xl font-semibold mb-6 text-center">
-//           Customer Complaint
-//         </h1>
-
-//         <form onSubmit={handleSubmit} className="space-y-8">
-//           <input
-//             name="customerName"
-//             placeholder="Customer Name"
-//             className="w-full py-2 border-b outline-none bg-transparent"
-//           />
-//           {errors.customerName && (
-//             <p className="text-xs text-brand-primary mt-1">
-//               {errors.customerName}
-//             </p>
-//           )}
-
-//           <textarea
-//             name="complaintText"
-//             placeholder="Describe your issue"
-//             className="w-full py-2 border-b outline-none bg-transparent"
-//           />
-
-//           <input
-//             type="file"
-//             name="fileUpload"
-//             className="
-//               w-full rounded-md text-sm
-//               border border-brand-productCardBorder
-//               file:border-0 file:bg-[#E5E5E5]
-//               file:text-[#040404] file:px-4 file:py-1.5
-//             "
-//           />
-
-//           <div className="flex justify-end">
-//             <button
-//               disabled={loading}
-//               className={`px-10 py-2 rounded-md text-white text-sm
-//                 ${
-//                   loading
-//                     ? "bg-brand-primaryHover"
-//                     : "bg-brand-primary hover:bg-brand-primaryHover"
-//                 }`}
-//             >
-//               {loading ? "Submitting..." : "Submit Complaint"}
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default CustomerComplaint;
-
 import React, { useState } from "react";
-import {
-  IoLogoFacebook,
-  IoLogoInstagram,
-} from "react-icons/io5";
-import { BsTwitterX, BsYoutube } from "react-icons/bs";
+import { IoLogoFacebook } from "react-icons/io5";
+import { FaSquareXTwitter } from "react-icons/fa6";
+import { RiInstagramFill, RiLinkedinFill } from "react-icons/ri";
+import { BsYoutube } from "react-icons/bs";
 import { FiPhone, FiMail, FiMapPin, FiClock } from "react-icons/fi";
 import SummaryApi from "../common";
 import { toast } from "react-toastify";
@@ -233,13 +138,20 @@ const CustomerComplaint = () => {
                 <a href="mailto:support@reldaindia.com" className="text-[#99A1AF]">support@reldaindia.com</a>
               </div>
 
-              <div className="flex gap-4">
-                <FiMapPin className="w-5 h-5 mt-1" />
+              {/* Corporate Office */}
+              <div className="flex items-start gap-4">
+                <FiMapPin className="w-5 h-5 mt-1 flex-shrink-0" />
                 <p className="text-[#99A1AF] leading-relaxed">
-                  Plot No 17A<br />
-                  Majestic Avenue, Krishna Nagar,<br />
-                  Madhavaram Milk Colony,<br />
-                  Chennai, Tamil Nadu 600051.
+                  <strong>Corporate Office:</strong><br />
+                  No: 2, 2nd Floor, Ganga Ishana Apartment, Jawaharlal Nehru, 200 Feet Ring Rd, Kolathur, Chennai - 600099.
+                </p>
+              </div>
+              {/* Registered Office */}
+              <div className="flex items-start gap-4">
+                <FiMapPin className="w-5 h-5 mt-1 flex-shrink-0" />
+                <p className="text-[#99A1AF] leading-relaxed">
+                  <strong>Registered Office:</strong><br />
+                  No: 931/1, Ground Floor, Ring Road Housing Sector, Madhavaram, Chennai - 600060.
                 </p>
               </div>
 
@@ -252,11 +164,43 @@ const CustomerComplaint = () => {
               </div>
             </div>
 
-            <div className="flex gap-6">
-              <IoLogoFacebook className="w-6 h-6 hover:text-brand-primaryHover" />
-              <IoLogoInstagram className="w-6 h-6 hover:text-brand-primaryHover" />
-              <BsTwitterX className="w-5 h-5 hover:text-brand-primaryHover" />
-              <BsYoutube className="w-6 h-6 hover:text-brand-primaryHover" />
+            <div className="flex items-center gap-3">
+              <a
+                href="https://www.facebook.com/reldaindia"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center transition-colors text-white hover:text-brand-primaryHover"
+              >
+                <IoLogoFacebook className="w-10 h-10" />
+              </a>
+              <a
+                href="https://www.instagram.com/reldaindia/?hl=en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+              >
+                <RiInstagramFill className="w-10 h-10" />
+              </a>
+              <a href="https://www.linkedin.com/company/elda-electronics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-[#0F172A] hover:bg-brand-primaryHover transition-all">
+                <RiLinkedinFill size={22} />
+              </a>
+
+              <a
+                href="https://www.youtube.com/channel/UClkiHCA4tVLtbtIc2fjhCgQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+              >
+                <BsYoutube className="text-[40px]" />
+              </a>
+              <a
+                href="https://x.com/ReldaIndia"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center text-white hover:text-brand-primaryHover transition-colors"
+              >
+                <FaSquareXTwitter className="w-9 h-9" />
+              </a>
             </div>
           </div>
 

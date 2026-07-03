@@ -1,3 +1,5 @@
+//!Important: Not in Use
+
 import React, { useEffect, useState } from 'react';
 import { IoLogoFacebook, IoLogoInstagram } from "react-icons/io5";
 import { BsYoutube } from "react-icons/bs";
@@ -97,10 +99,10 @@ const CustomerSupport = () => {
           <div className="flex flex-wrap justify-around mt-8 space-y-4 md:space-y-0">
             <div className="w-full md:w-1/2 p-2 text-center md:text-center">
               <h4 className="text-f9f9f9">RELDA INDIA</h4>
-              <p>Registered Office: Plot No 17A</p>
-              <p>Majestic Avenue, Krishna Nagar,</p>
-              <p>Madhavaram Milk Colony, Chennai, Tamil Nadu 600051.</p><br></br>
-              <p>09884890934</p>
+              <p>Corporate Office: Plot No 2,</p>
+              <p>Ganga Ishana Apartment, 200 Feet Ring Rd,</p>
+              <p>Kolathur, Chennai - 600099.</p><br></br>
+              <p>9884890934</p>
               <p><a href="mailto:support@reldaindia.com" className="hover:text-white">support@reldaindia.com</a></p>
             </div>
             <div className="w-full md:w-1/2 p-2 text-center md:text-center">

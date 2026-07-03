@@ -2,8 +2,8 @@ import React from 'react';
 
 const ShippingPolicy = () => {
   return (
-    <div className="bg-white p-6 md:p-12 lg:p-16 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Shipping Policy</h1>
+    <div className="bg-white p-6 md:p-12 lg:p-16 max-w-7xl mx-auto text-gray-800">
+      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">Shipping Policy</h1>
       <p className="mb-4">
         Given below are the details for shipping/delivery of the products sold by
         <strong> RELDA</strong>.
