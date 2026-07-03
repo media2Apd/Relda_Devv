@@ -13,7 +13,7 @@ const isAdmin = async (req, res, next) => {
         }
 
         // Check if the user is an admin
-        if (user.role !== 'admin') {
+        if (user.role !== 'ADMIN') {
             return res.status(403).json({
                 message: "Access denied: You do not have admin privileges",
                 error: true,
