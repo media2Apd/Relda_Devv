@@ -195,14 +195,6 @@ const Footer = () => {
             </h3>
 
             <div className="flex flex-col gap-5 text-sm">
-              {/* Corporate Office */}
-              <div className="flex items-start gap-3">
-                <FiMapPin className="text-white mt-1 shrink-0" size={18} />
-                <p>
-                  <strong className="text-white">Corporate Office:</strong><br />
-                  No: 2, 2nd Floor, Ganga Ishana Apartment, Jawaharlal Nehru, 200 Feet Ring Rd, Kolathur, Chennai - 600099.
-                </p>
-              </div>
               {/* Registered Office */}
               <div className="flex items-start gap-3">
                 <FiMapPin className="text-white mt-1 shrink-0" size={18} />
@@ -211,10 +203,18 @@ const Footer = () => {
                   No: 931/1, Ground Floor, Ring Road Housing Sector, Madhavaram, Chennai - 600060.
                 </p>
               </div>
+              {/* Corporate Office */}
+              <div className="flex items-start gap-3">
+                <FiMapPin className="text-white mt-1 shrink-0" size={18} />
+                <p>
+                  <strong className="text-white">Corporate Office:</strong><br />
+                  No: 2, 2nd Floor, Ganga Ishana Apartment, Jawaharlal Nehru, 200 Feet Ring Rd, Kolathur, Chennai - 600099.
+                </p>
+              </div>
               
               <div className="flex items-center gap-3">
                 <Phone className="text-white shrink-0" size={18} />
-                <a href="tel:+919884890934" className="hover:text-white transition-colors">+91 98848 90934</a>
+                <a href="tel:+919884890934" className="hover:text-white transition-colors">+91 90472 54965</a>
               </div>
               <div className="flex items-center gap-3">
                 <FiMail className="text-white shrink-0" size={18} />
@@ -231,7 +231,7 @@ const Footer = () => {
 
         {/* Footer Bottom bar */}
         <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] tracking-wide">
-          <p><FaRegCopyright className="inline mb-1" /> {currentYear} RELDA India - All Rights Reserved.</p>
+          <p><FaRegCopyright className="inline mb-1" /> {currentYear} RELDA India Private Limited - All Rights Reserved.</p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 uppercase">
             <a href="/PrivacyPolicy" target='_blank' className="hover:text-white transition-colors">Privacy Policy</a>
             <span className="text-slate-700 hidden md:inline">|</span>

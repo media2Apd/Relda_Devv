@@ -278,7 +278,8 @@ exports.syncZohoVariantsAsProducts = async () => {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
-      if (item.category_name !== "Relda") continue;
+      // if (item.category_name !== "Relda") continue;
+        if (item.cf_category !== "Relda") continue;
 
       const attributes = {};
       if (item.attribute_name1)

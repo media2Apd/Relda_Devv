@@ -62,6 +62,9 @@ import FAQPage from '../pages/FAQPage'
 import BlogUpload from '../pages/BlogUpload'
 import RequireRole from '../helpers/RequireRole'
 import ROLE from '../common/role'
+import ChannelPartner from '../pages/ChannelPartner'
+import ServiceCenterForm from '../pages/ServiceCenterForm'
+import DistributorForm from '../pages/Distributorform'
 
 
 
@@ -103,10 +106,22 @@ const router = createBrowserRouter([
                 element: <SearchProduct />
             },
             {
+                path: "channel-partner",
+                element: <ChannelPartner />
+            },
+            {
+                path: "servicecenter-form",
+                element: <ServiceCenterForm />
+            },
+              {
+                path: "distributor-form",
+                element: <DistributorForm />
+            },
+            {
                 path: "admin-panel",
-                  element: (
+                element: (
                     <RequireRole role={ROLE.ADMIN}>
-                    <AdminPanel />
+                        <AdminPanel />
                     </RequireRole>
                 ),
                 children: [
@@ -206,9 +221,9 @@ const router = createBrowserRouter([
             },
             {
                 path: 'adminBlog',
-                  element: (
+                element: (
                     <RequireRole role={ROLE.MANAGEBLOG}>
-                    <AdminBlog />
+                        <AdminBlog />
                     </RequireRole>
                 ),
                 children: [
@@ -216,7 +231,7 @@ const router = createBrowserRouter([
                         path: "upload-blogs",
                         element: <AllBlogs />
                     },
-                                        {
+                    {
                         path: "upload-blogs/create",
                         element: <BlogUpload />
                     },
@@ -263,16 +278,16 @@ const router = createBrowserRouter([
                 element: <ServiceRequest />
             },
             {
-                path : "customer-enquiry",
-                element : <CustomerEnquiry/>
+                path: "customer-enquiry",
+                element: <CustomerEnquiry />
             },
             {
-                path : "customer-complaint",
-                element : <CustomerComplaint/>
+                path: "customer-complaint",
+                element: <CustomerComplaint />
             },
             {
-                path : "ProductRegistration",
-                element : <ProductRegistration/>
+                path: "ProductRegistration",
+                element: <ProductRegistration />
             },
             {
                 path: "CustomerSupport",

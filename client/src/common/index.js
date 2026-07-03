@@ -471,6 +471,10 @@ const SummaryApi = {
         url: `${backendDomain}/api/view-all-products-by-category`,
         method: "get",
     },
+    deleteProduct: (id) => ({
+        url: `${backendDomain}/api/delete-product/${id}`,
+        method: "delete",
+    }),
 }
 
 export default SummaryApi;
