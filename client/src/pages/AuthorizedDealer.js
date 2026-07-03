@@ -360,7 +360,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import SummaryApi from "../../src/common/index"; // TODO: adjust path to match where your SummaryApi.js file actually lives
+import SummaryApi from "../../src/common/index";
 
 const initialState = {
   shopName: "",
@@ -766,11 +766,14 @@ export default function AuthorizedDealer() {
     setIsSubmitting(true);
     try {
       const formData = buildFormData();
+      // Don't set Content-Type manually here - the browser needs to generate
+      // it itself (including the multipart boundary) based on the FormData
+      // object. Setting it by hand breaks the boundary and causes multer to
+      // throw "Unexpected field" on the server even when field names match.
       await axios({
         url: SummaryApi.authorisedDealer.url,
         method: SummaryApi.authorisedDealer.method,
         data: formData,
-        headers: { "Content-Type": "multipart/form-data" },
       });
       setSubmitted(true);
       setForm(initialState);
@@ -984,7 +987,7 @@ export default function AuthorizedDealer() {
               <Field label="Expected Monthly Purchase Value from RELDA" required error={errors.purchaseValue}>
                 <SelectInput
                   placeholder="Select expected monthly purchase value"
-                  options={["₹2–5 Lakhs", "₹5–10 Lakhs", "₹10–20 Lakhs", "Above ₹20 Lakhs"]}
+                  options={["Below ₹1 Lakh", "₹1–3 Lakhs", "₹3–5 Lakhs", "Above ₹5 Lakhs"]}
                   value={form.purchaseValue}
                   onChange={setFromEvent("purchaseValue")}
                   error={errors.purchaseValue}
