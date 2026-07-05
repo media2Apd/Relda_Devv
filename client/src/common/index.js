@@ -474,7 +474,33 @@ const SummaryApi = {
     distributor:{
         url:`${backendDomain}/api/distributor/create`,
         method:"post"
+    },
+      serviceCenter:{
+        url:`${backendDomain}/api/servicecenter/create`,
+        method:"post"
+    },
+       brandShop:{
+        url:`${backendDomain}/api/brandshop/create`,
+        method:"post"
+    },
+    //Authorize form 
+      authorizedAdminBrandshop:{
+         url:`${backendDomain}/api/brandshop/getall`,
+         method:"get"
+    },
+    authorizeAdminDealer:{
+        url:`${backendDomain}/api/dealer/getall`,
+        method:"get"
+    },
+     authorizeAdminDistributor:{
+        url:`${backendDomain}/api/distributor/getall`,
+        method:"get"
+    },
+      authorizeAdminServicecenter:{
+        url:`${backendDomain}/api/servicecenter/getall`,
+        method:"get"
     }
+      
 }
 
 export default SummaryApi;

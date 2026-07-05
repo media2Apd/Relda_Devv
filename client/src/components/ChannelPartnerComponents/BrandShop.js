@@ -1,12 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
-import BrandShopImage from "../../assest/ChannelPartner/brandShop.png.png";
+import BrandShopImage from "../../assest/ChannelPartner/brandShop.webp";
 import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const BrandShop = () => {
   return (
-    <section className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20  ">
+      <div className="mx-auto max-w-[1500px]">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -52,7 +52,7 @@ const BrandShop = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.7, ease: "easeOut" }}
-                className="h-[270px] w-full rounded-[22px] object-cover object-center grayscale sm:h-[340px] lg:h-[360px]"
+                className="h-[270px] w-full rounded-[22px] object-cover object-center sm:h-[340px] lg:h-[360px]"
               />
 
               <div className="absolute -top-4 right-4 sm:-top-5 sm:right-5">

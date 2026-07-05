@@ -65,6 +65,10 @@ import ROLE from '../common/role'
 import ChannelPartner from '../pages/ChannelPartner'
 import ServiceCenterForm from '../pages/ServiceCenterForm'
 import DistributorForm from '../pages/Distributorform'
+import AuthorizeAdminBrandshop from '../pages/AuthorizeAdminBrandshop'
+import AuthorizeAdminDealer from '../pages/AuthorizeAdminDealer'
+import AuthorizeAdminDistributor from '../pages/AuthorizeAdminDistributor'
+import AuthorizeAdminServicecenter from '../pages/AuthorizAdminServicecenter'
 
 
 
@@ -110,11 +114,11 @@ const router = createBrowserRouter([
                 element: <ChannelPartner />
             },
             {
-                path: "servicecenter-form",
+                path: "authorized-ServiceCenter",
                 element: <ServiceCenterForm />
             },
-              {
-                path: "distributor-form",
+            {
+                path: "authorized-Distributor",
                 element: <DistributorForm />
             },
             {
@@ -215,6 +219,23 @@ const router = createBrowserRouter([
                         path: "banner-list",
                         element: <BannerList />
                     },
+                    {
+                        path: "all-brandshop-form",
+                        element: <AuthorizeAdminBrandshop />
+                    },
+                     {
+                        path: "all-dealer-form",
+                        element: <AuthorizeAdminDealer />
+                    },
+                    {
+                        path: "all-distributor-form",
+                        element: <AuthorizeAdminDistributor />
+                    },
+                      {
+                        path: "all-service-center-form",
+                        element: <AuthorizeAdminServicecenter />
+                    },
+
 
 
                 ]

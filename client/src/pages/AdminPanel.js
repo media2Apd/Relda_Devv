@@ -15,10 +15,10 @@ const AdminPanel = () => {
   const [isAuthorized, setIsAuthorized] = useState(null);
 
   useEffect(() => {
-      if (user) {
-        setIsAuthorized(user.role === ROLE.ADMIN);
-      }
-    }, [user]);
+    if (user) {
+      setIsAuthorized(user.role === ROLE.ADMIN);
+    }
+  }, [user]);
 
   const isActive = (path, exact = false) => {
     if (exact) {
@@ -61,7 +61,7 @@ const AdminPanel = () => {
     fetchReturnedOrders();
   }, []);
 
- if (!isAuthorized) {
+  if (!isAuthorized) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white px-4">
         <div className="max-w-md text-center animate-fade-in-up transition-all duration-700 ease-in-out">
@@ -92,7 +92,8 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-[calc(100vh-120px)] flex flex-col lg:flex-row bg-gray-100">
-      <aside className="bg-white w-full lg:w-1/4 py-6">
+      {/* Sidebar: sticky + fixed height + internal scroll (desktop). Adjust lg:top-0 to your header height if header is fixed */}
+      <aside className="bg-white w-full lg:w-1/4 py-6 lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto">
         <div className="flex flex-col items-center space-y-2 mb-6">
           <div className="relative w-24 h-24">
             {user?.profilePic ? (
@@ -102,7 +103,7 @@ const AdminPanel = () => {
                 alt={user?.name}
               />
             ) : (
-              <FaRegCircleUser className="w-full h-full text-brand-textMuted"/>
+              <FaRegCircleUser className="w-full h-full text-brand-textMuted" />
             )}
           </div>
           <p className="capitalize text-lg font-semibold text-gray-900">{user?.name || "Admin"}</p>
@@ -115,122 +116,111 @@ const AdminPanel = () => {
             <Link
               onClick={scrollTop}
               to={"dashboard"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/dashboard")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/dashboard")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
-              
+                }`}
+
             >
               Dashboard
             </Link>
             <Link
-             onClick={scrollTop}
+              onClick={scrollTop}
               to={"all-users"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-users")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-users")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Users
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-products"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-products")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-products")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Products
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-coupons"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-coupons")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-coupons")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Coupons
             </Link>
             <Link
               onClick={scrollTop}
               to={"upload-blogs"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/upload-blogs")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/upload-blogs")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Blogs
             </Link>
             <Link
               onClick={scrollTop}
               to={"banner-list"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/banner-list")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/banner-list")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Banners
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-offerposter"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-offerposter")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-offerposter")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Upload Poster
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-categories"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-categories")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-categories")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Categories
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-orders"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-orders")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-orders")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Orders
             </Link>
             <Link
               onClick={scrollTop}
               to={"orders"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/orders")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/orders")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               Sales Orders
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-dealer-applications"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-dealer-applications")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-dealer-applications")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Dealer
             </Link>
@@ -247,66 +237,60 @@ const AdminPanel = () => {
             <Link
               onClick={scrollTop}
               to={"all-enquiries"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-enquiries")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-enquiries")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Customer Support
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-complaints"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-complaints")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-complaints")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Complaint Messages
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-contactus"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-contactus")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-contactus")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Contact Messages
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-product-registration"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-product-registration")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-product-registration")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Product-Registration
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-careers"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-careers")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-careers")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Careers
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-returned-products"}
-              className={` px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 flex items-center ${
-                isActive("/admin-panel/all-returned-products")
+              className={` px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 flex items-center ${isActive("/admin-panel/all-returned-products")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Return Requested{" "}
               <div className="bg-green-500 text-white min-w-5 h-5 rounded-full p-1 flex items-center justify-center ml-2">
@@ -316,24 +300,62 @@ const AdminPanel = () => {
             <Link
               onClick={scrollTop}
               to={"all-cart-items"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-cart-items")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-cart-items")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All CartItems
             </Link>
             <Link
               onClick={scrollTop}
               to={"all-cookies-page"}
-              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${
-                isActive("/admin-panel/all-cookies-page")
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-cookies-page")
                   ? "bg-brand-primary text-white"
                   : "hover:text-gray-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               All Cookies
+            </Link>
+            <Link
+              onClick={scrollTop}
+              to={"all-brandshop-form"}
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-brandshop-form")
+                  ? "bg-brand-primary text-white"
+                  : "hover:text-gray-900 hover:bg-slate-100"
+                }`}
+            >
+              All BrandShop 
+            </Link>
+             <Link
+              onClick={scrollTop}
+              to={"all-dealer-form"}
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-dealer-form")
+                  ? "bg-brand-primary text-white"
+                  : "hover:text-gray-900 hover:bg-slate-100"
+                }`}
+            >
+              All Dealer 
+            </Link>
+             <Link
+              onClick={scrollTop}
+              to={"all-distributor-form"}
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-distributor-form")
+                  ? "bg-brand-primary text-white"
+                  : "hover:text-gray-900 hover:bg-slate-100"
+                }`}
+            >
+              All Distributor
+            </Link>
+              <Link
+              onClick={scrollTop}
+              to={"all-service-center-form"}
+              className={`block px-3 py-2 font-medium text-brand-textMuted rounded-lg hover:bg-gray-100 hover:text-gray-900 ${isActive("/admin-panel/all-service-center-form")
+                  ? "bg-brand-primary text-white"
+                  : "hover:text-gray-900 hover:bg-slate-100"
+                }`}
+            >
+              All Service-Center 
             </Link>
           </nav>
         </div>

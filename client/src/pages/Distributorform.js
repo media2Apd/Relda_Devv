@@ -326,9 +326,9 @@ export default function DistributorForm() {
     fd.append("coverageAreas", form.areas);
     fd.append("salesExecutives", form.salesExecutives);
     fd.append("deliveryVehicles", form.deliveryVehicles);
-    // "YES"/"NO" - converted to a real Boolean server-side, since Mongoose
-    // won't reliably cast those strings to Boolean itself.
-    fd.append("warehouseAvailable", form.warehouse);
+    // Mongoose can only auto-cast "true"/"false" (or "1"/"0") to Boolean,
+    // not "YES"/"NO" - so convert here before sending.
+    fd.append("warehouseAvailable", form.warehouse === "YES" ? "true" : "false");
     fd.append("warehouseSize", form.warehouseSize);
     fd.append("dealersCount", form.dealersSupplied);
     fd.append("expectedPurchase", form.purchaseValue);
