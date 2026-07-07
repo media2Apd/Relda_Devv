@@ -90,6 +90,15 @@ const controller = require("../controller/authorizecenter/authorizeDistributorCo
 // DEALER ROUTES
 const authorizeDealerController = require("../controller/authorizecenter/authorizeDealerController");
 
+const {
+  syncAll,
+  syncParentCategories,
+  syncCategories,
+  getSyncStatus,
+  cleanOrphanedCategories,
+  testErpConnection
+} = require('../controller/syncController');
+
 // router.post('/add-blog', blogImageUpload.single('image'), createBlogPost);
 // router.get('/get-blogs', getAllBlogPosts);
 // router.put('/update-blog/:id', blogImageUpload.single('image'), editBlogPost);
@@ -322,6 +331,19 @@ router.get("/dealer/getall", authorizeDealerController.getAll);
 router.get("/dealer/getbyid/:id", authorizeDealerController.getById);
 router.put("/dealer/update/:id", authorizeDealerController.uploadDealerFields, authorizeDealerController.update);
 router.delete("/dealer/delete/:id", authorizeDealerController.deleteDealer);
+
+// Sync endpoints
+router.post('/sync/all', syncAll);
+router.post('/sync/parent-categories', syncParentCategories);
+router.post('/sync/categories', syncCategories);
+
+// Status and maintenance
+router.get('/sync/status', getSyncStatus);
+router.post('/sync/clean-orphaned', cleanOrphanedCategories);
+
+// Test connection
+router.get('/sync/test-connection', testErpConnection);
+
 
 module.exports = router;
 
