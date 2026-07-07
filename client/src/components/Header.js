@@ -716,6 +716,23 @@ const Header = () => {
                                 Authorized Dealers
                               </Link>
                             </li>
+                             <li>
+                              <Link to="/channel-partner" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                               Authorized BrandShop
+                              </Link>
+                            </li>
+                              <li>
+                              <Link to="/authorized-Distributor" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                              Authorized Distributor
+                              </Link>
+                            </li>
+                            
+                             <li>
+                              <Link to="/authorized-ServiceCenter" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
+                              Authorized Service-Center
+                              </Link>
+                            </li>
+                         
                           </ul>
                         </div>
 

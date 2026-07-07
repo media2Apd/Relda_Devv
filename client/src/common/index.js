@@ -122,7 +122,7 @@ const SummaryApi = {
         method: 'get'
     },
     authorisedDealer: {
-        url: `${backendDomain}/api/submit-app`,
+        url: `${backendDomain}/api/dealer/create`,
         method: 'post'
     },
     getDealer: {
@@ -470,11 +470,37 @@ const SummaryApi = {
     getProductsByCategory: {
         url: `${backendDomain}/api/view-all-products-by-category`,
         method: "get",
+    },  
+    distributor:{
+        url:`${backendDomain}/api/distributor/create`,
+        method:"post"
     },
-    deleteProduct: (id) => ({
-        url: `${backendDomain}/api/delete-product/${id}`,
-        method: "delete",
-    }),
+      serviceCenter:{
+        url:`${backendDomain}/api/servicecenter/create`,
+        method:"post"
+    },
+       brandShop:{
+        url:`${backendDomain}/api/brandshop/create`,
+        method:"post"
+    },
+    //Authorize form 
+      authorizedAdminBrandshop:{
+         url:`${backendDomain}/api/brandshop/getall`,
+         method:"get"
+    },
+    authorizeAdminDealer:{
+        url:`${backendDomain}/api/dealer/getall`,
+        method:"get"
+    },
+     authorizeAdminDistributor:{
+        url:`${backendDomain}/api/distributor/getall`,
+        method:"get"
+    },
+      authorizeAdminServicecenter:{
+        url:`${backendDomain}/api/servicecenter/getall`,
+        method:"get"
+    }
+      
 }
 
 export default SummaryApi;

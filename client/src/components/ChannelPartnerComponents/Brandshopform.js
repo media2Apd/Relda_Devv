@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from "axios";
+import SummaryApi from "../../common/index";
 
 const initialState = {
   businessName: "",
@@ -46,6 +48,46 @@ const REQUIRED_FIELDS = [
   "district",
   "state",
   "pincode",
+];
+
+// Maps this form's local field names to the field names the backend
+// (Mongoose AuthorizedBrandShop model) expects.
+const FIELD_MAP = {
+  businessName: "businessName",
+  ownerName: "proprietorName",
+  contactPerson: "contactPerson",
+  mobile: "mobile",
+  whatsapp: "whatsapp",
+  email: "email",
+  address: "address",
+  city: "city",
+  district: "district",
+  state: "state",
+  pincode: "pinCode",
+  businessType: "businessType",
+  yearEstablished: "establishmentYear",
+  gstNumber: "gstNumber",
+  panNumber: "panNumber",
+  businessCategory: "currentCategory",
+  brandsDealtWith: "brandsDealt",
+  retailExperience: "experience",
+  proposedLocation: "proposedLocation",
+  ownershipStatus: "shopOwnership",
+  shopArea: "shopArea",
+  frontageWidth: "shopFrontage",
+  landmark: "landmark",
+  investmentCapacity: "investmentCapacity",
+  monthlyTurnover: "monthlyTurnover",
+  salesStaff: "salesStaff",
+  dailyFootfall: "customerFootfall",
+  reasonToJoin: "reason",
+};
+
+const FILE_FIELDS = [
+  "shopFrontPhoto",
+  "shopInteriorPhotos",
+  "gstCertificate",
+  "ownershipProof",
 ];
 
 // Matches AuthorizedDealer's inputClass: underline-style input, brand-primary
@@ -132,24 +174,21 @@ function SelectInput({
 // remove that file. The picker reappears once all files are removed (or can
 // be used again to add more files when `multiple` is true).
 //
-// The label reserves a fixed min-height (like AuthorizedDealer's file
-// label) so that two FileInputs sitting side-by-side in the same grid row
-// stay lined up even when one label wraps to two lines and the other
-// doesn't — otherwise the shorter-label input starts higher than its
-// row partner on tablet/desktop widths.
+// `files` holds real File objects (not just names) so they can be appended
+// to FormData on submit.
 function FileInput({
   label,
   required,
   name,
   multiple,
-  fileNames,
+  files,
   onAdd,
   onRemoveOne,
   onRemoveAll,
   error,
   inputKey,
 }) {
-  const hasFiles = fileNames && fileNames.length > 0;
+  const hasFiles = files && files.length > 0;
 
   return (
     <div data-error={error ? "true" : "false"}>
@@ -160,14 +199,14 @@ function FileInput({
       </label>
       {hasFiles && (
         <div className="flex flex-col gap-2 mb-3">
-          {fileNames.map((fname, i) => (
+          {files.map((file, i) => (
             <div
-              key={`${fname}-${i}`}
+              key={`${file.name}-${i}`}
               className={`w-full flex items-center justify-between gap-3 border rounded-md p-3.5 bg-transparent ${
                 error ? "border-brand-primary" : "border-brand-productCardBorder"
               }`}
             >
-              <span className="text-sm truncate">{fname}</span>
+              <span className="text-sm truncate">{file.name}</span>
               <button
                 type="button"
                 onClick={() => onRemoveOne(name, i)}
@@ -238,17 +277,12 @@ function SectionTitle({ children }) {
   );
 }
 
-const FILE_FIELDS = [
-  "shopFrontPhoto",
-  "shopInteriorPhotos",
-  "gstCertificate",
-  "ownershipProof",
-];
-
 export default function BrandShopForm() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
   // Bumping the key for a given file field remounts its <input type="file">
   // so the browser's file picker is cleared / can re-pick a removed file.
   const [fileInputKeys, setFileInputKeys] = useState(
@@ -270,11 +304,13 @@ export default function BrandShopForm() {
   };
 
   // Newly chosen files are appended to whatever was already selected.
+  // Real File objects are kept (not just names) so they can be sent as
+  // multipart/form-data on submit.
   const handleAddFiles = (name, e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    const names = Array.from(files).map((f) => f.name);
-    setForm((prev) => ({ ...prev, [name]: [...prev[name], ...names] }));
+    const fileArr = Array.from(files);
+    setForm((prev) => ({ ...prev, [name]: [...prev[name], ...fileArr] }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -317,11 +353,9 @@ export default function BrandShopForm() {
     }
     if (
       form.gstNumber &&
-      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-        form.gstNumber.toUpperCase()
-      )
+      !/^[0-9A-Z]{15}$/.test(form.gstNumber.toUpperCase())
     ) {
-      newErrors.gstNumber = "Enter a valid 15-character GST number.";
+      newErrors.gstNumber = "GST number must be 15 characters.";
     }
     if (
       form.panNumber &&
@@ -337,9 +371,33 @@ export default function BrandShopForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const buildFormData = () => {
+    const formData = new FormData();
+
+    Object.entries(FIELD_MAP).forEach(([localKey, backendKey]) => {
+      const value = form[localKey];
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(backendKey, value);
+      }
+    });
+
+    // Files: appended under their own field name. For the multi-select
+    // field (shopInteriorPhotos), each file is appended under the same
+    // key — multer's `.array()`/`.fields()` will collect them together.
+    FILE_FIELDS.forEach((fieldName) => {
+      form[fieldName].forEach((file) => {
+        formData.append(fieldName, file);
+      });
+    });
+
+    return formData;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(false);
+    setApiError("");
+
     const isValid = validate();
     if (!isValid) {
       const firstErrorField = document.querySelector('[data-error="true"]');
@@ -348,8 +406,36 @@ export default function BrandShopForm() {
       }
       return;
     }
-    console.log("Brand Shop Form Submitted:", form);
-    setSubmitted(true);
+
+    try {
+      setSubmitting(true);
+
+      const formData = buildFormData();
+
+      const response = await axios({
+        url: SummaryApi.brandShop.url,
+        method: SummaryApi.brandShop.method,
+        data: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response?.data?.success === false) {
+        throw new Error(response.data.message || "Submission failed.");
+      }
+
+      setSubmitted(true);
+      setForm(initialState);
+      setFileInputKeys(Object.fromEntries(FILE_FIELDS.map((f) => [f, 0])));
+    } catch (err) {
+      console.error("Brand shop submission failed:", err);
+      setApiError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Something went wrong while submitting the form. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -554,9 +640,9 @@ export default function BrandShopForm() {
               onChange={handleChange}
               options={[
                 "Less than 1 Year",
-                "1–3 Years",
-                "3–5 Years",
-                "5–10 Years",
+                "1-3 Years",
+                "3-5 Years",
+                "5-10 Years",
                 "More than 10 Years",
               ]}
               error={errors.retailExperience}
@@ -616,12 +702,12 @@ export default function BrandShopForm() {
               value={form.investmentCapacity}
               onChange={handleChange}
               options={[
-                "₹5 Lakhs",
-                "₹10 Lakhs",
-                "₹20 Lakhs",
-                "₹30 Lakhs",
-                "₹50 Lakhs",
-                "Above ₹50 Lakhs",
+                "5 Lakhs",
+                "10 Lakhs",
+                "20 Lakhs",
+                "30 Lakhs",
+                "50 Lakhs",
+                "Above 50 Lakhs",
               ]}
               error={errors.investmentCapacity}
             />
@@ -632,11 +718,11 @@ export default function BrandShopForm() {
               value={form.monthlyTurnover}
               onChange={handleChange}
               options={[
-                "Below ₹5 Lakhs",
-                "₹5–10 Lakhs",
-                "₹10–25 Lakhs",
-                "₹25–50 Lakhs",
-                "Above ₹50 Lakhs",
+                "Below 5 Lakhs",
+                "5-10 Lakhs",
+                "10-25 Lakhs",
+                "25-50 Lakhs",
+                "Above 50 Lakhs",
               ]}
               error={errors.monthlyTurnover}
             />
@@ -655,7 +741,12 @@ export default function BrandShopForm() {
               name="dailyFootfall"
               value={form.dailyFootfall}
               onChange={handleChange}
-              options={["Below 20", "20–50", "50–100", "Above 100"]}
+              options={[
+                "Below 20 Customers/Day",
+                "20-50 Customers/Day",
+                "50-100 Customers/Day",
+                "Above 100 Customers/Day",
+              ]}
               error={errors.dailyFootfall}
             />
           </div>
@@ -666,7 +757,7 @@ export default function BrandShopForm() {
             <FileInput
               label="Shop Front Photo"
               name="shopFrontPhoto"
-              fileNames={form.shopFrontPhoto}
+              files={form.shopFrontPhoto}
               onAdd={handleAddFiles}
               onRemoveOne={handleRemoveOneFile}
               onRemoveAll={handleRemoveAllFiles}
@@ -677,7 +768,7 @@ export default function BrandShopForm() {
               label="Shop Interior Photos"
               name="shopInteriorPhotos"
               multiple
-              fileNames={form.shopInteriorPhotos}
+              files={form.shopInteriorPhotos}
               onAdd={handleAddFiles}
               onRemoveOne={handleRemoveOneFile}
               onRemoveAll={handleRemoveAllFiles}
@@ -687,7 +778,7 @@ export default function BrandShopForm() {
             <FileInput
               label="GST Certificate"
               name="gstCertificate"
-              fileNames={form.gstCertificate}
+              files={form.gstCertificate}
               onAdd={handleAddFiles}
               onRemoveOne={handleRemoveOneFile}
               onRemoveAll={handleRemoveAllFiles}
@@ -697,7 +788,7 @@ export default function BrandShopForm() {
             <FileInput
               label="Shop Ownership Proof / Rental Agreement (if available)"
               name="ownershipProof"
-              fileNames={form.ownershipProof}
+              files={form.ownershipProof}
               onAdd={handleAddFiles}
               onRemoveOne={handleRemoveOneFile}
               onRemoveAll={handleRemoveAllFiles}
@@ -724,6 +815,12 @@ export default function BrandShopForm() {
             </Field>
           </div>
 
+          {apiError && (
+            <p className="mb-6 text-sm font-medium text-brand-primary">
+              {apiError}
+            </p>
+          )}
+
           {submitted && (
             <p className="mb-6 text-sm font-medium text-green-600">
               Thank you! Your application has been submitted.
@@ -734,9 +831,10 @@ export default function BrandShopForm() {
           <div className="flex justify-center md:justify-end">
             <button
               type="submit"
-              className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-brand-primary hover:bg-brand-primaryHover"
+              disabled={submitting}
+              className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-brand-primary hover:bg-brand-primaryHover disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Submit
+              {submitting ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>

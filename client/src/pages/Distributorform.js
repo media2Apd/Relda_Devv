@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import SummaryApi from "../../src/common/index"; // TODO: adjust path to match where your SummaryApi.js file actually lives
 
 const initialState = {
   shopName: "",
@@ -219,11 +221,14 @@ export default function DistributorForm() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [fileKeys, setFileKeys] = useState(initialFileKeys);
 
   const set = (field) => (val) => setForm((f) => ({ ...f, [field]: val }));
   const setFromEvent = (field) => (e) => set(field)(e.target.value);
-  const setFile = (field) => (e) => set(field)(e.target.files?.[0]?.name || null);
+  // Stores the real File object (needed to upload it), not just its name.
+  const setFile = (field) => (e) => set(field)(e.target.files?.[0] || null);
 
   // Clears the selected file and remounts the <input type="file"> so the
   // same (or a different) file can be chosen again afterwards.
@@ -289,16 +294,90 @@ export default function DistributorForm() {
     return e;
   };
 
-  const handleSubmit = () => {
+  // Maps form fields onto the backend's expected field names and packs
+  // everything (including files) into a multipart FormData payload.
+  // Unlike the dealer form, this schema has no enum restrictions on
+  // experience/monthlyTurnover/expectedPurchase/investmentCapacity, so no
+  // currency-symbol/dash normalization is required here.
+  const buildFormData = () => {
+    const fd = new FormData();
+
+    fd.append("businessName", form.shopName);
+    fd.append("proprietorName", form.ownerName);
+    fd.append("contactPerson", form.contactName);
+    fd.append("mobile", form.mobile);
+    fd.append("whatsapp", form.whatsapp);
+    fd.append("email", form.email);
+    fd.append("address", form.address);
+    fd.append("city", form.city);
+    fd.append("district", form.district);
+    fd.append("state", form.state);
+    fd.append("pinCode", form.pincode);
+    fd.append("businessType", form.businessType);
+    fd.append("establishmentYear", form.yearEstablished);
+    fd.append("gstNumber", form.gst);
+    fd.append("panNumber", form.pan);
+
+    form.categories.forEach((cat) => fd.append("productCategories", cat));
+
+    fd.append("distributedBrands", form.brands);
+    fd.append("experience", form.experience);
+    fd.append("monthlyTurnover", form.turnover);
+    fd.append("coverageAreas", form.areas);
+    fd.append("salesExecutives", form.salesExecutives);
+    fd.append("deliveryVehicles", form.deliveryVehicles);
+    // Mongoose can only auto-cast "true"/"false" (or "1"/"0") to Boolean,
+    // not "YES"/"NO" - so convert here before sending.
+    fd.append("warehouseAvailable", form.warehouse === "YES" ? "true" : "false");
+    fd.append("warehouseSize", form.warehouseSize);
+    fd.append("dealersCount", form.dealersSupplied);
+    fd.append("expectedPurchase", form.purchaseValue);
+    fd.append("investmentCapacity", form.investment);
+    fd.append("reason", form.reason);
+    fd.append("additionalComments", form.comments);
+
+    if (form.gstFile) fd.append("gstCertificate", form.gstFile);
+    if (form.shopPhoto) fd.append("shopPhoto", form.shopPhoto);
+    if (form.warehousePhoto) fd.append("warehousePhoto", form.warehousePhoto);
+    if (form.visitingCard) fd.append("visitingCard", form.visitingCard);
+
+    return fd;
+  };
+
+  const handleSubmit = async () => {
     const foundErrors = validate();
     setErrors(foundErrors);
-    if (Object.keys(foundErrors).length === 0) {
-      setSubmitted(true);
-    } else {
+    if (Object.keys(foundErrors).length > 0) {
       setSubmitted(false);
       const firstKey = Object.keys(foundErrors)[0];
       const el = document.getElementById(`field-${firstKey}`);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    setSubmitError("");
+    setIsSubmitting(true);
+    try {
+      const formData = buildFormData();
+      // Don't set Content-Type manually - the browser needs to generate it
+      // itself (including the multipart boundary) based on the FormData
+      // object, or multer will throw "Unexpected field" on the server.
+      await axios({
+        url: SummaryApi.distributor.url,
+        method: SummaryApi.distributor.method,
+        data: formData,
+      });
+      setSubmitted(true);
+      setForm(initialState);
+      setFileKeys(initialFileKeys);
+    } catch (err) {
+      setSubmitted(false);
+      setSubmitError(
+        err?.response?.data?.message ||
+          "Something went wrong while submitting your application. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -315,6 +394,12 @@ export default function DistributorForm() {
         {submitted && (
           <div className="mb-6 bg-green-50 border border-green-200 text-green-800 text-sm rounded-md px-4 py-3">
             Your application has been submitted successfully.
+          </div>
+        )}
+
+        {submitError && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-[#E60000] text-sm rounded-md px-4 py-3">
+            {submitError}
           </div>
         )}
 
@@ -522,7 +607,7 @@ export default function DistributorForm() {
                   onChange={setFile("gstFile")}
                   onRemove={removeFile("gstFile")}
                   error={errors.gstFile}
-                  fileName={form.gstFile}
+                  fileName={form.gstFile?.name}
                 />
               </Field>
             </div>
@@ -533,7 +618,7 @@ export default function DistributorForm() {
                   onChange={setFile("shopPhoto")}
                   onRemove={removeFile("shopPhoto")}
                   error={errors.shopPhoto}
-                  fileName={form.shopPhoto}
+                  fileName={form.shopPhoto?.name}
                 />
               </Field>
             </div>
@@ -544,7 +629,7 @@ export default function DistributorForm() {
                   onChange={setFile("warehousePhoto")}
                   onRemove={removeFile("warehousePhoto")}
                   error={errors.warehousePhoto}
-                  fileName={form.warehousePhoto}
+                  fileName={form.warehousePhoto?.name}
                 />
               </Field>
             </div>
@@ -554,7 +639,7 @@ export default function DistributorForm() {
                   inputKey={fileKeys.visitingCard}
                   onChange={setFile("visitingCard")}
                   onRemove={removeFile("visitingCard")}
-                  fileName={form.visitingCard}
+                  fileName={form.visitingCard?.name}
                 />
               </Field>
             </div>
@@ -577,9 +662,10 @@ export default function DistributorForm() {
             <button
               type="button"
               onClick={handleSubmit}
-              className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+              disabled={isSubmitting}
+              className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Submit Application
+              {isSubmitting ? "Submitting..." : "Submit Application"}
             </button>
           </div>
         </div>

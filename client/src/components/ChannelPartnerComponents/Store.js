@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import StoreImage from "../../assest/ChannelPartner/store.png.png";
+import StoreImage from "../../assest/ChannelPartner/store.webp";
 import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const Store = () => {
@@ -23,7 +23,7 @@ const Store = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.7, ease: "easeOut" }}
-              className="h-[260px] w-full rounded-[18px] object-cover object-center grayscale sm:h-[340px] lg:h-[360px]"
+              className="h-[260px] w-full rounded-[18px] object-cover object-center  sm:h-[340px] lg:h-[360px]"
             />
           </div>
 

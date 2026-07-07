@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import SummaryApi from "../../src/common/index";
 
 const initialState = {
     centerName: "",
@@ -21,6 +23,18 @@ const initialState = {
     areasCovered: "",
     reason: "",
 };
+
+const ALLOWED_PHOTO_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "application/pdf",
+    "application/vnd.ms-excel", // .xls
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    "application/msword", // .doc
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+];
 
 const inputClass =
     "w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#666666] transition-colors duration-200";
@@ -69,7 +83,6 @@ function TextArea({ placeholder, value, onChange, error }) {
     );
 }
 
-// Single-select dropdown (replaces radio ChoiceGroup for fields like Technicians)
 function SelectInput({ options, value, onChange, error, placeholder = "Select an option" }) {
     return (
         <select
@@ -89,8 +102,6 @@ function SelectInput({ options, value, onChange, error, placeholder = "Select an
     );
 }
 
-// Closing dropdown for multi-select: click to open a checkbox popup, click
-// outside (or select) to close it — same behavior as the Distributor form.
 function MultiSelectDropdown({ placeholder = "Select options", options, value, onChange, error }) {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
@@ -150,20 +161,28 @@ function MultiSelectDropdown({ placeholder = "Select options", options, value, o
     );
 }
 
-// Single-file upload: native "Choose File" button styled #E5E5E5, matching the Authorized Dealer form.
 function FileInput({ onChange, onRemove, error, fileName, inputKey }) {
+    const lowerName = fileName ? fileName.toLowerCase() : "";
+    const isPdf = lowerName.endsWith(".pdf");
+    const isExcel = lowerName.endsWith(".xls") || lowerName.endsWith(".xlsx");
+    const isWord = lowerName.endsWith(".doc") || lowerName.endsWith(".docx");
+    const fileIcon = fileName ? (isPdf ? "📄" : isExcel ? "📊" : isWord ? "📝" : "🖼️") : "";
+
     return (
         <div>
             <input
                 key={inputKey}
                 type="file"
+                accept="image/*,.pdf,.xls,.xlsx,.doc,.docx"
                 onChange={onChange}
                 className={`w-full border rounded-md text-sm px-1 py-1 outline-none bg-transparent file:border-0 file:bg-[#E5E5E5] file:text-[#040404] file:px-4 file:py-1.5 file:rounded-md file:cursor-pointer ${error ? "border-[#E60000]" : "border-gray-300"
                     }`}
             />
             {fileName && (
                 <div className="flex items-center justify-between gap-3 mt-2">
-                    <span className="text-sm text-gray-600 truncate">{fileName}</span>
+                    <span className="text-sm text-gray-600 truncate">
+                        {fileIcon} {fileName}
+                    </span>
                     <button
                         type="button"
                         onClick={onRemove}
@@ -181,7 +200,14 @@ export default function ServiceCenterForm() {
     const [form, setForm] = useState(initialState);
     const [errors, setErrors] = useState({});
     const [submitted, setSubmitted] = useState(false);
+    const [submitError, setSubmitError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [photoInputKey, setPhotoInputKey] = useState(0);
+
+    // The actual File object lives outside `form` (form.photo only holds the
+    // display name), since File objects shouldn't sit in state you might
+    // serialize/reset the same way as text fields.
+    const photoFileRef = useRef(null);
 
     const set = (field) => (val) => setForm((f) => ({ ...f, [field]: val }));
     const setFromEvent = (field) => (e) => set(field)(e.target.value);
@@ -189,10 +215,19 @@ export default function ServiceCenterForm() {
     const setPhoto = (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
+
+        if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+            alert("Only Images and PDF files are allowed.");
+            e.target.value = "";
+            return;
+        }
+
+        photoFileRef.current = file;
         setForm((f) => ({ ...f, photo: file.name }));
     };
 
     const removePhoto = () => {
+        photoFileRef.current = null;
         setForm((f) => ({ ...f, photo: "" }));
         setPhotoInputKey((k) => k + 1);
     };
@@ -230,16 +265,109 @@ export default function ServiceCenterForm() {
         return e;
     };
 
-    const handleSubmit = () => {
+    // The form collects one "City / District" field, but the backend schema
+    // expects `city` and `district` separately. If the user typed something
+    // like "Tambaram, Chengalpattu" we split on the comma; otherwise we send
+    // the same value for both so neither required field is empty.
+    // Adjust this if you'd rather split the UI field into two inputs.
+    const splitCityDistrict = (value) => {
+        const parts = value.split(",").map((p) => p.trim()).filter(Boolean);
+        if (parts.length >= 2) return { city: parts[0], district: parts.slice(1).join(", ") };
+        return { city: value.trim(), district: value.trim() };
+    };
+
+    const buildPayload = () => {
+        const { city, district } = splitCityDistrict(form.cityDistrict);
+        return {
+            serviceCenterName: form.centerName.trim(),
+            contactPerson: form.contactName.trim(),
+            mobile: form.mobile.trim(),
+            whatsapp: form.whatsapp.trim(),
+            email: form.email.trim(),
+            address: form.address.trim(),
+            city,
+            district,
+            state: form.state.trim(),
+            gstNumber: form.gst.trim().toUpperCase(),
+            establishmentYear: form.establishedYear.trim(),
+            // Backend enum uses plain hyphens ("1-2"); SelectInput options below
+            // were updated to match exactly, so no conversion needed here.
+            technicians: form.technicians,
+            productCategories: form.categories,
+            existingBrands: form.brandsServiced.trim(),
+            warrantyService: form.warrantyService,
+            inShopService: form.inShopFacility,
+            pickupDelivery: form.pickupDelivery,
+            serviceAreas: form.areasCovered.trim(),
+            reason: form.reason.trim(),
+        };
+    };
+
+    const handleSubmit = async () => {
         const foundErrors = validate();
         setErrors(foundErrors);
-        if (Object.keys(foundErrors).length === 0) {
-            setSubmitted(true);
-        } else {
+        setSubmitError("");
+
+        if (Object.keys(foundErrors).length > 0) {
             setSubmitted(false);
             const firstKey = Object.keys(foundErrors)[0];
             const el = document.getElementById(`field-${firstKey}`);
             if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+        }
+
+        const payload = buildPayload();
+
+        try {
+            setIsSubmitting(true);
+
+            let response;
+            if (photoFileRef.current) {
+                // Multipart submission when a photo is attached.
+                const formData = new FormData();
+                Object.entries(payload).forEach(([key, val]) => {
+                    if (Array.isArray(val)) {
+                        // Controller does JSON.parse(data.productCategories) when
+                        // it arrives as a string, so send arrays as JSON strings
+                        // rather than repeated form-data keys.
+                        formData.append(key, JSON.stringify(val));
+                    } else {
+                        formData.append(key, val ?? "");
+                    }
+                });
+                // Must match upload.fields([{ name: "serviceCenterPhotos" }])
+                // in the backend controller.
+                formData.append("serviceCenterPhotos", photoFileRef.current);
+
+                response = await axios({
+                    url: SummaryApi.serviceCenter.url,
+                    method: SummaryApi.serviceCenter.method,
+                    data: formData,
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+            } else {
+                response = await axios({
+                    url: SummaryApi.serviceCenter.url,
+                    method: SummaryApi.serviceCenter.method,
+                    data: payload,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            if (response.status === 200 || response.status === 201) {
+                setSubmitted(true);
+                setForm(initialState);
+                photoFileRef.current = null;
+                setPhotoInputKey((k) => k + 1);
+            }
+        } catch (err) {
+            setSubmitted(false);
+            const message =
+                err?.response?.data?.message ||
+                "Something went wrong while submitting your application. Please try again.";
+            setSubmitError(message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -258,6 +386,12 @@ export default function ServiceCenterForm() {
                 {submitted && (
                     <div className="mb-6 bg-green-50 border border-green-200 text-green-800 text-sm rounded-md px-4 py-3">
                         Your application has been submitted successfully.
+                    </div>
+                )}
+
+                {submitError && (
+                    <div className="mb-6 bg-red-50 border border-red-200 text-red-800 text-sm rounded-md px-4 py-3">
+                        {submitError}
                     </div>
                 )}
 
@@ -301,7 +435,7 @@ export default function ServiceCenterForm() {
 
                         <div id="field-cityDistrict">
                             <Field label="City / District" required error={errors.cityDistrict}>
-                                <TextInput placeholder="Enter city / district" value={form.cityDistrict} onChange={setFromEvent("cityDistrict")} error={errors.cityDistrict} />
+                                <TextInput placeholder="e.g. Tambaram, Chengalpattu" value={form.cityDistrict} onChange={setFromEvent("cityDistrict")} error={errors.cityDistrict} />
                             </Field>
                         </div>
 
@@ -326,7 +460,7 @@ export default function ServiceCenterForm() {
                         <div id="field-technicians">
                             <Field label="Number of Technicians Available" required error={errors.technicians}>
                                 <SelectInput
-                                    options={["1–2", "3–5", "6–10", "Above 10"]}
+                                    options={["1-2", "3-5", "6-10", "Above 10"]}
                                     value={form.technicians}
                                     onChange={set("technicians")}
                                     error={errors.technicians}
@@ -424,9 +558,10 @@ export default function ServiceCenterForm() {
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+                            disabled={isSubmitting}
+                            className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            Submit Application
+                            {isSubmitting ? "Submitting..." : "Submit Application"}
                         </button>
                     </div>
                 </div>

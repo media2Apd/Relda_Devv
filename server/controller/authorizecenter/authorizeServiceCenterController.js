@@ -1,19 +1,17 @@
-const authorizedDistributor = require("../../models/authorizeDistributor");
-const {upload, deleteMultipleFromCloudinary } = require("../../config/cloudinaryUpload");
+const ServiceCenter = require("../../models/authorizeServiceCenter.js");
+const { upload, deleteMultipleFromCloudinary } = require("../../config/cloudinaryUpload.js");
 
-// Multer middleware for authorized center fields
-const uploadCenterFields = upload.fields([
-  { name: "gstCertificate", maxCount: 1 },
-  { name: "shopPhoto", maxCount: 1 },
-  { name: "warehousePhoto", maxCount: 1 },
-  { name: "visitingCard", maxCount: 1 }
+// Multer middleware for service center fields
+const uploadServiceCenterFields = upload.fields([
+  { name: "serviceCenterPhotos", maxCount: 1 }
 ]);
-exports.uploadCenterFields = uploadCenterFields;
-// Create
-exports.create = async (req, res) => {
+
+// Create Service Center
+const create = async (req, res) => {
   try {
     const data = req.body;
     
+    // Handle file uploads
     if (req.files) {
       const documentSnapshot = {};
       
@@ -31,19 +29,21 @@ exports.create = async (req, res) => {
       data.documentSnapshot = [documentSnapshot];
     }
 
+    // Parse JSON arrays if they come as strings
     if (data.productCategories && typeof data.productCategories === "string") {
       data.productCategories = JSON.parse(data.productCategories);
     }
 
-    const newDistributor = new authorizedDistributor(data);
-    const saved = await newDistributor.save();
+    const newServiceCenter = new ServiceCenter(data);
+    const saved = await newServiceCenter.save();
     
     res.status(201).json({
       success: true,
-      message: "Authorized distributor created successfully",
+      message: "Service center created successfully",
       data: saved
     });
   } catch (error) {
+    // Clean up uploaded files if error occurs
     if (req.files) {
       const publicIds = Object.values(req.files)
         .flat()
@@ -54,74 +54,75 @@ exports.create = async (req, res) => {
     
     res.status(500).json({
       success: false,
-      message: "Error creating authorized distributor",
+      message: "Error creating service center",
       error: error.message
     });
   }
 };
 
-// Get all
-exports.getAll = async (req, res) => {
+// Get all service centers
+const getAll = async (req, res) => {
   try {
-    const distributors = await authorizedDistributor.find().sort({ createdAt: -1 });
+    const serviceCenters = await ServiceCenter.find().sort({ createdAt: -1 });
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributors retrieved successfully",
-      data: distributors
+      message: "Service centers retrieved successfully",
+      data: serviceCenters
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error fetching authorized distributors",
+      message: "Error fetching service centers",
       error: error.message
     });
   }
 };
 
-// Get by ID
-exports.getById = async (req, res) => {
+// Get service center by ID
+const getById = async (req, res) => {
   try {
     const { id } = req.params;
-    const distributor = await authorizedDistributor.findById(id);
+    const serviceCenter = await ServiceCenter.findById(id);
     
-    if (!distributor) {
+    if (!serviceCenter) {
       return res.status(404).json({
         success: false,
-        message: "Authorized distributor not found"
+        message: "Service center not found"
       });
     }
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributor retrieved successfully",
-      data: distributor
+      message: "Service center retrieved successfully",
+      data: serviceCenter
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error fetching authorized distributor",
+      message: "Error fetching service center",
       error: error.message
     });
   }
 };
 
-// Update
-exports.update = async (req, res) => {
+// Update service center
+const update = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    const existingDistributor = await authorizedDistributor.findById(id);
-    if (!existingDistributor) {
+    const existingServiceCenter = await ServiceCenter.findById(id);
+    if (!existingServiceCenter) {
       return res.status(404).json({
         success: false,
-        message: "Authorized distributor not found"
+        message: "Service center not found"
       });
     }
 
+    // Handle file uploads
     if (req.files) {
-      const documentSnapshot = existingDistributor.documentSnapshot?.[0] || {};
+      const documentSnapshot = existingServiceCenter.documentSnapshot?.[0] || {};
       const oldPublicIds = [];
       
       for (const [fieldName, files] of Object.entries(req.files)) {
@@ -147,11 +148,12 @@ exports.update = async (req, res) => {
       updateData.documentSnapshot = [documentSnapshot];
     }
 
+    // Parse JSON arrays if they come as strings
     if (updateData.productCategories && typeof updateData.productCategories === "string") {
       updateData.productCategories = JSON.parse(updateData.productCategories);
     }
 
-    const updated = await authorizedDistributor.findByIdAndUpdate(
+    const updated = await ServiceCenter.findByIdAndUpdate(
       id,
       updateData,
       { new: true, runValidators: true }
@@ -159,10 +161,11 @@ exports.update = async (req, res) => {
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributor updated successfully",
+      message: "Service center updated successfully",
       data: updated
     });
   } catch (error) {
+    // Clean up uploaded files if error occurs
     if (req.files) {
       const publicIds = Object.values(req.files)
         .flat()
@@ -173,50 +176,57 @@ exports.update = async (req, res) => {
     
     res.status(500).json({
       success: false,
-      message: "Error updating authorized distributor",
+      message: "Error updating service center",
       error: error.message
     });
   }
 };
 
-// Delete
-exports.deleteCenter = async (req, res) => {
+// Delete service center
+const deleteServiceCenter = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const distributor = await authorizedDistributor.findById(id);
-    if (!distributor) {
+    const serviceCenter = await ServiceCenter.findById(id);
+    if (!serviceCenter) {
       return res.status(404).json({
         success: false,
-        message: "Authorized distributor not found"
+        message: "Service center not found"
       });
     }
 
-    if (distributor.documentSnapshot && distributor.documentSnapshot.length > 0) {
-      const docs = distributor.documentSnapshot[0];
+    // Delete all associated files from Cloudinary
+    if (serviceCenter.documentSnapshot && serviceCenter.documentSnapshot.length > 0) {
+      const docs = serviceCenter.documentSnapshot[0];
       const publicIds = [];
       
-      if (docs.gstCertificate?.publicId) publicIds.push(docs.gstCertificate.publicId);
-      if (docs.shopPhoto?.publicId) publicIds.push(docs.shopPhoto.publicId);
-      if (docs.warehousePhoto?.publicId) publicIds.push(docs.warehousePhoto.publicId);
-      if (docs.visitingCard?.publicId) publicIds.push(docs.visitingCard.publicId);
+      if (docs.serviceCenterPhotos?.publicId) publicIds.push(docs.serviceCenterPhotos.publicId);
       
       if (publicIds.length > 0) {
         await deleteMultipleFromCloudinary(publicIds);
       }
     }
 
-    await authorizedDistributor.findByIdAndDelete(id);
+    await ServiceCenter.findByIdAndDelete(id);
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributor deleted successfully"
+      message: "Service center deleted successfully"
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error deleting authorized distributor",
+      message: "Error deleting service center",
       error: error.message
     });
   }
+};
+
+module.exports = {
+  uploadServiceCenterFields,
+  create,
+  getAll,
+  getById,
+  update,
+  deleteServiceCenter
 };

@@ -1,19 +1,20 @@
-const authorizedDistributor = require("../../models/authorizeDistributor");
-const {upload, deleteMultipleFromCloudinary } = require("../../config/cloudinaryUpload");
+const AuthorizedBrandShop = require("../../models/authorizeBrandShop.js");
+const { upload, deleteMultipleFromCloudinary } = require("../../config/cloudinaryUpload.js");
 
-// Multer middleware for authorized center fields
-const uploadCenterFields = upload.fields([
+// Multer middleware for brand shop fields
+const uploadBrandShopFields = upload.fields([
+  { name: "shopFrontPhoto", maxCount: 1 },
+  { name: "shopInteriorPhotos", maxCount: 1 },
   { name: "gstCertificate", maxCount: 1 },
-  { name: "shopPhoto", maxCount: 1 },
-  { name: "warehousePhoto", maxCount: 1 },
-  { name: "visitingCard", maxCount: 1 }
+  { name: "ownershipProof", maxCount: 1 }
 ]);
-exports.uploadCenterFields = uploadCenterFields;
-// Create
-exports.create = async (req, res) => {
+
+// Create Brand Shop
+const create = async (req, res) => {
   try {
     const data = req.body;
     
+    // Handle file uploads
     if (req.files) {
       const documentSnapshot = {};
       
@@ -31,19 +32,16 @@ exports.create = async (req, res) => {
       data.documentSnapshot = [documentSnapshot];
     }
 
-    if (data.productCategories && typeof data.productCategories === "string") {
-      data.productCategories = JSON.parse(data.productCategories);
-    }
-
-    const newDistributor = new authorizedDistributor(data);
-    const saved = await newDistributor.save();
+    const newBrandShop = new AuthorizedBrandShop(data);
+    const saved = await newBrandShop.save();
     
     res.status(201).json({
       success: true,
-      message: "Authorized distributor created successfully",
+      message: "Authorized brand shop created successfully",
       data: saved
     });
   } catch (error) {
+    // Clean up uploaded files if error occurs
     if (req.files) {
       const publicIds = Object.values(req.files)
         .flat()
@@ -54,74 +52,75 @@ exports.create = async (req, res) => {
     
     res.status(500).json({
       success: false,
-      message: "Error creating authorized distributor",
+      message: "Error creating authorized brand shop",
       error: error.message
     });
   }
 };
 
-// Get all
-exports.getAll = async (req, res) => {
+// Get all brand shops
+const getAll = async (req, res) => {
   try {
-    const distributors = await authorizedDistributor.find().sort({ createdAt: -1 });
+    const brandShops = await AuthorizedBrandShop.find().sort({ createdAt: -1 });
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributors retrieved successfully",
-      data: distributors
+      message: "Authorized brand shops retrieved successfully",
+      data: brandShops
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error fetching authorized distributors",
+      message: "Error fetching authorized brand shops",
       error: error.message
     });
   }
 };
 
-// Get by ID
-exports.getById = async (req, res) => {
+// Get brand shop by ID
+const getById = async (req, res) => {
   try {
     const { id } = req.params;
-    const distributor = await authorizedDistributor.findById(id);
+    const brandShop = await AuthorizedBrandShop.findById(id);
     
-    if (!distributor) {
+    if (!brandShop) {
       return res.status(404).json({
         success: false,
-        message: "Authorized distributor not found"
+        message: "Authorized brand shop not found"
       });
     }
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributor retrieved successfully",
-      data: distributor
+      message: "Authorized brand shop retrieved successfully",
+      data: brandShop
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error fetching authorized distributor",
+      message: "Error fetching authorized brand shop",
       error: error.message
     });
   }
 };
 
-// Update
-exports.update = async (req, res) => {
+// Update brand shop
+const update = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    const existingDistributor = await authorizedDistributor.findById(id);
-    if (!existingDistributor) {
+    const existingBrandShop = await AuthorizedBrandShop.findById(id);
+    if (!existingBrandShop) {
       return res.status(404).json({
         success: false,
-        message: "Authorized distributor not found"
+        message: "Authorized brand shop not found"
       });
     }
 
+    // Handle file uploads
     if (req.files) {
-      const documentSnapshot = existingDistributor.documentSnapshot?.[0] || {};
+      const documentSnapshot = existingBrandShop.documentSnapshot?.[0] || {};
       const oldPublicIds = [];
       
       for (const [fieldName, files] of Object.entries(req.files)) {
@@ -147,11 +146,7 @@ exports.update = async (req, res) => {
       updateData.documentSnapshot = [documentSnapshot];
     }
 
-    if (updateData.productCategories && typeof updateData.productCategories === "string") {
-      updateData.productCategories = JSON.parse(updateData.productCategories);
-    }
-
-    const updated = await authorizedDistributor.findByIdAndUpdate(
+    const updated = await AuthorizedBrandShop.findByIdAndUpdate(
       id,
       updateData,
       { new: true, runValidators: true }
@@ -159,10 +154,11 @@ exports.update = async (req, res) => {
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributor updated successfully",
+      message: "Authorized brand shop updated successfully",
       data: updated
     });
   } catch (error) {
+    // Clean up uploaded files if error occurs
     if (req.files) {
       const publicIds = Object.values(req.files)
         .flat()
@@ -173,50 +169,60 @@ exports.update = async (req, res) => {
     
     res.status(500).json({
       success: false,
-      message: "Error updating authorized distributor",
+      message: "Error updating authorized brand shop",
       error: error.message
     });
   }
 };
 
-// Delete
-exports.deleteCenter = async (req, res) => {
+// Delete brand shop
+const deleteBrandShop = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const distributor = await authorizedDistributor.findById(id);
-    if (!distributor) {
+    const brandShop = await AuthorizedBrandShop.findById(id);
+    if (!brandShop) {
       return res.status(404).json({
         success: false,
-        message: "Authorized distributor not found"
+        message: "Authorized brand shop not found"
       });
     }
 
-    if (distributor.documentSnapshot && distributor.documentSnapshot.length > 0) {
-      const docs = distributor.documentSnapshot[0];
+    // Delete all associated files from Cloudinary
+    if (brandShop.documentSnapshot && brandShop.documentSnapshot.length > 0) {
+      const docs = brandShop.documentSnapshot[0];
       const publicIds = [];
       
+      if (docs.shopFrontPhoto?.publicId) publicIds.push(docs.shopFrontPhoto.publicId);
+      if (docs.shopInteriorPhotos?.publicId) publicIds.push(docs.shopInteriorPhotos.publicId);
       if (docs.gstCertificate?.publicId) publicIds.push(docs.gstCertificate.publicId);
-      if (docs.shopPhoto?.publicId) publicIds.push(docs.shopPhoto.publicId);
-      if (docs.warehousePhoto?.publicId) publicIds.push(docs.warehousePhoto.publicId);
-      if (docs.visitingCard?.publicId) publicIds.push(docs.visitingCard.publicId);
+      if (docs.ownershipProof?.publicId) publicIds.push(docs.ownershipProof.publicId);
       
       if (publicIds.length > 0) {
         await deleteMultipleFromCloudinary(publicIds);
       }
     }
 
-    await authorizedDistributor.findByIdAndDelete(id);
+    await AuthorizedBrandShop.findByIdAndDelete(id);
     
     res.status(200).json({
       success: true,
-      message: "Authorized distributor deleted successfully"
+      message: "Authorized brand shop deleted successfully"
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error deleting authorized distributor",
+      message: "Error deleting authorized brand shop",
       error: error.message
     });
   }
+};
+
+module.exports = {
+  uploadBrandShopFields,
+  create,
+  getAll,
+  getById,
+  update,
+  deleteBrandShop
 };
