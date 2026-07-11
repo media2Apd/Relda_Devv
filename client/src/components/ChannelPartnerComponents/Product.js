@@ -246,11 +246,11 @@ const Product = () => {
           text-[22px]
           xs:text-[26px]
           sm:text-[34px]
-          md:text-[44px]
-          lg:text-[56px]
-          xl:text-[68px]"
+          md:text-4xl
+          lg:text-5xl
+          xl:text-6xl"
         >
-          A <span className="font-bold text-black">Product</span> for Every Home,
+          A <span className="font-medium text-black">Product</span> for Every Home,
           <br className="hidden sm:block" />
           Institutions, Commercial Projects.
         </motion.h2>

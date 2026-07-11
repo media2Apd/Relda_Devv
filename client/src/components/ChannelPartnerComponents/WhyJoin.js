@@ -21,7 +21,7 @@ const benefits = [
 
 const WhyJoin = () => {
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20">
+    <section className="bg-white pb-16">
       <div className="mx-auto w-full max-w-[1500px]  px-4 sm:px-6 lg:px-8">
         {/* Heading & Image */}
         <motion.div

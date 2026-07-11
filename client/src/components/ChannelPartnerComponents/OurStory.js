@@ -4,7 +4,7 @@ import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const OurStory = () => {
   return (
-    <section className="relative overflow-hidden bg-white px-4 pb-0 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-12">
+    <section className="relative overflow-hidden bg-white px-4 pt-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -24,18 +24,18 @@ const OurStory = () => {
 
           <div className="relative z-10">
             <h2 className="text-[38px] font-light leading-none tracking-[-0.05em] text-black sm:text-[54px] lg:text-[68px]">
-              Our <span className="text-[#E60000]">Story</span>
+              Our <span className="font-medium text-[#E60000]">Story</span>
             </h2>
 
             <div className="mx-auto mt-8 max-w-4xl space-y-6 sm:mt-10 sm:space-y-7 lg:mt-12">
-              <p className="text-[16px] font-normal leading-snug text-[#7f7f7f] sm:text-[18px] lg:text-[20px]">
+              <p className="text-[16px] font-regular leading-snug text-[#86868B] sm:text-[18px] lg:text-[20px]">
                 India is a land of aspirations, yet millions of families struggle to access modern, reliable home solutions.
                 RELDA India was born to change this.
               </p>
 
               <p className="text-[16px] font-normal leading-snug text-[#7f7f7f] sm:text-[18px] lg:text-[20px]">
                 We saw first-time buyers forced to compromise quality was expensive, affordability was unreliable, and modern products
-                rarely reached beyond cities. Guided by <span className="font-semibold text-black">Affordable for Everyone</span> and Proudly Made in India,
+                rarely reached beyond cities. Guided by <span className="font-medium text-[#000000]">"Affordable for Everyone"</span> and Proudly Made in India,
                 we create products that are reliable, accessible, and designed for real Indian homes.
               </p>
 

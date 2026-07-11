@@ -23,7 +23,7 @@ const whyItems = [
 
 const WhyRelda = () => {
   return (
-    <section className="bg-white px-4 py-12 sm:px-6 md:py-16 lg:px-10 lg:py-20">
+    <section className="bg-white px-4 sm:px-6 py-16  lg:px-10">
       <div className="mx-auto w-full max-w-[1500px]">
 
         {/* Heading */}

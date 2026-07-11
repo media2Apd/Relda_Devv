@@ -399,7 +399,7 @@ const initialState = {
 };
 
 const inputClass =
-  "w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#666666] transition-colors duration-200";
+  "w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#777777]/50 transition-colors duration-200";
 
 function Field({ label, required, error, children, full, variant }) {
   const isFile = variant === "file";

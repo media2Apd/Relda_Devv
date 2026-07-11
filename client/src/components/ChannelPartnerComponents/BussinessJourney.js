@@ -11,7 +11,7 @@ const supportItems = [
 
 const BussinessJourney = () => {
   return (
-    <section className="bg-white py-10 lg:py-16">
+    <section className="bg-white pb-16">
       <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
@@ -28,23 +28,19 @@ const BussinessJourney = () => {
                 lg:text-left
                 font-light
                 leading-[0.9]
-                text-black
-                text-[48px]
-                sm:text-[58px]
-                md:text-[64px]
-                lg:text-[72px]
-                xl:text-[76px]
+                text-[#000000]
+                text-4xl
+                sm:text-4xl
+                md:text-5xl
+                lg:text-6xl
+                xl:text-7xl
               "
             >
-              Supporting
-              <br />
-              Your
-              <br />
+              Supporting<br/> Your <br />
               <span className="font-medium text-[#E60000]">
-                Business
-              </span>
-              <br />
-              Journey
+                 Business
+              </span><br />
+               Journey
             </h2>
           </div>
 
@@ -63,8 +59,8 @@ const BussinessJourney = () => {
 
                   <p
                     className="
-                      text-[#222]
-                      font-normal
+                      text-[#000000]
+                      font-regular
                       leading-[1.45]
                       text-[18px]
                       lg:text-[20px]

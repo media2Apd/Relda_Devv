@@ -38,7 +38,7 @@ const ALLOWED_PHOTO_TYPES = [
 ];
 
 const inputClass =
-    "w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#666666] transition-colors duration-200";
+    "w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#777777]/50 transition-colors duration-200";
 
 function Field({ label, required, error, children, full, variant }) {
     const isFile = variant === "file";
@@ -89,7 +89,7 @@ function SelectInput({ options, value, onChange, error, placeholder = "Select an
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className={`${inputClass} ${value === "" ? "text-[#666666]" : "text-gray-900"} ${error ? "border-[#E60000]" : "border-gray-300"}`}
+            className={`${inputClass} ${value === "" ? "text-[#777777]/50" : "text-gray-900"} ${error ? "border-[#E60000]" : "border-gray-300"}`}
         >
             <option value="" disabled>
                 {placeholder}
@@ -127,7 +127,7 @@ function MultiSelectDropdown({ placeholder = "Select options", options, value, o
             <button
                 type="button"
                 onClick={() => setOpen((o) => !o)}
-                className={`${inputClass} flex items-center justify-between gap-2 text-left ${value.length === 0 ? "text-[#666666]" : "text-gray-900"
+                className={`${inputClass} flex items-center justify-between gap-2 text-left ${value.length === 0 ? "text-[#777777]/50" : "text-gray-900"
                     } ${error ? "border-[#E60000]" : "border-gray-300"}`}
             >
                 <span className="truncate pr-2">{displayText}</span>

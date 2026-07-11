@@ -5,7 +5,7 @@ import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const BrandShop = () => {
   return (
-    <section className="bg-white pt-10 sm:pt-14 lg:pt-20 pb-6 sm:pb-8 lg:pb-10 overflow-hidden">
+    <section className="bg-white pb-16 overflow-hidden">
       {/* Same container as Header */}
       <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
@@ -19,21 +19,20 @@ const BrandShop = () => {
           <div>
             <h2
               className="
-                text-black
-                font-bold
+                text-[#000000]
+                font-semibold
                 leading-tight
-                text-center
-                lg:text-left
-                text-[28px]
-                sm:text-[36px]
-                md:text-[42px]
-                lg:text-[48px]
+                text-left
+                text-2xl
+                sm:text-2xl
+                md:text-3xl
+                lg:text-4xl
               "
             >
               Brand Shop
             </h2>
 
-            <div className="mt-8 sm:mt-10 space-y-8 sm:space-y-10">
+            <div className="mt-8 sm:mt-10 space-y-8 ">
               {/* Investment */}
               <div>
                 <h3
@@ -41,16 +40,16 @@ const BrandShop = () => {
                     text-[#E60000]
                     font-bold
                     leading-none
-                    text-[34px]
-                    sm:text-[44px]
-                    md:text-[52px]
-                    lg:text-[58px]
+                    text-3xl
+                    sm:text-3xl
+                    md:text-4xl
+                    lg:text-5xl
                   "
                 >
                   15 to 20 Lakhs
                 </h3>
 
-                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                <p className="mt-2 text-[#86868B] text-base sm:text-lg lg:text-xl">
                   Investment
                 </p>
               </div>
@@ -62,16 +61,16 @@ const BrandShop = () => {
                     text-[#E60000]
                     font-bold
                     leading-none
-                    text-[34px]
-                    sm:text-[44px]
-                    md:text-[52px]
-                    lg:text-[58px]
+                    text-3xl
+                    sm:text-3xl
+                    md:text-4xl
+                    lg:text-5xl
                   "
                 >
                   150 to 250 sq ft
                 </h3>
 
-                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                <p className="mt-2 text-[#86868B] text-base sm:text-lg lg:text-xl">
                   Space Required
                 </p>
               </div>
@@ -83,16 +82,16 @@ const BrandShop = () => {
                     text-[#E60000]
                     font-bold
                     leading-none
-                    text-[34px]
-                    sm:text-[44px]
-                    md:text-[52px]
-                    lg:text-[58px]
+                    text-3xl
+                    sm:text-3xl
+                    md:text-4xl
+                    lg:text-5xl
                   "
                 >
                   24% Per Annum
                 </h3>
 
-                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                <p className="mt-2 text-[#86868B] text-base sm:text-lg lg:text-xl">
                   ROI
                 </p>
               </div>

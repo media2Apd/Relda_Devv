@@ -5,7 +5,7 @@ import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const Store = () => {
   return (
-    <section className="bg-white py-10 sm:py-14 lg:py-20 overflow-hidden">
+    <section className="bg-white pb-16 overflow-hidden">
       {/* Same container as Header */}
       <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
@@ -55,13 +55,13 @@ const Store = () => {
           <div className="order-1 lg:order-2 lg:pl-8 xl:pl-12">
             <h2
               className="
-                text-black
-                font-bold
+                text-[#000000]
+                font-semibold
                 leading-tight
-                text-[28px]
-                sm:text-[36px]
-                md:text-[42px]
-                lg:text-[48px]
+                text-2xl
+                sm:text-2xl
+                md:text-3xl
+                lg:text-4xl
               "
             >
               My Store
@@ -75,16 +75,16 @@ const Store = () => {
                     text-[#E60000]
                     font-bold
                     leading-none
-                    text-[34px]
-                    sm:text-[44px]
-                    md:text-[52px]
-                    lg:text-[58px]
+                    text-3xl
+                    sm:text-3xl
+                    md:text-4xl
+                    lg:text-5xl
                   "
                 >
                   7 to 10 Lakhs
                 </h3>
 
-                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                <p className="mt-2 text-[#86868B] text-base sm:text-lg lg:text-xl">
                   Investment
                 </p>
               </div>
@@ -96,16 +96,16 @@ const Store = () => {
                     text-[#E60000]
                     font-bold
                     leading-none
-                    text-[34px]
-                    sm:text-[44px]
-                    md:text-[52px]
-                    lg:text-[58px]
+                    text-3xl
+                    sm:text-3xl
+                    md:text-4xl
+                    lg:text-5xl
                   "
                 >
                   100 to 150 sq ft
                 </h3>
 
-                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                <p className="mt-2 text-[#86868B] text-base sm:text-lg lg:text-xl">
                   Space Required
                 </p>
               </div>
@@ -117,16 +117,16 @@ const Store = () => {
                     text-[#E60000]
                     font-bold
                     leading-none
-                    text-[34px]
-                    sm:text-[44px]
-                    md:text-[52px]
-                    lg:text-[58px]
+                    text-3xl
+                    sm:text-3xl
+                    md:text-4xl
+                    lg:text-5xl
                   "
                 >
                   24% Per Annum
                 </h3>
 
-                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                <p className="mt-2 text-[#86868B] text-base sm:text-lg lg:text-xl">
                   ROI
                 </p>
               </div>

@@ -94,7 +94,7 @@ const FILE_FIELDS = [
 // Matches AuthorizedDealer's inputClass: underline-style input, brand-primary
 // border on error.
 function getInputClasses(hasError) {
-  return `w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#666666] transition-colors duration-200 ${
+  return `w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#777777]/50 transition-colors duration-200 ${
     hasError ? "border-brand-primary" : "border-brand-productCardBorder"
   }`;
 }
@@ -442,7 +442,7 @@ export default function BrandShopForm() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-10 px-4">
+    <div id="form" className="min-h-screen bg-white sm:pb-16 lg:py-16 px-4">
       <div className="max-w-5xl mx-auto">
         {/* HEADER */}
         <div className="text-center mb-6">

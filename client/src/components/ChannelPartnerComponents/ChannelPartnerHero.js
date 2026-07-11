@@ -1,10 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
+// import { useNavigate } from "react-router-dom";
 
 const ChannelPartnerHero = () => {
+  // const Navigate = useNavigate();
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20">
-     <div className="mx-auto max-w-[1500px] pl-4 pr-4 sm:pl-6 sm:pr-6 md:pl-8 md:pr-8 lg:pl-10 lg:pr-10 xl:pl-12 xl:pr-12">
+    <section className="bg-white py-16">
+      <div className="mx-auto max-w-[1500px] pl-4 pr-4 sm:pl-6 sm:pr-6 md:pl-8 md:pr-8 lg:pl-10 lg:pr-10 xl:pl-12 xl:pr-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -18,18 +20,18 @@ const ChannelPartnerHero = () => {
             className="
               max-w-[1020px]
               text-left
-              font-extrabold
-              text-black
+              font-bold
+              text-[#000000]
               leading-[1.08]
               tracking-[-0.02em]
-              text-[38px]
-              sm:text-[48px]
-              md:text-[58px]
-              lg:text-[72px]
+              text-3xl
+              sm:text-3xl
+              md:text-5xl
+              lg:text-6xl
             "
           >
-            Start your business{" "}
-            entrepreneurial journey with a{" "}
+            Start your business <br />
+            entrepreneurial journey with a <br />
             <span className="text-[#E60000]">
               RELDA Brand Shop and My Store.
             </span>
@@ -46,7 +48,7 @@ const ChannelPartnerHero = () => {
               max-w-[760px]
               text-left
               font-light
-              text-[#9A9A9A]
+              text-[#86868B]
               leading-[1.4]
               text-[18px]
               sm:text-[22px]
@@ -55,9 +57,8 @@ const ChannelPartnerHero = () => {
 
             "
           >
-            
-            A proven model with a strong brand, in-demand{" "}
-            products, and full marketing support.
+            A proven model with a strong brand, in-demand products, and full
+            marketing support.
           </motion.p>
 
           {/* Button */}
@@ -68,20 +69,15 @@ const ChannelPartnerHero = () => {
             className="mt-12 flex justify-center"
           >
             <button
-              className="
-                rounded-md
-                bg-[#E60000]
-                px-10
-                py-3
-                text-lg
-                font-medium
-                text-white
-                transition-all
-                duration-300
-                hover:bg-[#c40000]
-              "
+              onClick={() => {
+                document.getElementById("form")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }}
+              className="rounded-md bg-[#E60000] px-10 py-3 text-lg font-regular text-white transition-all duration-300 hover:bg-[#c40000]"
             >
-              Apply now
+              Apply Now
             </button>
           </motion.div>
         </motion.div>
