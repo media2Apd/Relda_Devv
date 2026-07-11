@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import SummaryApi from "../../src/common/index"; // TODO: adjust path to match where your SummaryApi.js file actually lives
 
 const initialState = {
@@ -368,14 +369,16 @@ export default function DistributorForm() {
         data: formData,
       });
       setSubmitted(true);
+      toast.success("Thank you! Your application has been submitted.");
       setForm(initialState);
       setFileKeys(initialFileKeys);
     } catch (err) {
       setSubmitted(false);
-      setSubmitError(
+      const message =
         err?.response?.data?.message ||
-          "Something went wrong while submitting your application. Please try again."
-      );
+        "Something went wrong while submitting your application. Please try again.";
+      setSubmitError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

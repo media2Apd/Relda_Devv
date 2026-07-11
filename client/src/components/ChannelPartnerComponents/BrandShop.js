@@ -5,64 +5,132 @@ import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const BrandShop = () => {
   return (
-    <section className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20  ">
-      <div className="mx-auto max-w-[1500px]">
+    <section className="bg-white pt-10 sm:pt-14 lg:pt-20 pb-6 sm:pb-8 lg:pb-10 overflow-hidden">
+      {/* Same container as Header */}
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.65, ease: "easeOut" }}
-          className="grid items-center gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-14"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-1 lg:grid-cols-[420px_minmax(0,1fr)] xl:grid-cols-[470px_minmax(0,1fr)] gap-10 xl:gap-20 items-center"
         >
-          <div className="order-1 lg:order-1 lg:pl-10 xl:pl-14">
-            <h2 className="text-[22px] font-semibold text-black sm:text-[26px]">
+          {/* Left Content */}
+          <div>
+            <h2
+              className="
+                text-black
+                font-bold
+                leading-tight
+                text-center
+                lg:text-left
+                text-[28px]
+                sm:text-[36px]
+                md:text-[42px]
+                lg:text-[48px]
+              "
+            >
               Brand Shop
             </h2>
 
-            <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
+            <div className="mt-8 sm:mt-10 space-y-8 sm:space-y-10">
+              {/* Investment */}
               <div>
-                <p className="text-[30px] font-semibold leading-none text-[#E60000] sm:text-[40px] lg:text-[46px]">
+                <h3
+                  className="
+                    text-[#E60000]
+                    font-bold
+                    leading-none
+                    text-[34px]
+                    sm:text-[44px]
+                    md:text-[52px]
+                    lg:text-[58px]
+                  "
+                >
                   15 to 20 Lakhs
+                </h3>
+
+                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                  Investment
                 </p>
-                <p className="mt-1 text-sm text-[#9d9d9d] sm:text-base">Investment</p>
               </div>
 
+              {/* Space */}
               <div>
-                <p className="text-[30px] font-semibold leading-none text-[#E60000] sm:text-[40px] lg:text-[46px]">
+                <h3
+                  className="
+                    text-[#E60000]
+                    font-bold
+                    leading-none
+                    text-[34px]
+                    sm:text-[44px]
+                    md:text-[52px]
+                    lg:text-[58px]
+                  "
+                >
                   150 to 250 sq ft
+                </h3>
+
+                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                  Space Required
                 </p>
-                <p className="mt-1 text-sm text-[#9d9d9d] sm:text-base">Space Required</p>
               </div>
 
+              {/* ROI */}
               <div>
-                <p className="text-[30px] font-semibold leading-none text-[#E60000] sm:text-[40px] lg:text-[46px]">
+                <h3
+                  className="
+                    text-[#E60000]
+                    font-bold
+                    leading-none
+                    text-[34px]
+                    sm:text-[44px]
+                    md:text-[52px]
+                    lg:text-[58px]
+                  "
+                >
                   24% Per Annum
+                </h3>
+
+                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
+                  ROI
                 </p>
-                <p className="mt-1 text-sm text-[#9d9d9d] sm:text-base">ROI</p>
               </div>
             </div>
           </div>
 
-          <div className="order-2 lg:order-2">
-            <div className="relative">
-              <motion.img
-                src={BrandShopImage}
-                alt="Brand Shop"
-                initial={{ opacity: 0, scale: 0.98 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-                className="h-[270px] w-full rounded-[22px] object-cover object-center sm:h-[340px] lg:h-[360px]"
-              />
+          {/* Right Image */}
+          <div className="relative">
+            <img
+              src={BrandShopImage}
+              alt="Brand Shop"
+              className="
+                w-full
+                rounded-2xl
+                object-cover
+                h-[240px]
+                sm:h-[320px]
+                md:h-[380px]
+                lg:h-[430px]
+                xl:h-[470px]
+              "
+            />
 
-              <div className="absolute -top-4 right-4 sm:-top-5 sm:right-5">
-                <img
-                  src={ReldaIcon}
-                  alt="Relda icon"
-                  className="h-14 w-14 object-contain sm:h-16 sm:w-16 lg:h-[74px] lg:w-[74px]"
-                />
-              </div>
-            </div>
+            {/* Relda Logo */}
+            <img
+              src={ReldaIcon}
+              alt="Relda"
+              className="
+                absolute
+                -top-5
+                right-4
+                w-12
+                sm:w-14
+                md:w-16
+                lg:w-[72px]
+                xl:w-[80px]
+              "
+            />
           </div>
         </motion.div>
       </div>

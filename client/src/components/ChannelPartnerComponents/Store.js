@@ -5,95 +5,132 @@ import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const Store = () => {
   return (
-    <section className="bg-white px-4 pb-12 sm:px-6 sm:pb-16 lg:px-8 lg:pb-20">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-white py-10 sm:py-14 lg:py-20 overflow-hidden">
+      {/* Same container as Header */}
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.65, ease: "easeOut" }}
-          className="relative grid items-center gap-8 lg:grid-cols-2 lg:gap-10"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-10 xl:gap-20 items-center"
         >
           {/* Left Image */}
-          <div className="order-1 lg:order-1">
-            <motion.img
+          <div className="relative order-2 lg:order-1">
+            <img
               src={StoreImage}
               alt="My Store"
-              initial={{ opacity: 0, scale: 0.98 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="h-[260px] w-full rounded-[18px] object-cover object-center  sm:h-[340px] lg:h-[360px]"
+              className="
+                w-full
+                rounded-[24px]
+                object-cover
+                h-[250px]
+                sm:h-[330px]
+                md:h-[390px]
+                lg:h-[440px]
+                xl:h-[490px]
+              "
+            />
+
+            {/* Relda Logo */}
+            <img
+              src={ReldaIcon}
+              alt="Relda"
+              className="
+                absolute
+                -top-6
+                right-5
+                sm:right-6
+                lg:right-8
+                w-12
+                sm:w-14
+                md:w-16
+                lg:w-[72px]
+                xl:w-[80px]
+              "
             />
           </div>
 
           {/* Right Content */}
-          <div className="order-2 lg:order-2">
-            <h2 className="text-[24px] font-semibold text-black sm:text-[28px]">
+          <div className="order-1 lg:order-2 lg:pl-8 xl:pl-12">
+            <h2
+              className="
+                text-black
+                font-bold
+                leading-tight
+                text-[28px]
+                sm:text-[36px]
+                md:text-[42px]
+                lg:text-[48px]
+              "
+            >
               My Store
             </h2>
 
-            <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
+            <div className="mt-8 sm:mt-10 space-y-8 sm:space-y-10">
+              {/* Investment */}
               <div>
-                <p className="text-[30px] font-semibold leading-none text-[#E60000] sm:text-[40px] lg:text-[48px]">
+                <h3
+                  className="
+                    text-[#E60000]
+                    font-bold
+                    leading-none
+                    text-[34px]
+                    sm:text-[44px]
+                    md:text-[52px]
+                    lg:text-[58px]
+                  "
+                >
                   7 to 10 Lakhs
-                </p>
-                <p className="mt-1 text-sm text-[#9d9d9d] sm:text-base">
+                </h3>
+
+                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
                   Investment
                 </p>
               </div>
 
+              {/* Space Required */}
               <div>
-                <p className="text-[30px] font-semibold leading-none text-[#E60000] sm:text-[40px] lg:text-[48px]">
+                <h3
+                  className="
+                    text-[#E60000]
+                    font-bold
+                    leading-none
+                    text-[34px]
+                    sm:text-[44px]
+                    md:text-[52px]
+                    lg:text-[58px]
+                  "
+                >
                   100 to 150 sq ft
-                </p>
-                <p className="mt-1 text-sm text-[#9d9d9d] sm:text-base">
+                </h3>
+
+                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
                   Space Required
                 </p>
               </div>
 
+              {/* ROI */}
               <div>
-                <p className="text-[30px] font-semibold leading-none text-[#E60000] sm:text-[40px] lg:text-[48px]">
+                <h3
+                  className="
+                    text-[#E60000]
+                    font-bold
+                    leading-none
+                    text-[34px]
+                    sm:text-[44px]
+                    md:text-[52px]
+                    lg:text-[58px]
+                  "
+                >
                   24% Per Annum
-                </p>
-                <p className="mt-1 text-sm text-[#9d9d9d] sm:text-base">
+                </h3>
+
+                <p className="mt-2 text-[#9B9B9B] text-base sm:text-lg lg:text-xl">
                   ROI
                 </p>
               </div>
             </div>
-          </div>
-
-          {/* RELDA Icon */}
-          <div
-            className="
-              pointer-events-none absolute z-20
-
-              right-3 top-3
-
-              sm:left-[62%]
-              sm:right-auto
-              sm:top-0
-              sm:-translate-x-1/2
-              sm:-translate-y-1/2
-
-              md:left-auto
-              md:right-10
-              md:top-8
-              md:translate-x-0
-              md:translate-y-0
-
-              lg:left-[44%]
-              lg:right-auto
-              lg:top-0
-              lg:-translate-x-1/2
-              lg:-translate-y-1/2
-            "
-          >
-            <img
-              src={ReldaIcon}
-              alt="Relda Icon"
-              className="h-14 w-14 object-contain sm:h-16 sm:w-16 lg:h-[72px] lg:w-[72px]"
-            />
           </div>
         </motion.div>
       </div>

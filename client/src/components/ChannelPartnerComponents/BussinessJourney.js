@@ -1,44 +1,76 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Asterisk } from "lucide-react";
 
 const supportItems = [
   "Marketing support to build strong brand visibility.",
   "Online and offline marketing for a wider reach.",
   "Sales team support to drive better conversions.",
-  "Complete shop branding. (min 3years)",
+  "Complete shop branding. (min 3 years)",
 ];
 
 const BussinessJourney = () => {
   return (
-    <section className="bg-white px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-white py-10 lg:py-16">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.65, ease: "easeOut" }}
-          className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-16"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-1 lg:grid-cols-[430px_620px] justify-between items-center gap-10"
         >
-          <div className="lg:pl-10 xl:pl-14">
-            <h2 className="max-w-[260px] text-[34px] font-light leading-[1.02] tracking-[-0.06em] text-black sm:text-[46px] lg:text-[60px]">
+          {/* Left */}
+          <div>
+            <h2
+              className="
+                text-center
+                lg:text-left
+                font-light
+                leading-[0.9]
+                text-black
+                text-[48px]
+                sm:text-[58px]
+                md:text-[64px]
+                lg:text-[72px]
+                xl:text-[76px]
+              "
+            >
               Supporting
               <br />
               Your
               <br />
-              <span className="font-normal text-[#E60000]">Business</span>
+              <span className="font-medium text-[#E60000]">
+                Business
+              </span>
               <br />
               Journey
             </h2>
           </div>
 
-          <div className="pt-2 sm:pt-4">
-            <ul className="space-y-4 sm:space-y-5 lg:pt-2">
-              {supportItems.map((item) => (
-                <li key={item} className="flex items-start gap-3 sm:gap-4">
-                  <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E60000] text-[18px] leading-none text-white sm:h-8 sm:w-8">
-                    *
-                  </span>
-                  <p className="text-[16px] font-normal leading-snug text-[#2b2b2b] sm:text-[18px] lg:text-[19px]">
+          {/* Right */}
+          <div>
+            <ul className="space-y-7">
+              {supportItems.map((item, index) => (
+                <li key={index} className="flex items-center gap-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E60000]">
+                    <Asterisk
+                      size={16}
+                      strokeWidth={2.5}
+                      className="text-white"
+                    />
+                  </div>
+
+                  <p
+                    className="
+                      text-[#222]
+                      font-normal
+                      leading-[1.45]
+                      text-[18px]
+                      lg:text-[20px]
+                      xl:text-[22px]
+                    "
+                  >
                     {item}
                   </p>
                 </li>

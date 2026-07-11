@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 
 const ChannelPartnerHero = () => {
   return (
-    <section className="bg-[#efefef] py-12 sm:py-16 lg:py-20">
-      <div className="mx-auto max-w-[1500px] px-6 sm:px-10 lg:px-14">
+    <section className="bg-white py-12 sm:py-16 lg:py-20">
+     <div className="mx-auto max-w-[1500px] pl-4 pr-4 sm:pl-6 sm:pr-6 md:pl-8 md:pr-8 lg:pl-10 lg:pr-10 xl:pl-12 xl:pr-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -16,22 +16,20 @@ const ChannelPartnerHero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="
-              max-w-[1050px]
-              text-center lg:text-left
-              font-bold
-              leading-[1.08]
-              tracking-[-0.04em]
+              max-w-[1020px]
+              text-left
+              font-extrabold
               text-black
-              text-[36px]
-              sm:text-[52px]
-              md:text-[62px]
+              leading-[1.08]
+              tracking-[-0.02em]
+              text-[38px]
+              sm:text-[48px]
+              md:text-[58px]
               lg:text-[72px]
             "
           >
-            Start your business
-            <br />
-            entrepreneurial journey with a
-            <br />
+            Start your business{" "}
+            entrepreneurial journey with a{" "}
             <span className="text-[#E60000]">
               RELDA Brand Shop and My Store.
             </span>
@@ -43,22 +41,22 @@ const ChannelPartnerHero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="
-              mx-auto
-              lg:mx-0
-              mt-10
-              max-w-[930px]
-              text-center
-              text-[#8F8F8F]
+              mt-8
+              ml-8
+              max-w-[760px]
+              text-left
               font-light
-              leading-[1.18]
-              text-[22px]
-              sm:text-[30px]
-              md:text-[38px]
-              lg:text-[42px]
+              text-[#9A9A9A]
+              leading-[1.4]
+              text-[18px]
+              sm:text-[22px]
+              md:text-[26px]
+              lg:text-[34px]
+
             "
           >
-            A proven model with a strong brand, in-demand
-            <br />
+            
+            A proven model with a strong brand, in-demand{" "}
             products, and full marketing support.
           </motion.p>
 

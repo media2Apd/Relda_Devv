@@ -357,9 +357,9 @@
 
 
 
-
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import SummaryApi from "../../src/common/index";
 
 const initialState = {
@@ -776,14 +776,16 @@ export default function AuthorizedDealer() {
         data: formData,
       });
       setSubmitted(true);
+      toast.success("Your application has been submitted successfully.");
       setForm(initialState);
       setFileInputKeys(Object.fromEntries(FILE_FIELDS.map((f) => [f, 0])));
     } catch (err) {
       setSubmitted(false);
-      setSubmitError(
+      const message =
         err?.response?.data?.message ||
-          "Something went wrong while submitting your application. Please try again."
-      );
+        "Something went wrong while submitting your application. Please try again.";
+      setSubmitError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

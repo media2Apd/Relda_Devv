@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Asterisk } from "lucide-react";
 import whyReldaImage from "../../assest/ChannelPartner/why-relda-india.webp";
 
 const whyItems = [
@@ -22,71 +23,199 @@ const whyItems = [
 
 const WhyRelda = () => {
   return (
-    <section className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-     <div className="mx-auto w-full max-w-[1500px]">
+    <section className="bg-white px-4 py-12 sm:px-6 md:py-16 lg:px-10 lg:py-20">
+      <div className="mx-auto w-full max-w-[1500px]">
+
         {/* Heading */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          viewport={{ once: true }}
+          transition={{
+            duration: 0.6,
+            ease: "easeOut",
+          }}
           className="text-center"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight text-black">
-            Why <span className="font-normal text-[#E60000]">RELDA India?</span>
+          <h2
+            className="
+            text-3xl
+            sm:text-4xl
+            md:text-5xl
+            lg:text-6xl
+            font-light
+            tracking-tight
+            text-black
+            "
+          >
+            Why{" "}
+            <span className="font-normal text-[#E60000]">
+              RELDA India?
+            </span>
           </h2>
         </motion.div>
 
-        {/* Content */}
-        <div className="mt-10 grid grid-cols-1 items-center gap-10 lg:mt-14 lg:grid-cols-2 lg:gap-14">
-          {/* Left Side */}
+
+        {/* Main Content */}
+        <div
+          className="
+          mt-10
+          grid
+          grid-cols-1
+          items-center
+          gap-10
+          lg:grid-cols-2
+          lg:gap-16
+          lg:mt-14
+          "
+        >
+
+
+          {/* Left Content */}
           <div className="space-y-8 sm:space-y-10">
+
             {whyItems.map((item, index) => (
+
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 0.55, delay: index * 0.1 }}
-                className="flex items-start gap-4"
+                initial={{
+                  opacity:0,
+                  x:-40
+                }}
+                whileInView={{
+                  opacity:1,
+                  x:0
+                }}
+                viewport={{
+                  once:true,
+                  amount:0.3
+                }}
+                transition={{
+                  duration:0.5,
+                  delay:index * 0.15
+                }}
+                className="
+                flex
+                items-start
+                gap-4
+                "
               >
+
+
                 {/* Icon */}
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E60000] text-lg text-white">
-                  *
+                <div
+                  className="
+                  flex
+                  shrink-0
+                  items-center
+                  justify-center
+                  h-10
+                  w-10
+                  rounded-full
+                  bg-[#E60000]
+                  text-white
+                  "
+                >
+                  <Asterisk
+                    className="w-6 h-6"
+                    strokeWidth={2}
+                  />
                 </div>
 
+
                 {/* Text */}
-                <div>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-black">
+                <div className="flex-1">
+
+                  <h3
+                    className="
+                    text-lg
+                    sm:text-xl
+                    md:text-2xl
+                    font-semibold
+                    text-black
+                    "
+                  >
                     {item.title}
                   </h3>
 
-                  <p className="mt-2 text-sm sm:text-base leading-7 text-gray-600">
+
+                  <p
+                    className="
+                    mt-2
+                    text-sm
+                    sm:text-base
+                    leading-7
+                    text-gray-600
+                    "
+                  >
                     {item.description}
                   </p>
+
                 </div>
+
+
               </motion.div>
+
             ))}
+
           </div>
 
-          {/* Right Side Image */}
+
+
+          {/* Right Image */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.65, ease: "easeOut" }}
-            className="w-full"
+
+            initial={{
+              opacity:0,
+              scale:0.95
+            }}
+
+            whileInView={{
+              opacity:1,
+              scale:1
+            }}
+
+            viewport={{
+              once:true,
+              amount:0.3
+            }}
+
+            transition={{
+              duration:0.6
+            }}
+
+            className="
+            w-full
+            "
           >
+
             <img
+
               src={whyReldaImage}
+
               alt="Why RELDA India"
-              className="w-full rounded-lg object-cover h-[220px] sm:h-[300px] md:h-[400px] lg:h-[450px] xl:h-[500px]"
+
+              className="
+              w-full
+              h-[230px]
+              sm:h-[320px]
+              md:h-[400px]
+              lg:h-[450px]
+              xl:h-[500px]
+              object-cover
+              rounded-xl
+              "
             />
+
           </motion.div>
+
+
         </div>
+
       </div>
     </section>
   );
 };
+
 
 export default WhyRelda;

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import SummaryApi from "../../common/index";
 
 const initialState = {
@@ -424,15 +425,17 @@ export default function BrandShopForm() {
       }
 
       setSubmitted(true);
+      toast.success("Thank you! Your application has been submitted.");
       setForm(initialState);
       setFileInputKeys(Object.fromEntries(FILE_FIELDS.map((f) => [f, 0])));
     } catch (err) {
       console.error("Brand shop submission failed:", err);
-      setApiError(
+      const message =
         err?.response?.data?.message ||
-          err?.message ||
-          "Something went wrong while submitting the form. Please try again."
-      );
+        err?.message ||
+        "Something went wrong while submitting the form. Please try again.";
+      setApiError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

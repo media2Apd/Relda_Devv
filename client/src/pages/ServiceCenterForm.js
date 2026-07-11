@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import SummaryApi from "../../src/common/index";
 
 const initialState = {
@@ -356,6 +357,7 @@ export default function ServiceCenterForm() {
 
             if (response.status === 200 || response.status === 201) {
                 setSubmitted(true);
+                toast.success("Your application has been submitted successfully.");
                 setForm(initialState);
                 photoFileRef.current = null;
                 setPhotoInputKey((k) => k + 1);
@@ -366,6 +368,7 @@ export default function ServiceCenterForm() {
                 err?.response?.data?.message ||
                 "Something went wrong while submitting your application. Please try again.";
             setSubmitError(message);
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

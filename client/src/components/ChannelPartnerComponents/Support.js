@@ -36,7 +36,7 @@ const Support = () => {
           className="mx-auto max-w-4xl text-center"
         >
           <h2 className="text-[34px] font-light leading-tight tracking-[-0.05em] text-black sm:text-[46px] lg:text-[58px]">
-            <span className="text-[#E60000]">Support</span> at Every Step
+            <span className="text-[#E60000] font-semibold">Support</span> at Every Step
           </h2>
 
           <p className="mx-auto mt-5 max-w-3xl text-[16px] font-normal leading-snug text-[#a1a1a1] sm:mt-6 sm:text-[18px] lg:text-[20px]">
