@@ -9,6 +9,9 @@ const syncParentCategoryController = async (req, res) => {
       req.body
     );
 
+    console.log("ERP sync parent category payload:", req.body);
+    console.log("ERP sync parent category result:", result);
+
     return res.status(200).json({
       success: true,
       ...result,

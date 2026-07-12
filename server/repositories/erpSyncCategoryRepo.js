@@ -2,25 +2,28 @@ const ProductCategory = require("../models/productCategory");
 const ParentCategory = require("../models/parentCategoryModel");
 
 const upsertCategoryByErpIdRepo = async (organizationId, erpId, data) => {
-  // parentCategoryErpId irundhaa, website-la iruka ObjectId la resolve pannu
   let parentObjectId = null;
+
   if (data.parentCategoryErpId) {
-    const parent = await ParentCategory.findOne({
-      erpId: data.parentCategoryErpId,
-      organizationId,
-    });
+    const parentQuery = organizationId
+      ? { erpId: data.parentCategoryErpId, organizationId }
+      : { erpId: data.parentCategoryErpId };
+
+    const parent = await ParentCategory.findOne(parentQuery);
     parentObjectId = parent ? parent._id : null;
   }
 
   const { parentCategoryErpId, ...rest } = data;
+  const query = organizationId ? { erpId, organizationId } : { erpId };
 
   return await ProductCategory.findOneAndUpdate(
-    { erpId, organizationId },
+    query,
     {
       $set: {
         ...rest,
         parentCategory: parentObjectId,
         erpId,
+        organizationId,
         source: "ERP",
         lastSyncedAt: new Date(),
       },
@@ -30,7 +33,8 @@ const upsertCategoryByErpIdRepo = async (organizationId, erpId, data) => {
 };
 
 const deleteCategoryByErpIdRepo = async (organizationId, erpId) => {
-  return await ProductCategory.findOneAndDelete({ erpId, organizationId });
+  const query = organizationId ? { erpId, organizationId } : { erpId };
+  return await ProductCategory.findOneAndDelete(query);
 };
 
 module.exports = {

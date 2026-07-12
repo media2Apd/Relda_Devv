@@ -7,7 +7,7 @@ const ServiceRequest = () => {
   useEffect(() => {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const today = new Date().getDay();
-    document.getElementById(days[today]).classList.add('text-white');
+    document.getElementById(days[today])?.classList.add('text-white');
   }, []);
 
   // const handleSubmit = (event) => {

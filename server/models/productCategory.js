@@ -54,6 +54,12 @@ const ProductCategorySchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    organizationId: {
+      type: String,
+      index: true,
+      sparse: true,
+      default: null,
+    },
     erpId: {
       type: String,
       index: true,

@@ -1,12 +1,15 @@
 const ParentCategory = require("../models/parentCategoryModel");
 
 const upsertParentCategoryByErpIdRepo = async (organizationId, erpId, data) => {
+  const query = organizationId ? { erpId, organizationId } : { erpId };
+
   return await ParentCategory.findOneAndUpdate(
-    { erpId, organizationId },
+    query,
     {
       $set: {
         ...data,
         erpId,
+        organizationId,
         source: "ERP",
         lastSyncedAt: new Date(),
       },
@@ -16,7 +19,8 @@ const upsertParentCategoryByErpIdRepo = async (organizationId, erpId, data) => {
 };
 
 const deleteParentCategoryByErpIdRepo = async (organizationId, erpId) => {
-  return await ParentCategory.findOneAndDelete({ erpId, organizationId });
+  const query = organizationId ? { erpId, organizationId } : { erpId };
+  return await ParentCategory.findOneAndDelete(query);
 };
 
 module.exports = {

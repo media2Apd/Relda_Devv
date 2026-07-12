@@ -12,23 +12,19 @@ const validateErpApiKey = (req, res, next) => {
       });
     }
 
-    // .env la hash store pannunga (sha256 of your shared key)
     const expectedKeyHash = process.env.ERP_MASTER_KEY_HASH;
-
-    if (!expectedKeyHash) {
-      console.error("ERP_MASTER_KEY_HASH not set in env");
-      return res.status(500).json({
-        success: false,
-        message: "Server misconfigured",
-      });
-    }
+    const expectedPlainKey = process.env.ERP_MASTER_KEY || process.env.ERP_API_KEY;
 
     const providedKeyHash = crypto
       .createHash("sha256")
       .update(apiKey)
       .digest("hex");
 
-    if (providedKeyHash !== expectedKeyHash) {
+    const isValid =
+      (expectedKeyHash && providedKeyHash === expectedKeyHash) ||
+      (expectedPlainKey && apiKey === expectedPlainKey);
+
+    if (!isValid) {
       return res.status(401).json({
         success: false,
         message: "Invalid ERP API key",
