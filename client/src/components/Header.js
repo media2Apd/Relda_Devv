@@ -892,14 +892,14 @@ const Header = () => {
                     >
                       Authorized Dealer
                     </Link>
-                    <Link to="/channel-partner" onClick={() => setServicesOpen(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
+                    <Link to="/channel-partner" onClick={() => setMobileMenuDisplay(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
                       Authorized Brand Shop
                     </Link>
-                    <Link to="/authorized-Distributor" onClick={() => setServicesOpen(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
+                    <Link to="/authorized-Distributor" onClick={() => setMobileMenuDisplay(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
                     Authorized Distributor
                     </Link>
                   
-                    <Link to="/authorized-ServiceCenter" onClick={() => setServicesOpen(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
+                    <Link to="/authorized-ServiceCenter" onClick={() => setMobileMenuDisplay(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
                     Authorized Service-Center
                     </Link>
                     <Link
