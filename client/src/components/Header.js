@@ -718,7 +718,7 @@ const Header = () => {
                             </li>
                              <li>
                               <Link to="/channel-partner" onClick={() => setServicesOpen(false)} className="text-sm text-gray-600 hover:text-brand-primary">
-                               Authorized BrandShop
+                               Authorized Brand Shop
                               </Link>
                             </li>
                               <li>
@@ -891,6 +891,16 @@ const Header = () => {
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       Authorized Dealer
+                    </Link>
+                    <Link to="/channel-partner" onClick={() => setServicesOpen(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
+                      Authorized Brand Shop
+                    </Link>
+                    <Link to="/authorized-Distributor" onClick={() => setServicesOpen(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
+                    Authorized Distributor
+                    </Link>
+                  
+                    <Link to="/authorized-ServiceCenter" onClick={() => setServicesOpen(false)} className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover">
+                    Authorized Service-Center
                     </Link>
                     <Link
                       to="/CareerPage"
