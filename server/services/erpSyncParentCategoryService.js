@@ -4,22 +4,23 @@ const {
 } = require("../repositories/erpSyncParentCategoryRepo.js");
 
 const syncParentCategoryFromErpService = async (organizationId, payload) => {
-  const { erpId, name, categoryImage, isHide, action } = payload;
+  const { erpId, id, _id, name, categoryImage, isHide, action } = payload;
+  const resolvedErpId = erpId || id || _id;
 
-  if (!erpId) {
+  if (!resolvedErpId) {
     throw new Error("erpId is required");
   }
 
   // DELETE
   if (action === "DELETE") {
-    const deleted = await deleteParentCategoryByErpIdRepo(organizationId, erpId);
-    return { action, erpId, deleted: !!deleted };
+    const deleted = await deleteParentCategoryByErpIdRepo(organizationId, resolvedErpId);
+    return { action, erpId: resolvedErpId, deleted: !!deleted };
   }
 
   // UPSERT (default)
   const category = await upsertParentCategoryByErpIdRepo(
     organizationId,
-    erpId,
+    resolvedErpId,
     {
       name,
       categoryImage,
@@ -27,7 +28,7 @@ const syncParentCategoryFromErpService = async (organizationId, payload) => {
     }
   );
 
-  return { action: action || "UPSERT", erpId, data: category };
+  return { action: action || "UPSERT", erpId: resolvedErpId, data: category };
 };
 
 module.exports = {

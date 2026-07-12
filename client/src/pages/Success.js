@@ -9,7 +9,7 @@ const Success = () => {
         src={SUCCESSIMAGE}
         width={150}
         height={150}
-        alt="success"
+        alt="Payment success illustration"
         title='success'
       />
       <p className='text-green-600 font-bold text-xl'>Payment Successfully</p>

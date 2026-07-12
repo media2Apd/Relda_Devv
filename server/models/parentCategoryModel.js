@@ -32,11 +32,16 @@ const parentCategorySchema = new mongoose.Schema(
     },
     categoryImage: {
       type: String,
-      required: true,
     },
     isHide: {
       type: Boolean,
       default: false,
+    },
+    organizationId: {
+      type: String,
+      index: true,
+      sparse: true,
+      default: null,
     },
     // ERP sync fields
     erpId: {

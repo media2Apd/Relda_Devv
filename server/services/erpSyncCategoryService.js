@@ -6,6 +6,8 @@ const {
 const syncCategoryFromErpService = async (organizationId, payload) => {
   const {
     erpId,
+    id,
+    _id,
     label,
     value,
     categoryImage,
@@ -13,21 +15,22 @@ const syncCategoryFromErpService = async (organizationId, payload) => {
     isHide,
     action,
   } = payload;
+  const resolvedErpId = erpId || id || _id;
 
-  if (!erpId) {
+  if (!resolvedErpId) {
     throw new Error("erpId is required");
   }
 
   // DELETE
   if (action === "DELETE") {
-    const deleted = await deleteCategoryByErpIdRepo(organizationId, erpId);
-    return { action, erpId, deleted: !!deleted };
+    const deleted = await deleteCategoryByErpIdRepo(organizationId, resolvedErpId);
+    return { action, erpId: resolvedErpId, deleted: !!deleted };
   }
 
   // UPSERT (default)
   const category = await upsertCategoryByErpIdRepo(
     organizationId,
-    erpId,
+    resolvedErpId,
     {
       label,
       value,
@@ -37,7 +40,7 @@ const syncCategoryFromErpService = async (organizationId, payload) => {
     }
   );
 
-  return { action: action || "UPSERT", erpId, data: category };
+  return { action: action || "UPSERT", erpId: resolvedErpId, data: category };
 };
 
 module.exports = {
