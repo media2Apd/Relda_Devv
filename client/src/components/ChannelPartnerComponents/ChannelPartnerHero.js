@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 const ChannelPartnerHero = () => {
   // const Navigate = useNavigate();
   return (
-    <section className="bg-white py-16">
+    <section className="bg-[#f5f5f5] py-16">
       <div className="mx-auto max-w-[1500px] pl-4 pr-4 sm:pl-6 sm:pr-6 md:pl-8 md:pr-8 lg:pl-10 lg:pr-10 xl:pl-12 xl:pr-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -19,19 +19,20 @@ const ChannelPartnerHero = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="
               max-w-[1020px]
-              text-left
+              mx-auto
+              text-center
               font-bold
               text-[#000000]
-              leading-[1.08]
+              !leading-[1.2]  {/* Changed from 1.08 to 1.3 for more space */}
               tracking-[-0.02em]
               text-3xl
               sm:text-3xl
-              md:text-5xl
+              md:text-4xl
               lg:text-6xl
             "
           >
             Start your business <br />
-            entrepreneurial journey with a <br />
+            entrepreneurial journey with a <br className="hidden md:block"/>
             <span className="text-[#E60000]">
               RELDA Brand Shop and My Store.
             </span>
@@ -44,16 +45,15 @@ const ChannelPartnerHero = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="
               mt-8
-              ml-8
-              max-w-[760px]
-              text-left
+              max-w-[800px]
+              mx-auto
+              text-center
               font-light
               text-[#86868B]
               leading-[1.4]
               text-[18px]
               sm:text-[22px]
-              md:text-[26px]
-              lg:text-[34px]
+
 
             "
           >

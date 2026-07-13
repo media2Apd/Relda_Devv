@@ -5,7 +5,7 @@ import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const BrandShop = () => {
   return (
-    <section className="bg-white pb-16 overflow-hidden">
+    <section className="bg-white py-16 overflow-hidden">
       {/* Same container as Header */}
       <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
@@ -20,7 +20,7 @@ const BrandShop = () => {
             <h2
               className="
                 text-[#000000]
-                font-semibold
+                font-bold
                 leading-tight
                 text-left
                 text-2xl
@@ -107,11 +107,11 @@ const BrandShop = () => {
                 w-full
                 rounded-2xl
                 object-cover
-                h-[240px]
-                sm:h-[320px]
-                md:h-[380px]
-                lg:h-[430px]
-                xl:h-[470px]
+                h-[250px]
+                sm:h-[330px]
+                md:h-[390px]
+                lg:h-[440px]
+                xl:h-[490px]
               "
             />
 
@@ -121,7 +121,7 @@ const BrandShop = () => {
               alt="Relda"
               className="
                 absolute
-                -top-5
+                -top-8
                 right-4
                 w-12
                 sm:w-14

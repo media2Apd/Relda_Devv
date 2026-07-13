@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import SummaryApi from '../common';
 
-const AdminDealer = () => {
+const AdminApplications = () => {
   const [applications, setApplications] = useState([]);
 
   useEffect(() => {
@@ -72,4 +72,4 @@ const AdminDealer = () => {
   );
 };
 
-export default AdminDealer;
+export default AdminApplications;

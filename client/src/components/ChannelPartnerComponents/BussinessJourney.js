@@ -27,7 +27,7 @@ const BussinessJourney = () => {
                 text-center
                 lg:text-left
                 font-light
-                leading-[0.9]
+                leading-[1.1]
                 text-[#000000]
                 text-4xl
                 sm:text-4xl
@@ -36,10 +36,10 @@ const BussinessJourney = () => {
                 xl:text-7xl
               "
             >
-              Supporting<br/> Your <br />
+              Supporting<br className="hidden lg:block"/> Your <br className="hidden lg:block"/>
               <span className="font-medium text-[#E60000]">
                  Business
-              </span><br />
+              </span> <br className="hidden lg:block"/>
                Journey
             </h2>
           </div>

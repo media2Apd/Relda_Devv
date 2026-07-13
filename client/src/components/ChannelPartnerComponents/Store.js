@@ -5,7 +5,7 @@ import ReldaIcon from "../../assest/ChannelPartner/reldaIcon.png";
 
 const Store = () => {
   return (
-    <section className="bg-white pb-16 overflow-hidden">
+    <section className="bg-white pb-16 lg:pt-8 overflow-hidden">
       {/* Same container as Header */}
       <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-12">
         <motion.div
@@ -13,7 +13,8 @@ const Store = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-10 xl:gap-20 items-center"
+          // className="grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-10 xl:gap-20 items-center"
+          className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_470px] gap-10 xl:gap-20 items-center"
         >
           {/* Left Image */}
           <div className="relative order-2 lg:order-1">
@@ -38,10 +39,8 @@ const Store = () => {
               alt="Relda"
               className="
                 absolute
-                -top-6
-                right-5
-                sm:right-6
-                lg:right-8
+                -top-8
+                right-4
                 w-12
                 sm:w-14
                 md:w-16
@@ -56,7 +55,7 @@ const Store = () => {
             <h2
               className="
                 text-[#000000]
-                font-semibold
+                font-bold
                 leading-tight
                 text-2xl
                 sm:text-2xl

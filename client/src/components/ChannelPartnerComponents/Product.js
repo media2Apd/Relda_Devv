@@ -256,14 +256,14 @@ const Product = () => {
         </motion.h2>
 
         {/* First Row */}
-        <div className="mt-6 sm:mt-8 md:mt-9 lg:mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+        <div className="mt-6 sm:mt-8 md:mt-9 lg:mt-10 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-3 lg:gap-6">
           <ProductCard item={products[0]} />
           <ProductCard item={products[1]} />
           <ProductCard item={products[2]} />
         </div>
 
         {/* Second Row - centered */}
-        <div className="mt-4 sm:mt-5 lg:mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 sm:max-w-[calc(66.666%+20px)] sm:mx-auto lg:max-w-[calc(66.666%+24px)] lg:gap-6">
+        <div className="mt-4 sm:mt-5 lg:mt-6 grid grid-cols-1 gap-4 sm:gap-5 sm:max-w-[calc(66.666%+20px)] sm:mx-auto lg:max-w-[calc(66.666%+24px)] lg:gap-6">
           <ProductCard item={products[3]} />
           <ProductCard item={products[4]} />
         </div>

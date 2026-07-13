@@ -26,7 +26,7 @@ const supportItems = [
 
 const Support = () => {
   return (
-    <section className="bg-white px-4 lg:py-16 sm:pb-16 sm:px-6">
+    <section className="bg-white px-4 pb-16 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
