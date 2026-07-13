@@ -51,7 +51,7 @@ const DealerHero = () => {
             className="relative"
           >
             {/* Main Image with rounded corners */}
-            <div className="rounded-[2.5rem] overflow-hidden shadow-2xl border-8 border-white">
+            <div className="rounded-[2.5rem] overflow-hidden shadow-2xl">
               <img 
                 src={DealerHeroImg}
                 alt="RELDA Store"
