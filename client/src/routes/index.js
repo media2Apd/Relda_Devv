@@ -64,11 +64,11 @@ import RequireRole from '../helpers/RequireRole'
 import ROLE from '../common/role'
 import ChannelPartner from '../pages/ChannelPartner'
 import ServiceCenterForm from '../pages/ServiceCenterForm'
-import DistributorForm from '../pages/Distributorform'
 import AuthorizeAdminBrandshop from '../pages/AuthorizeAdminBrandshop'
 import AuthorizeAdminDealer from '../pages/AuthorizeAdminDealer'
 import AuthorizeAdminDistributor from '../pages/AuthorizeAdminDistributor'
 import AuthorizeAdminServicecenter from '../pages/AuthorizAdminServicecenter'
+import Distributors from '../pages/Distributors'
 
 
 
@@ -119,7 +119,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "authorized-Distributor",
-                element: <DistributorForm />
+                element: <Distributors />
             },
             {
                 path: "admin-panel",

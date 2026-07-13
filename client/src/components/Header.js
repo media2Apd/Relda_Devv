@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
-import Logo from "../assest/Logo.svg";
+import Logo from "../assest/logo.svg";
 // import Logo from "../assest/Logo.png";
 import { Helmet } from 'react-helmet';
 import { Menu, ShoppingCart, CircleUser, MapPin, Search } from 'lucide-react';

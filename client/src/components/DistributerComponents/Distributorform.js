@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import SummaryApi from "../../src/common/index"; // TODO: adjust path to match where your SummaryApi.js file actually lives
+import SummaryApi from "../../common/index"; // TODO: adjust path to match where your SummaryApi.js file actually lives
 
 const initialState = {
   shopName: "",
@@ -385,7 +385,7 @@ export default function DistributorForm() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-10 px-4">
+    <div id="form" className="min-h-screen bg-white py-10 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-semibold mb-2">RELDA Authorized Distributor Application</h1>
