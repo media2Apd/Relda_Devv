@@ -3,6 +3,13 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import SummaryApi from "../common/index";
 import DealerHero from "../components/AuthorizedDealer/DealerHero";
+import WhyPartner from "../components/AuthorizedDealer/WhyPartner";
+import AffordableSection from "../components/AuthorizedDealer/AffordableSection";
+import CustomerBenefits from "../components/AuthorizedDealer/CustomerBenefits";
+import DealerCriteria from "../components/AuthorizedDealer/DealerCriteria";
+import SuccessPath from "../components/AuthorizedDealer/SuccessPath";
+import AboutAndLeadership from "../components/AuthorizedDealer/AboutAndLeadership";
+import FinalCTA from "../components/AuthorizedDealer/FinalCTA";
 
 const initialState = {
   shopName: "",
@@ -433,302 +440,317 @@ export default function AuthorizedDealer() {
     }
   };
 
+  const scrollToForm = () => {
+    const formElement = document.getElementById('dealer-form');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <>
-    <DealerHero />
-    <div className="min-h-screen bg-white py-10 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold mb-2">RELDA Authorized Dealer Application</h1>
-          <p className="text-sm text-[#99A1AF]">
-            Please fill in all the details below to apply as a RELDA Authorized Dealer.
-          </p>
-        </div>
+      <DealerHero onApplyClick={scrollToForm} />
+      <WhyPartner />
+      <AffordableSection />
+      <CustomerBenefits />
+      <DealerCriteria />
+      <SuccessPath />
+      <AboutAndLeadership />
 
-        {submitted && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-800 text-sm rounded-md px-4 py-3">
-            Your application has been submitted successfully.
+      <div id="dealer-form" className="min-h-screen bg-white py-10 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-semibold mb-2">RELDA Authorized Dealer Application</h1>
+            <p className="text-sm text-[#99A1AF]">
+              Please fill in all the details below to apply as a RELDA Authorized Dealer.
+            </p>
           </div>
-        )}
 
-        {submitError && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-[#E60000] text-sm rounded-md px-4 py-3">
-            {submitError}
-          </div>
-        )}
+          {submitted && (
+            <div className="mb-6 bg-green-50 border border-green-200 text-green-800 text-sm rounded-md px-4 py-3">
+              Your application has been submitted successfully.
+            </div>
+          )}
 
-        <div className="bg-white rounded-xl shadow-md px-6 md:px-16 py-8">
-          <Section title="Section 1 – Business Information">
-            <div id="field-shopName">
-              <Field label="Business / Shop Name" required error={errors.shopName}>
-                <TextInput placeholder="Enter business / shop name" value={form.shopName} onChange={setFromEvent("shopName")} error={errors.shopName} />
-              </Field>
+          {submitError && (
+            <div className="mb-6 bg-red-50 border border-red-200 text-[#E60000] text-sm rounded-md px-4 py-3">
+              {submitError}
             </div>
-            <div id="field-ownerName">
-              <Field label="Proprietor / Owner Name" required error={errors.ownerName}>
-                <TextInput placeholder="Enter owner name" value={form.ownerName} onChange={setFromEvent("ownerName")} error={errors.ownerName} />
-              </Field>
-            </div>
-            <div id="field-contactName">
-              <Field label="Contact Person Name" required error={errors.contactName}>
-                <TextInput placeholder="Enter contact person name" value={form.contactName} onChange={setFromEvent("contactName")} error={errors.contactName} />
-              </Field>
-            </div>
-            <div id="field-mobile">
-              <Field label="Mobile Number" required error={errors.mobile}>
-                <TextInput type="tel" placeholder="+91 XXXXXXXXXX" value={form.mobile} onChange={setFromEvent("mobile")} error={errors.mobile} />
-              </Field>
-            </div>
-            <div id="field-whatsapp">
-              <Field label="WhatsApp Number" required error={errors.whatsapp}>
-                <TextInput type="tel" placeholder="+91 XXXXXXXXXX" value={form.whatsapp} onChange={setFromEvent("whatsapp")} error={errors.whatsapp} />
-              </Field>
-            </div>
-            <div id="field-email">
-              <Field label="Email ID" error={errors.email}>
-                <TextInput type="email" placeholder="Enter email address" value={form.email} onChange={setFromEvent("email")} error={errors.email} />
-              </Field>
-            </div>
-            <div id="field-address" className="col-span-1 md:col-span-2">
-              <Field label="Complete Shop Address" required full error={errors.address}>
-                <TextInput placeholder="Enter complete shop address" value={form.address} onChange={setFromEvent("address")} error={errors.address} />
-              </Field>
-            </div>
-            <div id="field-city">
-              <Field label="City" required error={errors.city}>
-                <TextInput placeholder="Enter city" value={form.city} onChange={setFromEvent("city")} error={errors.city} />
-              </Field>
-            </div>
-            <div id="field-district">
-              <Field label="District" required error={errors.district}>
-                <TextInput placeholder="Enter district" value={form.district} onChange={setFromEvent("district")} error={errors.district} />
-              </Field>
-            </div>
-            <div id="field-state">
-              <Field label="State" required error={errors.state}>
-                <TextInput placeholder="Enter state" value={form.state} onChange={setFromEvent("state")} error={errors.state} />
-              </Field>
-            </div>
-            <div id="field-pincode">
-              <Field label="PIN Code" required error={errors.pincode}>
-                <TextInput placeholder="Enter PIN code" value={form.pincode} onChange={setFromEvent("pincode")} error={errors.pincode} />
-              </Field>
-            </div>
-          </Section>
+          )}
 
-          <Section title="Section 2 – Business Details">
-            <div id="field-businessType">
-              <Field label="Business Type">
-                <SelectInput
-                  placeholder="Select business type"
-                  options={["Proprietorship", "Partnership", "Private Limited", "LLP", "Other"]}
-                  value={form.businessType}
-                  onChange={setFromEvent("businessType")}
-                />
-              </Field>
-            </div>
-            <div id="field-yearEstablished">
-              <Field label="Year of Establishment" required error={errors.yearEstablished}>
-                <TextInput placeholder="Enter year of establishment" value={form.yearEstablished} onChange={setFromEvent("yearEstablished")} error={errors.yearEstablished} />
-              </Field>
-            </div>
-            <div id="field-gst">
-              <Field label="GST Number" required error={errors.gst}>
-                <TextInput placeholder="Enter GST number" value={form.gst} onChange={setFromEvent("gst")} error={errors.gst} />
-              </Field>
-            </div>
-            <div id="field-pan">
-              <Field label="PAN Number (Optional)" error={errors.pan}>
-                <TextInput placeholder="Enter PAN number" value={form.pan} onChange={setFromEvent("pan")} error={errors.pan} />
-              </Field>
-            </div>
-          </Section>
+          <div className="bg-white rounded-xl shadow-md px-6 md:px-16 py-8">
+            <Section title="Section 1 – Business Information">
+              <div id="field-shopName">
+                <Field label="Business / Shop Name" required error={errors.shopName}>
+                  <TextInput placeholder="Enter business / shop name" value={form.shopName} onChange={setFromEvent("shopName")} error={errors.shopName} />
+                </Field>
+              </div>
+              <div id="field-ownerName">
+                <Field label="Proprietor / Owner Name" required error={errors.ownerName}>
+                  <TextInput placeholder="Enter owner name" value={form.ownerName} onChange={setFromEvent("ownerName")} error={errors.ownerName} />
+                </Field>
+              </div>
+              <div id="field-contactName">
+                <Field label="Contact Person Name" required error={errors.contactName}>
+                  <TextInput placeholder="Enter contact person name" value={form.contactName} onChange={setFromEvent("contactName")} error={errors.contactName} />
+                </Field>
+              </div>
+              <div id="field-mobile">
+                <Field label="Mobile Number" required error={errors.mobile}>
+                  <TextInput type="tel" placeholder="+91 XXXXXXXXXX" value={form.mobile} onChange={setFromEvent("mobile")} error={errors.mobile} />
+                </Field>
+              </div>
+              <div id="field-whatsapp">
+                <Field label="WhatsApp Number" required error={errors.whatsapp}>
+                  <TextInput type="tel" placeholder="+91 XXXXXXXXXX" value={form.whatsapp} onChange={setFromEvent("whatsapp")} error={errors.whatsapp} />
+                </Field>
+              </div>
+              <div id="field-email">
+                <Field label="Email ID" error={errors.email}>
+                  <TextInput type="email" placeholder="Enter email address" value={form.email} onChange={setFromEvent("email")} error={errors.email} />
+                </Field>
+              </div>
+              <div id="field-address" className="col-span-1 md:col-span-2">
+                <Field label="Complete Shop Address" required full error={errors.address}>
+                  <TextInput placeholder="Enter complete shop address" value={form.address} onChange={setFromEvent("address")} error={errors.address} />
+                </Field>
+              </div>
+              <div id="field-city">
+                <Field label="City" required error={errors.city}>
+                  <TextInput placeholder="Enter city" value={form.city} onChange={setFromEvent("city")} error={errors.city} />
+                </Field>
+              </div>
+              <div id="field-district">
+                <Field label="District" required error={errors.district}>
+                  <TextInput placeholder="Enter district" value={form.district} onChange={setFromEvent("district")} error={errors.district} />
+                </Field>
+              </div>
+              <div id="field-state">
+                <Field label="State" required error={errors.state}>
+                  <TextInput placeholder="Enter state" value={form.state} onChange={setFromEvent("state")} error={errors.state} />
+                </Field>
+              </div>
+              <div id="field-pincode">
+                <Field label="PIN Code" required error={errors.pincode}>
+                  <TextInput placeholder="Enter PIN code" value={form.pincode} onChange={setFromEvent("pincode")} error={errors.pincode} />
+                </Field>
+              </div>
+            </Section>
 
-          <Section title="Section 3 – Business Profile">
-            <div id="field-categories" className="col-span-1 md:col-span-2">
-              <Field label="Which Product Categories Do You Sell?" full>
-                <MultiSelectDropdown
-                  placeholder="Select product categories"
-                  options={["Home Appliances", "Kitchen Appliances", "Electronics", "Electrical Products", "Consumer Durables", "Others (Please Specify)"]}
-                  value={form.categories}
-                  onChange={set("categories")}
-                />
-              </Field>
-            </div>
-            <div id="field-brands" className="col-span-1 md:col-span-2">
-              <Field label="Which Brands Do You Currently Distribute?" required full error={errors.brands}>
-                <TextArea placeholder="Enter brands you currently distribute" value={form.brands} onChange={setFromEvent("brands")} error={errors.brands} />
-              </Field>
-            </div>
-            <div id="field-experience">
-              <Field label="Years of Experience in Retail Business" required error={errors.experience}>
-                <SelectInput
-                  placeholder="Select experience"
-                  options={["Less than 1 Year", "1–3 Years", "3–5 Years", "5–10 Years", "More than 10 Years"]}
-                  value={form.experience}
-                  onChange={setFromEvent("experience")}
-                  error={errors.experience}
-                />
-              </Field>
-            </div>
-            <div id="field-turnover">
-              <Field label="Average Monthly Sales Turnover">
-                <SelectInput
-                  placeholder="Select monthly turnover"
-                  options={["Below ₹2 Lakhs", "₹2–5 Lakhs", "₹5–10 Lakhs", "Above ₹10 Lakhs"]}
-                  value={form.turnover}
-                  onChange={setFromEvent("turnover")}
-                />
-              </Field>
-            </div>
-          </Section>
+            <Section title="Section 2 – Business Details">
+              <div id="field-businessType">
+                <Field label="Business Type">
+                  <SelectInput
+                    placeholder="Select business type"
+                    options={["Proprietorship", "Partnership", "Private Limited", "LLP", "Other"]}
+                    value={form.businessType}
+                    onChange={setFromEvent("businessType")}
+                  />
+                </Field>
+              </div>
+              <div id="field-yearEstablished">
+                <Field label="Year of Establishment" required error={errors.yearEstablished}>
+                  <TextInput placeholder="Enter year of establishment" value={form.yearEstablished} onChange={setFromEvent("yearEstablished")} error={errors.yearEstablished} />
+                </Field>
+              </div>
+              <div id="field-gst">
+                <Field label="GST Number" required error={errors.gst}>
+                  <TextInput placeholder="Enter GST number" value={form.gst} onChange={setFromEvent("gst")} error={errors.gst} />
+                </Field>
+              </div>
+              <div id="field-pan">
+                <Field label="PAN Number (Optional)" error={errors.pan}>
+                  <TextInput placeholder="Enter PAN number" value={form.pan} onChange={setFromEvent("pan")} error={errors.pan} />
+                </Field>
+              </div>
+            </Section>
 
-          <Section title="Section 4 – Coverage & Infrastructure">
-            <div id="field-areas" className="col-span-1 md:col-span-2">
-              <Field label="Which Areas / Districts Can You Cover?" required full error={errors.areas}>
-                <TextArea placeholder="Enter areas / districts you can cover" value={form.areas} onChange={setFromEvent("areas")} error={errors.areas} />
-              </Field>
-            </div>
-            <div id="field-salesExecutives">
-              <Field label="Number of Sales Executives" required error={errors.salesExecutives}>
-                <TextInput placeholder="Enter number of sales executives" value={form.salesExecutives} onChange={setFromEvent("salesExecutives")} error={errors.salesExecutives} />
-              </Field>
-            </div>
-            <div id="field-deliveryVehicles">
-              <Field label="Number of Delivery Vehicles">
-                <TextInput placeholder="Enter number of delivery vehicles" value={form.deliveryVehicles} onChange={setFromEvent("deliveryVehicles")} />
-              </Field>
-            </div>
-            <div id="field-warehouse">
-              <Field label="Do You Have a Warehouse?" required error={errors.warehouse}>
-                <SelectInput
-                  placeholder="Select yes or no"
-                  options={["YES", "NO"]}
-                  value={form.warehouse}
-                  onChange={setFromEvent("warehouse")}
-                  error={errors.warehouse}
-                />
-              </Field>
-            </div>
-            <div id="field-warehouseSize">
-              <Field label="Warehouse Size (Sq. Ft.)" error={errors.warehouseSize}>
-                <TextInput placeholder="Enter warehouse size" value={form.warehouseSize} onChange={setFromEvent("warehouseSize")} error={errors.warehouseSize} />
-              </Field>
-            </div>
-            <div id="field-dealersSupplied">
-              <Field label="Approximate Number of Dealers / Retailers You Currently Supply" required error={errors.dealersSupplied}>
-                <SelectInput
-                  placeholder="Select a range"
-                  options={["Below 50", "50–100", "101–250", "Above 250"]}
-                  value={form.dealersSupplied}
-                  onChange={setFromEvent("dealersSupplied")}
-                  error={errors.dealersSupplied}
-                />
-              </Field>
-            </div>
-          </Section>
+            <Section title="Section 3 – Business Profile">
+              <div id="field-categories" className="col-span-1 md:col-span-2">
+                <Field label="Which Product Categories Do You Sell?" full>
+                  <MultiSelectDropdown
+                    placeholder="Select product categories"
+                    options={["Home Appliances", "Kitchen Appliances", "Electronics", "Electrical Products", "Consumer Durables", "Others (Please Specify)"]}
+                    value={form.categories}
+                    onChange={set("categories")}
+                  />
+                </Field>
+              </div>
+              <div id="field-brands" className="col-span-1 md:col-span-2">
+                <Field label="Which Brands Do You Currently Distribute?" required full error={errors.brands}>
+                  <TextArea placeholder="Enter brands you currently distribute" value={form.brands} onChange={setFromEvent("brands")} error={errors.brands} />
+                </Field>
+              </div>
+              <div id="field-experience">
+                <Field label="Years of Experience in Retail Business" required error={errors.experience}>
+                  <SelectInput
+                    placeholder="Select experience"
+                    options={["Less than 1 Year", "1–3 Years", "3–5 Years", "5–10 Years", "More than 10 Years"]}
+                    value={form.experience}
+                    onChange={setFromEvent("experience")}
+                    error={errors.experience}
+                  />
+                </Field>
+              </div>
+              <div id="field-turnover">
+                <Field label="Average Monthly Sales Turnover">
+                  <SelectInput
+                    placeholder="Select monthly turnover"
+                    options={["Below ₹2 Lakhs", "₹2–5 Lakhs", "₹5–10 Lakhs", "Above ₹10 Lakhs"]}
+                    value={form.turnover}
+                    onChange={setFromEvent("turnover")}
+                  />
+                </Field>
+              </div>
+            </Section>
 
-          <Section title="Section 5 – Business Capacity">
-            <div id="field-purchaseValue">
-              <Field label="Expected Monthly Purchase Value from RELDA" required error={errors.purchaseValue}>
-                <SelectInput
-                  placeholder="Select expected monthly purchase value"
-                  options={["Below ₹1 Lakh", "₹1–3 Lakhs", "₹3–5 Lakhs", "Above ₹5 Lakhs"]}
-                  value={form.purchaseValue}
-                  onChange={setFromEvent("purchaseValue")}
-                  error={errors.purchaseValue}
-                />
-              </Field>
-            </div>
-            <div id="field-investment">
-              <Field label="Investment Capacity" required error={errors.investment}>
-                <SelectInput
-                  placeholder="Select investment capacity"
-                  options={["₹5 Lakhs", "₹10 Lakhs", "₹20 Lakhs", "₹50 Lakhs", "Above ₹1 Crore"]}
-                  value={form.investment}
-                  onChange={setFromEvent("investment")}
-                  error={errors.investment}
-                />
-              </Field>
-            </div>
-          </Section>
+            <Section title="Section 4 – Coverage & Infrastructure">
+              <div id="field-areas" className="col-span-1 md:col-span-2">
+                <Field label="Which Areas / Districts Can You Cover?" required full error={errors.areas}>
+                  <TextArea placeholder="Enter areas / districts you can cover" value={form.areas} onChange={setFromEvent("areas")} error={errors.areas} />
+                </Field>
+              </div>
+              <div id="field-salesExecutives">
+                <Field label="Number of Sales Executives" required error={errors.salesExecutives}>
+                  <TextInput placeholder="Enter number of sales executives" value={form.salesExecutives} onChange={setFromEvent("salesExecutives")} error={errors.salesExecutives} />
+                </Field>
+              </div>
+              <div id="field-deliveryVehicles">
+                <Field label="Number of Delivery Vehicles">
+                  <TextInput placeholder="Enter number of delivery vehicles" value={form.deliveryVehicles} onChange={setFromEvent("deliveryVehicles")} />
+                </Field>
+              </div>
+              <div id="field-warehouse">
+                <Field label="Do You Have a Warehouse?" required error={errors.warehouse}>
+                  <SelectInput
+                    placeholder="Select yes or no"
+                    options={["YES", "NO"]}
+                    value={form.warehouse}
+                    onChange={setFromEvent("warehouse")}
+                    error={errors.warehouse}
+                  />
+                </Field>
+              </div>
+              <div id="field-warehouseSize">
+                <Field label="Warehouse Size (Sq. Ft.)" error={errors.warehouseSize}>
+                  <TextInput placeholder="Enter warehouse size" value={form.warehouseSize} onChange={setFromEvent("warehouseSize")} error={errors.warehouseSize} />
+                </Field>
+              </div>
+              <div id="field-dealersSupplied">
+                <Field label="Approximate Number of Dealers / Retailers You Currently Supply" required error={errors.dealersSupplied}>
+                  <SelectInput
+                    placeholder="Select a range"
+                    options={["Below 50", "50–100", "101–250", "Above 250"]}
+                    value={form.dealersSupplied}
+                    onChange={setFromEvent("dealersSupplied")}
+                    error={errors.dealersSupplied}
+                  />
+                </Field>
+              </div>
+            </Section>
 
-          <Section title="Section 6 – Document Upload">
-            <div id="field-gstFile">
-              <Field label="Upload GST Certificate" required variant="file" error={errors.gstFile}>
-                <FileInput
-                  inputKey={fileInputKeys.gstFile}
-                  onAdd={addFiles("gstFile")}
-                  onRemoveOne={removeOneFile("gstFile")}
-                  onRemoveAll={removeAllFiles("gstFile")}
-                  files={form.gstFile}
-                  error={errors.gstFile}
-                />
-              </Field>
-            </div>
-            <div id="field-shopPhoto">
-              <Field label="Upload Shop Photo" required variant="file" error={errors.shopPhoto}>
-                <FileInput
-                  inputKey={fileInputKeys.shopPhoto}
-                  onAdd={addFiles("shopPhoto")}
-                  onRemoveOne={removeOneFile("shopPhoto")}
-                  onRemoveAll={removeAllFiles("shopPhoto")}
-                  files={form.shopPhoto}
-                  error={errors.shopPhoto}
-                />
-              </Field>
-            </div>
-            <div id="field-warehousePhoto">
-              <Field label="Upload Warehouse Photo" required variant="file" error={errors.warehousePhoto}>
-                <FileInput
-                  inputKey={fileInputKeys.warehousePhoto}
-                  onAdd={addFiles("warehousePhoto")}
-                  onRemoveOne={removeOneFile("warehousePhoto")}
-                  onRemoveAll={removeAllFiles("warehousePhoto")}
-                  files={form.warehousePhoto}
-                  error={errors.warehousePhoto}
-                />
-              </Field>
-            </div>
-            <div id="field-visitingCard">
-              <Field label="Upload Business Visiting Card (Optional)" variant="file">
-                <FileInput
-                  inputKey={fileInputKeys.visitingCard}
-                  onAdd={addFiles("visitingCard")}
-                  onRemoveOne={removeOneFile("visitingCard")}
-                  onRemoveAll={removeAllFiles("visitingCard")}
-                  files={form.visitingCard}
-                />
-              </Field>
-            </div>
-          </Section>
+            <Section title="Section 5 – Business Capacity">
+              <div id="field-purchaseValue">
+                <Field label="Expected Monthly Purchase Value from RELDA" required error={errors.purchaseValue}>
+                  <SelectInput
+                    placeholder="Select expected monthly purchase value"
+                    options={["Below ₹1 Lakh", "₹1–3 Lakhs", "₹3–5 Lakhs", "Above ₹5 Lakhs"]}
+                    value={form.purchaseValue}
+                    onChange={setFromEvent("purchaseValue")}
+                    error={errors.purchaseValue}
+                  />
+                </Field>
+              </div>
+              <div id="field-investment">
+                <Field label="Investment Capacity" required error={errors.investment}>
+                  <SelectInput
+                    placeholder="Select investment capacity"
+                    options={["₹5 Lakhs", "₹10 Lakhs", "₹20 Lakhs", "₹50 Lakhs", "Above ₹1 Crore"]}
+                    value={form.investment}
+                    onChange={setFromEvent("investment")}
+                    error={errors.investment}
+                  />
+                </Field>
+              </div>
+            </Section>
 
-          <Section title="Section 7 – Additional Information">
-            <div id="field-reason" className="col-span-1 md:col-span-2">
-              <Field label="Why would you like to become a RELDA Authorized Dealer?" full>
-                <TextArea placeholder="Tell us your reason" value={form.reason} onChange={setFromEvent("reason")} />
-              </Field>
-            </div>
-            <div id="field-comments" className="col-span-1 md:col-span-2">
-              <Field label="Additional Comments or Information" full>
-                <TextArea placeholder="Any additional comments" value={form.comments} onChange={setFromEvent("comments")} />
-              </Field>
-            </div>
-          </Section>
+            <Section title="Section 6 – Document Upload">
+              <div id="field-gstFile">
+                <Field label="Upload GST Certificate" required variant="file" error={errors.gstFile}>
+                  <FileInput
+                    inputKey={fileInputKeys.gstFile}
+                    onAdd={addFiles("gstFile")}
+                    onRemoveOne={removeOneFile("gstFile")}
+                    onRemoveAll={removeAllFiles("gstFile")}
+                    files={form.gstFile}
+                    error={errors.gstFile}
+                  />
+                </Field>
+              </div>
+              <div id="field-shopPhoto">
+                <Field label="Upload Shop Photo" required variant="file" error={errors.shopPhoto}>
+                  <FileInput
+                    inputKey={fileInputKeys.shopPhoto}
+                    onAdd={addFiles("shopPhoto")}
+                    onRemoveOne={removeOneFile("shopPhoto")}
+                    onRemoveAll={removeAllFiles("shopPhoto")}
+                    files={form.shopPhoto}
+                    error={errors.shopPhoto}
+                  />
+                </Field>
+              </div>
+              <div id="field-warehousePhoto">
+                <Field label="Upload Warehouse Photo" required variant="file" error={errors.warehousePhoto}>
+                  <FileInput
+                    inputKey={fileInputKeys.warehousePhoto}
+                    onAdd={addFiles("warehousePhoto")}
+                    onRemoveOne={removeOneFile("warehousePhoto")}
+                    onRemoveAll={removeAllFiles("warehousePhoto")}
+                    files={form.warehousePhoto}
+                    error={errors.warehousePhoto}
+                  />
+                </Field>
+              </div>
+              <div id="field-visitingCard">
+                <Field label="Upload Business Visiting Card (Optional)" variant="file">
+                  <FileInput
+                    inputKey={fileInputKeys.visitingCard}
+                    onAdd={addFiles("visitingCard")}
+                    onRemoveOne={removeOneFile("visitingCard")}
+                    onRemoveAll={removeAllFiles("visitingCard")}
+                    files={form.visitingCard}
+                  />
+                </Field>
+              </div>
+            </Section>
 
-          <div className="flex justify-center md:justify-end mt-4">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
-            </button>
+            <Section title="Section 7 – Additional Information">
+              <div id="field-reason" className="col-span-1 md:col-span-2">
+                <Field label="Why would you like to become a RELDA Authorized Dealer?" full>
+                  <TextArea placeholder="Tell us your reason" value={form.reason} onChange={setFromEvent("reason")} />
+                </Field>
+              </div>
+              <div id="field-comments" className="col-span-1 md:col-span-2">
+                <Field label="Additional Comments or Information" full>
+                  <TextArea placeholder="Any additional comments" value={form.comments} onChange={setFromEvent("comments")} />
+                </Field>
+              </div>
+            </Section>
+
+            <div className="flex justify-center md:justify-end mt-4">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="w-full md:w-auto px-10 py-2 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Submitting..." : "Submit Application"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      <FinalCTA onApplyClick={scrollToForm}/>
     </>
   );
 }

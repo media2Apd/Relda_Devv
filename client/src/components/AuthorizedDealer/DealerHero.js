@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import DealerHeroImg from "../../assest/Dealer/DealerHero.webp"
 
-const DealerHero = () => {
+const DealerHero = ({ onApplyClick }) => {
   return (
     <section className="relative w-full bg-[#f8faff] py-12 lg:py-16 overflow-hidden">
       <div className="container mx-auto px-4 lg:px-12">
@@ -37,6 +37,7 @@ const DealerHero = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={onApplyClick}
               className="bg-brand-primary text-white px-12 py-4 rounded-lg font-bold text-lg shadow-xl hover:bg-brand-primaryHover transition-all"
             >
               Apply Now
