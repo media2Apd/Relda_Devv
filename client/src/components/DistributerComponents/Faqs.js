@@ -46,7 +46,7 @@ const Faqs = ({
   if (!faqs.length) return null;
 
   return (
-    <section ref={sectionRef} className={`${bgColor} sm:pb-16 lg:py-16 overflow-hidden`} >
+    <section ref={sectionRef} className={`${bgColor} py-16 overflow-hidden`} >
       <div className="max-w-3xl mx-auto px-4 lg:px-12">
         {/* Heading with animation */}
         <div

@@ -65,8 +65,8 @@ const SuccessStory = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-gray-50 py-16 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 lg:px-12">
+    <section ref={sectionRef} className="bg-gray-50 pt-16 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8">
         {/* Heading Section */}
         <div
           className={`text-center mb-12 transition-all duration-700 ease-out ${

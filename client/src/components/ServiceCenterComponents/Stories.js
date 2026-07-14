@@ -65,8 +65,8 @@ const Stories = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-[#F7F9FB] py-16 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 lg:px-12">
+    <section ref={sectionRef} className="bg-[#F7F9FB] pt-16 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8">
         {/* Heading Section */}
         <div
           className={`text-center mb-12 transition-all duration-700 ease-out ${
