@@ -12,6 +12,7 @@ import StatsCard from '../components/ServiceCenterComponents/StatsCard'
 import Stories from '../components/ServiceCenterComponents/Stories'
 import BottomCTA from '../components/ServiceCenterComponents/BottomCTA'
 import Faqs from '../components/DistributerComponents/Faqs'
+import AboutAndLeadership from "../components/AuthorizedDealer/AboutAndLeadership";
 
 
 const serviceCenterFaqs = [
@@ -59,6 +60,7 @@ const ServiceCenter = () => {
         <Services />
         <Trust />
         <StatsCard />
+        <AboutAndLeadership />
         <Stories />
         <Faqs title="Frequently Asked Questions"
         faqs={serviceCenterFaqs}

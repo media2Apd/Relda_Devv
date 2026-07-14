@@ -217,7 +217,7 @@ const BlogsPage = () => {
           </h2>
           <p className="max-w-2xl mx-auto text-[20px] text-[#666666] font-sf">
             Our blogs are written from very research and well known writers so that
-            we can provide you the best blogs and articles articles for you to read them along.
+            we can provide you the best blogs and articles for you to read them along.
           </p>
         </div>
 

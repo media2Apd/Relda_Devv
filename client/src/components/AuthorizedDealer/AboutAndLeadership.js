@@ -6,15 +6,17 @@ import {
   Leaf, 
   UserRound, 
   Lightbulb,
-  Star,
-  CircleCheck,
-  Smile
+  // Star,
+  // CircleCheck,
+  // Smile
 } from 'lucide-react';
 
 import founder from '../../assest/About/founder3.webp';
 import TrustImg from '../../assest/About/TrustImg.webp';
+import { useNavigate } from 'react-router-dom';
 
 const AboutAndLeadership = () => {
+  const navigate = useNavigate();
   const previousBrands = ["IFB", "LG", "HAVELLS", "BLUESTAR"];
   const purposeCards = [
       { title: "Superior Quality", desc: "Superior quality and long-lasting performance", icon: <ShieldCheck className="w-5 h-5" /> },
@@ -189,6 +191,7 @@ const AboutAndLeadership = () => {
              </div>
           </div>
         </motion.div>
+        
       </section>
 
             {/* 4. Product Purpose Section (New - Top part of your image) */}
@@ -218,10 +221,13 @@ const AboutAndLeadership = () => {
                   ))}
                 </div>
               </div>
+              <div className='w-full flex justify-center'>
+                <button onClick={() => navigate('/AboutUs')} type="button" className="flex justify-center mt-12 text-brand-primary bg-red-100 py-4 px-8 rounded-full font-bold text-lg hover:bg-brand-primary hover:text-white">Read Our Story</button>
+              </div>
             </section>
       
             {/* 5. Trust Section (New - Middle part with peach background) */}
-            <section className="py-16 bg-[#FDF2F0]/60 px-4 lg:px-8">
+            {/* <section className="py-16 bg-[#FDF2F0]/60 px-4 lg:px-8">
               <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }} 
@@ -260,9 +266,9 @@ const AboutAndLeadership = () => {
                   </div>
                 </motion.div>
               </div>
-            </section>
+            </section> */}
             {/* 5. Vision Section (New - Bottom part of your image) */}
-                  <section className="pt-16 px-4 lg:px-8 text-center bg-white">
+                  {/* <section className="pt-16 px-4 lg:px-8 text-center bg-white">
                     <motion.div 
                       initial={{ opacity: 0, y: 30 }} 
                       whileInView={{ opacity: 1, y: 0 }} 
@@ -276,7 +282,7 @@ const AboutAndLeadership = () => {
                         and a customer-first approach.
                       </p>
                     </motion.div>
-                  </section>
+                  </section> */}
     </div>
   );
 };

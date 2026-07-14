@@ -11,6 +11,7 @@ import StatsCard from '../components/DistributerComponents/StatsCard'
 import SuccessStory from '../components/DistributerComponents/SuccessStory'
 import Faqs from '../components/DistributerComponents/Faqs'
 import CTASection from '../components/DistributerComponents/CTASection'
+import AboutAndLeadership from "../components/AuthorizedDealer/AboutAndLeadership";
 
 const distributorFaqs = [
   {
@@ -56,6 +57,7 @@ const Distributors = () => {
       <Luxury />
       <WhoCanApply />
       <StatsCard />
+      <AboutAndLeadership />
       <SuccessStory />
             <Faqs 
         title="Frequently Asked Questions"
