@@ -63,7 +63,7 @@ import BlogUpload from '../pages/BlogUpload'
 import RequireRole from '../helpers/RequireRole'
 import ROLE from '../common/role'
 import ChannelPartner from '../pages/ChannelPartner'
-import ServiceCenterForm from '../pages/ServiceCenterForm'
+import ServiceCente from '../pages/ServiceCenter'
 import AuthorizeAdminBrandshop from '../pages/AuthorizeAdminBrandshop'
 import AuthorizeAdminDealer from '../pages/AuthorizeAdminDealer'
 import AuthorizeAdminDistributor from '../pages/AuthorizeAdminDistributor'
@@ -115,7 +115,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "authorized-ServiceCenter",
-                element: <ServiceCenterForm />
+                element: <ServiceCente />
             },
             {
                 path: "authorized-Distributor",
