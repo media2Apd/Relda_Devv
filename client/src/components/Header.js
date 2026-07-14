@@ -880,7 +880,7 @@ const Header = () => {
                     </Link>
                     <Link
                       to="/customer-complaint"
-                      className="block pb-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
+                      className="block py-2 text-sm font-medium text-brand-primaryTextMuted hover:text-brand-primaryHover"
                       onClick={() => setMobileMenuDisplay(false)}
                     >
                       Customer Complaint

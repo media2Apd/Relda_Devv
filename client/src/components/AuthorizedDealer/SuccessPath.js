@@ -28,7 +28,7 @@ const SuccessPath = () => {
         {/* Timeline Container */}
         <div className="relative">
           
-          {/* Connecting Line (Desktop) */}
+          {/* 1. Connecting Line (Desktop - Horizontal) */}
           <div className="absolute top-[40px] left-[5%] right-[5%] h-[2px] bg-blue-100 hidden md:block">
             <motion.div 
               initial={{ width: "0%" }}
@@ -38,6 +38,10 @@ const SuccessPath = () => {
               className="h-full bg-blue-200"
             />
           </div>
+
+          {/* 2. Connecting Line (Mobile - Vertical) */}
+          {/* This only shows on screens smaller than 'md' and stays inside this container */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-gray-200 md:hidden -translate-x-1/2 z-0" />
 
           {/* Steps Grid */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-y-12 gap-x-4 relative z-10">
@@ -59,7 +63,7 @@ const SuccessPath = () => {
                 </motion.div>
 
                 {/* Text Content */}
-                <div className="mt-6">
+                <div className="mt-6 bg-[#f8faff] px-2 relative z-20"> {/* Added bg to hide line behind text */}
                   <h4 className="text-[#1A1A1A] font-bold text-lg mb-1">
                     {step.title}
                   </h4>
@@ -72,24 +76,6 @@ const SuccessPath = () => {
           </div>
         </div>
       </div>
-
-      {/* Mobile-only connecting line fix (Vertical) */}
-      <style>{`
-        @media (max-width: 767px) {
-          .grid { position: relative; }
-          .grid::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #e2e8f0;
-            transform: translateX(-50%);
-            z-index: 0;
-          }
-        }
-      `}</style>
     </section>
   );
 };

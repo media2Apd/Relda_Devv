@@ -22,7 +22,7 @@ const DealerHero = ({ onApplyClick }) => {
 
             {/* Main Heading - Using your brand-primary and font-sf */}
             {/* !leading-[1.1] will fix the "otti otti" issue */}
-            <h1 className="text-brand-primary font-bold text-5xl md:text-6xl lg:text-[72px] !leading-[1.1] tracking-tight mb-6">
+            <h1 className="text-brand-primary font-bold text-3xl md:text-4xl lg:text-5xl !leading-[1.1] tracking-tight mb-6">
               Become a RELDA <br /> 
               Authorized Dealer
             </h1>

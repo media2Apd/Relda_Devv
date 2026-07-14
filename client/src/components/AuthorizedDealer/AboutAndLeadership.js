@@ -202,7 +202,7 @@ const AboutAndLeadership = () => {
                   <div className="h-1 w-24 bg-brand-primary mx-auto rounded-full"></div>
                 </div>
       
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                   {purposeCards.map((card, index) => (
                     <motion.div
                       key={index}
@@ -210,7 +210,7 @@ const AboutAndLeadership = () => {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       viewport={{ once: true }}
-                      className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all text-center flex flex-col items-center border border-gray-50"
+                      className="bg-white p-4 xl:p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all text-center flex flex-col items-center border border-gray-50"
                     >
                       <div className="bg-[#FCECEC] text-brand-primary p-3 rounded-full mb-6">
                         {card.icon}
