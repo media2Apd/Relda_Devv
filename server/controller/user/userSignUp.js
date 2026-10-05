@@ -126,17 +126,136 @@ try {
 }
 
         // Sending confirmation email
-        const mailOptions = {
-            from: process.env.EMAIL1,
-            to: email,
-            subject: 'Welcome to RELDA India!',
-            text: `Dear ${name},\n\nThank you for signing up with RELDA India! We are here to make your life easier and smarter
-with our innovative products.\nIf you have any questions, feel free to email us at [support@reldaindia.com] or call us at [9884890934].
-We're always happy to help!\nWelcome to the RELDA family!\n\nBest Regards,\nThe Relda India Team.`,
-            html: `<p>Dear ${name},</p><p>Thank you for signing up with RELDA India! We are here to make your life easier and smarter
-with our innovative products. </p><p>If you have any questions, feel free to email us at [support@reldaindia.com] or call us at [9884890934].
-We're always happy to help!</p><p>Welcome to the RELDA family!</p><p>Best Regards,<br>The Relda India Team.</p>`
-        };
+     const mailOptions = {
+    from: `"RELDA India Pvt Ltd" <support@reldaindia.com>`,
+    to: email,
+    subject: `Welcome to the RELDA Family, ${name}! 🎉 | RELDA India Pvt Ltd`,
+    text: `Dear ${name},\n\nWelcome to RELDA India Pvt Ltd! We are thrilled to have you with us.\nExplore our wide range of innovative home & kitchen appliances designed to make your life smarter and easier.\n\nNeed assistance? Email: support@reldaindia.com | Phone: 9884890934\nVisit: https://www.reldaindia.com\n\nWarm Regards,\nRELDA India Pvt Ltd`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to RELDA India Pvt Ltd</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f5f7; padding: 30px 10px;">
+          <tr>
+            <td align="center">
+              
+              <!-- Main Card Container -->
+              <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
+                
+                <!-- 1️⃣ Top Logo Bar (White Background - 100% Crystal Clear Logo) -->
+                <tr>
+                  <td align="center" style="background-color: #ffffff; padding: 25px 20px; border-bottom: 2px solid #f2f2f2;">
+                    <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India Pvt Ltd" style="max-width: 170px; height: auto; display: block;" />
+                  </td>
+                </tr>
+
+                <!-- 2️⃣ Brand Hero Banner (#E60000 Gradient) -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #E60000 0%, #b80000 100%); padding: 35px 20px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.5px;">Welcome to the Family! 🎉</h1>
+                    <p style="color: #ffe6e6; margin: 8px 0 0; font-size: 14px;">We're thrilled to have you with us</p>
+                  </td>
+                </tr>
+
+                <!-- 3️⃣ Body Content -->
+                <tr>
+                  <td style="padding: 30px 25px;">
+                    
+                    <!-- Greeting -->
+                    <p style="margin: 0 0 14px; font-size: 17px; color: #111; font-weight: 700;">
+                      Hello ${name},
+                    </p>
+                    <p style="margin: 0 0 24px; font-size: 14px; color: #555; line-height: 1.6;">
+                      Thank you for creating an account with <strong>RELDA India Pvt Ltd</strong>! We are dedicated to making your everyday life smarter, faster, and easier with our premium kitchen & home appliances.
+                    </p>
+
+                    <!-- Feature / Benefit Highlights Grid -->
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 26px;">
+                      <tr>
+                        <!-- Feature 1 -->
+                        <td width="33%" align="center" style="padding: 14px 10px; background-color: #fafbfc; border: 1px solid #eef0f2; border-radius: 12px;">
+                          <div style="font-size: 24px; margin-bottom: 6px;">✨</div>
+                          <div style="font-size: 13px; font-weight: bold; color: #222;">Premium Quality</div>
+                          <div style="font-size: 11px; color: #777; margin-top: 2px;">Durable & tested</div>
+                        </td>
+                        <td width="3%"></td>
+                        <!-- Feature 2 -->
+                        <td width="33%" align="center" style="padding: 14px 10px; background-color: #fafbfc; border: 1px solid #eef0f2; border-radius: 12px;">
+                          <div style="font-size: 24px; margin-bottom: 6px;">🛡️</div>
+                          <div style="font-size: 13px; font-weight: bold; color: #222;">Official Warranty</div>
+                          <div style="font-size: 11px; color: #777; margin-top: 2px;">Comprehensive cover</div>
+                        </td>
+                        <td width="3%"></td>
+                        <!-- Feature 3 -->
+                        <td width="33%" align="center" style="padding: 14px 10px; background-color: #fafbfc; border: 1px solid #eef0f2; border-radius: 12px;">
+                          <div style="font-size: 24px; margin-bottom: 6px;">🚚</div>
+                          <div style="font-size: 13px; font-weight: bold; color: #222;">Fast Delivery</div>
+                          <div style="font-size: 11px; color: #777; margin-top: 2px;">Direct to your door</div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- CTA Button (Explore Products) -->
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 28px;">
+                      <tr>
+                        <td align="center">
+                          <a href="https://www.reldaindia.com" target="_blank" style="background-color: #E60000; color: #ffffff; text-decoration: none; padding: 15px 38px; border-radius: 30px; font-size: 15px; font-weight: 800; display: inline-block; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(230,0,0,0.3);">
+                            EXPLORE APPLIANCES →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Support Box -->
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border: 1.5px dashed #E60000; border-radius: 12px; text-align: center; margin-bottom: 24px;">
+                      <tr>
+                        <td style="padding: 16px 18px;">
+                          <p style="margin: 0; font-size: 13px; color: #222; font-weight: 700;">
+                            Have questions or need product guidance?
+                          </p>
+                          <p style="margin: 6px 0 0; font-size: 13px; color: #666;">
+                            Email us: <a href="mailto:support@reldaindia.com" style="color: #E60000; text-decoration: none; font-weight: bold;">support@reldaindia.com</a> &nbsp;|&nbsp; Call: <a href="tel:9884890934" style="color: #E60000; text-decoration: none; font-weight: bold;">9884890934</a>
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 20px 0 0; font-size: 14px; color: #333; line-height: 1.5;">
+                      Warm Regards,<br>
+                      <strong style="color: #E60000; font-size: 15px;">RELDA India Pvt Ltd</strong>
+                    </p>
+
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #1a1a1a; padding: 22px 20px; text-align: center;">
+                    <p style="margin: 0 0 6px; font-size: 12px; color: #888;">
+                      © ${new Date().getFullYear()} RELDA India Pvt Ltd. All rights reserved.
+                    </p>
+                    <p style="margin: 0; font-size: 12px; color: #666;">
+                      <a href="https://www.reldaindia.com" style="color: #ffffff; text-decoration: none; font-weight: 600;">www.reldaindia.com</a>
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+
+            </td>
+          </tr>
+        </table>
+
+      </body>
+      </html>
+    `
+};
 
         await transporter.sendMail(mailOptions);
 

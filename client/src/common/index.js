@@ -499,7 +499,11 @@ const SummaryApi = {
       authorizeAdminServicecenter:{
         url:`${backendDomain}/api/servicecenter/getall`,
         method:"get"
-    }
+    },
+    deleteProduct: (productId) => ({
+        url: `${backendDomain}/api/delete-product/${productId}`,
+        method: 'delete'
+    }),
       
 }
 

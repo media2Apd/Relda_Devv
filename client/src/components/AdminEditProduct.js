@@ -385,10 +385,399 @@
 // export default AdminEditProduct;
 
 
+// import React, { useState, useEffect } from 'react';
+// import { CgClose } from "react-icons/cg";
+// import { FaCloudUploadAlt } from "react-icons/fa";
+// import uploadMedia from '../helpers/uploadImage'; // Updated to use uploadMedia
+// import DisplayImage from './DisplayImage';
+// import { MdDelete } from "react-icons/md";
+// import SummaryApi from '../common';
+// import { toast } from 'react-toastify';
+// import OptimizedImage from '../helpers/OptimizedImage';
+
+// const AdminEditProduct = ({
+//     onClose,
+//     productData,
+//     fetchdata
+// }) => {
+//     const [categories, setCategories] = useState([]);
+//     const [data, setData] = useState({
+//         ...productData,
+//         productName: productData?.productName,
+//         brandName: productData?.brandName,
+//         category: productData?.category || "",
+//         visibleCategories: productData?.visibleCategories || [],
+//         productImage: productData?.productImage || [],
+//         description: productData?.description,
+//         price: productData?.price,
+//         sellingPrice: productData?.sellingPrice,
+//         isHidden: productData?.isHidden || false,
+//         specifications: productData?.specifications || [],
+//         availability: productData?.availability || 0,
+//         altTitle: productData?.altTitle || "",
+//     });
+
+//     const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
+//     const [fullScreenImage, setFullScreenImage] = useState("");
+//     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+//     const handleOnChange = (e) => {
+//         const { name, value, type, checked } = e.target;
+//         setData(prev => ({
+//             ...prev,
+//             [name]: type === 'checkbox' ? checked : value
+//         }));
+//     };
+//         useEffect(() => {
+//         const handleClickOutside = () => setIsDropdownOpen(false);
+//         document.addEventListener("click", handleClickOutside);
+//         return () => document.removeEventListener("click", handleClickOutside);
+//         }, []);
+//     // FIXED: Now using uploadMedia to get {url, type} format
+//     const handleUploadProduct = async (e) => {
+//         const file = e.target.files[0];
+//         if (!file) return;
+
+//         try {
+//             const uploadResult = await uploadMedia(file);
+//             setData(prev => ({
+//                 ...prev,
+//                 productImage: [...prev.productImage, uploadResult]
+//             }));
+//         } catch (error) {
+//             toast.error("Upload failed. Try again.");
+//         }
+//     };
+
+//     const handleDeleteProductImage = async (index) => {
+//         const newProductImage = [...data.productImage];
+//         newProductImage.splice(index, 1);
+//         setData(prev => ({
+//             ...prev,
+//             productImage: [...newProductImage]
+//         }));
+//     };
+
+//     const fetchCategories = async () => {
+//         try {
+//             const response = await fetch(SummaryApi.getProductCategory.url);
+//             const data = await response.json();
+//             if (data.success) {
+//                 setCategories(data.categories);
+//             }
+//         } catch (error) {
+//             console.error("Error fetching categories:", error);
+//         }
+//     };
+
+//     useEffect(() => {
+//         fetchCategories();
+//     }, []);
+
+//     const handleSpecificationChange = (index, e) => {
+//         const { name, value } = e.target;
+//         const updatedSpecifications = [...data.specifications];
+//         updatedSpecifications[index][name] = value;
+//         setData(prev => ({
+//             ...prev,
+//             specifications: updatedSpecifications
+//         }));
+//     };
+
+//     const addSpecification = () => {
+//         setData(prev => ({
+//             ...prev,
+//             specifications: [...prev.specifications, { key: "", value: "" }]
+//         }));
+//     };
+
+//     const removeSpecification = (index) => {
+//         const updatedSpecifications = [...data.specifications];
+//         updatedSpecifications.splice(index, 1);
+//         setData(prev => ({
+//             ...prev,
+//             specifications: updatedSpecifications
+//         }));
+//     };
+
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
+//         const filteredSpecifications = data.specifications.filter(spec => spec.key && spec.value);
+//         const payload = {
+//             ...data,
+//             specifications: filteredSpecifications
+//         };
+
+//         try {
+//             const response = await fetch(SummaryApi.updateProduct.url, {
+//                 method: SummaryApi.updateProduct.method,
+//                 credentials: 'include',
+//                 headers: {
+//                     "content-type": "application/json"
+//                 },
+//                 body: JSON.stringify(payload)
+//             });
+
+//             const responseData = await response.json();
+
+//             if (responseData.success) {
+//                 toast.success(responseData?.message);
+//                 onClose();
+//                 fetchdata();
+//             } else {
+//                 toast.error(responseData?.message || "Failed to update product");
+//             }
+//         } catch (err) {
+//             toast.error(err.message || "An error occurred");
+//         }
+//     };
+
+//     return (
+//         <div className='fixed w-full h-full bg-slate-200 bg-opacity-35 top-0 left-0 right-0 bottom-0 flex justify-center items-center lg:pt-24'>
+//             <div className='bg-white p-4 rounded w-full max-w-2xl h-full max-h-[80%] overflow-hidden'>
+
+//                 <div className='flex justify-between items-center pb-3'>
+//                     <h2 className='font-bold text-lg'>Edit Product</h2>
+//                     <div className='w-fit ml-auto text-2xl hover:text-red-600 cursor-pointer' onClick={onClose}>
+//                         <CgClose />
+//                     </div>
+//                 </div>
+
+//                 <form className='grid p-4 gap-2 overflow-y-scroll h-full pb-5' onSubmit={handleSubmit}>
+//                     <label htmlFor='productName'>Product Name :</label>
+//                     <input
+//                         type='text' id='productName' name='productName'
+//                         value={data.productName} onChange={handleOnChange}
+//                         className='p-2 bg-slate-100 border rounded' required
+//                     />
+
+//                     {/* ... other fields (Brand, Category) remain same ... */}
+//                     <label htmlFor='brandName' className='mt-3'>Brand Name :</label>
+//                     <input
+//                         type='text' id='brandName' name='brandName'
+//                         value={data.brandName} onChange={handleOnChange}
+//                         className='p-2 bg-slate-100 border rounded' required
+//                     />
+
+// <label className='mt-3'>Main Category :</label>
+
+// <select
+//   name="category"
+//   value={data.category}
+//   onChange={handleOnChange}
+//   className="p-2 bg-slate-100 border rounded"
+//   required
+// >
+//   <option value="">Select Category</option>
+//   {categories.map((el, index) => (
+//     <option key={index} value={el.value}>
+//       {el.label}
+//     </option>
+//   ))}
+// </select>
+// <label className='mt-3'>Visible Categories :</label>
+
+// <div 
+//   className="relative w-full"
+//   onClick={(e) => e.stopPropagation()}
+// >
+//   <div
+//     className="p-2 bg-slate-100 border rounded cursor-pointer flex justify-between items-center"
+//     onClick={() => setIsDropdownOpen(prev => !prev)}
+//   >
+//     <span className="text-sm text-gray-700">
+//       {data.visibleCategories.length > 0
+//         ? data.visibleCategories.join(", ")
+//         : "Select Visible Categories"}
+//     </span>
+//     <span className="text-xs">▼</span>
+//   </div>
+
+//   {isDropdownOpen && (
+//     <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-52 overflow-y-auto">
+//       {categories.map((el, index) => {
+//         const isSelected = data.visibleCategories.includes(el.value);
+
+//         return (
+//           <label
+//             key={el.value + index}
+//             className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 cursor-pointer"
+//           >
+//             <input
+//               type="checkbox"
+//               checked={isSelected}
+//               onChange={() => {
+//                 const updated = isSelected
+//                   ? data.visibleCategories.filter(cat => cat !== el.value)
+//                   : [...data.visibleCategories, el.value];
+
+//                 setData(prev => ({
+//                   ...prev,
+//                   visibleCategories: updated
+//                 }));
+//               }}
+//             />
+//             <span className="text-sm">{el.label}</span>
+//           </label>
+//         );
+//       })}
+//     </div>
+//   )}
+// </div>
+//                     <label htmlFor='productImage' className='mt-3'>Product Image :</label>
+//                     <label htmlFor='uploadImageInput'>
+//                         <div className='p-2 bg-slate-100 border rounded h-32 w-full flex justify-center items-center cursor-pointer'>
+//                             <div className='text-slate-500 flex justify-center items-center flex-col gap-2'>
+//                                 <span className='text-4xl'><FaCloudUploadAlt /></span>
+//                                 <p className='text-sm'>Upload Product Image / Video</p>
+//                                 <input type='file' id='uploadImageInput' className='hidden' onChange={handleUploadProduct} />
+//                             </div>
+//                         </div>
+//                     </label>
+
+//                     {/* FIXED: Preview section handles both Image and Video objects */}
+//                     <div>
+//                         {data?.productImage.length > 0 ? (
+//                             <div className='flex items-center gap-2 flex-wrap'>
+//                                 {data.productImage.map((el, index) => {
+//                                     // Handle both new format {url, type} and old format "string_url"
+//                                     const isVideo = el.type === 'video';
+//                                     const mediaUrl = typeof el === 'string' ? el : el.url;
+
+//                                     return (
+//                                         <div className='relative group' key={index}>
+//                                             {isVideo ? (
+//                                                 <video
+//                                                     src={mediaUrl}
+//                                                     width={80}
+//                                                     height={80}
+//                                                     className='bg-slate-100 border cursor-pointer object-scale-down'
+//                                                     onClick={() => {
+//                                                         setOpenFullScreenImage(true);
+//                                                         setFullScreenImage(mediaUrl);
+//                                                     }}
+//                                                 />
+//                                             ) : (
+//                                                 // <img
+//                                                 //     src={mediaUrl}
+//                                                 //     alt={`media-${index}`}
+//                                                 //     width={80}
+//                                                 //     height={80}
+//                                                 //     className='bg-slate-100 border cursor-pointer object-scale-down'
+//                                                 //     onClick={() => {
+//                                                 //         setOpenFullScreenImage(true);
+//                                                 //         setFullScreenImage(mediaUrl);
+//                                                 //     }}
+//                                                 // />
+//                                                 <OptimizedImage
+//                                                     src={mediaUrl}
+//                                                     alt={data?.altTitle || data?.productName || "Product"}
+//                                                     title={data?.altTitle || data?.productName || "Product"}
+//                                                     width={80}
+//                                                     height={80}
+//                                                     className='bg-slate-100 border cursor-pointer object-scale-down'
+//                                                     onClick={() => {
+//                                                         setOpenFullScreenImage(true);
+//                                                         setFullScreenImage(mediaUrl);
+//                                                     }}
+//                                                 />
+//                                                                                         )}
+//                                             <div
+//                                                 className='absolute bottom-0 right-0 p-1 text-white bg-red-600 rounded-full hidden group-hover:block cursor-pointer'
+//                                                 onClick={() => handleDeleteProductImage(index)}
+//                                             >
+//                                                 <MdDelete />
+//                                             </div>
+//                                         </div>
+//                                     );
+//                                 })}
+//                             </div>
+//                         ) : (
+//                             <p className='text-red-600 text-xs'>*Please upload product image</p>
+//                         )}
+//                     </div>
+
+//                     <label htmlFor='altTitle' className='mt-3'>Alt Title :</label>
+//                     <input
+//                         type='text' id='altTitle' name='altTitle'
+//                         value={data.altTitle} onChange={handleOnChange}
+//                         className='p-2 bg-slate-100 border rounded'
+//                     />
+
+//                     <label htmlFor='availability' className='mt-3'>Availability:</label>
+//                     <input
+//                         type='number' id='availability' name='availability'
+//                         value={data.availability} onChange={handleOnChange}
+//                         className='p-2 bg-slate-100 border rounded' required
+//                     />
+
+//                     <label htmlFor='price' className='mt-3'>Price :</label>
+//                     <input
+//                         type='number' id='price' name='price'
+//                         value={data.price} onChange={handleOnChange}
+//                         className='p-2 bg-slate-100 border rounded' required
+//                     />
+
+//                     <label htmlFor='sellingPrice' className='mt-3'>Selling Price :</label>
+//                     <input
+//                         type='number' id='sellingPrice' name='sellingPrice'
+//                         value={data.sellingPrice} onChange={handleOnChange}
+//                         className='p-2 bg-slate-100 border rounded' required
+//                     />
+
+//                     <label htmlFor='description' className='mt-3'>Description :</label>
+//                     <textarea
+//                         className='h-28 bg-slate-100 border resize-none p-1'
+//                         name='description' value={data.description}
+//                         onChange={handleOnChange} rows={3}
+//                     />
+
+//                     <label className='mt-3 font-semibold'>Specifications:</label>
+//                     {data.specifications.map((spec, index) => (
+//                         <div className='flex gap-2' key={index}>
+//                             <input
+//                                 type='text' name='key' placeholder='Name'
+//                                 value={spec.key} onChange={(e) => handleSpecificationChange(index, e)}
+//                                 className='p-2 bg-slate-100 border rounded flex-1'
+//                             />
+//                             <input
+//                                 type='text' name='value' placeholder='Value'
+//                                 value={spec.value} onChange={(e) => handleSpecificationChange(index, e)}
+//                                 className='p-2 bg-slate-100 border rounded flex-1'
+//                             />
+//                             <button type='button' onClick={() => removeSpecification(index)} className='text-red-600'>
+//                                 <MdDelete />
+//                             </button>
+//                         </div>
+//                     ))}
+//                     <button type='button' onClick={addSpecification} className='mt-2 text-blue-600 w-fit text-sm font-semibold'>
+//                         + Add Specification
+//                     </button>
+
+//                     <div className='mt-3 flex items-center'>
+//                         <input
+//                             type='checkbox' id='isHidden' name='isHidden'
+//                             checked={data.isHidden} onChange={handleOnChange}
+//                             className='mr-2'
+//                         />
+//                         <label htmlFor='isHidden'>Hide Product</label>
+//                     </div>
+
+//                     <button className='px-3 py-2 bg-red-600 text-white mb-10 mt-4 hover:bg-red-700 transition-all'>Update Product</button>
+//                 </form>
+//             </div>
+
+//             {openFullScreenImage && (
+//                 <DisplayImage onClose={() => setOpenFullScreenImage(false)} imgUrl={fullScreenImage} />
+//             )}
+//         </div>
+//     );
+// }
+
+// export default AdminEditProduct;
 import React, { useState, useEffect } from 'react';
 import { CgClose } from "react-icons/cg";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import uploadMedia from '../helpers/uploadImage'; // Updated to use uploadMedia
+import uploadMedia from '../helpers/uploadImage';
 import DisplayImage from './DisplayImage';
 import { MdDelete } from "react-icons/md";
 import SummaryApi from '../common';
@@ -420,6 +809,7 @@ const AdminEditProduct = ({
     const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
     const [fullScreenImage, setFullScreenImage] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
     const handleOnChange = (e) => {
         const { name, value, type, checked } = e.target;
         setData(prev => ({
@@ -427,12 +817,13 @@ const AdminEditProduct = ({
             [name]: type === 'checkbox' ? checked : value
         }));
     };
-        useEffect(() => {
+
+    useEffect(() => {
         const handleClickOutside = () => setIsDropdownOpen(false);
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
-        }, []);
-    // FIXED: Now using uploadMedia to get {url, type} format
+    }, []);
+
     const handleUploadProduct = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -550,7 +941,6 @@ const AdminEditProduct = ({
                         className='p-2 bg-slate-100 border rounded' required
                     />
 
-                    {/* ... other fields (Brand, Category) remain same ... */}
                     <label htmlFor='brandName' className='mt-3'>Brand Name :</label>
                     <input
                         type='text' id='brandName' name='brandName'
@@ -558,71 +948,71 @@ const AdminEditProduct = ({
                         className='p-2 bg-slate-100 border rounded' required
                     />
 
-<label className='mt-3'>Main Category :</label>
+                    <label className='mt-3'>Main Category :</label>
+                    <select
+                      name="category"
+                      value={data.category}
+                      onChange={handleOnChange}
+                      className="p-2 bg-slate-100 border rounded"
+                      required
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((el, index) => (
+                        <option key={index} value={el.value}>
+                          {el.label}
+                        </option>
+                      ))}
+                    </select>
 
-<select
-  name="category"
-  value={data.category}
-  onChange={handleOnChange}
-  className="p-2 bg-slate-100 border rounded"
-  required
->
-  <option value="">Select Category</option>
-  {categories.map((el, index) => (
-    <option key={index} value={el.value}>
-      {el.label}
-    </option>
-  ))}
-</select>
-<label className='mt-3'>Visible Categories :</label>
+                    <label className='mt-3'>Visible Categories :</label>
+                    <div 
+                      className="relative w-full"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div
+                        className="p-2 bg-slate-100 border rounded cursor-pointer flex justify-between items-center"
+                        onClick={() => setIsDropdownOpen(prev => !prev)}
+                      >
+                        <span className="text-sm text-gray-700">
+                          {data.visibleCategories.length > 0
+                            ? data.visibleCategories.join(", ")
+                            : "Select Visible Categories"}
+                        </span>
+                        <span className="text-xs">▼</span>
+                      </div>
 
-<div 
-  className="relative w-full"
-  onClick={(e) => e.stopPropagation()}
->
-  <div
-    className="p-2 bg-slate-100 border rounded cursor-pointer flex justify-between items-center"
-    onClick={() => setIsDropdownOpen(prev => !prev)}
-  >
-    <span className="text-sm text-gray-700">
-      {data.visibleCategories.length > 0
-        ? data.visibleCategories.join(", ")
-        : "Select Visible Categories"}
-    </span>
-    <span className="text-xs">▼</span>
-  </div>
+                      {isDropdownOpen && (
+                        <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-52 overflow-y-auto">
+                          {categories.map((el, index) => {
+                            const isSelected = data.visibleCategories.includes(el.value);
 
-  {isDropdownOpen && (
-    <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-52 overflow-y-auto">
-      {categories.map((el, index) => {
-        const isSelected = data.visibleCategories.includes(el.value);
+                            return (
+                              <label
+                                key={el.value + index}
+                                className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => {
+                                    const updated = isSelected
+                                      ? data.visibleCategories.filter(cat => cat !== el.value)
+                                      : [...data.visibleCategories, el.value];
 
-        return (
-          <label
-            key={el.value + index}
-            className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 cursor-pointer"
-          >
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={() => {
-                const updated = isSelected
-                  ? data.visibleCategories.filter(cat => cat !== el.value)
-                  : [...data.visibleCategories, el.value];
+                                    setData(prev => ({
+                                      ...prev,
+                                      visibleCategories: updated
+                                    }));
+                                  }}
+                                />
+                                <span className="text-sm">{el.label}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
 
-                setData(prev => ({
-                  ...prev,
-                  visibleCategories: updated
-                }));
-              }}
-            />
-            <span className="text-sm">{el.label}</span>
-          </label>
-        );
-      })}
-    </div>
-  )}
-</div>
                     <label htmlFor='productImage' className='mt-3'>Product Image :</label>
                     <label htmlFor='uploadImageInput'>
                         <div className='p-2 bg-slate-100 border rounded h-32 w-full flex justify-center items-center cursor-pointer'>
@@ -634,12 +1024,10 @@ const AdminEditProduct = ({
                         </div>
                     </label>
 
-                    {/* FIXED: Preview section handles both Image and Video objects */}
                     <div>
                         {data?.productImage.length > 0 ? (
                             <div className='flex items-center gap-2 flex-wrap'>
                                 {data.productImage.map((el, index) => {
-                                    // Handle both new format {url, type} and old format "string_url"
                                     const isVideo = el.type === 'video';
                                     const mediaUrl = typeof el === 'string' ? el : el.url;
 
@@ -657,17 +1045,6 @@ const AdminEditProduct = ({
                                                     }}
                                                 />
                                             ) : (
-                                                // <img
-                                                //     src={mediaUrl}
-                                                //     alt={`media-${index}`}
-                                                //     width={80}
-                                                //     height={80}
-                                                //     className='bg-slate-100 border cursor-pointer object-scale-down'
-                                                //     onClick={() => {
-                                                //         setOpenFullScreenImage(true);
-                                                //         setFullScreenImage(mediaUrl);
-                                                //     }}
-                                                // />
                                                 <OptimizedImage
                                                     src={mediaUrl}
                                                     alt={data?.altTitle || data?.productName || "Product"}
@@ -680,7 +1057,7 @@ const AdminEditProduct = ({
                                                         setFullScreenImage(mediaUrl);
                                                     }}
                                                 />
-                                                                                        )}
+                                            )}
                                             <div
                                                 className='absolute bottom-0 right-0 p-1 text-white bg-red-600 rounded-full hidden group-hover:block cursor-pointer'
                                                 onClick={() => handleDeleteProductImage(index)}
@@ -703,24 +1080,30 @@ const AdminEditProduct = ({
                         className='p-2 bg-slate-100 border rounded'
                     />
 
+                    {/* 👉 onWheel blur added */}
                     <label htmlFor='availability' className='mt-3'>Availability:</label>
                     <input
                         type='number' id='availability' name='availability'
                         value={data.availability} onChange={handleOnChange}
+                        onWheel={(e) => e.target.blur()}
                         className='p-2 bg-slate-100 border rounded' required
                     />
 
+                    {/* 👉 onWheel blur added */}
                     <label htmlFor='price' className='mt-3'>Price :</label>
                     <input
                         type='number' id='price' name='price'
                         value={data.price} onChange={handleOnChange}
+                        onWheel={(e) => e.target.blur()}
                         className='p-2 bg-slate-100 border rounded' required
                     />
 
+                    {/* 👉 onWheel blur added */}
                     <label htmlFor='sellingPrice' className='mt-3'>Selling Price :</label>
                     <input
                         type='number' id='sellingPrice' name='sellingPrice'
                         value={data.sellingPrice} onChange={handleOnChange}
+                        onWheel={(e) => e.target.blur()}
                         className='p-2 bg-slate-100 border rounded' required
                     />
 
@@ -771,6 +1154,6 @@ const AdminEditProduct = ({
             )}
         </div>
     );
-}
+};
 
 export default AdminEditProduct;

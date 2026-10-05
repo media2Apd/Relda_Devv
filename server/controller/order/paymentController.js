@@ -166,315 +166,748 @@ const getProductImageUrl = (productImage) => {
   return "";
 };
 
+// exports.paymentController = async (req, res) => {
+//     try {
+//         const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode, couponCode, gstDetails } = req.body;
+//            /* ================= SAFETY ================= */
+//     const safeGST = gstDetails || {};
+        
+//         // Validate customer info first
+//         if (!customerInfo || typeof customerInfo !== 'object') {
+//             return res.status(400).json({ message: "Invalid customer information", success: false });
+//         }
+
+//         // Calculate subtotal first (for all payment modes)
+//         let subTotal = cartItems.reduce((total, item) => {
+//             return total + item.quantity * item.productId.sellingPrice;
+//         }, 0);
+        
+//         // Apply coupon logic (for all payment modes)
+//         let discountAmount = 0;
+//         let appliedCoupon = null;
+        
+//         if (couponCode) {
+//             const coupon = await Coupon.findOne({
+//                 code: couponCode.toUpperCase(),
+//                 isActive: true
+//             });
+            
+//             if (!coupon) {
+//                 return res.status(400).json({ success: false, message: "Invalid coupon" });
+//             }
+            
+//             if (coupon.expiryDate && coupon.expiryDate < new Date()) {
+//                 return res.status(400).json({ success: false, message: "Coupon expired" });
+//             }
+            
+//             if (subTotal < coupon.minOrderAmount) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: `Minimum order ₹${coupon.minOrderAmount}`
+//                 });
+//             }
+            
+//             discountAmount = coupon.discountType === "percentage"
+//                 ? (subTotal * coupon.discountValue) / 100
+//                 : coupon.discountValue;
+            
+//             if (coupon.maxDiscountAmount) {
+//                 discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+//             }
+            
+//             appliedCoupon = {
+//                 code: coupon.code,
+//                 discountAmount: discountAmount
+//             };
+//         }
+//         // Calculate final amount after discount
+//         const finalAmount = Math.max(subTotal - discountAmount, 0);
+
+//         // Prepare addresses
+//         const shippingAddress = {
+//             street: customerInfo.street || '',
+//             city: customerInfo.city || '',
+//             state: customerInfo.state || '',
+//             postalCode: customerInfo.postalCode || '',
+//             country: customerInfo.country || '',
+//         };
+
+//         const billingAddress = billingSameAsShipping
+//             ? shippingAddress
+//             : {
+//                 street: customerInfo.billingAddress?.street || '',
+//                 city: customerInfo.billingAddress?.city || '',
+//                 state: customerInfo.billingAddress?.state || '',
+//                 postalCode: customerInfo.billingAddress?.postalCode || '',
+//                 country: customerInfo.billingAddress?.country || '',
+//             };
+
+//         // 💰 CASH ON HAND FLOW
+//         if (paymentMode === "CASH_ON_HAND") {
+//             const order = await orderModel.create({
+//                 orderId: `CASH-${uuidv4().slice(0, 8)}`,
+//                 productDetails: cartItems.map(item => ({
+//                     productId: item.productId._id,
+//                     productName: item.productId.productName,
+//                     brandName: item.productId.brandName,
+//                     category: item.productId.category,
+//                     quantity: item.quantity,
+//                     price: item.productId.price,
+//                     sellingPrice: item.productId.sellingPrice,
+//                     basePrice: item.productId.basePrice,
+//                     productImage: getProductImageUrl(item.productId.productImage),
+//                 })),
+//                 email: customerInfo.email,
+//                 userId: req.userId,
+//                 subTotal: subTotal,
+//                 discountAmount: discountAmount || 0,
+//                 couponCode: appliedCoupon?.code || null,
+//                 totalAmount: finalAmount,
+//                 paymentDetails: {
+//                     payment_status: "cash_on_hand",
+//                     payment_method_type: "CASH"
+//                 },
+//                 billing_name: customerInfo.firstName,
+//                 billing_email: customerInfo.email,
+//                 billing_tel: customerInfo.phone,
+//                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+//                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+//                  gstDetails: {
+//                   gstin: safeGST.gstin || null,
+//                   companyName: safeGST.companyName || null
+//                 },
+//                 statusUpdates: [{
+//                     status: "ordered",
+//                     updatedAt: new Date()
+//                 }],
+//                 createdAt: new Date()
+//             });
+//             const user = await userModel.findById(req.userId);
+
+// // await createSalesOrderAndReleaseStock(order, user);
+// // AFTER order creation
+// const fullOrder = await orderModel.findOne({
+//   orderId: order.orderId
+// });
+
+// const customerUser = await userModel.findById(fullOrder.userId);
+// const staffUser = req.user; // MANAGESALES
+
+// await createSalesOrderAndReleaseStock(
+//   fullOrder,
+//   customerUser,
+//   staffUser
+// );
+
+// // 🛒 CLEAR CART
+// await addToCartModel.deleteMany({ userId: req.userId });
+// console.log("🛒 Cart cleared for CASH_ON_HAND order");
+
+
+//    // ✅ MARK COUPON USED (ONLY HERE)
+//       if (couponCode) {
+//         await markCouponAsUsed({
+//           coupon: couponCode,
+//           userId: req.userId,
+//           orderId: order.orderId
+//         });
+//       }
+//             return res.json({
+//                 success: true,
+//                 message: "Order confirmed with Cash on Hand",
+//                 orderId: order.orderId,
+//                 totalAmount: finalAmount,
+//                 discountAmount: discountAmount,
+//                 couponCode: appliedCoupon?.code || null
+//             });
+//         }
+
+//         // 💳 ONLINE PAYMENT FLOW (Razorpay)
+//         const user = await userModel.findById(req.userId);
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found", success: false });
+//         }
+
+//         // Convert to paise for Razorpay
+//         const totalAmountInPaise = finalAmount * 100;
+//         const receiptId = `order_rcptid_${uuidv4().slice(0, 8)}`;
+
+//         // Create Payment Order or Link
+//         let paymentResponse;
+//         let orderIdOrLink;
+
+//         if (usePaymentLink) {
+//             // Create Payment Link
+//             paymentResponse = await razorpay.paymentLink.create({
+//                 amount: totalAmountInPaise,
+//                 currency: "INR",
+//                 accept_partial: false,
+//                 description: "Purchase from Online Store",
+//                 customer: {
+//                     name: customerInfo.firstName,
+//                     contact: customerInfo.phone,
+//                     email: customerInfo.email,
+//                 },
+//                 notify: {
+//                     sms: true,
+//                     email: true
+//                 },
+//                 reminder_enable: true,
+//                 callback_url: "https://www.reldaindia.com/success",
+//                 callback_method: "get"
+//             });
+
+//             if (!paymentResponse || !paymentResponse.id) {
+//                 throw new Error("Failed to create Razorpay Payment Link");
+//             }
+
+//             orderIdOrLink = paymentResponse.id;
+
+//         } else {
+//             // Create Razorpay Order
+//             const options = {
+//                 amount: totalAmountInPaise,
+//                 currency: "INR",
+//                 receipt: receiptId,
+//                 payment_capture: 1
+//             };
+
+//             paymentResponse = await razorpay.orders.create(options);
+//             if (!paymentResponse || !paymentResponse.id) {
+//                 throw new Error("Failed to create Razorpay order.");
+//             }
+
+//             orderIdOrLink = paymentResponse.id;
+//         }
+
+//         const statusId = `pending-${req.userId}-${uuidv4()}`;
+
+//         // Check if order exists and update or create new
+//         const existingOrder = await orderModel.findOne({ orderId: orderIdOrLink });
+        
+//         if (existingOrder) {
+//             if (!existingOrder.statusUpdates.some(status => status.status === statusId)) {
+//                 existingOrder.statusUpdates.push({
+//                     status: statusId,
+//                     updatedAt: new Date()
+//                 });
+                
+//                 // Update discount info if it changed
+//                 existingOrder.discountAmount = discountAmount || 0;
+//                 existingOrder.couponCode = appliedCoupon?.code || null;
+//                 existingOrder.subTotal = subTotal;
+//                 existingOrder.totalAmount = finalAmount;
+                
+//                 await existingOrder.save();
+//             }
+//         } else {
+//             await orderModel.create({
+//                 orderId: orderIdOrLink,
+//                 productDetails: cartItems.map(item => ({
+//                     productId: item.productId._id,
+//                     brandName: item.productId.brandName,
+//                     productName: item.productId.productName,
+//                     category: item.productId.category,
+//                     quantity: item.quantity,
+//                     price: item.productId.price,
+//                     availability: item.productId.availability,
+//                     sellingPrice: item.productId.sellingPrice,
+//                     basePrice: item.productId.basePrice,
+//                     productImage: getProductImageUrl(item.productId.productImage),
+//                 })),
+//                 email: customerInfo.email,
+//                 userId: req.userId,
+//                 subTotal: subTotal,
+//                 discountAmount: discountAmount || 0,
+//                 couponCode: appliedCoupon?.code || null,
+//                 totalAmount: finalAmount,
+//                 paymentDetails: {
+//                     paymentId: "",
+//                     payment_method_type: "",
+//                     payment_status: "pending",
+//                 },
+//                 billing_name: customerInfo.firstName,
+//                 billing_email: customerInfo.email,
+//                 billing_tel: customerInfo.phone,
+//                 billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+//                 shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+//               gstDetails: {
+//                 gstin: safeGST.gstin || null,
+//                 companyName: safeGST.companyName || null
+//               },
+//                 statusUpdates: [{
+//                     status: statusId,
+//                     updatedAt: new Date()
+//                 }],
+//                 createdAt: new Date(),
+//             });
+//         }
+//          // ✅ MARK COUPON USED (ONLY HERE)
+//       if (couponCode) {
+//         await markCouponAsUsed({
+//           coupon: couponCode,
+//           userId: req.userId,
+//           orderId: orderIdOrLink
+//         });
+//       }
+//         // Return response with all payment details
+//         res.json({
+//             success: true,
+//             mode: usePaymentLink ? 'link' : 'order',
+//             orderId: orderIdOrLink,
+//             amount: totalAmountInPaise,
+//             currency: "INR",
+//             customerInfo,
+//             subTotal: subTotal,
+//             discountAmount: discountAmount,
+//             couponCode: appliedCoupon?.code || null,
+//             finalAmount: finalAmount,
+//             ...(usePaymentLink && { paymentLink: paymentResponse.short_url })
+//         });
+
+//     } catch (error) {
+//         console.error("Error initiating payment:", error);
+//         res.status(500).json({
+//             message: error.message || "Internal Server Error",
+//             success: false,
+//         });
+//     }
+// };
+// controllers/order/paymentController.js
+
 exports.paymentController = async (req, res) => {
-    try {
-        const { cartItems, customerInfo, billingSameAsShipping, usePaymentLink, paymentMode, couponCode, gstDetails } = req.body;
-           /* ================= SAFETY ================= */
+  try {
+    const {
+      cartItems,
+      customerInfo,
+      billingSameAsShipping,
+      usePaymentLink,
+      paymentMode,
+      couponCode,
+      gstDetails,
+      saleInHand,   // 👈 Extracted
+      serialNumber  // 👈 Extracted
+    } = req.body;
+
     const safeGST = gstDetails || {};
-        
-        // Validate customer info first
-        if (!customerInfo || typeof customerInfo !== 'object') {
-            return res.status(400).json({ message: "Invalid customer information", success: false });
-        }
 
-        // Calculate subtotal first (for all payment modes)
-        let subTotal = cartItems.reduce((total, item) => {
-            return total + item.quantity * item.productId.sellingPrice;
-        }, 0);
-        
-        // Apply coupon logic (for all payment modes)
-        let discountAmount = 0;
-        let appliedCoupon = null;
-        
-        if (couponCode) {
-            const coupon = await Coupon.findOne({
-                code: couponCode.toUpperCase(),
-                isActive: true
-            });
-            
-            if (!coupon) {
-                return res.status(400).json({ success: false, message: "Invalid coupon" });
-            }
-            
-            if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-                return res.status(400).json({ success: false, message: "Coupon expired" });
-            }
-            
-            if (subTotal < coupon.minOrderAmount) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Minimum order ₹${coupon.minOrderAmount}`
-                });
-            }
-            
-            discountAmount = coupon.discountType === "percentage"
-                ? (subTotal * coupon.discountValue) / 100
-                : coupon.discountValue;
-            
-            if (coupon.maxDiscountAmount) {
-                discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
-            }
-            
-            appliedCoupon = {
-                code: coupon.code,
-                discountAmount: discountAmount
-            };
-        }
-        // Calculate final amount after discount
-        const finalAmount = Math.max(subTotal - discountAmount, 0);
+    if (!customerInfo || typeof customerInfo !== 'object') {
+      return res.status(400).json({ message: "Invalid customer information", success: false });
+    }
 
-        // Prepare addresses
-        const shippingAddress = {
-            street: customerInfo.street || '',
-            city: customerInfo.city || '',
-            state: customerInfo.state || '',
-            postalCode: customerInfo.postalCode || '',
-            country: customerInfo.country || '',
+    // Subtotal calculation
+    let subTotal = cartItems.reduce((total, item) => {
+      return total + item.quantity * (item.productId?.sellingPrice || item.sellingPrice);
+    }, 0);
+
+    // Coupon calculation
+    let discountAmount = 0;
+    let appliedCoupon = null;
+
+    if (couponCode) {
+      const coupon = await Coupon.findOne({
+        code: couponCode.toUpperCase(),
+        isActive: true
+      });
+
+      if (!coupon) return res.status(400).json({ success: false, message: "Invalid coupon" });
+      if (coupon.expiryDate && coupon.expiryDate < new Date()) return res.status(400).json({ success: false, message: "Coupon expired" });
+      if (subTotal < coupon.minOrderAmount) {
+        return res.status(400).json({ success: false, message: `Minimum order ₹${coupon.minOrderAmount}` });
+      }
+
+      discountAmount = coupon.discountType === "percentage"
+        ? (subTotal * coupon.discountValue) / 100
+        : coupon.discountValue;
+
+      if (coupon.maxDiscountAmount) {
+        discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+      }
+
+      appliedCoupon = { code: coupon.code, discountAmount };
+    }
+
+    const finalAmount = Math.max(subTotal - discountAmount, 0);
+
+    const shippingAddress = {
+      street: customerInfo.street || '',
+      city: customerInfo.city || '',
+      state: customerInfo.state || '',
+      postalCode: customerInfo.postalCode || '',
+      country: customerInfo.country || '',
+    };
+
+    const billingAddress = billingSameAsShipping
+      ? shippingAddress
+      : {
+          street: customerInfo.billingAddress?.street || '',
+          city: customerInfo.billingAddress?.city || '',
+          state: customerInfo.billingAddress?.state || '',
+          postalCode: customerInfo.billingAddress?.postalCode || '',
+          country: customerInfo.billingAddress?.country || '',
         };
 
-        const billingAddress = billingSameAsShipping
-            ? shippingAddress
-            : {
-                street: customerInfo.billingAddress?.street || '',
-                city: customerInfo.billingAddress?.city || '',
-                state: customerInfo.billingAddress?.state || '',
-                postalCode: customerInfo.billingAddress?.postalCode || '',
-                country: customerInfo.billingAddress?.country || '',
-            };
+    const formattedProductDetails = cartItems.map(item => ({
+      productId: item.productId?._id || item.productId,
+      productName: item.productId?.productName || item.productName,
+      brandName: item.productId?.brandName || item.brandName,
+      category: item.productId?.category || item.category,
+      quantity: item.quantity,
+      price: item.productId?.price || item.price,
+      sellingPrice: item.productId?.sellingPrice || item.sellingPrice,
+      basePrice: item.productId?.basePrice || item.basePrice,
+      productImage: getProductImageUrl(item.productId?.productImage),
+      serialNumber: item.serialNumber || serialNumber || null // 👈 item-level or global
+    }));
 
-        // 💰 CASH ON HAND FLOW
-        if (paymentMode === "CASH_ON_HAND") {
-            const order = await orderModel.create({
-                orderId: `CASH-${uuidv4().slice(0, 8)}`,
-                productDetails: cartItems.map(item => ({
-                    productId: item.productId._id,
-                    productName: item.productId.productName,
-                    brandName: item.productId.brandName,
-                    category: item.productId.category,
-                    quantity: item.quantity,
-                    price: item.productId.price,
-                    sellingPrice: item.productId.sellingPrice,
-                    basePrice: item.productId.basePrice,
-                    productImage: getProductImageUrl(item.productId.productImage),
-                })),
-                email: customerInfo.email,
-                userId: req.userId,
-                subTotal: subTotal,
-                discountAmount: discountAmount || 0,
-                couponCode: appliedCoupon?.code || null,
-                totalAmount: finalAmount,
-                paymentDetails: {
-                    payment_status: "cash_on_hand",
-                    payment_method_type: "CASH"
-                },
-                billing_name: customerInfo.firstName,
-                billing_email: customerInfo.email,
-                billing_tel: customerInfo.phone,
-                billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
-                shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
-                 gstDetails: {
-                  gstin: safeGST.gstin || null,
-                  companyName: safeGST.companyName || null
-                },
-                statusUpdates: [{
-                    status: "ordered",
-                    updatedAt: new Date()
-                }],
-                createdAt: new Date()
-            });
-            const user = await userModel.findById(req.userId);
+    // ==========================================
+    // 💰 1. CASH ON HAND FLOW
+    // ==========================================
+    if (paymentMode === "CASH_ON_HAND") {
+      const order = await orderModel.create({
+        orderId: `CASH-${uuidv4().slice(0, 8)}`,
+        productDetails: formattedProductDetails,
+        email: customerInfo.email,
+        userId: req.userId,
+        subTotal,
+        discountAmount,
+        couponCode: appliedCoupon?.code || null,
+        totalAmount: finalAmount,
+        paymentDetails: {
+          payment_status: saleInHand ? "paid" : "cash_on_hand",
+          payment_method_type: "CASH"
+        },
+        saleInHand: Boolean(saleInHand),
+        serialNumber: serialNumber || null,
+        billing_name: customerInfo.firstName,
+        billing_email: customerInfo.email,
+        billing_tel: customerInfo.phone,
+        billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+        shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+        gstDetails: {
+          gstin: safeGST.gstin || null,
+          companyName: safeGST.companyName || null
+        },
+        statusUpdates: [{
+          status: saleInHand ? "delivered" : "ordered",
+          updatedAt: new Date()
+        }],
+        order_status: saleInHand ? "delivered" : "ordered",
+        createdAt: new Date()
+      });
 
-// await createSalesOrderAndReleaseStock(order, user);
-// AFTER order creation
-const fullOrder = await orderModel.findOne({
-  orderId: order.orderId
-});
+      const fullOrder = await orderModel.findOne({ orderId: order.orderId });
+      const customerUser = await userModel.findById(fullOrder.userId);
+      const staffUser = req.user;
 
-const customerUser = await userModel.findById(fullOrder.userId);
-const staffUser = req.user; // MANAGESALES
+      await createSalesOrderAndReleaseStock(fullOrder, customerUser, staffUser);
 
-await createSalesOrderAndReleaseStock(
-  fullOrder,
-  customerUser,
-  staffUser
-);
+      await addToCartModel.deleteMany({ userId: req.userId });
 
-// 🛒 CLEAR CART
-await addToCartModel.deleteMany({ userId: req.userId });
-console.log("🛒 Cart cleared for CASH_ON_HAND order");
-
-
-   // ✅ MARK COUPON USED (ONLY HERE)
       if (couponCode) {
         await markCouponAsUsed({
-          coupon: couponCode,
+          couponId: couponCode,
           userId: req.userId,
           orderId: order.orderId
         });
       }
-            return res.json({
-                success: true,
-                message: "Order confirmed with Cash on Hand",
-                orderId: order.orderId,
-                totalAmount: finalAmount,
-                discountAmount: discountAmount,
-                couponCode: appliedCoupon?.code || null
-            });
-        }
-
-        // 💳 ONLINE PAYMENT FLOW (Razorpay)
-        const user = await userModel.findById(req.userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found", success: false });
-        }
-
-        // Convert to paise for Razorpay
-        const totalAmountInPaise = finalAmount * 100;
-        const receiptId = `order_rcptid_${uuidv4().slice(0, 8)}`;
-
-        // Create Payment Order or Link
-        let paymentResponse;
-        let orderIdOrLink;
-
-        if (usePaymentLink) {
-            // Create Payment Link
-            paymentResponse = await razorpay.paymentLink.create({
-                amount: totalAmountInPaise,
-                currency: "INR",
-                accept_partial: false,
-                description: "Purchase from Online Store",
-                customer: {
-                    name: customerInfo.firstName,
-                    contact: customerInfo.phone,
-                    email: customerInfo.email,
-                },
-                notify: {
-                    sms: true,
-                    email: true
-                },
-                reminder_enable: true,
-                callback_url: "https://www.reldaindia.com/success",
-                callback_method: "get"
-            });
-
-            if (!paymentResponse || !paymentResponse.id) {
-                throw new Error("Failed to create Razorpay Payment Link");
-            }
-
-            orderIdOrLink = paymentResponse.id;
-
-        } else {
-            // Create Razorpay Order
-            const options = {
-                amount: totalAmountInPaise,
-                currency: "INR",
-                receipt: receiptId,
-                payment_capture: 1
-            };
-
-            paymentResponse = await razorpay.orders.create(options);
-            if (!paymentResponse || !paymentResponse.id) {
-                throw new Error("Failed to create Razorpay order.");
-            }
-
-            orderIdOrLink = paymentResponse.id;
-        }
-
-        const statusId = `pending-${req.userId}-${uuidv4()}`;
-
-        // Check if order exists and update or create new
-        const existingOrder = await orderModel.findOne({ orderId: orderIdOrLink });
-        
-        if (existingOrder) {
-            if (!existingOrder.statusUpdates.some(status => status.status === statusId)) {
-                existingOrder.statusUpdates.push({
-                    status: statusId,
-                    updatedAt: new Date()
-                });
-                
-                // Update discount info if it changed
-                existingOrder.discountAmount = discountAmount || 0;
-                existingOrder.couponCode = appliedCoupon?.code || null;
-                existingOrder.subTotal = subTotal;
-                existingOrder.totalAmount = finalAmount;
-                
-                await existingOrder.save();
-            }
-        } else {
-            await orderModel.create({
-                orderId: orderIdOrLink,
-                productDetails: cartItems.map(item => ({
-                    productId: item.productId._id,
-                    brandName: item.productId.brandName,
-                    productName: item.productId.productName,
-                    category: item.productId.category,
-                    quantity: item.quantity,
-                    price: item.productId.price,
-                    availability: item.productId.availability,
-                    sellingPrice: item.productId.sellingPrice,
-                    basePrice: item.productId.basePrice,
-                    productImage: getProductImageUrl(item.productId.productImage),
-                })),
-                email: customerInfo.email,
-                userId: req.userId,
-                subTotal: subTotal,
-                discountAmount: discountAmount || 0,
-                couponCode: appliedCoupon?.code || null,
-                totalAmount: finalAmount,
-                paymentDetails: {
-                    paymentId: "",
-                    payment_method_type: "",
-                    payment_status: "pending",
-                },
-                billing_name: customerInfo.firstName,
-                billing_email: customerInfo.email,
-                billing_tel: customerInfo.phone,
-                billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
-                shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
-              gstDetails: {
-                gstin: safeGST.gstin || null,
-                companyName: safeGST.companyName || null
-              },
-                statusUpdates: [{
-                    status: statusId,
-                    updatedAt: new Date()
-                }],
-                createdAt: new Date(),
-            });
-        }
-         // ✅ MARK COUPON USED (ONLY HERE)
-      if (couponCode) {
-        await markCouponAsUsed({
-          coupon: couponCode,
-          userId: req.userId,
-          orderId: orderIdOrLink
-        });
+      // 🔥 4️⃣ EMAIL NOTIFICATION SENDING (Customer & Admin)
+      try {
+        await Promise.all([
+          sendCashOrderConfirmationEmail(fullOrder),
+          sendAdminNotificationEmail(fullOrder)
+        ]);
+        console.log("✅ Confirmation & Admin emails sent for CASH order:", fullOrder.orderId);
+      } catch (emailErr) {
+        console.error("❌ Error sending cash order emails:", emailErr.message);
       }
-        // Return response with all payment details
-        res.json({
-            success: true,
-            mode: usePaymentLink ? 'link' : 'order',
-            orderId: orderIdOrLink,
-            amount: totalAmountInPaise,
-            currency: "INR",
-            customerInfo,
-            subTotal: subTotal,
-            discountAmount: discountAmount,
-            couponCode: appliedCoupon?.code || null,
-            finalAmount: finalAmount,
-            ...(usePaymentLink && { paymentLink: paymentResponse.short_url })
-        });
-
-    } catch (error) {
-        console.error("Error initiating payment:", error);
-        res.status(500).json({
-            message: error.message || "Internal Server Error",
-            success: false,
-        });
+      return res.json({
+        success: true,
+        message: saleInHand ? "Sale in Hand Completed with Invoice" : "Order confirmed with Cash on Hand",
+        orderId: order.orderId,
+        totalAmount: finalAmount,
+        discountAmount,
+        couponCode: appliedCoupon?.code || null
+      });
     }
+
+    // ==========================================
+    // 💳 2. ONLINE PAYMENT FLOW (Link or Razorpay)
+    // ==========================================
+    const totalAmountInPaise = Math.round(finalAmount * 100);
+    let paymentResponse;
+    let orderIdOrLink;
+
+    if (usePaymentLink) {
+      paymentResponse = await razorpay.paymentLink.create({
+        amount: totalAmountInPaise,
+        currency: "INR",
+        accept_partial: false,
+        description: `Order from Relda India (${saleInHand ? 'Instant Hand Delivery' : 'Standard Shipping'})`,
+        customer: {
+          name: customerInfo.firstName,
+          contact: customerInfo.phone,
+          email: customerInfo.email,
+        },
+        notify: { sms: true, email: true },
+        reminder_enable: true,
+        callback_url: "https://www.reldaindia.com/success",
+        callback_method: "get"
+      });
+
+      if (!paymentResponse?.id) {
+        throw new Error("Failed to create Razorpay Payment Link");
+      }
+      orderIdOrLink = paymentResponse.id;
+    } else {
+      paymentResponse = await razorpay.orders.create({
+        amount: totalAmountInPaise,
+        currency: "INR",
+        receipt: `rcpt_${uuidv4().slice(0, 8)}`,
+        payment_capture: 1
+      });
+
+      if (!paymentResponse?.id) {
+        throw new Error("Failed to create Razorpay order.");
+      }
+      orderIdOrLink = paymentResponse.id;
+    }
+
+    // Save initial Pending Order in DB
+    await orderModel.create({
+      orderId: orderIdOrLink,
+      productDetails: formattedProductDetails,
+      email: customerInfo.email,
+      userId: req.userId,
+      subTotal,
+      discountAmount,
+      couponCode: appliedCoupon?.code || null,
+      totalAmount: finalAmount,
+      paymentDetails: {
+        paymentId: "",
+        payment_method_type: usePaymentLink ? "PAYMENT_LINK" : "ONLINE",
+        payment_status: "pending",
+      },
+      saleInHand: Boolean(saleInHand),     // 👈 Saved for later webhook/cron/callback
+      serialNumber: serialNumber || null, // 👈 Saved for later invoice generation
+      billing_name: customerInfo.firstName,
+      billing_email: customerInfo.email,
+      billing_tel: customerInfo.phone,
+      billing_address: `${billingAddress.street}, ${billingAddress.city}, ${billingAddress.state}, ${billingAddress.postalCode}, ${billingAddress.country}`,
+      shipping_address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}, ${shippingAddress.country}`,
+      gstDetails: {
+        gstin: safeGST.gstin || null,
+        companyName: safeGST.companyName || null
+      },
+      order_status: "pending",
+      statusUpdates: [{ status: "pending", updatedAt: new Date() }],
+      createdAt: new Date(),
+    });
+
+    res.json({
+      success: true,
+      mode: usePaymentLink ? 'link' : 'order',
+      orderId: orderIdOrLink,
+      amount: totalAmountInPaise,
+      currency: "INR",
+      customerInfo,
+      subTotal,
+      discountAmount,
+      couponCode: appliedCoupon?.code || null,
+      finalAmount,
+      ...(usePaymentLink && { paymentLink: paymentResponse.short_url })
+    });
+
+  } catch (error) {
+    console.error("Error initiating payment:", error);
+    res.status(500).json({
+      message: error.message || "Internal Server Error",
+      success: false,
+    });
+  }
 };
 
+const sendCashOrderConfirmationEmail = async (order) => {
+  try {
+    const product = order.productDetails?.[0];
+    if (!product) return;
 
+    // Serial Number row
+    const serialRow = order.serialNumber ? `
+      <tr>
+        <td style="padding: 12px 16px; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Serial Number</td>
+        <td style="padding: 12px 16px; color: #111; font-weight: bold; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-family: monospace; letter-spacing: 1.5px;">
+          ${order.serialNumber}
+        </td>
+      </tr>
+    ` : '';
+
+    const orderStatusBadge = order.order_status === 'delivered' 
+      ? '<span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Hand Delivered (Completed)</span>'
+      : '<span style="background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Confirmed</span>';
+
+    const mailOptions = {
+      from: 'support@reldaindia.com',
+      to: order.billing_email,
+      subject: `Order Confirmation - #${order.orderId} | RELDA India`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Order Confirmation</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f5f7; padding: 30px 10px;">
+            <tr>
+              <td align="center">
+                
+                <!-- Main Container -->
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
+                  
+                  <!-- 1️⃣ Top Logo Bar (White Background - 100% Crystal Clear Logo) -->
+                  <tr>
+                    <td align="center" style="background-color: #ffffff; padding: 25px 20px; border-bottom: 2px solid #f2f2f2;">
+                      <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India" style="max-width: 170px; height: auto; display: block;" />
+                    </td>
+                  </tr>
+
+                  <!-- 2️⃣ Brand Hero Banner (#E60000 Gradient) -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #E60000 0%, #b80000 100%); padding: 30px 20px; text-align: center;">
+                      <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 0.5px;">Order Confirmed!</h1>
+                      <p style="color: #ffe6e6; margin: 6px 0 0; font-size: 14px;">Thank you for shopping with RELDA</p>
+                    </td>
+                  </tr>
+
+                  <!-- 3️⃣ Body Content -->
+                  <tr>
+                    <td style="padding: 30px 25px;">
+                      
+                      <!-- Greeting -->
+                      <p style="margin: 0 0 14px; font-size: 16px; color: #111; font-weight: 700;">
+                        Dear ${order.billing_name},
+                      </p>
+                      <p style="margin: 0 0 22px; font-size: 14px; color: #555; line-height: 1.6;">
+                        We have successfully processed your order. Your cash payment has been verified and registered. Here are the full details of your purchase:
+                      </p>
+
+                      <!-- Order ID Banner -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fff5f5; border-left: 4px solid #E60000; border-radius: 6px; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 12px 16px;">
+                            <span style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">Order Reference ID</span>
+                            <div style="font-size: 18px; font-weight: 800; color: #E60000; margin-top: 2px;">#${order.orderId}</div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Product & Order Summary Card -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #eef0f2; border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+                        <tr style="background-color: #fafbfc;">
+                          <td colspan="2" style="padding: 12px 16px; font-size: 12px; font-weight: 800; color: #444; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eef0f2;">
+                            Order Summary
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 12px 16px; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Product Name</td>
+                          <td style="padding: 12px 16px; color: #111; font-weight: 700; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${product.productName}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 12px 16px; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Quantity</td>
+                          <td style="padding: 12px 16px; color: #111; font-weight: bold; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${product.quantity} unit(s)
+                          </td>
+                        </tr>
+                        ${serialRow}
+                        <tr>
+                          <td style="padding: 12px 16px; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Payment Method</td>
+                          <td style="padding: 12px 16px; color: #111; font-weight: 600; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            Cash on Hand (Verified)
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 12px 16px; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Order Status</td>
+                          <td style="padding: 12px 16px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${orderStatusBadge}
+                          </td>
+                        </tr>
+                        <tr style="background-color: #fff9f9;">
+                          <td style="padding: 14px 16px; color: #111; font-size: 15px; font-weight: 700;">Total Amount Paid</td>
+                          <td style="padding: 14px 16px; color: #E60000; font-weight: 800; font-size: 20px; text-align: right;">
+                            ₹${Number(order.totalAmount).toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Delivery / Billing Address Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 12px; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 16px 18px;">
+                            <span style="font-size: 11px; font-weight: bold; color: #777; text-transform: uppercase; letter-spacing: 0.5px;">Delivery / Shipping Address</span>
+                            <p style="margin: 6px 0 0; font-size: 13px; color: #333; line-height: 1.5;">
+                              ${order.shipping_address}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Need Help Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border: 1.5px dashed #E60000; border-radius: 12px; text-align: center; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 16px 18px;">
+                            <p style="margin: 0; font-size: 13px; color: #222; font-weight: 700;">
+                              Have questions regarding your order or warranty?
+                            </p>
+                            <p style="margin: 6px 0 0; font-size: 13px; color: #666;">
+                              Email us: <a href="mailto:support@reldaindia.com" style="color: #E60000; text-decoration: none; font-weight: bold;">support@reldaindia.com</a> &nbsp;|&nbsp; Call: <a href="tel:9884890934" style="color: #E60000; text-decoration: none; font-weight: bold;">9884890934</a>
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="margin: 20px 0 0; font-size: 14px; color: #333; line-height: 1.5;">
+                        Warm Regards,<br>
+                        <strong style="color: #E60000; font-size: 15px;">RELDA India Pvt Ltd</strong>
+                      </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #1a1a1a; padding: 22px 20px; text-align: center;">
+                      <p style="margin: 0 0 6px; font-size: 12px; color: #888;">
+                        © ${new Date().getFullYear()} RELDA India Pvt Ltd. All rights reserved.
+                      </p>
+                      <p style="margin: 0; font-size: 12px; color: #666;">
+                        <a href="https://www.reldaindia.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">www.reldaindia.com</a>
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+                <!-- End Main Container -->
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
+      `
+    };
+
+    console.log(`📧 Sending Fixed Logo Cash Order email to: ${order.billing_email}`);
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.error("❌ Failed to send Cash Order email:", err.message);
+  }
+};
 const verifyRazorpayAuth = () => ({
   auth: {
     username: process.env.RAZORPAY_KEY_ID,
@@ -526,229 +959,560 @@ async function verifyPaymentStatus(paymentId) {
 }
 
 
-cron.schedule('*/3 * * * *', async () => {
+// cron.schedule('*/3 * * * *', async () => {
 
-  // cron.schedule('0 */4 * * *', async () => {
-  console.log('? Running scheduled Razorpay Payment Link verification...');
+//   // cron.schedule('0 */4 * * *', async () => {
+//   console.log('? Running scheduled Razorpay Payment Link verification...');
 
-  try {
-    // Find all pending orders where orderId starts with 'plink_'
-    const pendingOrders = await orderModel.find({
-      orderId: { $regex: /^plink_/ },
-      order_status: 'Pending',
-    });
+//   try {
+//     // Find all pending orders where orderId starts with 'plink_'
+//     const pendingOrders = await orderModel.find({
+//       orderId: { $regex: /^plink_/ },
+//       order_status: 'Pending',
+//     });
 
-    if (!pendingOrders.length) {
-      console.log('?? No pending orders with Razorpay payment links found.');
-      return;
-    }
+//     if (!pendingOrders.length) {
+//       console.log('?? No pending orders with Razorpay payment links found.');
+//       return;
+//     }
 
-    for (const order of pendingOrders) {
-      const paymentLinkId = order.orderId;
+//     for (const order of pendingOrders) {
+//       const paymentLinkId = order.orderId;
 
-      // Fetch payment link details dynamically
-      const paymentLinkDetails = await verifyPaymentLinkStatus(paymentLinkId);
+//       // Fetch payment link details dynamically
+//       const paymentLinkDetails = await verifyPaymentLinkStatus(paymentLinkId);
 
-      if (!paymentLinkDetails) {
-        console.log(`?? Could not fetch details for payment link: ${paymentLinkId}`);
-        continue;
-      }
+//       if (!paymentLinkDetails) {
+//         console.log(`?? Could not fetch details for payment link: ${paymentLinkId}`);
+//         continue;
+//       }
 
-      if (paymentLinkDetails.status === 'paid') {
-        // Extract actual Razorpay payment ID from payments array
-        const razorpayPaymentId = paymentLinkDetails.payments?.[0]?.payment_id;
+//       if (paymentLinkDetails.status === 'paid') {
+//         // Extract actual Razorpay payment ID from payments array
+//         const razorpayPaymentId = paymentLinkDetails.payments?.[0]?.payment_id;
 
-        if (!razorpayPaymentId) {
-          console.log(`?? No payment ID found in payment link details for ${paymentLinkId}`);
-          continue;
-        }
+//         if (!razorpayPaymentId) {
+//           console.log(`?? No payment ID found in payment link details for ${paymentLinkId}`);
+//           continue;
+//         }
 
-        // Update order in DB
-        await orderModel.updateOne(
-          { orderId: paymentLinkId },
-          {
-            $set: {
-              'paymentDetails.paymentId': razorpayPaymentId,
-              'paymentDetails.payment_status': 'success',
-              'paymentDetails.payment_method_type': paymentLinkDetails.payment_method || null,
-              'paymentDetails.fullDetails': paymentLinkDetails,
-              order_status: 'ordered',
-              updatedAt: new Date(),
-            },
-            $push: { statusUpdates: { status: 'ordered', timestamp: new Date() } },
-          }
-        );
-        console.log(`? Order ${paymentLinkId} updated to ordered status.`);
+//         // Update order in DB
+//         await orderModel.updateOne(
+//           { orderId: paymentLinkId },
+//           {
+//             $set: {
+//               'paymentDetails.paymentId': razorpayPaymentId,
+//               'paymentDetails.payment_status': 'success',
+//               'paymentDetails.payment_method_type': paymentLinkDetails.payment_method || null,
+//               'paymentDetails.fullDetails': paymentLinkDetails,
+//               order_status: 'ordered',
+//               updatedAt: new Date(),
+//             },
+//             $push: { statusUpdates: { status: 'ordered', timestamp: new Date() } },
+//           }
+//         );
+//         console.log(`? Order ${paymentLinkId} updated to ordered status.`);
 
-        // Clear user's cart after order
-        await addToCartModel.deleteMany({ userId: order.userId });
-        console.log('?? Cart has been cleared.');
+//         // Clear user's cart after order
+//         await addToCartModel.deleteMany({ userId: order.userId });
+//         console.log('?? Cart has been cleared.');
 
-        // Set delivery date 4 days from now
-        const deliveryDate = moment().add(4, 'days').toDate();
-        await orderModel.updateOne({ orderId: paymentLinkId }, { $set: { delivered_at: deliveryDate } });
+//         // Set delivery date 4 days from now
+//         const deliveryDate = moment().add(4, 'days').toDate();
+//         await orderModel.updateOne({ orderId: paymentLinkId }, { $set: { delivered_at: deliveryDate } });
 
-        try {
-          // Send confirmation and admin notification emails & update product stock
-          const customerInfo = await userModel.findById(order.userId);
-          const cartItems = await addToCartModel.find({ userId: order.userId });
+//         try {
+//           // Send confirmation and admin notification emails & update product stock
+//           const customerInfo = await userModel.findById(order.userId);
+//           const cartItems = await addToCartModel.find({ userId: order.userId });
 
-          const emailPromises = [
-            sendOrderConfirmationEmailLink(customerInfo, razorpayPaymentId, order),
-            sendAdminNotificationEmail(order),
-          ];
+//           const emailPromises = [
+//             sendOrderConfirmationEmailLink(customerInfo, razorpayPaymentId, order),
+//             sendAdminNotificationEmail(order),
+//           ];
 
-          const productUpdatePromises = cartItems.map(item =>
-            productModel.findByIdAndUpdate(
-              item.productId._id,
-              { $inc: { availability: -1 } },
-              { new: true }
-            )
-          );
-// const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
-// const user = await userModel.findById(fullOrder.userId);
+//           const productUpdatePromises = cartItems.map(item =>
+//             productModel.findByIdAndUpdate(
+//               item.productId._id,
+//               { $inc: { availability: -1 } },
+//               { new: true }
+//             )
+//           );
+// // const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+// // const user = await userModel.findById(fullOrder.userId);
 
-// await createSalesOrderAndReleaseStock(fullOrder, user);
+// // await createSalesOrderAndReleaseStock(fullOrder, user);
+// // const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+// // const customerUser = await userModel.findById(fullOrder.userId);
+// // const staffUser = req.user; // role = MANAGESALES
+
+// // await createSalesOrderAndReleaseStock(
+// //   fullOrder,
+// //   customerUser,
+// //   staffUser
+// // );
 // const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
 // const customerUser = await userModel.findById(fullOrder.userId);
-// const staffUser = req.user; // role = MANAGESALES
+
+// /* ✅ CRON SAFE STAFF USER */
+// const staffUser = {
+//   role: "MANAGESALES",
+//   name: "SYSTEM-CRON"
+// };
 
 // await createSalesOrderAndReleaseStock(
 //   fullOrder,
 //   customerUser,
 //   staffUser
 // );
-const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
-const customerUser = await userModel.findById(fullOrder.userId);
-
-/* ✅ CRON SAFE STAFF USER */
-const staffUser = {
-  role: "MANAGESALES",
-  name: "SYSTEM-CRON"
-};
-
-await createSalesOrderAndReleaseStock(
-  fullOrder,
-  customerUser,
-  staffUser
-);
 
 
-          await Promise.all([...emailPromises, ...productUpdatePromises]);
-        } catch (emailOrStockError) {
-          console.error('? Error sending emails or updating product stock:', emailOrStockError);
+//           await Promise.all([...emailPromises, ...productUpdatePromises]);
+//         } catch (emailOrStockError) {
+//           console.error('? Error sending emails or updating product stock:', emailOrStockError);
+//         }
+//       } else {
+//         console.log(`?? Order ${paymentLinkId} payment link status: ${paymentLinkDetails.status}`);
+//       }
+//     }
+//   } catch (err) {
+//     console.error('? Error verifying payment links:', err.response?.data || err.message || err);
+//   }
+// });
+// controllers/order/paymentController.js (Cron Section)
+
+cron.schedule('*/2 * * * *', async () => {
+  try {
+    // 1. Case-insensitive pending orders lookup
+    const pendingOrders = await orderModel.find({
+      orderId: { $regex: /^plink_/ },
+      $or: [
+        { order_status: { $in: ['pending', 'Pending'] } },
+        { 'paymentDetails.payment_status': 'pending' }
+      ]
+    });
+
+    if (!pendingOrders.length) return;
+
+    for (const order of pendingOrders) {
+      const paymentLinkId = order.orderId;
+      const paymentLinkDetails = await verifyPaymentLinkStatus(paymentLinkId);
+
+      if (!paymentLinkDetails) continue;
+
+      if (paymentLinkDetails.status === 'paid') {
+        const razorpayPaymentId =
+          paymentLinkDetails.payments?.[0]?.payment_id || `pay_${paymentLinkId}`;
+        const paymentMethod =
+          paymentLinkDetails.payments?.[0]?.method || paymentLinkDetails.payment_method || 'online';
+
+        const finalStatus = order.saleInHand ? 'delivered' : 'ordered';
+
+        // Update Order in DB
+        await orderModel.updateOne(
+          { orderId: paymentLinkId },
+          {
+            $set: {
+              'paymentDetails.paymentId': razorpayPaymentId,
+              'paymentDetails.payment_status': 'success',
+              'paymentDetails.payment_method_type': paymentMethod,
+              'paymentDetails.fullDetails': paymentLinkDetails,
+              order_status: finalStatus,
+              updatedAt: new Date(),
+            },
+            $push: { statusUpdates: { status: finalStatus, timestamp: new Date() } },
+          }
+        );
+
+        // Cart clear pannudhu
+        await addToCartModel.deleteMany({ userId: order.userId });
+
+        // Decrement product availability directly from order details
+        for (const item of (order.productDetails || [])) {
+          await productModel.findByIdAndUpdate(
+            item.productId,
+            { $inc: { availability: -item.quantity } }
+          );
         }
-      } else {
-        console.log(`?? Order ${paymentLinkId} payment link status: ${paymentLinkDetails.status}`);
+
+        // 🔥 Trigger Zoho Process
+        const fullOrder = await orderModel.findOne({ orderId: paymentLinkId });
+        const customerUser = await userModel.findById(fullOrder.userId);
+        const staffUser = { role: "MANAGESALES", name: "SYSTEM-CRON" };
+
+        await createSalesOrderAndReleaseStock(fullOrder, customerUser, staffUser);
+
+        // Send confirmation emails
+        try {
+          await Promise.all([
+            sendOrderConfirmationEmailLink(customerUser, razorpayPaymentId, fullOrder),
+            sendAdminNotificationEmail(fullOrder),
+          ]);
+        } catch (emailErr) {
+          console.error('Error sending cron emails:', emailErr.message);
+        }
+
+        console.log(`✅ Payment Link order ${paymentLinkId} fulfilled successfully!`);
       }
     }
   } catch (err) {
-    console.error('? Error verifying payment links:', err.response?.data || err.message || err);
+    console.error('Error in Payment Link Cron:', err.message);
   }
 });
 const sendOrderConfirmationEmailLink = async (customerInfo, razorpayPaymentId, order) => {
   try {
-    // Get flat payment object
     const payment = await verifyPaymentStatus(razorpayPaymentId);
 
     if (!payment || !payment.isPaymentCaptured) {
       throw new Error('Payment not captured');
     }
 
-    // Extract key details
-    const amountPaid = payment.amount / 100;  // Convert from paise to INR
+    const amountPaid = payment.amount / 100;
     const paymentStatus = payment.status;
     const transactionId = payment.id;
-    const paymentType = payment.method || 'Unknown';
+    const paymentType = payment.method ? payment.method.toUpperCase() : 'ONLINE';
     const vpa = payment.upi?.vpa || '';
-    const cardType = (paymentType === 'card' && payment.card) ? payment.card.type : '';
-
-    // Construct HTML block
-    let paymentDetailsHtml = `
-      <ul>
-        <li><strong>Amount Paid:</strong> ?${amountPaid}</li>
-        <li><strong>Payment Status:</strong> ${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</li>
-        <li><strong>Transaction ID:</strong> ${transactionId}</li>
-        <li><strong>Payment Method:</strong> ${paymentType}</li>
-    `;
-
-    if (paymentType === 'upi' && vpa) {
-      paymentDetailsHtml += `<li><strong>UPI ID:</strong> ${vpa}</li>`;
-    } else if (paymentType === 'card' && cardType) {
-      paymentDetailsHtml += `<li><strong>Card Type:</strong> ${cardType.charAt(0).toUpperCase() + cardType.slice(1)} Card</li>`;
-    }
-
-    paymentDetailsHtml += `</ul>`;
+    const cardType = (paymentType === 'CARD' && payment.card) ? payment.card.type : '';
 
     const product = order.productDetails?.[0];
     if (!product) {
       throw new Error('Product details not found in the order');
     }
 
-    // Prepare email
+    const extraPaymentRow = vpa
+      ? `<tr><td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">UPI ID</td><td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">${vpa}</td></tr>`
+      : cardType
+      ? `<tr><td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Card Type</td><td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">${cardType.toUpperCase()} Card</td></tr>`
+      : '';
+
+    const serialRow = order.serialNumber ? `
+      <tr>
+        <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Serial Number</td>
+        <td style="padding: 10px 16px; color: #111; font-weight: bold; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0; font-family: monospace;">
+          ${order.serialNumber}
+        </td>
+      </tr>
+    ` : '';
+
     const mailOptions = {
-      from: 'admin@reldaindia.com',
+      from: 'support@reldaindia.com',
       to: order.billing_email,
-      subject: 'Payment Confirmation Details',
+      subject: `Payment Received - Order #${order.orderId} | RELDA India Pvt Ltd`,
       html: `
-        <p>Dear ${order.billing_name},</p>
-        <p>Thank you for your payment! We've successfully received your payment for <strong>${product.productName}</strong>.</p>
-        <p><strong>Here are your payment details:</strong></p>
-        ${paymentDetailsHtml}
-        <p>If you have any questions or need further assistance, please feel free to contact us at <strong>support@reldaindia.com</strong> or <strong>9884890934</strong>. We're always happy to help!</p>
-        <p>Best Regards,<br>The Elda Appliances Team</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f5f7; padding: 30px 10px;">
+            <tr>
+              <td align="center">
+                
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
+                  
+                  <!-- Top Logo Bar (White Background - 100% Vivid Logo) -->
+                  <tr>
+                    <td align="center" style="background-color: #ffffff; padding: 25px 20px; border-bottom: 2px solid #f2f2f2;">
+                      <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India Pvt Ltd" style="max-width: 170px; height: auto; display: block;" />
+                    </td>
+                  </tr>
+
+                  <!-- Red Hero Banner -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #E60000 0%, #b80000 100%); padding: 30px 20px; text-align: center;">
+                      <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 0.5px;">Payment Successful!</h1>
+                      <p style="color: #ffe6e6; margin: 6px 0 0; font-size: 14px;">Your order has been placed successfully</p>
+                    </td>
+                  </tr>
+
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 30px 25px;">
+                      
+                      <p style="margin: 0 0 14px; font-size: 16px; color: #111; font-weight: 700;">
+                        Dear ${order.billing_name},
+                      </p>
+                      <p style="margin: 0 0 22px; font-size: 14px; color: #555; line-height: 1.6;">
+                        Thank you for your payment! We have successfully received payment for your order. Here is your transaction summary:
+                      </p>
+
+                      <!-- Order ID Banner -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fff5f5; border-left: 4px solid #E60000; border-radius: 6px; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 12px 16px;">
+                            <span style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">Order Reference ID</span>
+                            <div style="font-size: 18px; font-weight: 800; color: #E60000; margin-top: 2px;">#${order.orderId}</div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Order & Payment Details Table -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #eef0f2; border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+                        <tr style="background-color: #fafbfc;">
+                          <td colspan="2" style="padding: 12px 16px; font-size: 12px; font-weight: 800; color: #444; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eef0f2;">
+                            Order & Payment Summary
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 12px 16px; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Product</td>
+                          <td style="padding: 12px 16px; color: #111; font-weight: 700; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${product.productName}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Quantity</td>
+                          <td style="padding: 10px 16px; color: #111; font-weight: bold; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${product.quantity} unit(s)
+                          </td>
+                        </tr>
+                        ${serialRow}
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Transaction ID</td>
+                          <td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0; font-family: monospace;">
+                            ${transactionId}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Payment Method</td>
+                          <td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${paymentType}
+                          </td>
+                        </tr>
+                        ${extraPaymentRow}
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Payment Status</td>
+                          <td style="padding: 10px 16px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                              ${paymentStatus.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr style="background-color: #fff9f9;">
+                          <td style="padding: 14px 16px; color: #111; font-size: 15px; font-weight: 700;">Total Paid</td>
+                          <td style="padding: 14px 16px; color: #E60000; font-weight: 800; font-size: 20px; text-align: right;">
+                            ₹${Number(amountPaid).toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Shipping Address Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 12px; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 16px 18px;">
+                            <span style="font-size: 11px; font-weight: bold; color: #777; text-transform: uppercase; letter-spacing: 0.5px;">Shipping / Delivery Address</span>
+                            <p style="margin: 6px 0 0; font-size: 13px; color: #333; line-height: 1.5;">
+                              ${order.shipping_address}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Support Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border: 1.5px dashed #E60000; border-radius: 12px; text-align: center; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 16px 18px;">
+                            <p style="margin: 0; font-size: 13px; color: #222; font-weight: 700;">
+                              Have questions regarding your order or warranty?
+                            </p>
+                            <p style="margin: 6px 0 0; font-size: 13px; color: #666;">
+                              Email us: <a href="mailto:support@reldaindia.com" style="color: #E60000; text-decoration: none; font-weight: bold;">support@reldaindia.com</a> &nbsp;|&nbsp; Call: <a href="tel:9884890934" style="color: #E60000; text-decoration: none; font-weight: bold;">9884890934</a>
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="margin: 20px 0 0; font-size: 14px; color: #333; line-height: 1.5;">
+                        Warm Regards,<br>
+                        <strong style="color: #E60000; font-size: 15px;">RELDA India Pvt Ltd</strong>
+                      </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #1a1a1a; padding: 22px 20px; text-align: center;">
+                      <p style="margin: 0 0 6px; font-size: 12px; color: #888;">
+                        © ${new Date().getFullYear()} RELDA India Pvt Ltd. All rights reserved.
+                      </p>
+                      <p style="margin: 0; font-size: 12px; color: #666;">
+                        <a href="https://www.reldaindia.com" style="color: #ffffff; text-decoration: none; font-weight: 600;">www.reldaindia.com</a>
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
       `
     };
 
-    console.log('Sending confirmation email with:', mailOptions);
+    console.log(`📧 Sending Confirmation Link email to: ${order.billing_email}`);
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Error sending order confirmation email:', error.message);
+    console.error('Error sending order confirmation email link:', error.message);
   }
 };
 
 
+
  // Define the function to check for pending payments
- cron.schedule('*/10 * * * *', async () => {
-    try {
-        // Fetch unpaid orders where no reminder has been sent
-        const unpaidOrders = await orderModel.find({
-            "paymentDetails.payment_status": "pending",
-            reminderSent: false,
-            createdAt: { $lte: new Date(Date.now() - 10 * 60 * 1000) }, // Orders created 10+ minutes ago
-        });
+cron.schedule('*/10 * * * *', async () => {
+  try {
+    const unpaidOrders = await orderModel.find({
+      "paymentDetails.payment_status": "pending",
+      reminderSent: false,
+      createdAt: { $lte: new Date(Date.now() - 10 * 60 * 1000) },
+    });
 
-        for (const order of unpaidOrders) {
-            // Send reminder email
-            const mailOptions = {
-                from: 'admin@reldaindia.com',
-                to: order.billing_email,
-                subject: 'Reminder: Complete Your Purchase',
-                html: `
-                    <h2>Hello ${order.billing_name},</h2>
-                    <p>We noticed you added items to your cart but haven't completed the purchase. Here's a summary of your order:</p>
-                    <ul>
-                        ${order.productDetails.map(item => `
-                            <li>
-                                <strong>${item.productName}</strong> - ${item.quantity} x &#8377;${item.sellingPrice}
-                            </li>`).join('')}
-                    </ul>
-                    <p><strong>Total Amount:</strong> &#8377;${order.totalAmount}</p>
-                    <p>Click <a href="https://www.reldaindia.com">here</a> to complete your payment.</p>
-                    <p>If you have any questions, feel free to contact us!</p>
-                    <p>Best regards,<br>Your Company</p>
-                `,
-            };
+    for (const order of unpaidOrders) {
+      const itemsListHtml = (order.productDetails || []).map(item => `
+        <tr>
+          <td style="padding: 10px 14px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0;">
+            <strong>${item.productName}</strong>
+          </td>
+          <td style="padding: 10px 14px; font-size: 13px; color: #333; text-align: center; border-bottom: 1px solid #f0f0f0;">
+            ${item.quantity}
+          </td>
+          <td style="padding: 10px 14px; font-size: 13px; color: #111; font-weight: 600; text-align: right; border-bottom: 1px solid #f0f0f0;">
+            ₹${Number(item.sellingPrice * item.quantity).toLocaleString('en-IN')}
+          </td>
+        </tr>
+      `).join('');
 
-            await transporter.sendMail(mailOptions);
+      const mailOptions = {
+        from: 'support@reldaindia.com',
+        to: order.billing_email,
+        subject: `Complete Your Order #${order.orderId} | RELDA India Pvt Ltd`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f5f7; padding: 30px 10px;">
+              <tr>
+                <td align="center">
+                  
+                  <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
+                    
+                    <!-- Top Logo Bar -->
+                    <tr>
+                      <td align="center" style="background-color: #ffffff; padding: 25px 20px; border-bottom: 2px solid #f2f2f2;">
+                        <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India Pvt Ltd" style="max-width: 170px; height: auto; display: block;" />
+                      </td>
+                    </tr>
 
-            // Mark reminder as sent
-            order.reminderSent = true;
-            await order.save();
-        }
-    } catch (error) {
-        console.error("Error sending reminder emails:", error);
+                    <!-- Red Hero Banner -->
+                    <tr>
+                      <td style="background: linear-gradient(135deg, #E60000 0%, #b80000 100%); padding: 30px 20px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">Don't Miss Out!</h1>
+                        <p style="color: #ffe6e6; margin: 6px 0 0; font-size: 14px;">Your favorite items are waiting in your cart</p>
+                      </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                      <td style="padding: 30px 25px;">
+                        
+                        <p style="margin: 0 0 14px; font-size: 16px; color: #111; font-weight: 700;">
+                          Hello ${order.billing_name},
+                        </p>
+                        <p style="margin: 0 0 22px; font-size: 14px; color: #555; line-height: 1.6;">
+                          We noticed you added items to your cart but haven't finished checking out yet. Complete your order now before stock runs out:
+                        </p>
+
+                        <!-- Items Table -->
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #eef0f2; border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+                          <tr style="background-color: #fafbfc;">
+                            <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: left; border-bottom: 1px solid #eef0f2;">Product</th>
+                            <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: center; border-bottom: 1px solid #eef0f2;">Qty</th>
+                            <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: right; border-bottom: 1px solid #eef0f2;">Price</th>
+                          </tr>
+                          ${itemsListHtml}
+                          <tr style="background-color: #fff9f9;">
+                            <td colspan="2" style="padding: 14px 16px; color: #111; font-size: 15px; font-weight: 700;">Total Amount:</td>
+                            <td style="padding: 14px 16px; color: #E60000; font-weight: 800; font-size: 20px; text-align: right;">
+                              ₹${Number(order.totalAmount).toLocaleString('en-IN')}
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- CTA Button -->
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 26px;">
+                          <tr>
+                            <td align="center">
+                              <a href="https://www.reldaindia.com/checkout" style="background-color: #E60000; color: #ffffff; text-decoration: none; padding: 15px 36px; border-radius: 30px; font-size: 15px; font-weight: 800; display: inline-block; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(230,0,0,0.3);">
+                                COMPLETE YOUR PURCHASE →
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <!-- Support Info -->
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border: 1.5px dashed #E60000; border-radius: 12px; text-align: center; margin-bottom: 24px;">
+                          <tr>
+                            <td style="padding: 16px 18px;">
+                              <p style="margin: 0; font-size: 13px; color: #222; font-weight: 700;">
+                                Need help completing your order?
+                              </p>
+                              <p style="margin: 6px 0 0; font-size: 13px; color: #666;">
+                                Contact our team: <a href="mailto:support@reldaindia.com" style="color: #E60000; text-decoration: none; font-weight: bold;">support@reldaindia.com</a> &nbsp;|&nbsp; Call: <a href="tel:9884890934" style="color: #E60000; text-decoration: none; font-weight: bold;">9884890934</a>
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <p style="margin: 20px 0 0; font-size: 14px; color: #333; line-height: 1.5;">
+                          Warm Regards,<br>
+                          <strong style="color: #E60000; font-size: 15px;">RELDA India Pvt Ltd</strong>
+                        </p>
+
+                      </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                      <td style="background-color: #1a1a1a; padding: 22px 20px; text-align: center;">
+                        <p style="margin: 0 0 6px; font-size: 12px; color: #888;">
+                          © ${new Date().getFullYear()} RELDA India Pvt Ltd. All rights reserved.
+                        </p>
+                        <p style="margin: 0; font-size: 12px; color: #666;">
+                          <a href="https://www.reldaindia.com" style="color: #ffffff; text-decoration: none; font-weight: 600;">www.reldaindia.com</a>
+                        </p>
+                      </td>
+                    </tr>
+
+                  </table>
+
+                </td>
+              </tr>
+            </table>
+
+          </body>
+          </html>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      order.reminderSent = true;
+      await order.save();
+      console.log(`📧 Cart reminder email sent to: ${order.billing_email}`);
     }
+  } catch (error) {
+    console.error("Error sending reminder emails:", error.message);
+  }
 });
 // Verify Payment after redirect
 const verifyPayment = async (razorpayPaymentId) => {
@@ -918,85 +1682,206 @@ await createSalesOrderAndReleaseStock(
 };
 
 const sendOrderConfirmationEmail = async (customerInfo, razorpayPaymentId, order) => {
-    try {
-        // Fetch payment details from Razorpay response
-        const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
+  try {
+    const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
 
-        // Check if the payment is captured successfully
-        if (!isPaymentCaptured) {
-            throw new Error('Payment not captured');
-        }
-
-        // Extract relevant information from Razorpay response
-        const amountPaid = paymentDetails.amount / 100;  // Razorpay returns the amount in paise, so we divide by 100 to convert to INR
-        const paymentStatus = paymentDetails.status;
-        const transactionId = paymentDetails.id;
-        const paymentType = paymentMethod || 'Unknown';  // UPI, Card, Wallet, etc.
-        const vpa = paymentDetails.upi?.vpa || '';  // If UPI payment, extract the VPA (Virtual Payment Address)
-
-        // Initialize the card type variable
-        let cardType = '';
-        if (paymentType === 'card' && paymentDetails.card) {
-            cardType = paymentDetails.card.type;  // This can be 'credit' or 'debit'
-        }
-
-        // Log payment details for debugging
-        console.log('Payment Details:', paymentDetails); // This helps in confirming the data structure
-
-        // Construct payment details HTML
-        let paymentDetailsHtml = `
-            <ul>
-                <li><strong>Amount Paid:</strong> &#8377;${amountPaid}</li>
-                <li><strong>Payment Status:</strong> ${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</li>
-                <li><strong>Transaction ID:</strong> ${transactionId}</li>
-                <li><strong>Payment Method:</strong> ${paymentType}</li>
-        `;
-
-        // If the payment method is UPI, add VPA
-        if (paymentType === 'upi' && vpa) {
-            paymentDetailsHtml += `
-                <li><strong>UPI ID:</strong> ${vpa}</li>
-            `;
-        } else if (paymentType === 'card' && cardType) {
-            // If the payment method is card, show whether it was credit or debit card
-            paymentDetailsHtml += `
-                <li><strong>Card Type:</strong> ${cardType.charAt(0).toUpperCase() + cardType.slice(1)} Card</li>
-            `;
-        }
-
-        paymentDetailsHtml += `</ul>`;
-
-        // Ensure you access the product from the order if available
-        const product = order.productDetails && order.productDetails[0]; // Assuming there is at least one product in productDetails
-
-        if (!product) {
-            throw new Error('Product details not found in the order');
-        }
-
-        const mailOptions = {
-            from: 'admin@reldaindia.com',
-            to: order.billing_email,  // Customer's email
-            subject: 'Payment Confirmation Details',
-            html: `
-                <p>Dear ${order.billing_name},</p>
-                <p>Thank you for your payment! We've successfully received your payment for ${product.productName}.</p>
-                
-                <p><strong>Here are your payment details:</strong></p>
-                ${paymentDetailsHtml}
-                
-                <p>If you have any questions or need further assistance, please feel free to contact us at [support@reldaindia.com/9884890934]. We're always happy to help!</p>
-                
-                <p>Best Regards,<br>The Elda Appliances Team</p>
-            `,
-        };
-
-        console.log(mailOptions);  // Debugging output to check email content
-
-        // Send the email
-        await transporter.sendMail(mailOptions);
-    } catch (error) {
-        console.error('Error sending order confirmation email:', error);
+    if (!isPaymentCaptured) {
+      throw new Error('Payment not captured');
     }
+
+    const amountPaid = paymentDetails.amount / 100;
+    const paymentStatus = paymentDetails.status;
+    const transactionId = paymentDetails.id;
+    const paymentType = paymentMethod ? paymentMethod.toUpperCase() : 'ONLINE';
+    const vpa = paymentDetails.upi?.vpa || '';
+    const cardType = (paymentType === 'CARD' && paymentDetails.card) ? paymentDetails.card.type : '';
+
+    const product = order.productDetails && order.productDetails[0];
+    if (!product) {
+      throw new Error('Product details not found in the order');
+    }
+
+    const extraPaymentRow = vpa
+      ? `<tr><td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">UPI ID</td><td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">${vpa}</td></tr>`
+      : cardType
+      ? `<tr><td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Card Type</td><td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">${cardType.toUpperCase()} Card</td></tr>`
+      : '';
+
+    const serialRow = order.serialNumber ? `
+      <tr>
+        <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Serial Number</td>
+        <td style="padding: 10px 16px; color: #111; font-weight: bold; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0; font-family: monospace;">
+          ${order.serialNumber}
+        </td>
+      </tr>
+    ` : '';
+
+    const mailOptions = {
+      from: 'support@reldaindia.com',
+      to: order.billing_email,
+      subject: `Order Confirmation - #${order.orderId} | RELDA India Pvt Ltd`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f5f7; padding: 30px 10px;">
+            <tr>
+              <td align="center">
+                
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
+                  
+                  <!-- Top Logo Bar (White Background - 100% Vivid Logo) -->
+                  <tr>
+                    <td align="center" style="background-color: #ffffff; padding: 25px 20px; border-bottom: 2px solid #f2f2f2;">
+                      <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India Pvt Ltd" style="max-width: 170px; height: auto; display: block;" />
+                    </td>
+                  </tr>
+
+                  <!-- Red Hero Banner -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #E60000 0%, #b80000 100%); padding: 30px 20px; text-align: center;">
+                      <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 0.5px;">Order Placed!</h1>
+                      <p style="color: #ffe6e6; margin: 6px 0 0; font-size: 14px;">Thank you for shopping with RELDA</p>
+                    </td>
+                  </tr>
+
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 30px 25px;">
+                      
+                      <p style="margin: 0 0 14px; font-size: 16px; color: #111; font-weight: 700;">
+                        Dear ${order.billing_name},
+                      </p>
+                      <p style="margin: 0 0 22px; font-size: 14px; color: #555; line-height: 1.6;">
+                        Your payment has been successfully processed! We're preparing your order for shipment. Here are the order details:
+                      </p>
+
+                      <!-- Order ID Banner -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fff5f5; border-left: 4px solid #E60000; border-radius: 6px; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 12px 16px;">
+                            <span style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">Order Reference ID</span>
+                            <div style="font-size: 18px; font-weight: 800; color: #E60000; margin-top: 2px;">#${order.orderId}</div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Order Summary Table -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #eef0f2; border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+                        <tr style="background-color: #fafbfc;">
+                          <td colspan="2" style="padding: 12px 16px; font-size: 12px; font-weight: 800; color: #444; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eef0f2;">
+                            Order Summary
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 12px 16px; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Product Name</td>
+                          <td style="padding: 12px 16px; color: #111; font-weight: 700; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${product.productName}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Quantity</td>
+                          <td style="padding: 10px 16px; color: #111; font-weight: bold; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${product.quantity} unit(s)
+                          </td>
+                        </tr>
+                        ${serialRow}
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Transaction ID</td>
+                          <td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0; font-family: monospace;">
+                            ${transactionId}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Payment Method</td>
+                          <td style="padding: 10px 16px; color: #111; font-weight: 600; font-size: 13px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            ${paymentType}
+                          </td>
+                        </tr>
+                        ${extraPaymentRow}
+                        <tr>
+                          <td style="padding: 10px 16px; color: #666; font-size: 13px; border-bottom: 1px solid #f0f0f0;">Payment Status</td>
+                          <td style="padding: 10px 16px; text-align: right; border-bottom: 1px solid #f0f0f0;">
+                            <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                              ${paymentStatus.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr style="background-color: #fff9f9;">
+                          <td style="padding: 14px 16px; color: #111; font-size: 15px; font-weight: 700;">Total Amount Paid</td>
+                          <td style="padding: 14px 16px; color: #E60000; font-weight: 800; font-size: 20px; text-align: right;">
+                            ₹${Number(amountPaid).toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Shipping Address Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 12px; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 16px 18px;">
+                            <span style="font-size: 11px; font-weight: bold; color: #777; text-transform: uppercase; letter-spacing: 0.5px;">Shipping / Delivery Address</span>
+                            <p style="margin: 6px 0 0; font-size: 13px; color: #333; line-height: 1.5;">
+                              ${order.shipping_address}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Support Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border: 1.5px dashed #E60000; border-radius: 12px; text-align: center; margin-bottom: 24px;">
+                        <tr>
+                          <td style="padding: 16px 18px;">
+                            <p style="margin: 0; font-size: 13px; color: #222; font-weight: 700;">
+                              Have questions regarding your order or warranty?
+                            </p>
+                            <p style="margin: 6px 0 0; font-size: 13px; color: #666;">
+                              Email us: <a href="mailto:support@reldaindia.com" style="color: #E60000; text-decoration: none; font-weight: bold;">support@reldaindia.com</a> &nbsp;|&nbsp; Call: <a href="tel:9884890934" style="color: #E60000; text-decoration: none; font-weight: bold;">9884890934</a>
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="margin: 20px 0 0; font-size: 14px; color: #333; line-height: 1.5;">
+                        Warm Regards,<br>
+                        <strong style="color: #E60000; font-size: 15px;">RELDA India Pvt Ltd</strong>
+                      </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #1a1a1a; padding: 22px 20px; text-align: center;">
+                      <p style="margin: 0 0 6px; font-size: 12px; color: #888;">
+                        © ${new Date().getFullYear()} RELDA India Pvt Ltd. All rights reserved.
+                      </p>
+                      <p style="margin: 0; font-size: 12px; color: #666;">
+                        <a href="https://www.reldaindia.com" style="color: #ffffff; text-decoration: none; font-weight: 600;">www.reldaindia.com</a>
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
+      `
+    };
+
+    console.log(`📧 Sending Online Order confirmation email to: ${order.billing_email}`);
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending online order confirmation email:', error.message);
+  }
 };
 
 
@@ -1004,30 +1889,161 @@ const sendOrderConfirmationEmail = async (customerInfo, razorpayPaymentId, order
 
 
 const sendAdminNotificationEmail = async (order) => {
-    try {
-        const mailOptions = {
-            from: 'support@reldaindia.com',
-            to: 'admin@reldaindia.com',  // Admin's email
-            subject: `New Order Received - ${order.orderId}`,
-            html: `
-                <p>Hi Admin,</p>
-                <p>A new order has been successfully paid and processed.</p>
-                <p><strong>Order Number:</strong> ${order.orderId}</p>
-                <p><strong>Customer Name:</strong> ${order.billing_name}</p>
-                <p><strong>Total Amount:</strong> ?${order.totalAmount}</p>
-                <p><strong>Payment Status:</strong> Success</p>
-                <p><strong>Shipping Address:</strong> ${order.shipping_address}</p>
-                <p><strong>Billing Address:</strong> ${order.billing_address}</p>
-                <p>Please review the order details and proceed with fulfillment.</p>
-                <p>Best regards,<br>Elda Appliances</p>
-            `
-        };
+  try {
+    const productRows = (order.productDetails || []).map((p, idx) => `
+      <tr>
+        <td style="padding: 10px 14px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0;">
+          ${idx + 1}. <strong>${p.productName}</strong>
+          ${p.serialNumber ? `<br><span style="font-size: 11px; color: #888; font-family: monospace;">Serial: ${p.serialNumber}</span>` : ''}
+        </td>
+        <td style="padding: 10px 14px; font-size: 13px; color: #333; text-align: center; border-bottom: 1px solid #f0f0f0;">
+          ${p.quantity}
+        </td>
+        <td style="padding: 10px 14px; font-size: 13px; color: #111; font-weight: 600; text-align: right; border-bottom: 1px solid #f0f0f0;">
+          ₹${Number(p.sellingPrice * p.quantity).toLocaleString('en-IN')}
+        </td>
+      </tr>
+    `).join('');
 
-        // Send the email
-        await transporter.sendMail(mailOptions);
-    } catch (error) {
-        console.error('Error sending admin notification email:', error);
-    }
+    const mailOptions = {
+      from: 'support@reldaindia.com',
+      to: 'admin@reldaindia.com',
+      subject: `🚨 New Order Alert: #${order.orderId} - ₹${Number(order.totalAmount).toLocaleString('en-IN')}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f5f7; padding: 30px 10px;">
+            <tr>
+              <td align="center">
+                
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
+                  
+                  <!-- Top Logo Bar -->
+                  <tr>
+                    <td align="center" style="background-color: #ffffff; padding: 22px 20px; border-bottom: 2px solid #f2f2f2;">
+                      <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India Pvt Ltd" style="max-width: 160px; height: auto; display: block;" />
+                    </td>
+                  </tr>
+
+                  <!-- Admin Alert Header -->
+                  <tr>
+                    <td style="background-color: #1a1a1a; padding: 22px 25px; text-align: left; border-left: 6px solid #E60000;">
+                      <h2 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: 700;">
+                        ⚡ New Order Received - <span style="color: #ff4d4d;">#${order.orderId}</span>
+                      </h2>
+                      <p style="color: #aaa; margin: 4px 0 0; font-size: 13px;">
+                        Processed: ${moment().format('DD MMM YYYY, hh:mm A')}
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Content -->
+                  <tr>
+                    <td style="padding: 25px;">
+                      
+                      <!-- Customer Information Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 10px; margin-bottom: 20px;">
+                        <tr style="background-color: #fafbfc;">
+                          <td colspan="2" style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; border-bottom: 1px solid #eef0f2;">
+                            Customer Details
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 14px; color: #666; font-size: 13px;">Name:</td>
+                          <td style="padding: 8px 14px; color: #111; font-weight: 700; font-size: 13px; text-align: right;">${order.billing_name}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 14px; color: #666; font-size: 13px;">Email:</td>
+                          <td style="padding: 8px 14px; color: #111; font-weight: 600; font-size: 13px; text-align: right;">
+                            <a href="mailto:${order.billing_email}" style="color: #E60000; text-decoration: none;">${order.billing_email}</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 14px; color: #666; font-size: 13px;">Phone:</td>
+                          <td style="padding: 8px 14px; color: #111; font-weight: 600; font-size: 13px; text-align: right;">
+                            <a href="tel:${order.billing_tel}" style="color: #111; text-decoration: none;">${order.billing_tel}</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 14px; color: #666; font-size: 13px;">Payment Status:</td>
+                          <td style="padding: 8px 14px; text-align: right;">
+                            <span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                              ${(order.paymentDetails?.payment_status || 'PAID').toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 14px; color: #666; font-size: 13px;">Payment Mode:</td>
+                          <td style="padding: 8px 14px; color: #111; font-weight: 600; font-size: 13px; text-align: right;">
+                            ${order.paymentDetails?.payment_method_type || 'N/A'}
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Ordered Items Table -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #eef0f2; border-radius: 10px; overflow: hidden; margin-bottom: 20px;">
+                        <tr style="background-color: #fafbfc;">
+                          <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: left; border-bottom: 1px solid #eef0f2;">Item</th>
+                          <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: center; border-bottom: 1px solid #eef0f2;">Qty</th>
+                          <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: right; border-bottom: 1px solid #eef0f2;">Amount</th>
+                        </tr>
+                        ${productRows}
+                        <tr style="background-color: #fff9f9;">
+                          <td colspan="2" style="padding: 12px 14px; font-size: 14px; font-weight: 700; color: #111;">Total Order Value:</td>
+                          <td style="padding: 12px 14px; font-size: 18px; font-weight: 800; color: #E60000; text-align: right;">
+                            ₹${Number(order.totalAmount).toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Shipping Address Box -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 10px; margin-bottom: 20px;">
+                        <tr>
+                          <td style="padding: 12px 14px;">
+                            <span style="font-size: 11px; font-weight: bold; color: #777; text-transform: uppercase;">Shipping Address:</span>
+                            <p style="margin: 4px 0 0; font-size: 13px; color: #333; line-height: 1.5;">${order.shipping_address}</p>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="margin: 15px 0 0; font-size: 12px; color: #888; text-align: center;">
+                        This is an automated system notification from RELDA India Pvt Ltd Order Engine.
+                      </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #1a1a1a; padding: 18px 20px; text-align: center;">
+                      <p style="margin: 0; font-size: 11px; color: #888;">
+                        © ${new Date().getFullYear()} RELDA India Pvt Ltd. Admin Portal.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`📧 Admin notification email sent for order: #${order.orderId}`);
+  } catch (error) {
+    console.error('Error sending admin notification email:', error.message);
+  }
 };
 // Function to send email
 const sendEmail = async (email, subject, message) => {
@@ -1046,314 +2062,6 @@ const sendEmail = async (email, subject, message) => {
       console.error('Error sending email:', error);
     }
   };
-
-// exports.updateOrderStatus = async (req, res) => {
-//     const { orderId, order_status } = req.body;
-
-//     try {
-//         // Validate the new status
-//         const validStatuses = ['pending', 'ordered', 'packaged', 'shipped', 'delivered', 'failed', 'returnAccepted', 'returned'];
-//         const validTransitions = {
-//             ordered: ['packaged'],
-//             packaged: ['shipped'],
-//             shipped: ['delivered', 'returnRequested'],
-//             returnRequested: ['returnAccepted'], // Add this transition
-//             returnAccepted: ['returned'],
-//             returned: [], // No further transitions
-//             delivered: [], // No further transitions
-//             failed: [], // No further transitions
-//         };
-
-//         if (!validStatuses.includes(order_status)) {
-//             return res.status(400).json({ status: 'failed', message: 'Invalid status provided.' });
-//         }
-
-//         // Find the order by ID
-//         const order = await orderModel.findOne({ orderId });
-//         if (!order) {
-//             return res.status(404).json({ status: 'failed', message: 'Order not found.' });
-//         }
-
-//         const currentStatus = order.order_status;
-//         const allowedStatuses = validTransitions[currentStatus] || [];
-//         if (!allowedStatuses.includes(order_status)) {
-//             return res.status(400).json({
-//                 status: 'failed',
-//                 message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
-//             });
-//         }
-
-//         // Update order status and timestamp
-//         order.order_status = order_status;
-//         const statusUpdatedAt = Date.now();
-//         order.statusUpdatedAt = statusUpdatedAt;
-
-//         // Push the new status update to the statusUpdates array with timestamp
-//         order.statusUpdates.push({
-//             status: order_status,
-//             updatedAt: statusUpdatedAt,
-//         });
-
-//         await order.save();
-
-//         // Format the timestamp into 12-hour format
-//         const formattedTimestamp = moment(statusUpdatedAt).format('hh:mm A');
-
-//         // Prepare email content for each case
-//         let emailMessage = '';
-//         let emailSubject = ''; // Change const to let so that it can be reassigned
-
-//         switch (order_status) {
-//             case 'packaged':
-//                 emailSubject = 'Your Order is Packed and Ready for Shipping';
-//                 emailMessage = `
-//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
-//                     <p>We're excited to let you know that your order is packed and ready for shipping!</p>
-//                     <p>Here are your order details:</p>
-//                     <ul>
-//                         <li><strong>Product Name</strong>: ${order.productDetails[0].productName}</li>
-//                         <li><strong>Order Number</strong>: ${order.orderId}</li>
-//                         <li><strong>Estimated Delivery</strong>: ${order.estimatedDeliveryDate || 'Within 4-5 days'}</li>
-//                     </ul>
-//                     <p>If you have any questions, feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
-//                     <p>Thank you for shopping with Elda Appliances.</p>
-//                     <p>Best Regards, <br>The Elda Appliances Team</p>
-//                 `;
-//                 break;
-
-//             case 'shipped':
-//                 emailSubject = 'Your Product Has Been Shipped';
-//                 emailMessage = `
-//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
-//                     <p>Great news! Your product has been shipped and is on its way to you.</p>
-//                     <p>Here are the shipping details:</p>
-//                     <ul>
-//                         <li><strong>Product Name</strong>: ${order.productDetails[0].productName}</li>
-//                         <li><strong>Order Number</strong>: ${order.orderId}</li>
-//                         <li><strong>Estimated Delivery</strong>: Within 4-5 days</li>
-//                     </ul>
-//                     <p>If you have any questions, feel free to reach out to us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
-//                     <p>Best Regards, <br>The Elda Appliances Team</p>
-//                 `;
-//                 break;
-
-//             case 'delivered':
-//                 emailSubject = 'Thank You for Your Order!';
-//                 emailMessage = `
-//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
-//                     <p>We're happy to let you know that your ${order.productDetails[0].productName} has been successfully delivered! We hope it brings you joy and meets your expectations.</p>
-//                     <p>Order Details:</p>
-//                     <ul>
-//                         <li><strong>Product</strong>: ${order.productDetails[0].productName}</li>
-//                         <li><strong>Delivery Date</strong>: ${new Date().toLocaleDateString()}</li>
-//                     </ul>
-//                     <p>If you have any questions or need help with your purchase, our customer service team is here for you. Feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>. We're always happy to help!</p>
-//                     <p>Thank you for choosing Elda Appliances. We look forward to serving you again!</p>
-//                     <p>Best Regards, <br>The Elda Appliances Team</p>
-//                 `;
-//                 break;
-
-//             case 'returnAccepted':
-//                 emailSubject = 'Your Return Request Has Been Accepted';
-//                 emailMessage = `
-//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
-//                     <p>Your return request for order #${order.orderId} has been accepted. We are processing the return and will update you shortly.</p>
-//                     <p>If you have any questions or need further assistance, feel free to contact us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>.</p>
-//                     <p>Best Regards, <br>The Elda Appliances Team</p>
-//                 `;
-//                 break;
-
-//             case 'returned':
-//                 emailSubject = 'Your Order Has Been Returned';
-//                 emailMessage = `
-//                     <p>Dear <strong>${order.billing_name}</strong>,</p>
-//                     <p>Your order #${order.orderId} has been successfully returned. Thank you for your cooperation.</p>
-//                     <p>If you have any further questions, feel free to reach out to us at <strong>support@reldaindia.com</strong> or call us at <strong>9884890934</strong>.</p>
-//                     <p>Best Regards, <br>The Elda Appliances Team</p>
-//                 `;
-//                 break;
-//         }
-
-//         console.log(`Sending email to: ${order.billing_email}`);
-
-//         // Send email if email exists
-//         if (order.billing_email) {
-//             await sendEmail(order.billing_email, emailSubject, emailMessage, 'html'); // 'text' indicates plain text email
-//         } else {
-//             console.error(`No email found for order #${orderId}`);
-//         }
-
-//         return res.status(200).json({
-//             status: 'success',
-//             message: `Order #${orderId} updated to '${order_status}'.`,
-//             timestamp: formattedTimestamp,
-//             statusUpdates: order.statusUpdates,
-//         });
-
-//     } catch (error) {
-//         console.error('Error in updating order status:', error);
-//         return res.status(500).json({ status: 'failed', message: 'Internal server error' });
-//     }
-// };
-
-// exports.updateOrderStatus = async (req, res) => {
-//   const { orderId, order_status } = req.body;
-
-//   try {
-//     /* -------------------- VALIDATION -------------------- */
-//     const validStatuses = [
-//       'pending',
-//       'ordered',
-//       'packaged',
-//       'shipped',
-//       'delivered',
-//       'failed',
-//       'returnRequested',
-//       'returnAccepted',
-//       'returned',
-//     ];
-
-//     const validTransitions = {
-//       ordered: ['packaged'],
-//       packaged: ['shipped'],
-//       shipped: ['delivered', 'returnRequested'],
-//       returnRequested: ['returnAccepted'],
-//       returnAccepted: ['returned'],
-//       returned: [],
-//       delivered: [],
-//       failed: [],
-//     };
-
-//     if (!validStatuses.includes(order_status)) {
-//       return res.status(400).json({
-//         status: 'failed',
-//         message: 'Invalid status provided.',
-//       });
-//     }
-
-//     const order = await orderModel.findOne({ orderId });
-//     if (!order) {
-//       return res.status(404).json({
-//         status: 'failed',
-//         message: 'Order not found.',
-//       });
-//     }
-
-//     const currentStatus = order.order_status;
-//     const allowedStatuses = validTransitions[currentStatus] || [];
-
-//     if (!allowedStatuses.includes(order_status)) {
-//       return res.status(400).json({
-//         status: 'failed',
-//         message: `Cannot change status from '${currentStatus}' to '${order_status}'.`,
-//       });
-//     }
-
-//     /* -------------------- 🔥 ZOHO LOGIC -------------------- */
-// if (order_status === 'packaged') {
-
-//   const salesOrder = await getZohoSalesOrder(order.zohoSalesOrderId);
-
-//   const pkg = await createZohoPackage(salesOrder);
-
-//   const shipment = await createShipmentFromPackage(pkg.package_id);
-
-//   const invoice = await createInvoiceFromShipmentOrder(
-//     shipment.shipmentorder_id
-//   );
-
-//   order.zohoPackageId = pkg.package_id;
-//   order.zohoShipmentOrderId = shipment.shipmentorder_id;
-//   order.zohoInvoiceId = invoice.invoice_id;
-// }
-
-
-
-
-//     /* -------------------- UPDATE ORDER -------------------- */
-//     order.order_status = order_status;
-
-//     const statusUpdatedAt = Date.now();
-//     order.statusUpdatedAt = statusUpdatedAt;
-
-//     order.statusUpdates.push({
-//       status: order_status,
-//       updatedAt: statusUpdatedAt,
-//     });
-
-//     await order.save();
-
-//     /* -------------------- EMAIL LOGIC -------------------- */
-//     const formattedTimestamp = moment(statusUpdatedAt).format('hh:mm A');
-
-//     let emailSubject = '';
-//     let emailMessage = '';
-
-//     switch (order_status) {
-//       case 'packaged':
-//         emailSubject = 'Your Order is Packed and Ready for Shipping';
-//         emailMessage = `
-//           <p>Dear <strong>${order.billing_name}</strong>,</p>
-//           <p>Your order has been packed and is ready for shipping.</p>
-//           <ul>
-//             <li><strong>Product</strong>: ${order.productDetails[0].productName}</li>
-//             <li><strong>Order No</strong>: ${order.orderId}</li>
-//           </ul>
-//           <p>Thank you for shopping with Elda Appliances.</p>
-//         `;
-//         break;
-
-//       case 'shipped':
-//         emailSubject = 'Your Product Has Been Shipped';
-//         emailMessage = `
-//           <p>Dear <strong>${order.billing_name}</strong>,</p>
-//           <p>Your product has been shipped.</p>
-//         `;
-//         break;
-
-//       case 'delivered':
-//         emailSubject = 'Order Delivered Successfully';
-//         emailMessage = `
-//           <p>Dear <strong>${order.billing_name}</strong>,</p>
-//           <p>Your order has been delivered successfully.</p>
-//         `;
-//         break;
-
-//       case 'returnAccepted':
-//         emailSubject = 'Return Request Accepted';
-//         emailMessage = `
-//           <p>Your return request for order ${order.orderId} has been accepted.</p>
-//         `;
-//         break;
-
-//       case 'returned':
-//         emailSubject = 'Order Returned';
-//         emailMessage = `
-//           <p>Your order ${order.orderId} has been returned successfully.</p>
-//         `;
-//         break;
-//     }
-
-//     if (order.billing_email) {
-//       await sendEmail(order.billing_email, emailSubject, emailMessage, 'html');
-//     }
-
-//     /* -------------------- RESPONSE -------------------- */
-//     return res.status(200).json({
-//       status: 'success',
-//       message: `Order #${orderId} updated to '${order_status}'.`,
-//       timestamp: formattedTimestamp,
-//       statusUpdates: order.statusUpdates,
-//     });
-
-//   } catch (error) {
-//     console.error('❌ Error in updating order status:', error);
-//     return res.status(500).json({
-//       status: 'failed',
-//       message: 'Internal server error',
-//     });
-//   }
-// };
 
 exports.updateOrderStatus = async (req, res) => {
   const { orderId, order_status } = req.body;
@@ -1479,7 +2187,7 @@ if (order_status === "returnAccepted") {
             <li><strong>Order No</strong>: ${order.orderId}</li>
             <li><strong>Status Updated</strong>: ${formattedTimestamp}</li>
           </ul>
-          <p>Thank you for shopping with Relda Appliances.</p>
+          <p>Thank you for shopping with Relda India.</p>
         `;
         break;
 
@@ -1555,68 +2263,6 @@ if (order_status === "returnAccepted") {
   }
 };
 
-// exports.CancelOrder = async (req, res) => {
-//     const { orderId, cancelReason, customComment, order_status } = req.body;
-
-//     // Check if all necessary data is provided
-//     if (!orderId || !cancelReason || !order_status) {
-//         return res.status(400).json({ message: 'Missing required fields.' });
-//     }
-
-//     try {
-//         // Find the order
-//         const order = await orderModel.findOne({ orderId });
-
-//         if (!order) {
-//             return res.status(404).json({ message: 'Order not found' });
-//         }
-
-//         // Check if the order is already cancelled
-//         if (order.order_status === 'cancelled') {
-//             return res.status(400).json({ message: 'Order is already cancelled' });
-//         }
-
-
-//         // Update order status and reason
-//         order.order_status = 'cancelled';
-//         order.cancellationReason = cancelReason; // Store the cancellation reason
-//         order.customComment = customComment || ''; // Store custom comment if provided
-//         order.statusUpdates.push({
-//             status: 'cancelled',
-//             timestamp: new Date(), // Set timestamp for the cancellation status update
-//         });
-
-//         // Check if the order contains items
-//         const cartItems = order.productDetails || []; // Use the correct field for items
-
-//         if (!Array.isArray(cartItems) || cartItems.length === 0) {
-//             return res.status(400).json({ message: 'No items found in the order to cancel.' });
-//         }
-
-//         // Increase product availability
-//         await Promise.all(
-//             cartItems.map(async (item) => {
-//                 await productModel.findByIdAndUpdate(
-//                     item.productId, // Adjust field based on schema
-//                     { $inc: { availability: item.quantity } },
-//                     { new: true }
-//                 );
-//             })
-//         );
-
-//         // Save the updated order
-//         await order.save();
-
-//         // Send email notification
-//         await sendCancellationEmail(order, cancelReason, customComment);
-
-//         return res.status(200).json({ message: 'Order cancelled successfully' });
-//     } catch (err) {
-//         console.error('Error canceling order:', err);
-//         return res.status(500).json({ message: 'An error occurred while canceling the order' });
-//     }
-// };
-  // Function to send email notification
 exports.CancelOrder = async (req, res) => {
   const { orderId, cancelReason, customComment } = req.body;
 
@@ -1674,7 +2320,7 @@ exports.CancelOrder = async (req, res) => {
     If you have any questions, feel free to contact us.
   
     Best regards,
-    Elda Appliances
+    The RELDA India Team
   `;
   
     // Prepare the email content for the admin
@@ -1691,7 +2337,7 @@ exports.CancelOrder = async (req, res) => {
     Please review the order cancellation and take any necessary actions.
   
     Best regards,
-    Elda Appliances
+    The RELDA India Team
   `;
   
     // Email options for the customer

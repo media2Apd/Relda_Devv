@@ -4949,7 +4949,14 @@ const updateSerial = (productId, serial) => {
       ].every((field) => field.trim() !== "") && addressComplete
     );
   };
+// 🔥 இரண்டும் தனித்தனியாக வேலை செய்யும் (ஒன்றை ஒன்று பாதிக்காது)
+  const handleSaleInHandToggle = (checked) => {
+    setSaleInHand(checked);
+  };
 
+  const handleCashOnHandToggle = (checked) => {
+    setCashOnHand(checked);
+  };
   //  Check if the postal code is valid for Tamil Nadu (typically starts with '6')
   const isTamilNaduPostalCode = (postalCode) => {
     const pin = parseInt(postalCode);
@@ -5149,20 +5156,69 @@ const handlePaymentLink = async () => {
       toast.error(`Shipping charge: ?${shippingCharge}`);
     }
 // CASH ON HAND FLOW
-  if (cashOnHand && user?.role === ROLE.MANAGESALES) {
-     if (saleInHand) {
-    for (const item of cartItems) {
-      if (!item.serialNumber || item.serialNumber.trim() === "") {
-        toast.error(`Serial number required for ${item.productId.productName}`);
-        return;
-      }
+  // if (cashOnHand && user?.role === ROLE.MANAGESALES) {
+  //    if (saleInHand) {
+  //   for (const item of cartItems) {
+  //     if (!item.serialNumber || item.serialNumber.trim() === "") {
+  //       toast.error(`Serial number required for ${item.productId.productName}`);
+  //       return;
+  //     }
 
-      if (item.quantity > 1) {
-        toast.error("Sale In Hand supports only 1 quantity per serial product");
-        return;
+  //     if (item.quantity > 1) {
+  //       toast.error("Sale In Hand supports only 1 quantity per serial product");
+  //       return;
+  //     }
+  //   }
+  // }
+
+  //   try {
+  //     const payload = {
+  //       cartItems,
+  //       customerInfo,
+  //       billingSameAsShipping,
+  //       paymentMode: "CASH_ON_HAND",
+  //       saleInHand, // 👈 important
+  //       serialNumber: saleInHand ? cartItems[0].serialNumber : null, // 👈 important
+  //       couponCode: appliedCoupon?.coupon || null,
+  //       couponDiscount: couponDiscount
+  //     };
+
+  //     const response = await fetch(SummaryApi.payment.url, {
+  //       method: SummaryApi.payment.method,
+  //       credentials: "include",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(payload)
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (data.success) {
+  //       toast.success("Order confirmed (Cash on Hand)");
+  //       fetchUserAddToCart();
+  //       navigate("/success");
+  //     } else {
+  //       toast.error(data.message);
+  //     }
+  //   } catch (err) {
+  //     toast.error("Failed to confirm cash order");
+  //   }
+  //   return; // 🚨 STOP Razorpay
+  // }
+  // CASH ON HAND / DELIVER IN HAND FLOW
+  if ((cashOnHand || saleInHand) && user?.role === ROLE.MANAGESALES) {
+    if (saleInHand) {
+      for (const item of cartItems) {
+        if (!item.serialNumber || item.serialNumber.trim() === "") {
+          toast.error(`Serial number required for ${item.productId.productName}`);
+          return;
+        }
+
+        if (item.quantity > 1) {
+          toast.error("Sale In Hand supports only 1 quantity per serial product");
+          return;
+        }
       }
     }
-  }
 
     try {
       const payload = {
@@ -5170,8 +5226,8 @@ const handlePaymentLink = async () => {
         customerInfo,
         billingSameAsShipping,
         paymentMode: "CASH_ON_HAND",
-        saleInHand, // 👈 important
-        serialNumber: saleInHand ? cartItems[0].serialNumber : null, // 👈 important
+        saleInHand: Boolean(saleInHand),
+        serialNumber: saleInHand ? cartItems[0]?.serialNumber : null,
         couponCode: appliedCoupon?.coupon || null,
         couponDiscount: couponDiscount
       };
@@ -5186,7 +5242,7 @@ const handlePaymentLink = async () => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success("Order confirmed (Cash on Hand)");
+        toast.success(saleInHand ? "Hand Delivery Completed & Invoice Generated!" : "Order confirmed with Cash on Hand");
         fetchUserAddToCart();
         navigate("/success");
       } else {
@@ -5195,7 +5251,7 @@ const handlePaymentLink = async () => {
     } catch (err) {
       toast.error("Failed to confirm cash order");
     }
-    return; // 🚨 STOP Razorpay
+    return; // 🚨 Stop Razorpay
   }
 
     try {
@@ -5247,7 +5303,7 @@ const handlePaymentLink = async () => {
     }
         // Razorpay options for initiating the payment
         const options = {
-          // key: "rzp_live_dEoDcnBwCOkfCt", // Razorpay Live key
+          // key: "rzp_live_Teac0LB46Q0EUH", // Razorpay Live key
           key: "rzp_test_66VslSnaYXyl0i", // Razorpay test key
           amount: (totalPrice - couponDiscount) * 100, // 🔥 Updated to final amount
           currency: "INR",
@@ -5573,7 +5629,7 @@ const handlePaymentLink = async () => {
                               title={item.productId.altTitle || "product"}
                             />
                           </div>
-                          <p className="font-bold text-sm mt-1">Qty: {item.quantity}</p>
+                          {/* <p className="font-bold text-sm mt-1">Qty: {item.quantity}</p>
                           {cashOnHand && saleInHand && (
                           <div className="mt-2">
                             <input
@@ -5585,8 +5641,29 @@ const handlePaymentLink = async () => {
                               }
                               className="border p-2 rounded w-full text-sm"
                             />
-                          </div>
-                        )}
+                          </div> */}
+                          {/* Cart Item Loop உள்ளே */}
+<p className="font-bold text-sm mt-1">Qty: {item.quantity}</p>
+
+{/* 🔥 Deliver In Hand ON-ல் இருந்தால் Serial Number Input வரும் */}
+{user?.role === ROLE.MANAGESALES && saleInHand && (
+  <div className="mt-2.5 p-2.5 bg-green-50 border border-green-300 rounded-lg">
+    <label className="block text-xs font-bold text-green-800 mb-1">
+      Product Serial Number <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="text"
+      placeholder="ENTER SERIAL NUMBER"
+      value={item.serialNumber || ""}
+      onChange={(e) =>
+        updateSerial(item.productId._id, e.target.value.toUpperCase())
+      }
+      className="border border-green-400 p-2 rounded w-full text-sm font-mono font-bold uppercase bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+      required
+    />
+  </div>
+)}
+                        {/* )} */}
                         </div>
                         <p className="font-bold flex items-center">
                           <FaRupeeSign className="text-xs" />
@@ -5690,6 +5767,56 @@ const handlePaymentLink = async () => {
                   </div>
                 </div>
 
+{/* 🔥 SALES EXECUTIVE CONTROLS */}
+{user?.role === ROLE.MANAGESALES && (
+  <div className="mt-4 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl space-y-3 shadow-sm">
+    <h3 className="font-bold text-xs uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+      ⚡ Sales Executive Controls
+    </h3>
+
+    {/* Checkbox 1: Deliver in Hand */}
+    <div className={`flex items-start gap-2.5 p-3 rounded-lg border transition-all cursor-pointer ${
+      saleInHand ? "bg-green-50 border-green-400" : "bg-white border-gray-200 hover:border-gray-300"
+    }`}>
+      <input
+        type="checkbox"
+        id="saleInHand"
+        checked={saleInHand}
+        onChange={(e) => handleSaleInHandToggle(e.target.checked)}
+        className="mt-0.5 h-4 w-4 accent-green-600 cursor-pointer"
+      />
+      <label htmlFor="saleInHand" className="cursor-pointer select-none">
+        <span className="font-bold text-sm text-green-900 block">
+          Deliver in Hand / Sale In Hand
+        </span>
+        <span className="text-[11px] text-gray-500 block leading-tight mt-0.5">
+          Delivers item on the spot, requires Serial Number & auto-generates Paid Invoice.
+        </span>
+      </label>
+    </div>
+
+    {/* Checkbox 2: Cash on Hand */}
+    <div className={`flex items-start gap-2.5 p-3 rounded-lg border transition-all cursor-pointer ${
+      cashOnHand ? "bg-red-50 border-red-400" : "bg-white border-gray-200 hover:border-gray-300"
+    }`}>
+      <input
+        type="checkbox"
+        id="cashOnHand"
+        checked={cashOnHand}
+        onChange={(e) => handleCashOnHandToggle(e.target.checked)}
+        className="mt-0.5 h-4 w-4 accent-brand-primary cursor-pointer"
+      />
+      <label htmlFor="cashOnHand" className="cursor-pointer select-none">
+        <span className="font-bold text-sm text-gray-800 block">
+          Cash on Hand
+        </span>
+        <span className="text-[11px] text-gray-500 block leading-tight mt-0.5">
+          Accept physical cash payment directly from customer.
+        </span>
+      </label>
+    </div>
+  </div>
+)}
                 <button
                   onClick={handleSubmit}
                   className="mt-6 bg-brand-primary hover:bg-brand-primaryHover text-white font-bold py-2 rounded-lg w-full transition-all active:scale-95"
@@ -5708,7 +5835,7 @@ const handlePaymentLink = async () => {
                   </button>
                 )}
 
-                {user?.role === ROLE.MANAGESALES && (
+                {/* {user?.role === ROLE.MANAGESALES && (
                   <div className="flex items-center mt-4 p-2 bg-gray-50 rounded border">
                     <input
                       type="checkbox"
@@ -5735,7 +5862,7 @@ const handlePaymentLink = async () => {
                   Sale In Hand (Deliver Now)
                 </label>
               </div>
-            )}
+            )} */}
 
 
                 {paymentLoading && (

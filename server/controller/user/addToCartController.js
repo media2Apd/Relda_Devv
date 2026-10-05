@@ -108,10 +108,211 @@
 
 // module.exports = {addToCartController}
 
+// const addToCartModel = require("../../models/cartProduct");
+// const productModel = require("../../models/productModel");
+// const OrderModel = require("../../models/orderProductModel");
+// const userModel = require("../../models/userModel");
+// const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+// const addToCartController = async (req, res) => {
+//   try {
+//     const { productId } = req.body;
+//     const userId = req.userId || null;
+//     const sessionId = req.sessionId || null;
+
+//     if (!userId && !sessionId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid session"
+//       });
+//     }
+
+//     // 🔹 Product check
+//     const product = await productModel.findById(productId);
+//     if (!product) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found"
+//       });
+//     }
+
+//     const now = Date.now();
+
+//     // ====================================================
+//     // 🔒 STEP 1: CHECK ORDER HISTORY (LAST 24 HOURS ONLY)
+//     // ====================================================
+//     if (userId) {
+//       const recentOrder = await OrderModel.findOne({
+//         userId,
+//         "productDetails.productId": productId,
+//         "paymentDetails.payment_status": "success",
+//         createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
+//       }).lean();
+
+//       if (recentOrder) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "You can purchase this product again after 24 hours"
+//         });
+//       }
+//     }
+
+//     // ====================================================
+//     // 🔒 STEP 2: CHECK CART (LAST 24 HOURS ONLY) ✅ FIXED
+//     // ====================================================
+//     const cartFilter = {
+//       productId,
+//       ...(userId ? { userId } : { sessionId }),
+//       createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
+//     };
+
+//     const exists = await addToCartModel.findOne(cartFilter);
+
+//     if (exists) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "You can add this product only once every 24 hours"
+//       });
+//     }
+
+//     // ====================================================
+//     // 🔒 STEP 3: ADD TO CART (quantity ALWAYS = 1)
+//     // ====================================================
+//     const payload = {
+//       productId,
+//       category: product.category,
+//       quantity: 1,
+//       ...(userId ? { userId } : { sessionId })
+//     };
+//  // 🔥 RESERVE STOCK
+//     await productModel.findByIdAndUpdate(
+//       productId,
+//       { $inc: { reservedStock: 1 } }
+//     );
+//     const saved = await addToCartModel.create(payload);
+
+//     res.json({
+//       success: true,
+//       message: "Product added to cart",
+//       data: saved
+//     });
+
+//   } catch (err) {
+//     console.error("Add to cart error:", err);
+//     res.status(500).json({
+//       success: false,
+//       message: err.message || "Internal server error"
+//     });
+//   }
+// };
+
+// // const addToCartController = async (req, res) => {
+// //   try {
+// //     const { productId } = req.body;
+// //     const userId = req.userId || null;
+// //     const sessionId = req.sessionId || null;
+
+// //     if (!userId && !sessionId) {
+// //       return res.status(400).json({
+// //         success: false,
+// //         message: "Invalid session"
+// //       });
+// //     }
+
+// //     /* 🔥 FETCH USER ROLE (NO AUTH MIDDLEWARE TOUCH) */
+// //     const user = userId
+// //       ? await userModel.findById(userId).lean()
+// //       : null;
+
+// //     const isManageSales = user?.role === "MANAGESALES";
+
+// //     /* 🔹 Product check */
+// //     const product = await productModel.findById(productId);
+// //     if (!product) {
+// //       return res.status(404).json({
+// //         success: false,
+// //         message: "Product not found"
+// //       });
+// //     }
+
+// //     const now = Date.now();
+
+// //     /* 🔒 ORDER HISTORY CHECK (SKIP FOR MANAGESALES) */
+// //     if (userId && !isManageSales) {
+// //       const recentOrder = await OrderModel.findOne({
+// //         userId,
+// //         "productDetails.productId": productId,
+// //         "paymentDetails.payment_status": "success",
+// //         createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
+// //       }).lean();
+
+// //       if (recentOrder) {
+// //         return res.status(400).json({
+// //           success: false,
+// //           message: "You can purchase this product again after 24 hours"
+// //         });
+// //       }
+// //     }
+
+// //     /* 🔒 CART CHECK (SKIP FOR MANAGESALES) */
+// //     if (!isManageSales) {
+// //       const cartFilter = {
+// //         productId,
+// //         ...(userId ? { userId } : { sessionId }),
+// //         createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
+// //       };
+
+// //       const exists = await addToCartModel.findOne(cartFilter);
+
+// //       if (exists) {
+// //         return res.status(400).json({
+// //           success: false,
+// //           message: "You can add this product only once every 24 hours"
+// //         });
+// //       }
+// //     }
+
+// //     /* 🛒 ADD TO CART */
+// //     const payload = {
+// //       productId,
+// //       // category: product.category,
+// //        category: Array.isArray(product.category)
+// //     ? product.category
+// //     : [product.category],
+// //       quantity: 1,
+// //       ...(userId ? { userId } : { sessionId })
+// //     };
+
+// //     /* 🔥 RESERVE STOCK */
+// //     await productModel.findByIdAndUpdate(
+// //       productId,
+// //       { $inc: { reservedStock: 1 } }
+// //     );
+
+// //     const saved = await addToCartModel.create(payload);
+
+// //     return res.json({
+// //       success: true,
+// //       message: "Product added to cart",
+// //       data: saved
+// //     });
+
+// //   } catch (err) {
+// //     console.error("Add to cart error:", err);
+// //     return res.status(500).json({
+// //       success: false,
+// //       message: err.message || "Internal server error"
+// //     });
+// //   }
+// // };
+
+// module.exports = { addToCartController };
+
 const addToCartModel = require("../../models/cartProduct");
 const productModel = require("../../models/productModel");
 const OrderModel = require("../../models/orderProductModel");
 const userModel = require("../../models/userModel");
+
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
 const addToCartController = async (req, res) => {
@@ -136,12 +337,16 @@ const addToCartController = async (req, res) => {
       });
     }
 
+    // 🔹 User Role check (MANAGESALES ah nu paakrom)
+    const user = userId ? await userModel.findById(userId).lean() : null;
+    const isManageSales = user?.role?.toUpperCase() === "MANAGESALES";
+
     const now = Date.now();
 
     // ====================================================
-    // 🔒 STEP 1: CHECK ORDER HISTORY (LAST 24 HOURS ONLY)
+    // 🔒 STEP 1: CHECK ORDER HISTORY (SKIP FOR MANAGESALES)
     // ====================================================
-    if (userId) {
+    if (userId && !isManageSales) {
       const recentOrder = await OrderModel.findOne({
         userId,
         "productDetails.productId": productId,
@@ -158,25 +363,55 @@ const addToCartController = async (req, res) => {
     }
 
     // ====================================================
-    // 🔒 STEP 2: CHECK CART (LAST 24 HOURS ONLY) ✅ FIXED
+    // 🔒 STEP 2: CHECK CART (SKIP FOR MANAGESALES)
     // ====================================================
-    const cartFilter = {
+    if (!isManageSales) {
+      const cartFilter = {
+        productId,
+        ...(userId ? { userId } : { sessionId }),
+        createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
+      };
+
+      const exists = await addToCartModel.findOne(cartFilter);
+
+      if (exists) {
+        return res.status(400).json({
+          success: false,
+          message: "You can add this product only once every 24 hours"
+        });
+      }
+    }
+
+    // ====================================================
+    // 🛒 STEP 3: MANAGESALES - ALREADY IN CART CHECK
+    // ====================================================
+    // MANAGESALES user thirumba add pannina quantity +1 aagum
+    const existingCartItem = await addToCartModel.findOne({
       productId,
-      ...(userId ? { userId } : { sessionId }),
-      createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
-    };
+      ...(userId ? { userId } : { sessionId })
+    });
 
-    const exists = await addToCartModel.findOne(cartFilter);
+    if (existingCartItem && isManageSales) {
+      await productModel.findByIdAndUpdate(
+        productId,
+        { $inc: { reservedStock: 1 } }
+      );
 
-    if (exists) {
-      return res.status(400).json({
-        success: false,
-        message: "You can add this product only once every 24 hours"
+      const updatedCart = await addToCartModel.findByIdAndUpdate(
+        existingCartItem._id,
+        { $inc: { quantity: 1 } },
+        { new: true }
+      );
+
+      return res.json({
+        success: true,
+        message: "Product quantity updated in cart",
+        data: updatedCart
       });
     }
 
     // ====================================================
-    // 🔒 STEP 3: ADD TO CART (quantity ALWAYS = 1)
+    // 🛒 STEP 4: ADD TO CART (NEW ITEM)
     // ====================================================
     const payload = {
       productId,
@@ -184,14 +419,16 @@ const addToCartController = async (req, res) => {
       quantity: 1,
       ...(userId ? { userId } : { sessionId })
     };
- // 🔥 RESERVE STOCK
+
+    // 🔥 RESERVE STOCK
     await productModel.findByIdAndUpdate(
       productId,
       { $inc: { reservedStock: 1 } }
     );
+
     const saved = await addToCartModel.create(payload);
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product added to cart",
       data: saved
@@ -199,112 +436,11 @@ const addToCartController = async (req, res) => {
 
   } catch (err) {
     console.error("Add to cart error:", err);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: err.message || "Internal server error"
     });
   }
 };
 
-// const addToCartController = async (req, res) => {
-//   try {
-//     const { productId } = req.body;
-//     const userId = req.userId || null;
-//     const sessionId = req.sessionId || null;
-
-//     if (!userId && !sessionId) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid session"
-//       });
-//     }
-
-//     /* 🔥 FETCH USER ROLE (NO AUTH MIDDLEWARE TOUCH) */
-//     const user = userId
-//       ? await userModel.findById(userId).lean()
-//       : null;
-
-//     const isManageSales = user?.role === "MANAGESALES";
-
-//     /* 🔹 Product check */
-//     const product = await productModel.findById(productId);
-//     if (!product) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Product not found"
-//       });
-//     }
-
-//     const now = Date.now();
-
-//     /* 🔒 ORDER HISTORY CHECK (SKIP FOR MANAGESALES) */
-//     if (userId && !isManageSales) {
-//       const recentOrder = await OrderModel.findOne({
-//         userId,
-//         "productDetails.productId": productId,
-//         "paymentDetails.payment_status": "success",
-//         createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
-//       }).lean();
-
-//       if (recentOrder) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "You can purchase this product again after 24 hours"
-//         });
-//       }
-//     }
-
-//     /* 🔒 CART CHECK (SKIP FOR MANAGESALES) */
-//     if (!isManageSales) {
-//       const cartFilter = {
-//         productId,
-//         ...(userId ? { userId } : { sessionId }),
-//         createdAt: { $gte: new Date(now - TWENTY_FOUR_HOURS) }
-//       };
-
-//       const exists = await addToCartModel.findOne(cartFilter);
-
-//       if (exists) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "You can add this product only once every 24 hours"
-//         });
-//       }
-//     }
-
-//     /* 🛒 ADD TO CART */
-//     const payload = {
-//       productId,
-//       // category: product.category,
-//        category: Array.isArray(product.category)
-//     ? product.category
-//     : [product.category],
-//       quantity: 1,
-//       ...(userId ? { userId } : { sessionId })
-//     };
-
-//     /* 🔥 RESERVE STOCK */
-//     await productModel.findByIdAndUpdate(
-//       productId,
-//       { $inc: { reservedStock: 1 } }
-//     );
-
-//     const saved = await addToCartModel.create(payload);
-
-//     return res.json({
-//       success: true,
-//       message: "Product added to cart",
-//       data: saved
-//     });
-
-//   } catch (err) {
-//     console.error("Add to cart error:", err);
-//     return res.status(500).json({
-//       success: false,
-//       message: err.message || "Internal server error"
-//     });
-//   }
-// };
-
 module.exports = { addToCartController };
-

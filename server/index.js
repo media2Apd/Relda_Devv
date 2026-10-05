@@ -8,7 +8,7 @@ const router = require('./routes');
 const path = require('path');
 require('source-map-support').install();
 require('./controller/scheduler/dailyReportScheduler')
-// require("./cron");
+require("./cron");
 // require("./jobs/zohoProductSync.cron");
 
 

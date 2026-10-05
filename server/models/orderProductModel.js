@@ -69,6 +69,9 @@ const mongoose = require('mongoose');
 // Schema
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, required: true, unique: true },
+     // 👉 Intha 2 fields schema-la irukkanum:
+  saleInHand: { type: Boolean, default: false },
+  serialNumber: { type: String, trim: true },
     productDetails: [
         {
             productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
@@ -88,6 +91,7 @@ const orderSchema = new mongoose.Schema({
             productImage: String,
             brandName: String,
             isReturn: { type: Boolean, default: false },
+            serialNumber: { type: String, trim: true } // 👈 Idhuvum irukkanum
         }
     ],
     email: String,

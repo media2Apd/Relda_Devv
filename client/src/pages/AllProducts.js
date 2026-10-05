@@ -102,6 +102,9 @@ const AllProducts = () => {
       const res = await fetch('http://localhost:8080/api/sync-zoho-variants', {
         method: 'POST'
       })
+      //   const res = await fetch('https://relda-india.onrender.com/api/sync-zoho-variants', {
+      //   method: 'POST'
+      // })
 
       const data = await res.json()
 

@@ -88,6 +88,18 @@ const userSchema = new mongoose.Schema({
   role: { type: String, default: 'GENERAL' },
   mobile: { type: String, required: true, unique: true },
   zohoCustomerId: { type: String },
+   // 🏢 BRANDSHOP / MULTI-LOCATION SETTINGS (Only for MANAGESALES staff)
+  zohoLocationId: {
+    type: String,
+    trim: true,
+    default: null // e.g. '494000000012345' (RELDA Brandshop - 1 oda ID)
+  },
+  zohoLocationName: {
+    type: String,
+    trim: true,
+    default: null // e.g. 'RELDA Brandshop - 1'
+  },
+
   // Address fields
   addresses: [addressSchema],
   address: addressSchema,
