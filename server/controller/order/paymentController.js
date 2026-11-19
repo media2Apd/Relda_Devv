@@ -1540,6 +1540,146 @@ const verifyPayment = async (razorpayPaymentId) => {
     }
 };
 
+// exports.verifyPayment = async (req, res) => {
+//     const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
+
+//     // Check required fields
+//     if (!razorpayPaymentId || !razorpayOrderId || !cartItems || !cartItems.length || !customerInfo) {
+//         return res.status(400).json({
+//             success: false,
+//             message: 'Required fields missing or invalid'
+//         });
+//     }
+
+//     // Ensure user is authenticated
+//     if (!req.userId) {
+//         return res.status(401).json({
+//             success: false,
+//             message: 'User not authenticated'
+//         });
+//     }
+
+//     try {
+//         // Step 1: Verify payment status
+//         const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
+//         console.log('Payment Details:', paymentDetails);
+
+//         if (isPaymentCaptured) {
+//             // Step 2: Fetch the order by orderId
+//             const order = await orderModel.findOne({ orderId: razorpayOrderId });
+//             if (!order) {
+//                 return res.status(404).json({
+//                     success: false,
+//                     message: 'Order not found.'
+//                 });
+//             }
+
+//             // Step 3: Check if 'ordered' status already exists in the statusUpdates array
+//             const statusExists = order.statusUpdates.some(update => update.status === 'ordered');
+//             if (!statusExists) {
+//                 // Step 4: Update order and add 'ordered' status
+//                 const updatedAt = new Date();  // Get the current timestamp for both main document and status update
+//                 await orderModel.findOneAndUpdate(
+//                     { orderId: razorpayOrderId },
+//                     {
+//                         $set: {
+//                             'paymentDetails.paymentId': razorpayPaymentId,
+//                             'paymentDetails.payment_status': 'success',
+//                             'paymentDetails.payment_method_type': paymentMethod,
+//                             'paymentDetails.fullDetails': paymentDetails,
+//                             'order_status': 'ordered',
+//                             updatedAt: updatedAt,  // Set updatedAt here for the main order document
+//                         },
+//                         $push: {
+//                             statusUpdates: {
+//                                 status: 'ordered',
+//                                 timestamp: updatedAt,  // Set timestamp for the 'ordered' status update
+//                             },
+//                         },
+//                     }
+//                 );
+
+//                 // Step 5: Clear cart after successful payment
+//                 await addToCartModel.deleteMany({ userId: req.userId });
+//                 console.log("Cart has been cleared.");
+//             } else {
+//                 console.log("The 'ordered' status already exists.");
+//             }
+
+//             // Step 6: Calculate delivery date (4 days from now)
+//             const deliveryDate = moment().add(4, 'days').toDate();
+
+//             // Step 7: Update the order with delivery date
+//             await orderModel.updateOne(
+//                 { orderId: razorpayOrderId },
+//                 { $set: { delivered_at: deliveryDate } }
+//             );
+
+//             // Step 8: Parallelize product availability update and email sending
+//             const emailPromises = [
+//                 sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, order),
+//                 sendAdminNotificationEmail(order)
+//             ];
+
+//             // const productUpdatePromises = cartItems.map((item) =>
+//             //     productModel.findByIdAndUpdate(
+//             //         item.productId._id,
+//             //         { $inc: { availability: -1 } },
+//             //         { new: true }
+//             //     )
+//             // );
+
+            
+//             // 🔥 FETCH UPDATED ORDER & USER
+//           //  const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
+//           //   const user = await userModel.findById(fullOrder.userId);
+
+//           //   await createSalesOrderAndReleaseStock(fullOrder, user);
+//          const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
+// const customerUser = await userModel.findById(fullOrder.userId);
+// const staffUser = req.user; // role = MANAGESALES
+
+// await createSalesOrderAndReleaseStock(
+//   fullOrder,
+//   customerUser,
+//   staffUser
+// );
+
+
+
+
+//             // Handle potential errors in parallel promises
+//             try {
+//                 await Promise.all([...emailPromises]);
+//             } catch (err) {
+//                 console.error('Error processing parallel tasks:', err);
+//                 return res.status(500).json({
+//                     success: false,
+//                     message: 'Error processing parallel tasks',
+//                 });
+//             }
+
+//             return res.json({
+//                 success: true,
+//                 message: 'Payment successful and order confirmed.',
+//                 paymentMethod,
+//             });
+//         } else {
+//             // Step 9: Handle payment failure and send cart reminder
+//             await sendCartReminder(customerInfo, cartItems);
+//             return res.status(400).json({
+//                 success: false,
+//                 message: 'Payment failed. Reminder sent to complete the purchase.',
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error in verifyPayment:", error.message || error);
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message || "Internal Server Error",
+//         });
+//     }
+// };
 exports.verifyPayment = async (req, res) => {
     const { razorpayPaymentId, cartItems, customerInfo, razorpayOrderId } = req.body;
 
@@ -1560,12 +1700,12 @@ exports.verifyPayment = async (req, res) => {
     }
 
     try {
-        // Step 1: Verify payment status
+        // Step 1: Verify payment status from Razorpay
         const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
         console.log('Payment Details:', paymentDetails);
 
         if (isPaymentCaptured) {
-            // Step 2: Fetch the order by orderId
+            // Step 2: Fetch the initial order
             const order = await orderModel.findOne({ orderId: razorpayOrderId });
             if (!order) {
                 return res.status(404).json({
@@ -1574,26 +1714,27 @@ exports.verifyPayment = async (req, res) => {
                 });
             }
 
-            // Step 3: Check if 'ordered' status already exists in the statusUpdates array
+            // Step 3: Check if 'ordered' status already exists
             const statusExists = order.statusUpdates.some(update => update.status === 'ordered');
+            const updatedAt = new Date();
+
             if (!statusExists) {
-                // Step 4: Update order and add 'ordered' status
-                const updatedAt = new Date();  // Get the current timestamp for both main document and status update
+                // Step 4: Update order in DB with 'success' and 'ordered' status
                 await orderModel.findOneAndUpdate(
                     { orderId: razorpayOrderId },
                     {
                         $set: {
                             'paymentDetails.paymentId': razorpayPaymentId,
-                            'paymentDetails.payment_status': 'success',
+                            'paymentDetails.payment_status': 'success', // 👈 Success status updated
                             'paymentDetails.payment_method_type': paymentMethod,
                             'paymentDetails.fullDetails': paymentDetails,
                             'order_status': 'ordered',
-                            updatedAt: updatedAt,  // Set updatedAt here for the main order document
+                            updatedAt: updatedAt,
                         },
                         $push: {
                             statusUpdates: {
                                 status: 'ordered',
-                                timestamp: updatedAt,  // Set timestamp for the 'ordered' status update
+                                timestamp: updatedAt,
                             },
                         },
                     }
@@ -1601,7 +1742,7 @@ exports.verifyPayment = async (req, res) => {
 
                 // Step 5: Clear cart after successful payment
                 await addToCartModel.deleteMany({ userId: req.userId });
-                console.log("Cart has been cleared.");
+                console.log("🛒 Cart has been cleared.");
             } else {
                 console.log("The 'ordered' status already exists.");
             }
@@ -1615,49 +1756,30 @@ exports.verifyPayment = async (req, res) => {
                 { $set: { delivered_at: deliveryDate } }
             );
 
-            // Step 8: Parallelize product availability update and email sending
+            // 🔥 STEP 8: FETCH UPDATED 'fullOrder' (Contains latest payment_status: 'success'!)
+            const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
+            const customerUser = await userModel.findById(fullOrder.userId);
+            const staffUser = req.user; // role = MANAGESALES (if staff)
+
+            // Step 9: Send emails with latest updated order (Status will be SUCCESS in Green badge!)
             const emailPromises = [
-                sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, order),
-                sendAdminNotificationEmail(order)
+                sendOrderConfirmationEmail(customerInfo, razorpayPaymentId, fullOrder), // 👈 fullOrder passed
+                sendAdminNotificationEmail(fullOrder)                                   // 👈 fullOrder passed
             ];
 
-            // const productUpdatePromises = cartItems.map((item) =>
-            //     productModel.findByIdAndUpdate(
-            //         item.productId._id,
-            //         { $inc: { availability: -1 } },
-            //         { new: true }
-            //     )
-            // );
-
-            
-            // 🔥 FETCH UPDATED ORDER & USER
-          //  const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
-          //   const user = await userModel.findById(fullOrder.userId);
-
-          //   await createSalesOrderAndReleaseStock(fullOrder, user);
-         const fullOrder = await orderModel.findOne({ orderId: razorpayOrderId });
-const customerUser = await userModel.findById(fullOrder.userId);
-const staffUser = req.user; // role = MANAGESALES
-
-await createSalesOrderAndReleaseStock(
-  fullOrder,
-  customerUser,
-  staffUser
-);
-
-
-
-
-            // Handle potential errors in parallel promises
+            // Send emails in parallel
             try {
                 await Promise.all([...emailPromises]);
             } catch (err) {
-                console.error('Error processing parallel tasks:', err);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error processing parallel tasks',
-                });
+                console.error('Error processing confirmation emails:', err.message);
             }
+
+            // Step 10: Trigger Zoho Sales Order creation & Stock Release
+            await createSalesOrderAndReleaseStock(
+                fullOrder,
+                customerUser,
+                staffUser
+            );
 
             return res.json({
                 success: true,
@@ -1665,7 +1787,7 @@ await createSalesOrderAndReleaseStock(
                 paymentMethod,
             });
         } else {
-            // Step 9: Handle payment failure and send cart reminder
+            // Step 11: Handle payment failure
             await sendCartReminder(customerInfo, cartItems);
             return res.status(400).json({
                 success: false,
@@ -1680,7 +1802,6 @@ await createSalesOrderAndReleaseStock(
         });
     }
 };
-
 const sendOrderConfirmationEmail = async (customerInfo, razorpayPaymentId, order) => {
   try {
     const { isPaymentCaptured, paymentMethod, paymentDetails } = await verifyPayment(razorpayPaymentId);
@@ -1888,6 +2009,163 @@ const sendOrderConfirmationEmail = async (customerInfo, razorpayPaymentId, order
 
 
 
+// const sendAdminNotificationEmail = async (order) => {
+//   try {
+//     const productRows = (order.productDetails || []).map((p, idx) => `
+//       <tr>
+//         <td style="padding: 10px 14px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0;">
+//           ${idx + 1}. <strong>${p.productName}</strong>
+//           ${p.serialNumber ? `<br><span style="font-size: 11px; color: #888; font-family: monospace;">Serial: ${p.serialNumber}</span>` : ''}
+//         </td>
+//         <td style="padding: 10px 14px; font-size: 13px; color: #333; text-align: center; border-bottom: 1px solid #f0f0f0;">
+//           ${p.quantity}
+//         </td>
+//         <td style="padding: 10px 14px; font-size: 13px; color: #111; font-weight: 600; text-align: right; border-bottom: 1px solid #f0f0f0;">
+//           ₹${Number(p.sellingPrice * p.quantity).toLocaleString('en-IN')}
+//         </td>
+//       </tr>
+//     `).join('');
+
+//     const mailOptions = {
+//       from: 'support@reldaindia.com',
+//       to: 'admin@reldaindia.com, naveenkumar.r@reldaindia.com, gm@apdgroup.org, ceo@apdgroup.org ',
+//       subject: `🚨 New Order Alert: #${order.orderId} - ₹${Number(order.totalAmount).toLocaleString('en-IN')}`,
+//       html: `
+//         <!DOCTYPE html>
+//         <html>
+//         <head>
+//           <meta charset="utf-8">
+//           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//         </head>
+//         <body style="margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          
+//           <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f5f7; padding: 30px 10px;">
+//             <tr>
+//               <td align="center">
+                
+//                 <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
+                  
+//                   <!-- Top Logo Bar -->
+//                   <tr>
+//                     <td align="center" style="background-color: #ffffff; padding: 22px 20px; border-bottom: 2px solid #f2f2f2;">
+//                       <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India Pvt Ltd" style="max-width: 160px; height: auto; display: block;" />
+//                     </td>
+//                   </tr>
+
+//                   <!-- Admin Alert Header -->
+//                   <tr>
+//                     <td style="background-color: #1a1a1a; padding: 22px 25px; text-align: left; border-left: 6px solid #E60000;">
+//                       <h2 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: 700;">
+//                         ⚡ New Order Received - <span style="color: #ff4d4d;">#${order.orderId}</span>
+//                       </h2>
+//                       <p style="color: #aaa; margin: 4px 0 0; font-size: 13px;">
+//                         Processed: ${moment().format('DD MMM YYYY, hh:mm A')}
+//                       </p>
+//                     </td>
+//                   </tr>
+
+//                   <!-- Content -->
+//                   <tr>
+//                     <td style="padding: 25px;">
+                      
+//                       <!-- Customer Information Box -->
+//                       <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 10px; margin-bottom: 20px;">
+//                         <tr style="background-color: #fafbfc;">
+//                           <td colspan="2" style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; border-bottom: 1px solid #eef0f2;">
+//                             Customer Details
+//                           </td>
+//                         </tr>
+//                         <tr>
+//                           <td style="padding: 8px 14px; color: #666; font-size: 13px;">Name:</td>
+//                           <td style="padding: 8px 14px; color: #111; font-weight: 700; font-size: 13px; text-align: right;">${order.billing_name}</td>
+//                         </tr>
+//                         <tr>
+//                           <td style="padding: 8px 14px; color: #666; font-size: 13px;">Email:</td>
+//                           <td style="padding: 8px 14px; color: #111; font-weight: 600; font-size: 13px; text-align: right;">
+//                             <a href="mailto:${order.billing_email}" style="color: #E60000; text-decoration: none;">${order.billing_email}</a>
+//                           </td>
+//                         </tr>
+//                         <tr>
+//                           <td style="padding: 8px 14px; color: #666; font-size: 13px;">Phone:</td>
+//                           <td style="padding: 8px 14px; color: #111; font-weight: 600; font-size: 13px; text-align: right;">
+//                             <a href="tel:${order.billing_tel}" style="color: #111; text-decoration: none;">${order.billing_tel}</a>
+//                           </td>
+//                         </tr>
+//                         <tr>
+//                           <td style="padding: 8px 14px; color: #666; font-size: 13px;">Payment Status:</td>
+//                           <td style="padding: 8px 14px; text-align: right;">
+//                             <span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+//                               ${(order.paymentDetails?.payment_status || 'PAID').toUpperCase()}
+//                             </span>
+//                           </td>
+//                         </tr>
+//                         <tr>
+//                           <td style="padding: 8px 14px; color: #666; font-size: 13px;">Payment Mode:</td>
+//                           <td style="padding: 8px 14px; color: #111; font-weight: 600; font-size: 13px; text-align: right;">
+//                             ${order.paymentDetails?.payment_method_type || 'N/A'}
+//                           </td>
+//                         </tr>
+//                       </table>
+
+//                       <!-- Ordered Items Table -->
+//                       <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #eef0f2; border-radius: 10px; overflow: hidden; margin-bottom: 20px;">
+//                         <tr style="background-color: #fafbfc;">
+//                           <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: left; border-bottom: 1px solid #eef0f2;">Item</th>
+//                           <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: center; border-bottom: 1px solid #eef0f2;">Qty</th>
+//                           <th style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; text-align: right; border-bottom: 1px solid #eef0f2;">Amount</th>
+//                         </tr>
+//                         ${productRows}
+//                         <tr style="background-color: #fff9f9;">
+//                           <td colspan="2" style="padding: 12px 14px; font-size: 14px; font-weight: 700; color: #111;">Total Order Value:</td>
+//                           <td style="padding: 12px 14px; font-size: 18px; font-weight: 800; color: #E60000; text-align: right;">
+//                             ₹${Number(order.totalAmount).toLocaleString('en-IN')}
+//                           </td>
+//                         </tr>
+//                       </table>
+
+//                       <!-- Shipping Address Box -->
+//                       <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 10px; margin-bottom: 20px;">
+//                         <tr>
+//                           <td style="padding: 12px 14px;">
+//                             <span style="font-size: 11px; font-weight: bold; color: #777; text-transform: uppercase;">Shipping Address:</span>
+//                             <p style="margin: 4px 0 0; font-size: 13px; color: #333; line-height: 1.5;">${order.shipping_address}</p>
+//                           </td>
+//                         </tr>
+//                       </table>
+
+//                       <p style="margin: 15px 0 0; font-size: 12px; color: #888; text-align: center;">
+//                         This is an automated system notification from RELDA India Pvt Ltd Order Engine.
+//                       </p>
+
+//                     </td>
+//                   </tr>
+
+//                   <!-- Footer -->
+//                   <tr>
+//                     <td style="background-color: #1a1a1a; padding: 18px 20px; text-align: center;">
+//                       <p style="margin: 0; font-size: 11px; color: #888;">
+//                         © ${new Date().getFullYear()} RELDA India Pvt Ltd. Admin Portal.
+//                       </p>
+//                     </td>
+//                   </tr>
+
+//                 </table>
+
+//               </td>
+//             </tr>
+//           </table>
+
+//         </body>
+//         </html>
+//       `
+//     };
+
+//     await transporter.sendMail(mailOptions);
+//     console.log(`📧 Admin notification email sent for order: #${order.orderId}`);
+//   } catch (error) {
+//     console.error('Error sending admin notification email:', error.message);
+//   }
+// };
 const sendAdminNotificationEmail = async (order) => {
   try {
     const productRows = (order.productDetails || []).map((p, idx) => `
@@ -1905,9 +2183,29 @@ const sendAdminNotificationEmail = async (order) => {
       </tr>
     `).join('');
 
+    // 🔥 DYNAMIC PAYMENT STATUS & BADGE COLOR LOGIC
+    const paymentStatus = (order.paymentDetails?.payment_status || 'PENDING').toUpperCase();
+
+    let badgeBg = '#fff3e0';     // Default: Light Orange
+    let badgeColor = '#e65100';  // Dark Orange
+
+    if (['SUCCESS', 'PAID', 'CAPTURED'].includes(paymentStatus)) {
+      badgeBg = '#e8f5e9';     // Light Green
+      badgeColor = '#2e7d32';  // Dark Green
+    } else if (['FAILED', 'CANCELLED'].includes(paymentStatus)) {
+      badgeBg = '#ffebee';     // Light Red
+      badgeColor = '#c62828';  // Dark Red
+    }
+
     const mailOptions = {
-      from: 'support@reldaindia.com',
-      to: 'admin@reldaindia.com',
+      from: '"RELDA India Pvt Ltd" <support@reldaindia.com>',
+      to: [
+        'admin@reldaindia.com',
+        'naveenkumar.r@reldaindia.com',
+        'gm@apdgroup.org',
+        'ceo@apdgroup.org',
+        'mediaexecutive2.apd@gmail.com'
+      ],
       subject: `🚨 New Order Alert: #${order.orderId} - ₹${Number(order.totalAmount).toLocaleString('en-IN')}`,
       html: `
         <!DOCTYPE html>
@@ -1924,7 +2222,7 @@ const sendAdminNotificationEmail = async (order) => {
                 
                 <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
                   
-                  <!-- Top Logo Bar -->
+                  <!-- Top Logo Bar (White Background) -->
                   <tr>
                     <td align="center" style="background-color: #ffffff; padding: 22px 20px; border-bottom: 2px solid #f2f2f2;">
                       <img src="https://res.cloudinary.com/dbbebewu2/image/upload/v1790846726/Logo_sjwqqe.png" alt="RELDA India Pvt Ltd" style="max-width: 160px; height: auto; display: block;" />
@@ -1947,7 +2245,7 @@ const sendAdminNotificationEmail = async (order) => {
                   <tr>
                     <td style="padding: 25px;">
                       
-                      <!-- Customer Information Box -->
+                      <!-- Customer Details Box -->
                       <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fcfcfc; border: 1px solid #eef0f2; border-radius: 10px; margin-bottom: 20px;">
                         <tr style="background-color: #fafbfc;">
                           <td colspan="2" style="padding: 10px 14px; font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; border-bottom: 1px solid #eef0f2;">
@@ -1973,15 +2271,15 @@ const sendAdminNotificationEmail = async (order) => {
                         <tr>
                           <td style="padding: 8px 14px; color: #666; font-size: 13px;">Payment Status:</td>
                           <td style="padding: 8px 14px; text-align: right;">
-                            <span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
-                              ${(order.paymentDetails?.payment_status || 'PAID').toUpperCase()}
+                            <span style="background: ${badgeBg}; color: ${badgeColor}; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">
+                              ${paymentStatus}
                             </span>
                           </td>
                         </tr>
                         <tr>
                           <td style="padding: 8px 14px; color: #666; font-size: 13px;">Payment Mode:</td>
                           <td style="padding: 8px 14px; color: #111; font-weight: 600; font-size: 13px; text-align: right;">
-                            ${order.paymentDetails?.payment_method_type || 'N/A'}
+                            ${order.paymentDetails?.payment_method_type || 'ONLINE'}
                           </td>
                         </tr>
                       </table>
@@ -2053,7 +2351,7 @@ const sendEmail = async (email, subject, message) => {
     }
     try {
       await transporter.sendMail({
-        from: 'admin@reldaindia.com', // Sender's email
+        from: 'support@reldaindia.com', // Sender's email
         to: email, // Receiver's email
         subject: subject,
         html: message,
@@ -2342,7 +2640,7 @@ exports.CancelOrder = async (req, res) => {
   
     // Email options for the customer
   const customerMailOptions = {
-    from: 'admin@reldaindia.com',
+    from: 'support@reldaindia.com',
     to: `${order.billing_email}`, // Customer's email
     subject: 'Order Cancellation Notification',
     text: customerEmailContent, // Customer email content
@@ -2351,7 +2649,7 @@ exports.CancelOrder = async (req, res) => {
   // Email options for the admin
   const adminMailOptions = {
     from: 'support@reldaindia.com',
-    to: 'admin@reldaindia.com', // Admin email
+    to: 'admin@reldaindia.com, naveenkumar.r@reldaindia.com, gm@apdgroup.org, ceo@apdgroup.org ', // Admin emails
     subject: 'Order Cancellation Notification',
     text: adminEmailContent, // Admin email content
   };

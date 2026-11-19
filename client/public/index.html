@@ -81,6 +81,19 @@
   window.addEventListener("scroll", loadFB, { once: true });
 </script>
 
+<!-- =======================
+         OpenAI Ads Measurement Pixel for Relda India
+    ======================== -->
+    <script>
+      window.oaiq = window.oaiq || function () {
+        (window.oaiq.q = window.oaiq.q || []).push(arguments);
+      };
+      oaiq("init", { pixelId: "FW3HeFo5kRGUiAiuUT9DBU" });
+      oaiq("measure", "page_viewed"); // 👈 Automatic initial page view track
+    </script>
+    <script async src="https://bzrcdn.openai.com/sdk/oaiq.min.js"></script>
+    <!-- End OpenAI Pixel -->
+
     <!-- =======================
          Basic Meta
     ======================== -->

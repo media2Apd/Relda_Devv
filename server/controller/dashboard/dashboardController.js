@@ -192,7 +192,7 @@ exports.getDashboardCounts = async (req, res) => {
 
     // month wise counts
     const mtdUsers = await userModel.countDocuments(mtdFilter);
-    const mtdOrders = await orderModel.countDocuments({ ...mtdFilter, ...categoryFilterOrders, ...productFilter, order_status: { $ne: "Pending" } });
+    const mtdOrders = await orderModel.countDocuments({ ...mtdFilter, ...categoryFilterOrders, ...productFilter, order_status: { $ne: "pending" } });
     const mtdVisitors = visitors.reduce((count, doc) => {
       const startOfMonth = mtdFilter.createdAt.$gte;
       return count + doc.acceptanceTimestamps.filter((timestamp) => {
@@ -203,7 +203,7 @@ exports.getDashboardCounts = async (req, res) => {
 
     // Year wise Counts
     const ytdUsers = await userModel.countDocuments(ytdFilter);
-    const ytdOrders = await orderModel.countDocuments({ ...ytdFilter, ...categoryFilterOrders, ...productFilter, order_status: { $ne: "Pending" } });
+    const ytdOrders = await orderModel.countDocuments({ ...ytdFilter, ...categoryFilterOrders, ...productFilter, order_status: { $ne: "pending" } });
 
     const ytdVisitors = visitors.reduce((count, doc) => {
       const ytdStart = ytdFilter.createdAt.$gte;
@@ -247,7 +247,7 @@ exports.getDashboardCounts = async (req, res) => {
       const { statusUpdates, productDetails, order_status } = order;
 
     // Update Pending Status Count
-    if (order_status === 'Pending') {
+    if (order_status === 'pending') {
         statusCounts.pending++;
     }
 
@@ -289,8 +289,8 @@ exports.getDashboardCounts = async (req, res) => {
         0
       );
 
-      // Total Sales Calculations and Skip sales calculations for orders with 'Pending' status
-      if (order_status !== 'Pending') {
+      // Total Sales Calculations and Skip sales calculations for orders with 'pending' status
+      if (order_status !== 'pending') {
 
         salesAmount += categoryTotalAmount;
         if (new Date(order.createdAt) >= mtdFilter.createdAt.$gte && new Date(order.createdAt) <= mtdFilter.createdAt.$lte) {
