@@ -1,7 +1,11 @@
-const AuthorizedBrandShop = require("../../models/authorizeBrandShop.js");
-const { upload, deleteMultipleFromCloudinary } = require("../../config/cloudinaryUpload.js");
 
-// Multer middleware for brand shop fields
+const AuthorizedBrandShop = require("../../models/authorizeBrandShop.js");
+const {
+  upload,
+  deleteMultipleFromCloudinary
+} = require("../../config/cloudinaryUpload.js");
+
+// Multer middleware for admin document uploads
 const uploadBrandShopFields = upload.fields([
   { name: "shopFrontPhoto", maxCount: 1 },
   { name: "shopInteriorPhotos", maxCount: 1 },
@@ -9,48 +13,33 @@ const uploadBrandShopFields = upload.fields([
   { name: "ownershipProof", maxCount: 1 }
 ]);
 
-// Create Brand Shop
+// Create Brand Shop - Website (Only 5 fields)
 const create = async (req, res) => {
   try {
-    const data = req.body;
-    
-    // Handle file uploads
-    if (req.files) {
-      const documentSnapshot = {};
-      
-      for (const [fieldName, files] of Object.entries(req.files)) {
-        if (files && files.length > 0) {
-          const file = files[0];
-          documentSnapshot[fieldName] = {
-            url: file.path,
-            publicId: file.filename,
-            type: file.mimetype
-          };
-        }
-      }
-      
-      data.documentSnapshot = [documentSnapshot];
-    }
+    const {
+      proprietorName,
+      email,
+      mobile,
+      city,
+      state
+    } = req.body;
 
-    const newBrandShop = new AuthorizedBrandShop(data);
-    const saved = await newBrandShop.save();
-    
-    res.status(201).json({
-      success: true,
-      message: "Authorized brand shop created successfully",
-      data: saved
+    const newBrandShop = await AuthorizedBrandShop.create({
+      proprietorName,
+      email,
+      mobile,
+      city,
+      state
     });
+
+    return res.status(201).json({
+      success: true,
+      message: "Authorized brand shop application submitted successfully",
+      data: newBrandShop
+    });
+
   } catch (error) {
-    // Clean up uploaded files if error occurs
-    if (req.files) {
-      const publicIds = Object.values(req.files)
-        .flat()
-        .filter(file => file.filename)
-        .map(file => file.filename);
-      await deleteMultipleFromCloudinary(publicIds);
-    }
-    
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error creating authorized brand shop",
       error: error.message
@@ -61,15 +50,17 @@ const create = async (req, res) => {
 // Get all brand shops
 const getAll = async (req, res) => {
   try {
-    const brandShops = await AuthorizedBrandShop.find().sort({ createdAt: -1 });
-    
-    res.status(200).json({
+    const brandShops = await AuthorizedBrandShop.find()
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
       success: true,
       message: "Authorized brand shops retrieved successfully",
       data: brandShops
     });
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error fetching authorized brand shops",
       error: error.message
@@ -81,22 +72,24 @@ const getAll = async (req, res) => {
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const brandShop = await AuthorizedBrandShop.findById(id);
-    
+
     if (!brandShop) {
       return res.status(404).json({
         success: false,
         message: "Authorized brand shop not found"
       });
     }
-    
-    res.status(200).json({
+
+    return res.status(200).json({
       success: true,
       message: "Authorized brand shop retrieved successfully",
       data: brandShop
     });
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error fetching authorized brand shop",
       error: error.message
@@ -104,13 +97,15 @@ const getById = async (req, res) => {
   }
 };
 
-// Update brand shop
+// Update Brand Shop - Admin
 const update = async (req, res) => {
+  let uploadedPublicIds = [];
+
   try {
     const { id } = req.params;
-    const updateData = req.body;
 
     const existingBrandShop = await AuthorizedBrandShop.findById(id);
+
     if (!existingBrandShop) {
       return res.status(404).json({
         success: false,
@@ -118,19 +113,30 @@ const update = async (req, res) => {
       });
     }
 
-    // Handle file uploads
-    if (req.files) {
-      const documentSnapshot = existingBrandShop.documentSnapshot?.[0] || {};
-      const oldPublicIds = [];
-      
+    // Accept all admin-updatable fields
+    const updateData = { ...req.body };
+
+    let oldPublicIds = [];
+
+    // Handle document uploads
+    if (req.files && Object.keys(req.files).length > 0) {
+
+      const documentSnapshot =
+        existingBrandShop.documentSnapshot?.[0]?.toObject?.() ||
+        existingBrandShop.documentSnapshot?.[0] ||
+        {};
+
       for (const [fieldName, files] of Object.entries(req.files)) {
         if (files && files.length > 0) {
           const file = files[0];
-          
+
+          // Track previous file for deletion after successful update
           if (documentSnapshot[fieldName]?.publicId) {
             oldPublicIds.push(documentSnapshot[fieldName].publicId);
           }
-          
+
+          uploadedPublicIds.push(file.filename);
+
           documentSnapshot[fieldName] = {
             url: file.path,
             publicId: file.filename,
@@ -138,36 +144,47 @@ const update = async (req, res) => {
           };
         }
       }
-      
-      if (oldPublicIds.length > 0) {
-        await deleteMultipleFromCloudinary(oldPublicIds);
-      }
-      
+
       updateData.documentSnapshot = [documentSnapshot];
     }
 
+    // Update the same application using its ID
     const updated = await AuthorizedBrandShop.findByIdAndUpdate(
       id,
-      updateData,
-      { new: true, runValidators: true }
+      { $set: updateData },
+      {
+        new: true,
+        runValidators: true
+      }
     );
-    
-    res.status(200).json({
+
+    if (!updated) {
+      throw new Error("Unable to update authorized brand shop");
+    }
+
+    // Delete old Cloudinary files only after successful database update
+    if (oldPublicIds.length > 0) {
+      await deleteMultipleFromCloudinary(oldPublicIds);
+    }
+
+    return res.status(200).json({
       success: true,
       message: "Authorized brand shop updated successfully",
       data: updated
     });
+
   } catch (error) {
-    // Clean up uploaded files if error occurs
-    if (req.files) {
-      const publicIds = Object.values(req.files)
-        .flat()
-        .filter(file => file.filename)
-        .map(file => file.filename);
-      await deleteMultipleFromCloudinary(publicIds);
+
+    // Clean up newly uploaded files if update fails
+    if (uploadedPublicIds.length > 0) {
+      try {
+        await deleteMultipleFromCloudinary(uploadedPublicIds);
+      } catch (cleanupError) {
+        console.error("Cloudinary cleanup error:", cleanupError.message);
+      }
     }
-    
-    res.status(500).json({
+
+    return res.status(500).json({
       success: false,
       message: "Error updating authorized brand shop",
       error: error.message
@@ -175,12 +192,13 @@ const update = async (req, res) => {
   }
 };
 
-// Delete brand shop
+// Delete Brand Shop
 const deleteBrandShop = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const brandShop = await AuthorizedBrandShop.findById(id);
+
     if (!brandShop) {
       return res.status(404).json({
         success: false,
@@ -188,29 +206,43 @@ const deleteBrandShop = async (req, res) => {
       });
     }
 
-    // Delete all associated files from Cloudinary
-    if (brandShop.documentSnapshot && brandShop.documentSnapshot.length > 0) {
+    // Collect Cloudinary public IDs
+    const publicIds = [];
+
+    if (brandShop.documentSnapshot?.length > 0) {
       const docs = brandShop.documentSnapshot[0];
-      const publicIds = [];
-      
-      if (docs.shopFrontPhoto?.publicId) publicIds.push(docs.shopFrontPhoto.publicId);
-      if (docs.shopInteriorPhotos?.publicId) publicIds.push(docs.shopInteriorPhotos.publicId);
-      if (docs.gstCertificate?.publicId) publicIds.push(docs.gstCertificate.publicId);
-      if (docs.ownershipProof?.publicId) publicIds.push(docs.ownershipProof.publicId);
-      
-      if (publicIds.length > 0) {
-        await deleteMultipleFromCloudinary(publicIds);
+
+      if (docs.shopFrontPhoto?.publicId) {
+        publicIds.push(docs.shopFrontPhoto.publicId);
+      }
+
+      if (docs.shopInteriorPhotos?.publicId) {
+        publicIds.push(docs.shopInteriorPhotos.publicId);
+      }
+
+      if (docs.gstCertificate?.publicId) {
+        publicIds.push(docs.gstCertificate.publicId);
+      }
+
+      if (docs.ownershipProof?.publicId) {
+        publicIds.push(docs.ownershipProof.publicId);
       }
     }
 
     await AuthorizedBrandShop.findByIdAndDelete(id);
-    
-    res.status(200).json({
+
+    // Delete associated Cloudinary files
+    if (publicIds.length > 0) {
+      await deleteMultipleFromCloudinary(publicIds);
+    }
+
+    return res.status(200).json({
       success: true,
       message: "Authorized brand shop deleted successfully"
     });
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error deleting authorized brand shop",
       error: error.message

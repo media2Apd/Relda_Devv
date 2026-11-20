@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const documentSnapshotSchema = new mongoose.Schema({
@@ -10,7 +11,7 @@ const documentSnapshotSchema = new mongoose.Schema({
 
 const serviceCenterSchema = new mongoose.Schema(
   {
-    // Basic Information
+    // Initial Website Form Fields
     serviceCenterName: {
       type: String,
       required: [true, "Service center name is required"],
@@ -26,29 +27,16 @@ const serviceCenterSchema = new mongoose.Schema(
       required: [true, "Mobile number is required"],
       trim: true
     },
-    whatsapp: {
-      type: String,
-      trim: true
-    },
     email: {
       type: String,
+      required: [true, "Email is required"],
       trim: true,
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"]
     },
-    address: {
-      type: String,
-      required: [true, "Complete address is required"],
-      trim: true
-    },
     city: {
       type: String,
       required: [true, "City is required"],
-      trim: true
-    },
-    district: {
-      type: String,
-      required: [true, "District is required"],
       trim: true
     },
     state: {
@@ -56,23 +44,20 @@ const serviceCenterSchema = new mongoose.Schema(
       required: [true, "State is required"],
       trim: true
     },
-    gstNumber: {
-      type: String,
-      trim: true
-    },
-    establishmentYear: {
-      type: String,
-      trim: true
-    },
 
-    // Technician Details
+    // Additional Information (Admin Update)
+    whatsapp: { type: String, default: null, trim: true },
+    address: { type: String, default: null, trim: true },
+    district: { type: String, default: null, trim: true },
+    gstNumber: { type: String, default: null, trim: true },
+    establishmentYear: { type: String, default: null, trim: true },
+
     technicians: {
       type: String,
       enum: ["1-2", "3-5", "6-10", "Above 10"],
-      required: [true, "Number of technicians is required"]
+      default: null
     },
 
-    // Service Categories
     productCategories: {
       type: [String],
       enum: [
@@ -86,45 +71,36 @@ const serviceCenterSchema = new mongoose.Schema(
         "Small Home Appliances",
         "Others"
       ],
-      required: [true, "Product categories are required"]
-    },
-    otherCategory: {
-      type: String,
-      trim: true
+      default: null
     },
 
-    // Existing Brands
-    existingBrands: {
-      type: String,
-      trim: true
-    },
+    otherCategory: { type: String, default: null, trim: true },
+    existingBrands: { type: String, default: null, trim: true },
 
-    // Services Offered
     warrantyService: {
       type: String,
-      enum: ["Yes", "No"]
+      enum: ["Yes", "No"],
+      default: null
     },
     inShopService: {
       type: String,
-      enum: ["Yes", "No"]
+      enum: ["Yes", "No"],
+      default: null
     },
     pickupDelivery: {
       type: String,
-      enum: ["Yes", "No"]
-    },
-    serviceAreas: {
-      type: String,
-      trim: true
+      enum: ["Yes", "No"],
+      default: null
     },
 
-    // Documents
-    documentSnapshot: [documentSnapshotSchema],
+    serviceAreas: { type: String, default: null, trim: true },
 
-    // Additional Information
-    reason: {
-      type: String,
-      trim: true
+    documentSnapshot: {
+      type: [documentSnapshotSchema],
+      default: null
     },
+
+    reason: { type: String, default: null, trim: true },
 
     // Status
     status: {
@@ -138,6 +114,9 @@ const serviceCenterSchema = new mongoose.Schema(
   }
 );
 
-const authorizeServiceCenter = mongoose.model("authorizeServiceCenter", serviceCenterSchema);
+const authorizeServiceCenter = mongoose.model(
+  "authorizeServiceCenter",
+  serviceCenterSchema
+);
 
 module.exports = authorizeServiceCenter;

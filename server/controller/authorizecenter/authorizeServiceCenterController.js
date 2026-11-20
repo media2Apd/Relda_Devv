@@ -1,7 +1,11 @@
-const ServiceCenter = require("../../models/authorizeServiceCenter.js");
-const { upload, deleteMultipleFromCloudinary } = require("../../config/cloudinaryUpload.js");
 
-// Multer middleware for service center fields
+const ServiceCenter = require("../../models/authorizeServiceCenter.js");
+const {
+  upload,
+  deleteMultipleFromCloudinary
+} = require("../../config/cloudinaryUpload.js");
+
+// Multer middleware
 const uploadServiceCenterFields = upload.fields([
   { name: "serviceCenterPhotos", maxCount: 1 }
 ]);
@@ -9,49 +13,47 @@ const uploadServiceCenterFields = upload.fields([
 // Create Service Center
 const create = async (req, res) => {
   try {
-    const data = req.body;
-    
-    // Handle file uploads
-    if (req.files) {
-      const documentSnapshot = {};
-      
-      for (const [fieldName, files] of Object.entries(req.files)) {
-        if (files && files.length > 0) {
-          const file = files[0];
-          documentSnapshot[fieldName] = {
-            url: file.path,
-            publicId: file.filename,
-            type: file.mimetype
-          };
-        }
-      }
-      
-      data.documentSnapshot = [documentSnapshot];
+    const {
+      serviceCenterName,
+      contactPerson,
+      mobile,
+      email,
+      city,
+      state
+    } = req.body;
+
+    if (
+      !serviceCenterName ||
+      !contactPerson ||
+      !mobile ||
+      !email ||
+      !city ||
+      !state
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Service center name, contact person, mobile, email, city and state are required"
+      });
     }
 
-    // Parse JSON arrays if they come as strings
-    if (data.productCategories && typeof data.productCategories === "string") {
-      data.productCategories = JSON.parse(data.productCategories);
-    }
+    const data = {
+      serviceCenterName,
+      contactPerson,
+      mobile,
+      email,
+      city,
+      state
+    };
 
-    const newServiceCenter = new ServiceCenter(data);
-    const saved = await newServiceCenter.save();
-    
+    const saved = await new ServiceCenter(data).save();
+
     res.status(201).json({
       success: true,
       message: "Service center created successfully",
       data: saved
     });
+
   } catch (error) {
-    // Clean up uploaded files if error occurs
-    if (req.files) {
-      const publicIds = Object.values(req.files)
-        .flat()
-        .filter(file => file.filename)
-        .map(file => file.filename);
-      await deleteMultipleFromCloudinary(publicIds);
-    }
-    
     res.status(500).json({
       success: false,
       message: "Error creating service center",
@@ -64,12 +66,13 @@ const create = async (req, res) => {
 const getAll = async (req, res) => {
   try {
     const serviceCenters = await ServiceCenter.find().sort({ createdAt: -1 });
-    
+
     res.status(200).json({
       success: true,
       message: "Service centers retrieved successfully",
       data: serviceCenters
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -83,20 +86,22 @@ const getAll = async (req, res) => {
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const serviceCenter = await ServiceCenter.findById(id);
-    
+
     if (!serviceCenter) {
       return res.status(404).json({
         success: false,
         message: "Service center not found"
       });
     }
-    
+
     res.status(200).json({
       success: true,
       message: "Service center retrieved successfully",
       data: serviceCenter
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -108,11 +113,14 @@ const getById = async (req, res) => {
 
 // Update service center
 const update = async (req, res) => {
+  let newPublicIds = [];
+
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData = { ...req.body };
 
     const existingServiceCenter = await ServiceCenter.findById(id);
+
     if (!existingServiceCenter) {
       return res.status(404).json({
         success: false,
@@ -120,60 +128,66 @@ const update = async (req, res) => {
       });
     }
 
+    // Parse productCategories
+    if (
+      updateData.productCategories &&
+      typeof updateData.productCategories === "string"
+    ) {
+      updateData.productCategories = JSON.parse(updateData.productCategories);
+    }
+
+    const oldPublicIds = [];
+
+    const documentSnapshot =
+      existingServiceCenter.documentSnapshot?.[0]?.toObject
+        ? existingServiceCenter.documentSnapshot[0].toObject()
+        : { ...(existingServiceCenter.documentSnapshot?.[0] || {}) };
+
     // Handle file uploads
     if (req.files) {
-      const documentSnapshot = existingServiceCenter.documentSnapshot?.[0] || {};
-      const oldPublicIds = [];
-      
       for (const [fieldName, files] of Object.entries(req.files)) {
         if (files && files.length > 0) {
           const file = files[0];
-          
+
           if (documentSnapshot[fieldName]?.publicId) {
             oldPublicIds.push(documentSnapshot[fieldName].publicId);
           }
-          
+
           documentSnapshot[fieldName] = {
             url: file.path,
             publicId: file.filename,
             type: file.mimetype
           };
+
+          newPublicIds.push(file.filename);
         }
       }
-      
-      if (oldPublicIds.length > 0) {
-        await deleteMultipleFromCloudinary(oldPublicIds);
-      }
-      
-      updateData.documentSnapshot = [documentSnapshot];
-    }
 
-    // Parse JSON arrays if they come as strings
-    if (updateData.productCategories && typeof updateData.productCategories === "string") {
-      updateData.productCategories = JSON.parse(updateData.productCategories);
+      updateData.documentSnapshot = [documentSnapshot];
     }
 
     const updated = await ServiceCenter.findByIdAndUpdate(
       id,
-      updateData,
+      { $set: updateData },
       { new: true, runValidators: true }
     );
-    
+
+    // Delete old files only after successful database update
+    if (oldPublicIds.length > 0) {
+      await deleteMultipleFromCloudinary(oldPublicIds);
+    }
+
     res.status(200).json({
       success: true,
       message: "Service center updated successfully",
       data: updated
     });
+
   } catch (error) {
-    // Clean up uploaded files if error occurs
-    if (req.files) {
-      const publicIds = Object.values(req.files)
-        .flat()
-        .filter(file => file.filename)
-        .map(file => file.filename);
-      await deleteMultipleFromCloudinary(publicIds);
+    if (newPublicIds.length > 0) {
+      await deleteMultipleFromCloudinary(newPublicIds);
     }
-    
+
     res.status(500).json({
       success: false,
       message: "Error updating service center",
@@ -186,8 +200,9 @@ const update = async (req, res) => {
 const deleteServiceCenter = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const serviceCenter = await ServiceCenter.findById(id);
+
     if (!serviceCenter) {
       return res.status(404).json({
         success: false,
@@ -195,24 +210,24 @@ const deleteServiceCenter = async (req, res) => {
       });
     }
 
-    // Delete all associated files from Cloudinary
-    if (serviceCenter.documentSnapshot && serviceCenter.documentSnapshot.length > 0) {
-      const docs = serviceCenter.documentSnapshot[0];
-      const publicIds = [];
-      
-      if (docs.serviceCenterPhotos?.publicId) publicIds.push(docs.serviceCenterPhotos.publicId);
-      
-      if (publicIds.length > 0) {
-        await deleteMultipleFromCloudinary(publicIds);
-      }
+    const docs = serviceCenter.documentSnapshot?.[0];
+    const publicIds = [];
+
+    if (docs?.serviceCenterPhotos?.publicId) {
+      publicIds.push(docs.serviceCenterPhotos.publicId);
     }
 
     await ServiceCenter.findByIdAndDelete(id);
-    
+
+    if (publicIds.length > 0) {
+      await deleteMultipleFromCloudinary(publicIds);
+    }
+
     res.status(200).json({
       success: true,
       message: "Service center deleted successfully"
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
