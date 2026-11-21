@@ -1,19 +1,58 @@
 
 const AuthorizedBrandShop = require("../../models/authorizeBrandShop.js");
+
 const {
   upload,
-  deleteMultipleFromCloudinary
+  deleteMultipleFromCloudinary,
 } = require("../../config/cloudinaryUpload.js");
+
+const sendApplicationNotification = require("../../utils/sendApplicationNotification.js");
 
 // Multer middleware for admin document uploads
 const uploadBrandShopFields = upload.fields([
   { name: "shopFrontPhoto", maxCount: 1 },
   { name: "shopInteriorPhotos", maxCount: 1 },
   { name: "gstCertificate", maxCount: 1 },
-  { name: "ownershipProof", maxCount: 1 }
+  { name: "ownershipProof", maxCount: 1 },
 ]);
 
-// Create Brand Shop - Website (Only 5 fields)
+// Notification configuration
+const APPLICATION_TYPE = "Authorized Brand Shop";
+
+const ADMIN_EMAILS = [
+  process.env.ADMIN_EMAIL,
+  process.env.ADMIN_EMAIL_2,
+  process.env.ADMIN_EMAIL_3,
+].filter(Boolean);
+
+// Common notification helper
+const notifyApplication = async (event, application) => {
+  try {
+    if (!application) {
+      console.warn(
+        `Brand Shop ${event} notification skipped: application missing`
+      );
+      return;
+    }
+
+    await sendApplicationNotification({
+      event,
+      customerEmail: application.email,
+      customerName: application.proprietorName,
+      applicationType: APPLICATION_TYPE,
+      applicationId: application._id,
+      rejectionReason: application.rejectionReason,
+      adminEmails: ADMIN_EMAILS,
+    });
+  } catch (error) {
+    console.error(
+      `Brand Shop ${event} notification failed:`,
+      error.message
+    );
+  }
+};
+
+// Create Brand Shop - Website
 const create = async (req, res) => {
   try {
     const {
@@ -21,7 +60,7 @@ const create = async (req, res) => {
       email,
       mobile,
       city,
-      state
+      state,
     } = req.body;
 
     const newBrandShop = await AuthorizedBrandShop.create({
@@ -29,20 +68,22 @@ const create = async (req, res) => {
       email,
       mobile,
       city,
-      state
+      state,
     });
+
+    // Customer + Admin notification
+    await notifyApplication("SUBMITTED", newBrandShop);
 
     return res.status(201).json({
       success: true,
       message: "Authorized brand shop application submitted successfully",
-      data: newBrandShop
+      data: newBrandShop,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error creating authorized brand shop",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -50,20 +91,20 @@ const create = async (req, res) => {
 // Get all brand shops
 const getAll = async (req, res) => {
   try {
-    const brandShops = await AuthorizedBrandShop.find()
-      .sort({ createdAt: -1 });
+    const brandShops = await AuthorizedBrandShop.find().sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json({
       success: true,
       message: "Authorized brand shops retrieved successfully",
-      data: brandShops
+      data: brandShops,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error fetching authorized brand shops",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -78,21 +119,20 @@ const getById = async (req, res) => {
     if (!brandShop) {
       return res.status(404).json({
         success: false,
-        message: "Authorized brand shop not found"
+        message: "Authorized brand shop not found",
       });
     }
 
     return res.status(200).json({
       success: true,
       message: "Authorized brand shop retrieved successfully",
-      data: brandShop
+      data: brandShop,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error fetching authorized brand shop",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -109,18 +149,20 @@ const update = async (req, res) => {
     if (!existingBrandShop) {
       return res.status(404).json({
         success: false,
-        message: "Authorized brand shop not found"
+        message: "Authorized brand shop not found",
       });
     }
 
-    // Accept all admin-updatable fields
     const updateData = { ...req.body };
+
+    // Status and rejection reason must be changed through updateStatus
+    delete updateData.status;
+    delete updateData.rejectionReason;
 
     let oldPublicIds = [];
 
     // Handle document uploads
     if (req.files && Object.keys(req.files).length > 0) {
-
       const documentSnapshot =
         existingBrandShop.documentSnapshot?.[0]?.toObject?.() ||
         existingBrandShop.documentSnapshot?.[0] ||
@@ -130,7 +172,6 @@ const update = async (req, res) => {
         if (files && files.length > 0) {
           const file = files[0];
 
-          // Track previous file for deletion after successful update
           if (documentSnapshot[fieldName]?.publicId) {
             oldPublicIds.push(documentSnapshot[fieldName].publicId);
           }
@@ -140,7 +181,7 @@ const update = async (req, res) => {
           documentSnapshot[fieldName] = {
             url: file.path,
             publicId: file.filename,
-            type: file.mimetype
+            type: file.mimetype,
           };
         }
       }
@@ -148,13 +189,12 @@ const update = async (req, res) => {
       updateData.documentSnapshot = [documentSnapshot];
     }
 
-    // Update the same application using its ID
     const updated = await AuthorizedBrandShop.findByIdAndUpdate(
       id,
       { $set: updateData },
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
 
@@ -162,32 +202,113 @@ const update = async (req, res) => {
       throw new Error("Unable to update authorized brand shop");
     }
 
-    // Delete old Cloudinary files only after successful database update
+    // Delete old Cloudinary files after successful database update
     if (oldPublicIds.length > 0) {
-      await deleteMultipleFromCloudinary(oldPublicIds);
+      try {
+        await deleteMultipleFromCloudinary(oldPublicIds);
+      } catch (cleanupError) {
+        console.error(
+          "Old Cloudinary document cleanup failed:",
+          cleanupError.message
+        );
+      }
     }
+
+    // Admin notification only
+    await notifyApplication("UPDATED", updated);
 
     return res.status(200).json({
       success: true,
       message: "Authorized brand shop updated successfully",
-      data: updated
+      data: updated,
     });
-
   } catch (error) {
-
     // Clean up newly uploaded files if update fails
     if (uploadedPublicIds.length > 0) {
       try {
         await deleteMultipleFromCloudinary(uploadedPublicIds);
       } catch (cleanupError) {
-        console.error("Cloudinary cleanup error:", cleanupError.message);
+        console.error(
+          "Cloudinary cleanup error:",
+          cleanupError.message
+        );
       }
     }
 
     return res.status(500).json({
       success: false,
       message: "Error updating authorized brand shop",
-      error: error.message
+      error: error.message,
+    });
+  }
+};
+
+// Update Brand Shop Status - Admin
+const updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, rejectionReason } = req.body;
+
+    const allowedStatuses = ["Pending", "Approved", "Rejected"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid brand shop status",
+      });
+    }
+
+    if (
+      status === "Rejected" &&
+      (!rejectionReason || !rejectionReason.trim())
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Rejection reason is required",
+      });
+    }
+
+    const existingBrandShop =
+      await AuthorizedBrandShop.findById(id);
+
+    if (!existingBrandShop) {
+      return res.status(404).json({
+        success: false,
+        message: "Authorized brand shop not found",
+      });
+    }
+
+    const previousStatus = existingBrandShop.status;
+
+    existingBrandShop.status = status;
+
+    if (status === "Rejected") {
+      existingBrandShop.rejectionReason = rejectionReason.trim();
+    } else if (status === "Approved") {
+      existingBrandShop.rejectionReason = "";
+    }
+
+    await existingBrandShop.save();
+
+    // Send email only when status actually changes
+    if (previousStatus !== status) {
+      if (status === "Approved") {
+        await notifyApplication("APPROVED", existingBrandShop);
+      } else if (status === "Rejected") {
+        await notifyApplication("REJECTED", existingBrandShop);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Brand shop status updated successfully",
+      data: existingBrandShop,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error updating brand shop status",
+      error: error.message,
     });
   }
 };
@@ -202,7 +323,7 @@ const deleteBrandShop = async (req, res) => {
     if (!brandShop) {
       return res.status(404).json({
         success: false,
-        message: "Authorized brand shop not found"
+        message: "Authorized brand shop not found",
       });
     }
 
@@ -233,19 +354,25 @@ const deleteBrandShop = async (req, res) => {
 
     // Delete associated Cloudinary files
     if (publicIds.length > 0) {
-      await deleteMultipleFromCloudinary(publicIds);
+      try {
+        await deleteMultipleFromCloudinary(publicIds);
+      } catch (cleanupError) {
+        console.error(
+          "Cloudinary document deletion failed:",
+          cleanupError.message
+        );
+      }
     }
 
     return res.status(200).json({
       success: true,
-      message: "Authorized brand shop deleted successfully"
+      message: "Authorized brand shop deleted successfully",
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error deleting authorized brand shop",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -256,5 +383,6 @@ module.exports = {
   getAll,
   getById,
   update,
-  deleteBrandShop
+  updateStatus,
+  deleteBrandShop,
 };

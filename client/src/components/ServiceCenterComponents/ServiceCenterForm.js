@@ -573,8 +573,6 @@
 //     );
 // }
 
-
-
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -589,43 +587,36 @@ const initialState = {
   state: "",
 };
 
-const inputClass =
-  "w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#777777]/50 transition-colors duration-200";
-
-function Field({ label, required, error, children, full }) {
-  return (
-    <div className={full ? "col-span-1 md:col-span-2" : "col-span-1"}>
-      <label className="block text-sm font-medium mb-1">
-        {label}
-        {required && <span className="text-[#E60000] ml-0.5">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-xs text-[#E60000] mt-1">{error}</p>}
-    </div>
-  );
-}
-
-function TextInput({ placeholder, type = "text", value, onChange, error }) {
-  return (
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className={`${inputClass} ${error ? "border-[#E60000]" : "border-gray-300"}`}
-    />
-  );
-}
+const PERKS = [
+  {
+    title: "Authorized warranty & repair network",
+    desc: "Handle service requests for Relda televisions, fans and kitchen appliances.",
+  },
+  {
+    title: "Spare parts & technical support",
+    desc: "Direct access to genuine spares, service manuals and escalation support.",
+  },
+  {
+    title: "Technician product training",
+    desc: "Hands-on product and troubleshooting training for your service team.",
+  },
+];
 
 export default function ServiceCenterForm() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [submittedFirstName, setSubmittedFirstName] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const setFromEvent = (field) => (e) => {
-    setForm((f) => ({ ...f, [field]: e.target.value }));
+  const handleChange = (field) => (e) => {
+    let value = e.target.value;
+    if (field === "mobile") {
+      value = value.replace(/\D/g, "").slice(0, 10);
+    }
+
+    setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -665,7 +656,8 @@ export default function ServiceCenterForm() {
     return e;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const foundErrors = validate();
     setErrors(foundErrors);
     setSubmitError("");
@@ -698,6 +690,8 @@ export default function ServiceCenterForm() {
       });
 
       if (response.status === 200 || response.status === 201) {
+        const firstName = form.contactPerson.trim().split(" ")[0];
+        setSubmittedFirstName(firstName);
         setSubmitted(true);
         toast.success("Your application has been submitted successfully.");
         setForm(initialState);
@@ -714,113 +708,275 @@ export default function ServiceCenterForm() {
     }
   };
 
+  const inputBaseClass = (hasError) =>
+    `w-full bg-white text-[#1E1E22] placeholder-[#8F8992] border-[1.5px] rounded-xl px-3.5 py-3 min-h-[48px] text-[15px] transition-all duration-150 focus:outline-none focus:ring-4 ${
+      hasError
+        ? "border-[#B3141E] focus:border-[#B3141E] focus:ring-[#B3141E]/15"
+        : "border-[#E4DCD8] hover:border-[#C9BEB8] focus:border-[#D4202B] focus:ring-[#D4202B]/15"
+    }`;
+
   return (
-    <div id="form" className="min-h-screen bg-white py-10 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold mb-2">
-            RELDA Authorized Service Center Registration
+    <div id="form" className=" bg-[#F3EEEC] flex items-center justify-center py-16 px-4">
+      <main className="w-full max-w-[1080px] grid grid-cols-1 lg:grid-cols-12 rounded-[24px] overflow-hidden bg-white shadow-[0_24px_60px_-28px_rgba(60,30,30,0.35)]">
+        {/* Left Panel */}
+        <aside className="lg:col-span-5 relative bg-white text-[#1E1E22] p-7 sm:p-10 flex flex-col justify-center gap-6 overflow-hidden isolate border-t-[6px] border-[#D4202B]">
+          <div className="pointer-events-none absolute -right-[120px] -bottom-[120px] w-[340px] h-[340px] rounded-full bg-[#FDECEC] -z-10" />
+
+          <h1 className="text-[38px] sm:text-[48px] leading-[0.98] font-extrabold tracking-tight text-[#1E1E22] max-w-[11ch]">
+            Become a Relda service partner
           </h1>
-          <p className="text-sm text-[#99A1AF]">
-            Please fill in your details below to register as a RELDA Authorized Service Center.
+
+          <p className="text-[#625C66] text-[15.5px] leading-relaxed max-w-[36ch]">
+            Partner with Relda as an authorized service center and deliver reliable after-sales
+            support for Relda appliances in your city.
           </p>
-        </div>
 
-        {submitted && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-800 text-sm rounded-md px-4 py-3">
-            Your application has been submitted successfully.
-          </div>
-        )}
+          <ul className="space-y-4 m-0 p-0 list-none">
+            {PERKS.map((perk) => (
+              <li key={perk.title} className="flex items-start gap-3">
+                <span className="flex-none w-[22px] h-[22px] rounded-full bg-[#D4202B] text-white flex items-center justify-center mt-0.5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-3.5 h-3.5"
+                  >
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                </span>
+                <div>
+                  <div className="font-semibold text-[15.5px] text-[#1E1E22] leading-snug">
+                    {perk.title}
+                  </div>
+                  <small className="block text-[#625C66] text-[14px] font-normal mt-0.5">
+                    {perk.desc}
+                  </small>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </aside>
 
-        {submitError && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-800 text-sm rounded-md px-4 py-3">
-            {submitError}
-          </div>
-        )}
+        {/* Right Panel: Form */}
+        <section
+          className="lg:col-span-7 p-7 sm:p-10 bg-[#FAF6F4] border-t lg:border-t-0 lg:border-l border-[#E4DCD8] flex flex-col justify-center"
+          aria-live="polite"
+        >
+          {!submitted ? (
+            <form onSubmit={handleSubmit} noValidate>
+              <h2 className="text-[28px] sm:text-[32px] font-bold leading-tight text-[#1E1E22]">
+                Tell us about you
+              </h2>
+              <p className="text-[#625C66] mt-1.5 mb-6 text-[15px]">
+                Please fill in your details below to register as a RELDA Authorized Service Center.
+              </p>
 
-        <div className="bg-white rounded-xl shadow-md px-6 md:px-16 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-            <div id="field-serviceCenterName">
-              <Field label="Service Center Name" required error={errors.serviceCenterName}>
-                <TextInput
-                  placeholder="Enter service center name"
-                  value={form.serviceCenterName}
-                  onChange={setFromEvent("serviceCenterName")}
-                  error={errors.serviceCenterName}
-                />
-              </Field>
+              {submitError && (
+                <div className="mb-5 bg-red-50 border border-red-200 text-[#B3141E] text-sm rounded-xl px-4 py-3">
+                  {submitError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3.5 gap-y-4">
+                {/* Service Center Name */}
+                <div id="field-serviceCenterName">
+                  <label
+                    htmlFor="serviceCenterName"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    Service Center Name <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="serviceCenterName"
+                    type="text"
+                    autoComplete="organization"
+                    placeholder="Enter service center name"
+                    value={form.serviceCenterName}
+                    onChange={handleChange("serviceCenterName")}
+                    className={inputBaseClass(errors.serviceCenterName)}
+                  />
+                  {errors.serviceCenterName && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.serviceCenterName}</p>
+                  )}
+                </div>
+
+                {/* Contact Person Name */}
+                <div id="field-contactPerson">
+                  <label
+                    htmlFor="contactPerson"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    Contact Person Name <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="contactPerson"
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Enter contact person name"
+                    value={form.contactPerson}
+                    onChange={handleChange("contactPerson")}
+                    className={inputBaseClass(errors.contactPerson)}
+                  />
+                  {errors.contactPerson && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.contactPerson}</p>
+                  )}
+                </div>
+
+                {/* Mobile Number */}
+                <div id="field-mobile">
+                  <label
+                    htmlFor="mobile"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    Mobile Number <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="mobile"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    maxLength={10}
+                    placeholder="10-digit mobile number"
+                    value={form.mobile}
+                    onChange={handleChange("mobile")}
+                    className={inputBaseClass(errors.mobile)}
+                  />
+                  {errors.mobile && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.mobile}</p>
+                  )}
+                </div>
+
+                {/* Email ID */}
+                <div id="field-email">
+                  <label
+                    htmlFor="email"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    Email ID <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="Enter email address"
+                    value={form.email}
+                    onChange={handleChange("email")}
+                    className={inputBaseClass(errors.email)}
+                  />
+                  {errors.email && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.email}</p>
+                  )}
+                </div>
+
+                {/* City */}
+                <div id="field-city">
+                  <label
+                    htmlFor="city"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    City <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="city"
+                    type="text"
+                    autoComplete="address-level2"
+                    placeholder="Enter city"
+                    value={form.city}
+                    onChange={handleChange("city")}
+                    className={inputBaseClass(errors.city)}
+                  />
+                  {errors.city && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.city}</p>
+                  )}
+                </div>
+
+                {/* State */}
+                <div id="field-state">
+                  <label
+                    htmlFor="state"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    State <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="state"
+                    type="text"
+                    autoComplete="address-level1"
+                    placeholder="Enter state"
+                    value={form.state}
+                    onChange={handleChange("state")}
+                    className={inputBaseClass(errors.state)}
+                  />
+                  {errors.state && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.state}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto sm:min-w-[230px] font-semibold text-[16px] rounded-xl py-3.5 px-7 min-h-[50px] bg-[#D4202B] hover:bg-[#A8161F] text-white transition-all active:scale-[0.98] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#D4202B]/35 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
+                </button>
+              </div>
+
+              <p className="text-[13px] text-[#625C66] text-center mt-3.5">
+                No fee to apply. Your details stay with the Relda team.
+              </p>
+            </form>
+          ) : (
+            <div className="text-center py-6 px-2">
+              <div className="w-[84px] h-[84px] mx-auto mb-4 rounded-full bg-[#1E7A46] flex items-center justify-center text-white">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-11 h-11"
+                >
+                  <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              </div>
+              <h2 className="text-[28px] sm:text-[32px] font-bold text-[#1E1E22]">
+                Application received
+              </h2>
+              <p className="text-[#625C66] mt-1 mb-6 text-[15px]">
+                Thanks, <strong className="text-[#1E1E22]">{submittedFirstName}</strong>. Your
+                authorized service center application has been submitted successfully.
+              </p>
+              <ol className="text-left max-w-[390px] mx-auto space-y-3 p-0 list-none mb-6">
+                {[
+                  "The Relda team reviews your details and calls you.",
+                  "We discuss your service capabilities, technicians and coverage area.",
+                  "If it is a fit, we plan your service center onboarding together.",
+                ].map((step, idx) => (
+                  <li key={step} className="flex items-start gap-3 text-[15px] text-[#1E1E22]">
+                    <span className="flex-none w-[26px] h-[26px] rounded-full bg-[#D4202B] text-white flex items-center justify-center font-bold text-sm">
+                      {idx + 1}
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <button
+                type="button"
+                onClick={() => setSubmitted(false)}
+                className="text-sm font-semibold text-[#D4202B] hover:underline"
+              >
+                Submit another application
+              </button>
             </div>
-
-            <div id="field-contactPerson">
-              <Field label="Contact Person Name" required error={errors.contactPerson}>
-                <TextInput
-                  placeholder="Enter contact person name"
-                  value={form.contactPerson}
-                  onChange={setFromEvent("contactPerson")}
-                  error={errors.contactPerson}
-                />
-              </Field>
-            </div>
-
-            <div id="field-mobile">
-              <Field label="Mobile Number" required error={errors.mobile}>
-                <TextInput
-                  type="tel"
-                  placeholder="+91 XXXXXXXXXX"
-                  value={form.mobile}
-                  onChange={setFromEvent("mobile")}
-                  error={errors.mobile}
-                />
-              </Field>
-            </div>
-
-            <div id="field-email">
-              <Field label="Email ID" required error={errors.email}>
-                <TextInput
-                  type="email"
-                  placeholder="Enter email address"
-                  value={form.email}
-                  onChange={setFromEvent("email")}
-                  error={errors.email}
-                />
-              </Field>
-            </div>
-
-            <div id="field-city">
-              <Field label="City" required error={errors.city}>
-                <TextInput
-                  placeholder="Enter city"
-                  value={form.city}
-                  onChange={setFromEvent("city")}
-                  error={errors.city}
-                />
-              </Field>
-            </div>
-
-            <div id="field-state">
-              <Field label="State" required error={errors.state}>
-                <TextInput
-                  placeholder="Enter state"
-                  value={form.state}
-                  onChange={setFromEvent("state")}
-                  error={errors.state}
-                />
-              </Field>
-            </div>
-          </div>
-
-          <div className="flex justify-center md:justify-end mt-8">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="w-full md:w-auto px-10 py-2.5 rounded-md text-white text-sm font-medium bg-[#E60000] hover:bg-[#cc0000] active:bg-[#b30000] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
-            </button>
-          </div>
-        </div>
-      </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }

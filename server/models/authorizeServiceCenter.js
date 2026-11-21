@@ -107,7 +107,12 @@ const serviceCenterSchema = new mongoose.Schema(
       type: String,
       default: "Pending",
       enum: ["Pending", "Approved", "Rejected"]
-    }
+    },
+    rejectionReason: {
+    type: String,
+    trim: true,
+    default: "",
+    },
   },
   {
     timestamps: true

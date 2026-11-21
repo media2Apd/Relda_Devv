@@ -1,11 +1,54 @@
 
 const authorizeDealer = require("../../models/authorizeDealer.js");
+
 const {
   upload,
   deleteMultipleFromCloudinary,
 } = require("../../config/cloudinaryUpload.js");
 
-// Multer middleware for admin document uploads
+const sendApplicationNotification = require("../../utils/sendApplicationNotification.js");
+
+// ============================================
+// COMMON DEALER NOTIFICATION CONFIGURATION
+// ============================================
+
+const APPLICATION_TYPE = "Authorized Dealer";
+
+const ADMIN_EMAILS = [
+  process.env.ADMIN_EMAIL,
+  process.env.ADMIN_EMAIL_2,
+  process.env.ADMIN_EMAIL_3,
+].filter(Boolean);
+
+// Common notification helper for Dealer
+const notifyApplication = async (event, application) => {
+  try {
+    if (!application) {
+      console.warn(`Dealer ${event} notification skipped: application missing`);
+      return;
+    }
+
+    await sendApplicationNotification({
+      event,
+      customerEmail: application.email,
+      customerName: application.proprietorName,
+      applicationType: APPLICATION_TYPE,
+      applicationId: application._id,
+       rejectionReason: application.rejectionReason,
+      adminEmails: ADMIN_EMAILS,
+    });
+  } catch (error) {
+    console.error(
+      `Dealer ${event} notification failed:`,
+      error.message
+    );
+  }
+};
+
+// ============================================
+// MULTER MIDDLEWARE
+// ============================================
+
 const uploadDealerFields = upload.fields([
   { name: "shopFrontPhoto", maxCount: 1 },
   { name: "shopInteriorPhoto", maxCount: 1 },
@@ -13,8 +56,10 @@ const uploadDealerFields = upload.fields([
   { name: "visitingCard", maxCount: 1 },
 ]);
 
+// ============================================
 // CREATE DEALER APPLICATION
-// Website submits only 5 fields
+// ============================================
+
 const create = async (req, res) => {
   try {
     const { proprietorName, email, mobile, city, state } = req.body;
@@ -27,13 +72,16 @@ const create = async (req, res) => {
       state,
     });
 
-    res.status(201).json({
+    // Send customer and admin submission notifications
+    await notifyApplication("SUBMITTED", newDealer);
+
+    return res.status(201).json({
       success: true,
       message: "Dealer application submitted successfully",
       data: newDealer,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error creating dealer application",
       error: error.message,
@@ -41,18 +89,21 @@ const create = async (req, res) => {
   }
 };
 
+// ============================================
 // GET ALL DEALERS
+// ============================================
+
 const getAll = async (req, res) => {
   try {
     const dealers = await authorizeDealer.find().sort({ createdAt: -1 });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Dealers retrieved successfully",
       data: dealers,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error fetching dealers",
       error: error.message,
@@ -60,7 +111,10 @@ const getAll = async (req, res) => {
   }
 };
 
+// ============================================
 // GET DEALER BY ID
+// ============================================
+
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -74,13 +128,13 @@ const getById = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Dealer retrieved successfully",
       data: dealer,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error fetching dealer",
       error: error.message,
@@ -88,8 +142,10 @@ const getById = async (req, res) => {
   }
 };
 
+// ============================================
 // UPDATE DEALER
-// Admin can update all business details
+// ============================================
+
 const update = async (req, res) => {
   let uploadedPublicIds = [];
 
@@ -143,7 +199,6 @@ const update = async (req, res) => {
 
       updateData.documentSnapshot = [documentSnapshot];
 
-      // Delete replaced files after successful database update
       const updated = await authorizeDealer.findByIdAndUpdate(
         id,
         { $set: updateData },
@@ -154,9 +209,20 @@ const update = async (req, res) => {
         throw new Error("Dealer update failed");
       }
 
-      if (oldPublicIds.length > 0) {
-        await deleteMultipleFromCloudinary(oldPublicIds);
-      }
+      // Delete replaced files after successful database update
+  if (oldPublicIds.length > 0) {
+  try {
+    await deleteMultipleFromCloudinary(oldPublicIds);
+  } catch (cleanupError) {
+    console.error(
+      "Old Cloudinary document cleanup failed:",
+      cleanupError.message
+    );
+  }
+}
+
+      // Send update notification
+      await notifyApplication("UPDATED", updated);
 
       return res.status(200).json({
         success: true,
@@ -165,15 +231,21 @@ const update = async (req, res) => {
       });
     }
 
-    // Update only supplied fields.
-    // Existing values are preserved when fields are omitted.
+    // Update only supplied fields
     const updated = await authorizeDealer.findByIdAndUpdate(
       id,
       { $set: updateData },
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({
+    if (!updated) {
+      throw new Error("Dealer update failed");
+    }
+
+    // Send update notification
+    await notifyApplication("UPDATED", updated);
+
+    return res.status(200).json({
       success: true,
       message: "Dealer updated successfully",
       data: updated,
@@ -188,7 +260,7 @@ const update = async (req, res) => {
       }
     }
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error updating dealer",
       error: error.message,
@@ -196,7 +268,91 @@ const update = async (req, res) => {
   }
 };
 
+// ============================================
+// UPDATE DEALER STATUS
+// ============================================
+
+
+const updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, rejectionReason } = req.body;
+
+    const allowedStatuses = ["Pending", "Approved", "Rejected"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid dealer status",
+      });
+    }
+
+    if (
+      status === "Rejected" &&
+      (!rejectionReason || !rejectionReason.trim())
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Rejection reason is required",
+      });
+    }
+
+    const existingDealer = await authorizeDealer.findById(id);
+
+    if (!existingDealer) {
+      return res.status(404).json({
+        success: false,
+        message: "Dealer not found",
+      });
+    }
+
+    const previousStatus = existingDealer.status;
+
+    existingDealer.status = status;
+
+    if (status === "Rejected") {
+      existingDealer.rejectionReason = rejectionReason.trim();
+    } else if (status === "Approved") {
+      existingDealer.rejectionReason = "";
+    }
+
+    await existingDealer.save();
+
+    if (previousStatus !== status) {
+      if (status === "Approved") {
+        await notifyApplication("APPROVED", existingDealer);
+      } else if (status === "Rejected") {
+        await notifyApplication("REJECTED", existingDealer);
+      }
+    } else if (
+      status === "Rejected" &&
+      previousStatus === "Rejected" &&
+      existingDealer.isModified("rejectionReason")
+    ) {
+      // No additional status email when the rejection reason is unchanged.
+      // If you want to notify admins and customer when the reason changes,
+      // handle that as a separate event.
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Dealer status updated successfully",
+      data: existingDealer,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error updating dealer status",
+      error: error.message,
+    });
+  }
+};
+
+
+// ============================================
 // DELETE DEALER
+// ============================================
+
 const deleteDealer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -234,12 +390,12 @@ const deleteDealer = async (req, res) => {
       await deleteMultipleFromCloudinary(publicIds);
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Dealer deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error deleting dealer",
       error: error.message,
@@ -247,11 +403,16 @@ const deleteDealer = async (req, res) => {
   }
 };
 
+// ============================================
+// EXPORTS
+// ============================================
+
 module.exports = {
   uploadDealerFields,
   create,
   getAll,
   getById,
   update,
+  updateStatus,
   deleteDealer,
 };

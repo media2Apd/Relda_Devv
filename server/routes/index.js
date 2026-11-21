@@ -326,6 +326,7 @@ router.post('/distributor/create', controller.uploadCenterFields, controller.cre
 router.get('/distributor/getall',authToken,isAdmin, controller.getAll);
 router.get('/distributor/getbyid/:id', controller.getById);
 router.put('/distributor/update/:id', controller.uploadCenterFields, controller.update);
+router.patch( "/distributor/status/:id", controller.updateStatus);
 router.delete('/distributor/delete/:id', controller.deleteCenter);
 
 
@@ -335,6 +336,7 @@ router.post("/dealer/create", authorizeDealerController.uploadDealerFields, auth
 router.get("/dealer/getall",authToken,isAdmin, authorizeDealerController.getAll);
 router.get("/dealer/getbyid/:id", authorizeDealerController.getById);
 router.put("/dealer/update/:id", authorizeDealerController.uploadDealerFields, authorizeDealerController.update);
+router.patch("/dealer/status/:id",authorizeDealerController.updateStatus);
 router.delete("/dealer/delete/:id", authorizeDealerController.deleteDealer);
 
 // Sync endpoints
@@ -357,6 +359,7 @@ router.post("/brandshop/create", brandShopController.uploadBrandShopFields, bran
 router.get("/brandshop/getall",authToken,isAdmin, brandShopController.getAll);
 router.get("/brandshop/getbyid/:id", brandShopController.getById);
 router.put("/brandshop/update/:id", brandShopController.uploadBrandShopFields, brandShopController.update);
+router.patch("/brand-shop/status/:id",brandShopController.updateStatus);
 router.delete("/brandshop/delete/:id", brandShopController.deleteBrandShop);
 
 
@@ -366,6 +369,7 @@ router.post("/servicecenter/create", serviceCenterController.uploadServiceCenter
 router.get("/servicecenter/getall",authToken,isAdmin, serviceCenterController.getAll);
 router.get("/servicecenter/getbyid/:id", serviceCenterController.getById);
 router.put("/servicecenter/update/:id", serviceCenterController.uploadServiceCenterFields, serviceCenterController.update);
+router.patch("/servicecenter/status/:id", serviceCenterController.updateStatus);
 router.delete("/servicecenter/delete/:id", serviceCenterController.deleteServiceCenter);
 
 module.exports = router;

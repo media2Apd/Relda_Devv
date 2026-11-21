@@ -846,7 +846,6 @@
 //   );
 // }
 
-
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -860,71 +859,42 @@ const initialState = {
   state: "",
 };
 
-function getInputClasses(hasError) {
-  return `w-full px-2 py-2 border-b outline-none bg-transparent text-sm placeholder-[#777777]/50 transition-colors duration-200 ${
-    hasError ? "border-brand-primary" : "border-brand-productCardBorder"
-  }`;
-}
-
-const labelClasses = "text-sm font-medium";
-
-function Field({ label, required, error, children }) {
-  return (
-    <div>
-      <label className={labelClasses}>
-        {label} {required && <span className="text-brand-primary">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-xs text-brand-primary mt-1">{error}</p>}
-    </div>
-  );
-}
-
-function TextInput({
-  label,
-  required,
-  placeholder,
-  name,
-  value,
-  onChange,
-  type = "text",
-  error,
-}) {
-  return (
-    <Field label={label} required={required} error={error}>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={getInputClasses(!!error)}
-      />
-    </Field>
-  );
-}
-
-function SectionTitle({ children }) {
-  return (
-    <h2 className="text-lg sm:text-xl font-semibold mt-4 mb-6 first:mt-0">
-      {children}
-    </h2>
-  );
-}
+const PERKS = [
+  {
+    title: "A growing home appliance range",
+    desc: "Televisions, fans and kitchen essentials under one brand.",
+  },
+  {
+    title: "Brand shop support",
+    desc: "Shop branding, product display and launch guidance.",
+  },
+  {
+    title: "Product and sales training",
+    desc: "Your team learns the range before the shop opens.",
+  },
+];
 
 export default function BrandShopForm() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [submittedFirstName, setSubmittedFirstName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    let value = e.target.value;
+
+    if (name === "mobile") {
+      value = value.replace(/\D/g, "").slice(0, 10);
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -939,7 +909,7 @@ export default function BrandShopForm() {
 
     if (!form.email.trim()) {
       newErrors.email = "Email address is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
       newErrors.email = "Enter a valid email address.";
     }
 
@@ -978,7 +948,6 @@ export default function BrandShopForm() {
     try {
       setSubmitting(true);
 
-      // Using FormData to maintain seamless multipart compatibility with backend controllers
       const formData = new FormData();
       formData.append("proprietorName", form.proprietorName.trim());
       formData.append("email", form.email.trim());
@@ -996,6 +965,8 @@ export default function BrandShopForm() {
         throw new Error(response.data.message || "Submission failed.");
       }
 
+      const firstName = form.proprietorName.trim().split(" ")[0];
+      setSubmittedFirstName(firstName);
       setSubmitted(true);
       toast.success("Thank you! Your application has been submitted.");
       setForm(initialState);
@@ -1012,102 +983,258 @@ export default function BrandShopForm() {
     }
   };
 
+  const inputBaseClass = (hasError) =>
+    `w-full bg-white text-[#1E1E22] placeholder-[#8F8992] border-[1.5px] rounded-xl px-3.5 py-3 min-h-[48px] text-[15px] transition-all duration-150 focus:outline-none focus:ring-4 ${
+      hasError
+        ? "border-[#B3141E] focus:border-[#B3141E] focus:ring-[#B3141E]/15"
+        : "border-[#E4DCD8] hover:border-[#C9BEB8] focus:border-[#D4202B] focus:ring-[#D4202B]/15"
+    }`;
+
   return (
-    <div id="form" className="min-h-screen bg-white sm:pb-16 lg:py-16 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* HEADER */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold mb-2">
-            Form for RELDA Brand Shop
+    <div id="form" className=" bg-[#F3EEEC] flex items-center justify-center py-16 px-4">
+      <main className="w-full max-w-[1080px] grid grid-cols-1 lg:grid-cols-12 rounded-[24px] overflow-hidden bg-white shadow-[0_24px_60px_-28px_rgba(60,30,30,0.35)]">
+        {/* Left Panel */}
+        <aside className="lg:col-span-5 relative bg-white text-[#1E1E22] p-7 sm:p-10 flex flex-col justify-center gap-6 overflow-hidden isolate border-t-[6px] border-[#D4202B]">
+          <div className="pointer-events-none absolute -right-[120px] -bottom-[120px] w-[340px] h-[340px] rounded-full bg-[#FDECEC] -z-10" />
+
+          <h1 className="text-[38px] sm:text-[48px] leading-[0.98] font-bold tracking-tight text-[#1E1E22] max-w-[11ch]">
+            Apply for a Relda Brand Shop
           </h1>
-          <p className="text-sm text-[#99A1AF]">
-            Please fill in the details below to apply for a RELDA Authorized
-            Brand Shop.
+
+          <p className="text-[#625C66] text-[15.5px] leading-relaxed max-w-[36ch]">
+            Open a Relda brand shop in your city and bring smart, stylish, energy-efficient
+            appliances to your customers.
           </p>
-        </div>
 
-        {/* CARD */}
-        <form
-          onSubmit={handleSubmit}
-          noValidate
-          className="bg-white rounded-xl shadow-md px-6 md:px-16 py-8"
+          <ul className="space-y-4 m-0 p-0 list-none">
+            {PERKS.map((perk) => (
+              <li key={perk.title} className="flex items-start gap-3">
+                <span className="flex-none w-[22px] h-[22px] rounded-full bg-[#D4202B] text-white flex items-center justify-center mt-0.5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-3.5 h-3.5"
+                  >
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                </span>
+                <div>
+                  <div className="font-semibold text-[15.5px] text-[#1E1E22] leading-snug">
+                    {perk.title}
+                  </div>
+                  <small className="block text-[#625C66] text-[14px] font-normal mt-0.5">
+                    {perk.desc}
+                  </small>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* Right Panel: Form */}
+        <section
+          className="lg:col-span-7 p-7 sm:p-10 bg-[#FAF6F4] border-t lg:border-t-0 lg:border-l border-[#E4DCD8] flex flex-col justify-center"
+          aria-live="polite"
         >
-          {/* APPLICANT & LOCATION INFORMATION */}
-          <SectionTitle>Applicant &amp; Location Information</SectionTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mb-8">
-            <TextInput
-              label="Owner / Proprietor Name"
-              required
-              placeholder="Enter owner name"
-              name="proprietorName"
-              value={form.proprietorName}
-              onChange={handleChange}
-              error={errors.proprietorName}
-            />
-            <TextInput
-              label="Email ID"
-              required
-              placeholder="Enter email address"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              type="email"
-              error={errors.email}
-            />
-            <TextInput
-              label="Mobile Number"
-              required
-              placeholder="+91 XXXXXXXXXX"
-              name="mobile"
-              value={form.mobile}
-              onChange={handleChange}
-              type="tel"
-              error={errors.mobile}
-            />
-            <TextInput
-              label="City"
-              required
-              placeholder="Enter city"
-              name="city"
-              value={form.city}
-              onChange={handleChange}
-              error={errors.city}
-            />
-            <TextInput
-              label="State"
-              required
-              placeholder="Enter state"
-              name="state"
-              value={form.state}
-              onChange={handleChange}
-              error={errors.state}
-            />
-          </div>
+          {!submitted ? (
+            <form onSubmit={handleSubmit} noValidate>
+              <h2 className="text-[28px] sm:text-[32px] font-bold leading-tight text-[#1E1E22]">
+                Tell us about you
+              </h2>
+              <p className="text-[#625C66] mt-1.5 mb-6 text-[15px]">
+                Please fill in the details below to apply for a RELDA Authorized Brand Shop.
+              </p>
 
-          {apiError && (
-            <p className="mb-6 text-sm font-medium text-brand-primary">
-              {apiError}
-            </p>
+              {apiError && (
+                <div className="mb-5 bg-red-50 border border-red-200 text-[#B3141E] text-sm rounded-xl px-4 py-3">
+                  {apiError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3.5 gap-y-4">
+                {/* Owner / Proprietor Name */}
+                <div data-error={!!errors.proprietorName}>
+                  <label
+                    htmlFor="proprietorName"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    Owner / Proprietor Name <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="proprietorName"
+                    type="text"
+                    name="proprietorName"
+                    autoComplete="name"
+                    placeholder="Enter owner name"
+                    value={form.proprietorName}
+                    onChange={handleChange}
+                    className={inputBaseClass(errors.proprietorName)}
+                  />
+                  {errors.proprietorName && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.proprietorName}</p>
+                  )}
+                </div>
+
+                {/* Mobile Number */}
+                <div data-error={!!errors.mobile}>
+                  <label
+                    htmlFor="mobile"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    Mobile Number <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="mobile"
+                    type="tel"
+                    name="mobile"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    maxLength={10}
+                    placeholder="10-digit mobile number"
+                    value={form.mobile}
+                    onChange={handleChange}
+                    className={inputBaseClass(errors.mobile)}
+                  />
+                  {errors.mobile && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.mobile}</p>
+                  )}
+                </div>
+
+                {/* Email ID */}
+                <div data-error={!!errors.email}>
+                  <label
+                    htmlFor="email"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    Email ID <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    placeholder="Enter email address"
+                    value={form.email}
+                    onChange={handleChange}
+                    className={inputBaseClass(errors.email)}
+                  />
+                  {errors.email && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.email}</p>
+                  )}
+                </div>
+
+                {/* City */}
+                <div data-error={!!errors.city}>
+                  <label
+                    htmlFor="city"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    City <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="city"
+                    type="text"
+                    name="city"
+                    autoComplete="address-level2"
+                    placeholder="Enter city"
+                    value={form.city}
+                    onChange={handleChange}
+                    className={inputBaseClass(errors.city)}
+                  />
+                  {errors.city && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.city}</p>
+                  )}
+                </div>
+
+                {/* State (Full Width) */}
+                <div data-error={!!errors.state} className="sm:col-span-2">
+                  <label
+                    htmlFor="state"
+                    className="block font-semibold text-sm text-[#1E1E22] mb-1.5"
+                  >
+                    State <span className="text-[#D4202B]">*</span>
+                  </label>
+                  <input
+                    id="state"
+                    type="text"
+                    name="state"
+                    autoComplete="address-level1"
+                    placeholder="Enter state"
+                    value={form.state}
+                    onChange={handleChange}
+                    className={inputBaseClass(errors.state)}
+                  />
+                  {errors.state && (
+                    <p className="text-[#B3141E] text-[13px] mt-1">{errors.state}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full sm:w-auto sm:min-w-[230px] font-semibold text-[16px] rounded-xl py-3.5 px-7 min-h-[50px] bg-[#D4202B] hover:bg-[#A8161F] text-white transition-all active:scale-[0.98] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#D4202B]/35 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {submitting ? "Submitting..." : "Submit Application"}
+                </button>
+              </div>
+
+              <p className="text-[13px] text-[#625C66] text-center mt-3.5">
+                No fee to apply. Your details stay with the Relda team.
+              </p>
+            </form>
+          ) : (
+            <div className="text-center py-6 px-2">
+              <div className="w-[84px] h-[84px] mx-auto mb-4 rounded-full bg-[#1E7A46] flex items-center justify-center text-white">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-11 h-11"
+                >
+                  <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              </div>
+              <h2 className="text-[28px] sm:text-[32px] font-bold text-[#1E1E22]">
+                Application received
+              </h2>
+              <p className="text-[#625C66] mt-1 mb-6 text-[15px]">
+                Thanks, <strong className="text-[#1E1E22]">{submittedFirstName}</strong>. Your
+                authorized brand shop application has been submitted successfully.
+              </p>
+              <ol className="text-left max-w-[390px] mx-auto space-y-3 p-0 list-none mb-6">
+                {[
+                  "The Relda team reviews your details and calls you.",
+                  "We discuss your shop space, range and investment.",
+                  "If it is a fit, we plan your brand shop setup together.",
+                ].map((step, idx) => (
+                  <li key={step} className="flex items-start gap-3 text-[15px] text-[#1E1E22]">
+                    <span className="flex-none w-[26px] h-[26px] rounded-full bg-[#D4202B] text-white flex items-center justify-center font-bold text-sm">
+                      {idx + 1}
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <button
+                type="button"
+                onClick={() => setSubmitted(false)}
+                className="text-sm font-semibold text-[#D4202B] hover:underline"
+              >
+                Submit another application
+              </button>
+            </div>
           )}
-
-          {submitted && (
-            <p className="mb-6 text-sm font-medium text-green-600">
-              Thank you! Your application has been submitted.
-            </p>
-          )}
-
-          {/* BUTTON */}
-          <div className="flex justify-center md:justify-end">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full md:w-auto px-10 py-2.5 rounded-md text-white text-sm font-medium bg-brand-primary hover:bg-brand-primaryHover disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-            >
-              {submitting ? "Submitting..." : "Submit Application"}
-            </button>
-          </div>
-        </form>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

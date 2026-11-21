@@ -121,6 +121,8 @@ const SummaryApi = {
         url: `${backendDomain}/api/getreg`,
         method: 'get'
     },
+
+      // Dealer APIs
     authorisedDealer: {
         url: `${backendDomain}/api/dealer/create`,
         method: 'post'
@@ -129,6 +131,33 @@ const SummaryApi = {
         url: `${backendDomain}/api/dealer`,
         method: 'get'
     },
+
+// Get All Dealers
+authorizedAdminDealer: {
+    url: `${backendDomain}/api/dealer/getall`,
+    method: "get"
+},
+// Get Dealer By ID
+authorizedAdminDealerById: (id) => ({
+    url: `${backendDomain}/api/dealer/getbyid/${id}`,
+    method: "get"
+}),
+
+// Update Dealer
+updateDealer: (id) => ({
+    url: `${backendDomain}/api/dealer/update/${id}`,
+    method: "put"
+}),
+
+updateDealerStatus: (id) => ({
+  url: `${backendDomain}/api/dealer/status/${id}`,
+  method: "patch",
+}),
+// Delete Dealer
+deleteDealer: (id) => ({
+    url: `${backendDomain}/api/dealer/delete/${id}`,
+    method: "delete"
+}),
     upload: {
         url: `${backendDomain}/uploads`
     },
@@ -471,14 +500,65 @@ const SummaryApi = {
         url: `${backendDomain}/api/view-all-products-by-category`,
         method: "get",
     },  
-    distributor:{
-        url:`${backendDomain}/api/distributor/create`,
-        method:"post"
+
+    // Distributor APIs
+
+// Create Distributor
+authorizedDistributor: {
+    url: `${backendDomain}/api/distributor/create`,
+    method: "post"
+},
+
+// Get Distributor By ID
+authorizedAdminDistributorById: (id) => ({
+    url: `${backendDomain}/api/distributor/getbyid/${id}`,
+    method: "get"
+}),
+
+  authorizeAdminDistributor:{
+        url:`${backendDomain}/api/distributor/getall`,
+        method:"get"
     },
+
+// Update Distributor
+updateDistributor: (id) => ({
+    url: `${backendDomain}/api/distributor/update/${id}`,
+    method: "put"
+}),
+updateDistributorStatus: (id) => ({
+  url: `${backendDomain}/api/distributor/status/${id}`,
+  method: "patch",
+}),
+
+// Delete Distributor
+deleteDistributor: (id) => ({
+    url: `${backendDomain}/api/distributor/delete/${id}`,
+    method: "delete"
+}),
       serviceCenter:{
         url:`${backendDomain}/api/servicecenter/create`,
         method:"post"
     },
+          authorizeAdminServicecenter:{
+        url:`${backendDomain}/api/servicecenter/getall`,
+        method:"get"
+    },
+    getServiceCenterById: (id) => ({
+  url: `${backendDomain}/api/servicecenter/getbyid/${id}`,
+  method: "get",
+}),
+updateServiceCenter: (id) => ({
+  url: `${backendDomain}/api/servicecenter/update/${id}`,
+  method: "put",
+}),
+updateServiceCenterStatus: (id) => ({
+  url: `${backendDomain}/api/servicecenter/status/${id}`,
+  method: "patch",
+}),
+deleteServiceCenter: (id) => ({
+  url: `${backendDomain}/api/servicecenter/delete/${id}`,
+  method: "delete",
+}),
        brandShop:{
         url:`${backendDomain}/api/brandshop/create`,
         method:"post"
@@ -488,18 +568,34 @@ const SummaryApi = {
          url:`${backendDomain}/api/brandshop/getall`,
          method:"get"
     },
+// Get Brand Shop by ID
+authorizedAdminBrandshopById: (id) => ({
+    url: `${backendDomain}/api/brandshop/getbyid/${id}`,
+    method: "get"
+}),
+
+// Update Brand Shop
+updateBrandShop: (id) => ({
+    url: `${backendDomain}/api/brandshop/update/${id}`,
+    method: "put"
+}),
+
+updateBrandShopStatus: (id) => ({
+  url: `${backendDomain}/api/brand-shop/status/${id}`,
+  method: "patch",
+}),
+
+// Delete Brand Shop
+deleteBrandShop: (id) => ({
+    url: `${backendDomain}/api/brandshop/delete/${id}`,
+    method: "delete"
+}),
     authorizeAdminDealer:{
         url:`${backendDomain}/api/dealer/getall`,
         method:"get"
     },
-     authorizeAdminDistributor:{
-        url:`${backendDomain}/api/distributor/getall`,
-        method:"get"
-    },
-      authorizeAdminServicecenter:{
-        url:`${backendDomain}/api/servicecenter/getall`,
-        method:"get"
-    },
+   
+
     deleteProduct: (productId) => ({
         url: `${backendDomain}/api/delete-product/${productId}`,
         method: 'delete'

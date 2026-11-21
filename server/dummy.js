@@ -1653,7 +1653,7 @@ const axios = require("axios");
 const { getZohoHeaders, setAccessToken } = require("../config/zohoHeaders");
 const { refreshZohoAccessToken } = require("./zohoTokenRefresh.service");
 
-const ZOHO_BASE = "https://www.zohoapis.in/inventory/v1";
+// const ZOHO_BASE = "https://www.zohoapis.in/inventory/v1";
 
 async function zohoRequest(config) {
   try {
@@ -1864,5 +1864,5 @@ exports.updateZohoCustomer = async (contactId, data) => {
   }
 };
 
-mobile email am store agala da deii if sale in hand vanthalea nee ivoice ah close pannidanum da deii and then innonu enaku zoho books la razorpay ah integrate panniruken payment anga capture aytunalea zoho books la epd reflect agum antha invoice ku reflect aganum da deii 
-aprm 3477920000000210001 ithu test account oda ware house 
+// mobile email am store agala da deii if sale in hand vanthalea nee ivoice ah close pannidanum da deii and then innonu enaku zoho books la razorpay ah integrate panniruken payment anga capture aytunalea zoho books la epd reflect agum antha invoice ku reflect aganum da deii 
+// aprm 3477920000000210001 ithu test account oda ware house 

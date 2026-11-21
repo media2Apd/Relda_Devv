@@ -33,32 +33,32 @@
 //   });
 
 //   module.exports = transporter
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  host: "smtpout.secureserver.net", // Replace if using a different provider
+  host: "smtpout.secureserver.net",
   port: 465,
-  secure: true, // true for 465, false for other ports
+  secure: true,
   auth: {
     user: process.env.EMAIL1,
     pass: process.env.PASSWORD1,
   },
-  tls: {
-    rejectUnauthorized: false, // Prevent issues with self-signed certificates
-  },
-  debug: true, // Enable debug output
+  // logger: true,
+  // debug: true,
 });
 
 transporter.verify((error, success) => {
   if (error) {
-    console.error("Transporter Verification Error:", error);
+    console.error("SMTP Verification Error:", error.message);
   } else {
-    console.log("Transporter is ready to send emails!");
+    console.log("SMTP transporter is ready!");
   }
 });
 
 module.exports = transporter;
+
 
 // // config/nodemailerConfig.js
 // const nodemailer = require('nodemailer');
