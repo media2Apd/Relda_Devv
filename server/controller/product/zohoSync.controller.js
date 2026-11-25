@@ -402,7 +402,10 @@
 // };
 
 const productModel = require("../../models/productModel");
-const { fetchZohoItems } = require("../../services/zohoInventory.service");
+const {
+  fetchZohoItems,
+  fetchZohoCompositeItems
+} = require("../../services/zohoInventory.service");
 const { uploadZohoImageToCloudinary } = require("../../services/zohoImageToCloudinary.service");
 const {
   resolveGSTFromItem,
@@ -411,8 +414,20 @@ const {
 
 exports.syncZohoVariantsAsProducts = async () => {
   try {
-    const items = await fetchZohoItems();
-    console.log("📦 Fetched ZOHO items:", items.length);
+    const [regularItems, compositeItems] = await Promise.all([
+      fetchZohoItems(),
+      fetchZohoCompositeItems()
+    ]);
+    const items = [
+      ...regularItems,
+      ...compositeItems.map(item => ({
+        ...item,
+        item_id: item.composite_item_id
+      }))
+    ];
+    console.log(
+      `📦 Fetched ZOHO items: ${regularItems.length} regular, ${compositeItems.length} composite`
+    );
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -489,18 +504,22 @@ exports.syncZohoVariantsAsProducts = async () => {
 
     console.log("🎉 Zoho products synced safely (Categories & Images preserved)!");
   } catch (err) {
-    console.error("❌ Zoho product sync failed:", err.message);
+    console.error("❌ Zoho product sync failed:", {
+      status: err.response?.status,
+      url: err.config?.url,
+      response: err.response?.data || err.message
+    });
     throw err;
   }
 };
 
 exports.manualZohoProductSync = async (req, res) => {
   try {
-    syncZohoVariantsAsProducts(); // fire & forget
+    await exports.syncZohoVariantsAsProducts();
 
     return res.json({
       success: true,
-      message: "Zoho product sync triggered"
+      message: "Zoho products synced successfully"
     });
   } catch (err) {
     return res.status(500).json({

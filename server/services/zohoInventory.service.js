@@ -41,28 +41,31 @@ const axios = require("axios")
 const { getZohoHeaders, setAccessToken } = require("../config/zohoHeaders")
 const { refreshZohoAccessToken } = require("./zohoTokenRefresh.service")
 
-async function zohoRequest(url, method = "GET", data = null) {
+async function zohoRequest(config) {
+  const requestConfig = {
+    ...config,
+    headers: {
+      ...getZohoHeaders(),
+      ...config.headers
+    }
+  };
+
   try {
-    return await axios({
-      url,
-      method,
-      data,
-      headers: getZohoHeaders()
-    })
+    return await axios(requestConfig);
   } catch (err) {
-    // Token expired
     if (err.response?.status === 401) {
-      const newToken = await refreshZohoAccessToken()
-      setAccessToken(newToken)
+      const newToken = await refreshZohoAccessToken();
+      setAccessToken(newToken);
 
       return await axios({
-        url,
-        method,
-        data,
-        headers: getZohoHeaders()
-      })
+        ...requestConfig,
+        headers: {
+          ...getZohoHeaders(),
+          ...config.headers
+        }
+      });
     }
-    throw err
+    throw err;
   }
 }
 
@@ -122,6 +125,44 @@ exports.fetchZohoItems = async () => {
   return allItems;
 };
 
+exports.fetchZohoCompositeItems = async () => {
+  const allItems = [];
+  let page = 1;
+  const PER_PAGE = 200;
+
+  while (true) {
+    const res = await zohoRequest({
+      method: "GET",
+      url: "https://www.zohoapis.in/inventory/v1/compositeitems",
+      params: {
+        page,
+        per_page: PER_PAGE,
+        filter_by: "Status.All"
+      }
+    });
+
+    const items = res.data?.composite_items || [];
+
+    console.log(
+      `📄 Zoho Composite Items Page ${page} → ${items.length} items fetched`
+    );
+
+    allItems.push(...items);
+
+    if (items.length < PER_PAGE) {
+      break;
+    }
+
+    page++;
+  }
+
+  console.log(
+    `📦 TOTAL COMPOSITE ITEMS FETCHED FROM ZOHO: ${allItems.length}`
+  );
+
+  return allItems;
+};
+
 
 // exports.fetchZohoItems = async () => {
 //   const res = await axios.get(
@@ -152,20 +193,7 @@ exports.createZohoItem = async (product) => {
   );
 
   return res.data.item;
-};   
-async function zohoRequest(config) {
-  try {
-    return await axios(config);
-  } catch (err) {
-    if (err.response?.status === 401) {
-      const newToken = await refreshZohoAccessToken();
-      setAccessToken(newToken);
-      config.headers = getZohoHeaders();
-      return await axios(config);
-    }
-    throw err;
-  }
-}
+};
 
 exports.createZohoSalesOrder = async ({
   customerId,

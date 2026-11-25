@@ -3,11 +3,11 @@
 const { syncZohoVariantsAsProducts } = require("./zohoSync.controller");
 exports.manualZohoProductSync = async (req, res) => {
   try {
-    syncZohoVariantsAsProducts(); // fire & forget
+    await syncZohoVariantsAsProducts();
 
     return res.json({
       success: true,
-      message: "Zoho product sync triggered"
+      message: "Zoho products synced successfully"
     });
   } catch (err) {
     return res.status(500).json({
